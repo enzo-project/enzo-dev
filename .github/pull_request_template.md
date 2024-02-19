@@ -19,9 +19,9 @@ If you are able to do so, please do not create the PR out of main, but out of a 
 
 Please provide at least 1-2 sentences describing the pull request in detail.  Why is this change required?  What problem does it solve?
 
-If it fixes an open issue, please link to the issue here.
+If it fixes an open issue, please link to the issue here.  Github will [autolink](https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting/autolinked-references-and-urls) if prefixed with a hash, e.g. #42.
 
-If your PR depends on another PR, please link to the PR here.
+If your PR depends on another PR, please link to the PR here [github autolinking syntax](https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting/autolinked-references-and-urls).
 
 [ ] This is a major change or addition.  Will require two reviewers.
 
