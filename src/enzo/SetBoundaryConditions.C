@@ -1,3 +1,4 @@
+
 /***********************************************************************
 /
 /  SET BOUNDARY CONDITIONS (CALLED BY EVOLVE LEVEL)
@@ -68,7 +69,6 @@ int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
  
   int loopEnd = (ShearingBoundaryDirection != -1) ? 2 : 1;
   
- 
   int grid1, grid2, StartGrid, EndGrid, loop;
   
   LCAPERF_START("SetBoundaryConditions");
@@ -81,16 +81,15 @@ int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
 #endif
   
    
-
     if (loop == 0) {   
 
       TIME_MSG("Interpolating boundaries from parent");
-  
     for (StartGrid = 0; StartGrid < NumberOfGrids; StartGrid += GRIDS_PER_LOOP) {
+
+      EndGrid = min(StartGrid + GRIDS_PER_LOOP, NumberOfGrids);
 	
       if (traceMPI) fprintf(tracePtr, "SBC loop\n");
 	
-      EndGrid = min(StartGrid + GRIDS_PER_LOOP, NumberOfGrids);
 	
       /* -------------- FIRST PASS ----------------- */
       /* Here, we just generate the calls to generate the receive buffers,
@@ -100,14 +99,14 @@ int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
 	
       CommunicationDirection = COMMUNICATION_POST_RECEIVE;
       CommunicationReceiveIndex = 0;
-     
+#pragma omp parallel default(shared) 
+{
+#pragma omp for
       for (grid1 = StartGrid; grid1 < EndGrid; grid1++) {
 	
 	/* a) Interpolate boundaries from the parent grid or set external
 	   boundary conditions. */
-	
-	CommunicationReceiveCurrentDependsOn = COMMUNICATION_NO_DEPENDENCE;
-	
+	    CommunicationReceiveCurrentDependsOn = COMMUNICATION_NO_DEPENDENCE;
 
 	  if (level == 0) {
     	    Grids[grid1]->GridData->SetExternalBoundaryValues(Exterior);
@@ -122,8 +121,10 @@ int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
 	/* -------------- SECOND PASS ----------------- */
 	/* Now we generate all the sends, and do all the computation
 	   for grids which are on the same processor as well. */
-
+#pragma omp single
       CommunicationDirection = COMMUNICATION_SEND;
+
+#pragma omp for
       for (grid1 = StartGrid; grid1 < EndGrid; grid1++) {
 
 	/* a) Interpolate boundaries from the parent grid or set
@@ -135,6 +136,7 @@ int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
             
       }
       // ENDFOR grids
+} //end omp parallel section
 
 	//Grids[StartGrid]->GridData->PrintToScreenBoundaries(0);
 
@@ -211,7 +213,7 @@ int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
     } // end loop over batchs of grids
 
    // ENDFOR loop (for ShearingBox)
- 
+
     /* c) Apply external reflecting boundary conditions, if needed.  */
 
   for (grid1 = 0; grid1 < NumberOfGrids; grid1++)

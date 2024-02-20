@@ -61,6 +61,8 @@ void Star::CalculateFeedbackParameters(float &Radius,
   const float *SNExplosionEnergy = (PopIIIUseHypernova ==TRUE) ? 
     HypernovaEnergy : CoreCollapseEnergy;
 
+  const int max_radius = 5;  // Don't exceed max_radius*PopIIISNRadius
+
   float StarLevelCellWidth, tdyn, frac;
   double EjectaVolume, SNEnergy, HeliumCoreMass, Delta_SF, MetalMass;
 

@@ -47,6 +47,7 @@ EXTERN int CoresPerNode;
 EXTERN int PreviousMaxTask;
 EXTERN int LoadBalancingMinLevel;
 EXTERN int LoadBalancingMaxLevel;
+EXTERN int HybridParallelRootGridSplit;
 
 /* FileDirectedOutput checks for file existence: 
    stopNow (writes, stops),   outputNow, subgridcycleCount */
@@ -574,6 +575,7 @@ EXTERN FLOAT EvolveCoolingRefineRegionRightEdge[MAX_REFINE_REGIONS][3]; // right
 
 EXTERN int MyProcessorNumber;
 EXTERN int NumberOfProcessors;
+EXTERN int NumberOfCores;
 EXTERN float CommunicationTime;
 
 /* Parameter to indicate if top grid should do parallel IO
@@ -642,6 +644,7 @@ EXTERN float MinimumOverDensityForRefinement[MAX_FLAGGING_METHODS];
 EXTERN float MinimumMassForRefinement[MAX_FLAGGING_METHODS];
 EXTERN float MinimumMassForRefinementLevelExponent[MAX_FLAGGING_METHODS];
 EXTERN float DepositPositionsParticleSmoothRadius;
+EXTERN float MetallicityForRefinement;
 
 /* For CellFlaggingMethod = 3,
    The minimum pressure jump required to be a shock.
@@ -1151,6 +1154,71 @@ EXTERN float ClusterSMBHAccretionEpsilon;  // Edot=epsilon*Mdot(accreted/removed
 EXTERN float ClusterSMBHDiskRadius; // The size of the "disk" (actually a cube) in kpc
 EXTERN float ClusterSMBHBCG; // 1.0 is including BCG gravity; 0.0 makes it 0
 EXTERN float ClusterSMBHMass; // The mass of the SMBH in SolarMass
+
+/* AGN active particle data */
+EXTERN float AGNParticleInsert_x;
+EXTERN float AGNParticleInsert_y;
+EXTERN float AGNParticleInsert_z;
+EXTERN float AGNParticleInsert_Time;
+
+EXTERN int ActiveParticleCounter;
+EXTERN int TotalAGNParticlesCreated;
+EXTERN int TotalAccretingParticlesCreated;
+
+EXTERN int AGNParticleFeedbackType;
+EXTERN int AGNParticleFeedbackWeight;
+EXTERN float AGNParticleFeedbackEfficiency;
+EXTERN float AGNParticleKineticFraction;
+EXTERN float AGNParticleAccretionRadiusKpc;
+EXTERN float AGNParticleAccretionRadialExponent;
+EXTERN float AGNParticleFeedbackRadiusKpc;
+EXTERN float AGNParticleCondensationFraction;
+
+EXTERN float AGNParticleInjectionTemperature;
+
+EXTERN float AGNParticleColdMassTemp;
+EXTERN float AGNParticleColdMassDelay;
+
+EXTERN float AGNParticleJetPower;
+EXTERN int   AGNParticleFixedWaitForCold;
+EXTERN float AGNParticleCycleLength;
+EXTERN float AGNParticleActiveFraction;
+
+EXTERN float AGNParticleBondiBoostFactor;
+EXTERN float AGNParticleBSBondiDensityCGS;
+EXTERN float AGNParticleBSBondiBeta;
+
+EXTERN float AGNParticleAccretionDelayTime;
+
+EXTERN float AGNParticleHighPower;
+EXTERN float AGNParticleLowPower;
+EXTERN float AGNParticleHighPowerTime;
+EXTERN float AGNParticleLowPowerTime;
+
+EXTERN float AGNParticleDiskRadius;
+EXTERN float AGNParticleDiskDistance;
+EXTERN float AGNParticleDiskOpeningAngle;
+
+EXTERN int AGNTracerCyl;
+EXTERN float AGNTracerZkpc;
+EXTERN float AGNTracerHkpc;
+EXTERN float AGNTracerRInnerkpc;
+EXTERN float AGNTracerROuterkpc;
+EXTERN float AGNTracerFrequencyMyr;
+EXTERN float AGNTracerNextTimeMyr;
+
+EXTERN float AGNPrecessionAngleRad;
+EXTERN FILE* AGNEdotFile;
+
+EXTERN int AGNUseTracer;
+EXTERN float AGNTracerInjectionTime;
+EXTERN float AGNTracerMinRadiusKPC;
+EXTERN float AGNTracerShellWidthKPC;
+
+EXTERN float AGNCylinderHeightKpc;
+EXTERN float AGNCylinderRadiusKpc;
+EXTERN float AGNCylinderDistanceKpc;
+EXTERN float AGNParticleShockFraction;
 
 /* Stellar Feedback in Elliptical galaxies*/
 EXTERN float EllipticalGalaxyRe;

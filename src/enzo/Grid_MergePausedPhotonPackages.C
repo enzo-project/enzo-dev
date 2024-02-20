@@ -221,8 +221,8 @@ int grid::MergePausedPhotonPackages() {
   delete [] TempPP;
 
   if (DEBUG)
-    printf("P%d: MergePausedPhotonPackages: %"ISYM" => %"ISYM" photons\n", 
-	   MyProcessorNumber, nphotons, merges);
+    printf("P%d: MergePausedPhotonPackages (Grid %d): %"ISYM" => %"ISYM" photons\n", 
+	   MyProcessorNumber, this->ID, nphotons, merges);
 
   return merges;
 }

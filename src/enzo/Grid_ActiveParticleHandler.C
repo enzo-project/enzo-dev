@@ -28,6 +28,7 @@
 #include "fortran.def"
 #include "CosmologyParameters.h"
 #include "ActiveParticle.h"
+#include "ActiveParticle_AGNParticle.h"
 #define H_DEBUG 0
 /* function prototypes */
  
@@ -36,9 +37,10 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, FLOAT Time);
 int FindField(int field, int farray[], int numfields);
- 
+
+//TopGrid MetaData added by DP 
 int grid::ActiveParticleHandler(HierarchyEntry* SubgridPointer, int level,
-                                float dtLevelAbove, int &NumberOfNewParticles)
+                                TopGridData *MetaData, float dtLevelAbove, int &NumberOfNewParticles)
 {
 
   if (EnabledActiveParticlesCount == 0) return SUCCESS;
@@ -84,18 +86,23 @@ int grid::ActiveParticleHandler(HierarchyEntry* SubgridPointer, int level,
   {
     ActiveParticleType_info *ActiveParticleTypeToEvaluate = EnabledActiveParticles[i];
     ActiveParticleTypeToEvaluate->EvaluateFormation(
-                                this, supplemental_data);
+                                this, MetaData, supplemental_data); //MetaData added by DP
+    
+    ActiveParticleType_AGNParticle::InsertAGN(this, SubgridPointer, supplemental_data);
     NumberOfNewParticles += supplemental_data.NumberOfNewParticles;
     
   }
 
+  
+
   /* Now we copy the particles from NewParticles into a statically allocated
    * array */
 
+
   if (NumberOfNewParticles > 0) {
     this->AddActiveParticles(supplemental_data.NewParticles, 0, NumberOfNewParticles);
-    if (debug2)
-      printf("Creating %d new active particles\n", NumberOfNewParticles);
+    fprintf(stderr,"Creating %d new active particles on grid %d\n", NumberOfNewParticles, this->ID);
+      
   }
 
   /******************** FEEDBACK ********************/
@@ -106,7 +113,10 @@ int grid::ActiveParticleHandler(HierarchyEntry* SubgridPointer, int level,
       {
 	ActiveParticleType_info *ActiveParticleTypeToEvaluate = EnabledActiveParticles[i];
 	ActiveParticleTypeToEvaluate->EvaluateFeedback(this, supplemental_data);
+
       }
+
+      
   
   ActiveParticleType::DestroyData(this, supplemental_data);
 

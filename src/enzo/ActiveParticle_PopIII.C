@@ -42,7 +42,7 @@ int ActiveParticleType_PopIII::InitializeParticleType() {
 }
 
 int ActiveParticleType_PopIII::EvaluateFormation
-(grid *thisgrid_orig, ActiveParticleFormationData &supp_data)
+(grid *thisgrid_orig, TopGridData *MetaData, ActiveParticleFormationData &supp_data)
 {
   PopIIIGrid *tg = static_cast<PopIIIGrid *>(thisgrid_orig);
 
