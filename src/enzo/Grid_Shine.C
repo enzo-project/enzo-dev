@@ -151,6 +151,10 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
     if(RS->Energy[ebin] <= 13.6 && RadiativeTransferOpticallyThinH2 == 1)
       continue;
     
+    /* If we selected no ionising radiation */
+    if(RadiativeTransferNoIonisingRadiation == 1 && RS->Energy[ebin] >= 13.6)
+      continue;
+
     photons_per_package = RampPercent * RS->Luminosity * 
       RS->SED[ebin] * dtPhoton / float(BasePackages);
 

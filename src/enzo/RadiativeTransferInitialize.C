@@ -206,6 +206,12 @@ int RadiativeTransferInitialize(char *ParameterFile,
 	TypesToAdd[FieldsToAdd++] = Metallicity;
 	AddedMetallicity = true;
       }
+      if (StarClusterUseMetalField && 
+	  SmartStarFeedback > 0) {
+	TypesToAdd[FieldsToAdd++] = Metallicity;
+	AddedMetallicity = true;
+      }
+      
       if (RadiativeTransferLoadBalance)
 	TypesToAdd[FieldsToAdd++] = RaySegments;
     }

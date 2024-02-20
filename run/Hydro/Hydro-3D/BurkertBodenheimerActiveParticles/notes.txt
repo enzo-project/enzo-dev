@@ -1,0 +1,33 @@
+Burkert-Bodenheimer Test
+#This is based off the initial conditions given in Fedderath et al. 2010. It shows the collapse of a
+#rotating sphere. Particles should form in the bar at the centre. The test is not part of the test
+#infrastrure because it is, at the moment, difficult to automate
+
+
+
+# To run the test
+# There is a bit of a palaver to get this running as the mechanism for
+# running enzo with the gravitational potential (GP) turned on is a little
+# difficult - in particular I don't think there is a currently a way to get
+# enzo to run with the GP calculation from the start. So here is how I do it:
+
+1. ./enzo.exe -d BBCollapseTestSmartStarParticle.enzo
+2. This will die after a couple of seconds - that's ok
+3. ./enzo.exe -d -g DD0000/DD0000    #this turns on the gravitational potential
+4. mpirun -np X ./enzo.exe -d -r GravPotential/DD0000/DD0000
+
+This will run relatively slowly i.e. tens of minutes on around 32 cores. This is another reason
+why this is currently not part of the test infrastructure. With the current setup the first particles
+should appears in output DD0133. 
+
+
+#Results
+The test should form 2 particles initially at the ends of a bar that forms in the middle of the
+collapsing sphere. Several particles will subsequently form along the bar as the bar fragments. 
+
+#Plots
+Plots can be made of the collapse using sinkslices.py
+
+
+
+

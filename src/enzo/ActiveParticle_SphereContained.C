@@ -37,7 +37,8 @@ int ActiveParticleType::SphereContained(LevelHierarchyEntry *LevelArray[], int l
   LevelHierarchyEntry *Temp;
   int i, dim, direction, cornersContained, Rank, result;
   bool inside;
-  int cornerDone[8], Dims[MAX_DIMENSION];
+  Eint32 cornerDone[8];
+  int Dims[MAX_DIMENSION];
   FLOAT corners[MAX_DIMENSION][8];
   FLOAT LeftEdge[MAX_DIMENSION], RightEdge[MAX_DIMENSION];
 
@@ -80,18 +81,10 @@ int ActiveParticleType::SphereContained(LevelHierarchyEntry *LevelArray[], int l
     } // ENDIF MyProcessorNumber == ProcessorNumber
   } // ENDFOR grids
 
-  /* Take the MPI_MAX of cornerDone flags, then sum them to see if
-     they equal 8.  If so, the sphere is contained within grids on
-     this level. */
-
-#ifdef USE_MPI
-  CommunicationAllReduceValues(cornerDone, 8, MPI_MAX);
-#endif
-
   cornersContained = 0;
   for (i = 0; i < 8; i++)
     cornersContained += cornerDone[i];
-
+  printf("cornersContained = %d\n", cornersContained);
   result = (cornersContained == 8);
   LCAPERF_STOP("star_SphereContained");
   return result;

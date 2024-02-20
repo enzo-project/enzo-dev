@@ -273,6 +273,7 @@ int RebuildHierarchy(TopGridData *MetaData,
     Temp = LevelArray[0];
     while (Temp != NULL) {
       Temp->GridData->DebugCheck("Before TransferParticles");
+      Temp->GridData->SetGridID(grids);
       GridPointer[grids++] = Temp->GridData;
       Temp = Temp->NextGridThisLevel;
     }
