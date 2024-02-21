@@ -245,7 +245,8 @@ c
      &                           tabMetal, tabZ, tabAge,
      &                           ntabZ, ntabAge, isnia,
      &                           z_upper-1, z_upper, a_upper-1, a_upper)
-                           mzeject = (mzeject_ii + mzeject_ia) * minit(n)*dt_yr
+                           mzeject = (mzeject_ii + mzeject_ia)
+     &                                    * minit(n)*dt_yr
 c
 c           Field is converted to metal fraction by handling routine.
 c
