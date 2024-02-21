@@ -980,6 +980,7 @@ EXTERN PyObject *my_processor;
 #endif
 
 #ifdef USE_LIBYT
+EXTERN char libyt_script_name[MAX_LINE_LENGTH];
 EXTERN void *param_libyt;
 EXTERN void *param_yt;
 EXTERN int libyt_field_lookup[FieldUndefined];
