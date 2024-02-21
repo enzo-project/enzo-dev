@@ -11,6 +11,8 @@ Requirements
 ------------
 
 Below are links to the build and runtime requirements, which must be installed.
+
+``libyt`` GitHub repo can be found `here <https://github.com/yt-project/libyt>`_.
 We can compile ``libyt`` using different options based on our used cases, so that Enzo can have different in situ analysis feature when it links to ``libyt``.
 
 A brief description of each mode (option) is shown here. The options are mutually independent. Please follow the instructions in ``libyt`` documents:
