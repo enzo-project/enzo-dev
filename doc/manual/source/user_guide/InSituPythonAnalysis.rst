@@ -29,7 +29,7 @@ A brief description of each mode (option) is shown here. The options are mutuall
 
   * **Jupyter Kernel Mode** (``-DJUPYTER_KERNEL=ON``): Fault-tolerant to Python and support using Jupyter Notebook / JupyterLab UI to connect to simulation and do in situ analysis.
 
-* **Python >= 3.7**
+* A Python >= 3.7 environment with the following packages installed:
 
   * `yt`_: An open-source, permissively-licensed python package for analyzing and visualizing volumetric data.
 
