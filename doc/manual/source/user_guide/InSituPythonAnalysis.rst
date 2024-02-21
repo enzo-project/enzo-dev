@@ -32,6 +32,8 @@ Please follow the instructions in ``libyt`` documents:
 
 * A Python >= 3.7 environment with the following packages installed:
 
+  * `mpi4py`_: It provides Python bindings for the Message Passing Interface (MPI) standard. It is required for **parallel mode**. ``mpi4py`` installed should match the MPI used for compiling Enzo.
+
   * `yt`_: An open-source, permissively-licensed python package for analyzing and visualizing volumetric data.
 
   * `yt_libyt`_: ``libyt``'s yt frontend.
@@ -45,6 +47,8 @@ Please follow the instructions in ``libyt`` documents:
 .. _yt_libyt: https://libyt.readthedocs.io/en/latest/how-to-install.html#yt-libyt
 
 .. _jupyter_libyt: https://libyt.readthedocs.io/en/latest/how-to-install.html#jupyter-libyt
+
+.. _mpi4py: https://mpi4py.readthedocs.io/en/stable/install.html#installation
 
 How it Works
 ------------
@@ -292,4 +296,33 @@ This is something ``libyt`` will update and improve in the future.
 
 Doing In Situ Analysis
 ----------------------
-See how to write inline Python script and do in situ analysis `here <https://libyt.readthedocs.io/en/latest/in-situ-python-analysis/index.html>`__.
+
+Generally, after Enzo has loaded simulation data to Python, ``libyt`` can analyze data using arbitrary Python script in parallel computing using ``mpi4py``.
+Every Python instance synchronously runs the statement line-by-line inside the imported script's namespace.
+If there are *N* simulation processes, then there will be *N* Python instances working together to conduct in situ analysis.
+
+``yt`` already supports `parallel computation <https://yt-project.org/doc/analyzing/parallel_computation.html#parallel-computation-with-yt>`__,
+so we can directly use it in the Python script.
+When converting post-processing script to inline Python script, remember to:
+
+* import ``yt_libyt`` and change ``yt.load`` to ``yt_libyt.libytDataset()``
+* call ``yt.enable_parallelism()`` if Enzo is running in MPI platform.
+
+For example, this creates a radial profile of the density field at the domain center:
+
+::
+
+  import yt_libyt
+  import yt
+  #yt.enable_parallelism()   # make yt works in parallel computing in libyt parallel mode (require mpi4py)
+
+  def yt_inline():
+      ds = yt_libyt.libytDataset()
+      sphere = ds.sphere(ds.domain_center, (20.0, "km"))
+      profile = yt.ProfilePlot(sphere, ("index", "radius"), ("gas", "density"))
+
+      # save the figure on root process only
+      if yt.is_root():
+          profile.save()
+
+See how to write inline Python script using ``yt`` `here <https://libyt.readthedocs.io/en/latest/in-situ-python-analysis/using-yt.html>`__.
