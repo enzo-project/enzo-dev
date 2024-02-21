@@ -51,7 +51,7 @@ How it Works
 Enzo follows ``libyt``'s procedure and APIs to implement this in situ analysis feature.
 We can find how ``libyt`` works more in detail `here <https://libyt.readthedocs.io/en/latest/how-it-works.html>`__ and what are ``libyt`` APIs `here <https://libyt.readthedocs.io/en/latest/libyt-api/index.html>`__.
 
-At initialization stage, ``libyt`` imports inline Python script ``inline.py`` and initializes Python interpreters in each MPI process. This happens in ``InitializeLibytInterface`` function in ``src/enzo/InitializeLibytInterface.C``.
+At initialization stage, ``libyt`` imports a Python script (the default name is ``inline.py``; see below for using alternative names) and initializes Python interpreters in each MPI process (if compiled with ``-DSERIAL_MODE=OFF``). This happens in ``InitializeLibytInterface`` function in ``src/enzo/InitializeLibytInterface.C``.
 
 When Enzo finishes its computation in a cycle, the whole simulation pauses and starts the in situ analysis process.
 The ``CallInSitulibyt`` function in ``src/enzo/CallInSitulibyt.C`` conducts this process.
