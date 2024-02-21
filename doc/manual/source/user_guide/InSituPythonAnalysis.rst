@@ -182,8 +182,12 @@ Reloading Script
 
 * **How to reload a script?**
 
-  Reloading script feature is a file-based interactive Python prompt, such that user creates specific files to send instructions to libyt and gets outputs from file.
-  The feature can be used in HPC cluster.
+  Reloading script feature is a file-based interactive Python prompt, such that user creates specific files to send instructions to libyt and gets outputs from a file.
+  The feature can be used in HPC cluster and does not limit to interactive jobs only.
+
+  Some used cases are, for example, when an unexpected Python error occurred during the simulation runtime, we can update the function just in time and do not need to go all over again;
+  or when we want to change the Python script during runtime.
+
   See `here <https://libyt.readthedocs.io/en/latest/in-situ-python-analysis/reloading-script.html>`__ for how to reload a script.
 
 .. _Jupyter Notebook / JupyterLab UI:
