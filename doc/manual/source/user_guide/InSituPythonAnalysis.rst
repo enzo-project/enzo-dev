@@ -96,14 +96,33 @@ General
 
   We can call Python function using libyt API ``yt_run_Function`` and ``yt_run_FunctionArguments``. See how to use them `here <https://libyt.readthedocs.io/en/latest/libyt-api/run-python-function.html>`__.
 
-  Put the API right after the comment
+  Un-comment the code in ``src/enzo/CallInSitulibyt.C``:
 
   ::
 
-      // TODO: yt_run_Function and yt_run_FunctionArguments
-      // Put yt_run_Function and yt_run_FunctionArguments here
+    /* Run yt_run_Function and yt_run_FunctionArguments */
+    // if (yt_run_Function("yt_inline") != YT_SUCCESS) {
+    // 	   fprintf(stderr, "Error while running yt_run_Function and call yt_inline\n");
+    // 	   return FAIL;
+    // }
+    // if (yt_run_FunctionArguments("yt_inline_args", 1, "\'density\'") != YT_SUCCESS) {
+    //     fprintf(stderr, "Error while running yt_run_FunctionArguments and call yt_inline_args\n");
+    //     return FAIL;
+    // }
 
-  inside ``CallInSitulibyt`` function in ``src/enzo/CallInSitulibyt.C`` according to our needs.
+  The corresponding inline script ``inline.py`` would be:
+
+  ::
+
+    import yt_libyt
+    import yt
+    #yt.enable_parallelism() # make yt works in parallel computing (require mpi4py)
+
+    def yt_inline():
+        pass
+
+    def yt_inline_args(field):
+        pass
 
   Please make sure the functions we called are defined inside the script. Otherwise, in ``libyt`` normal modes, the simulation will terminate simply because it cannot find the Python function, while in the other modes, it will labeled as failed.
 
@@ -121,11 +140,11 @@ Interactive Python Prompt
   ::
 
     /* Call interactive Python prompt. */
-    if (yt_run_InteractiveMode("LIBYT_STOP") != YT_SUCCESS) {
-        fprintf(stderr, "Error in libyt API yt_run_InteractiveMode\n");
-        fprintf(stderr, "One reason might be compiling libyt without -DINTERACTIVE_MODE=ON, "
-                        "which does not support yt_run_InteractiveMode.\n");
-    }
+    // if (yt_run_InteractiveMode("LIBYT_STOP") != YT_SUCCESS) {
+    //     fprintf(stderr, "Error in libyt API yt_run_InteractiveMode\n");
+    //     fprintf(stderr, "One reason might be compiling libyt without -DINTERACTIVE_MODE=ON, "
+    //                     "which does not support yt_run_InteractiveMode.\n");
+    // }
 
   If Enzo detects ``LIBYT_STOP`` file, then interactive Python prompt will activate.
   We can find more about libyt API ``yt_run_InteractiveMode`` `here <https://libyt.readthedocs.io/en/latest/libyt-api/yt_run_interactivemode.html>`__.

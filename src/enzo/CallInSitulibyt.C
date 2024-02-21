@@ -327,7 +327,16 @@ int CallInSitulibyt(LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
         return FAIL;
     }
 
-    /* TODO: yt_run_Function and yt_run_FunctionArguments */
+    /* Run yt_run_Function and yt_run_FunctionArguments */
+	// if (yt_run_Function("yt_inline") != YT_SUCCESS) {
+	// 	   fprintf(stderr, "Error while running yt_run_Function and call yt_inline\n");
+	// 	   return FAIL;
+	// }
+
+    // if (yt_run_FunctionArguments("yt_inline_args", 1, "\'density\'") != YT_SUCCESS) {
+ 	//     fprintf(stderr, "Error while running yt_run_FunctionArguments and call yt_inline_args\n");
+	//     return FAIL;
+    // }
 
     /* Call interactive Python prompt. */
     // if (yt_run_InteractiveMode("LIBYT_STOP") != YT_SUCCESS) {
