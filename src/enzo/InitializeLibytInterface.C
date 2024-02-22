@@ -33,6 +33,7 @@
 #endif
 
 
+extern char libyt_script_name[512];
 extern void* param_yt;
 extern void* param_libyt;
 
