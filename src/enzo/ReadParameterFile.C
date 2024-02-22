@@ -1191,6 +1191,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "NumberOfLibytCalls = %"ISYM, &NumberOfLibytCalls);
     ret += sscanf(line, "NumberOfLibytTopGridCalls = %"ISYM, &NumberOfLibytTopGridCalls);
     ret += sscanf(line, "NumberOfLibytSubcycleCalls = %"ISYM, &NumberOfLibytSubcycleCalls);
+    ret += sscanf(line, "libyt_script_name = %s", libyt_script_name);
 #endif
 
     /* EnzoTiming Parameters */
