@@ -80,14 +80,14 @@ General
 * **How to change import Python file name?**
 
   The default Python script will be imported is ``inline.py``.
-  If we really want to change the name, we can go to
-  ``src/enzo/InitializeLibytInterface.C`` in function ``InitializeLibytByItself``, and change ``params->script`` to our Python file name without ``.py``. For example, I want to make it to ``test.py``:
+
+  If we want to change the script name, set the file name without its extension to ``libyt_script_name`` in Enzo parameter file.
+  For example, we want to make the Python script to be ``test.py``:
 
   ::
 
-      params->script = "test";
+      libyt_script_name = test
 
-  Please use ``const char*``, or else, we have to make sure the lifetime of this variable covers the whole in situ process.
 
 * **How to activate in situ Python analysis process?**
 
