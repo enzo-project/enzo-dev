@@ -353,12 +353,12 @@ extern "C" void FORTRAN_NAME(star_feedback3mech)(int *nx, int *ny, int *nz,
 	     int *idual, int *imetal, int *imulti_metals, hydro_method *imethod, 
 		       float *dt, float *r, float *dx, FLOAT *t, float *z,
              float *d1, float *x1, float *v1, float *t1,
-                       float *sn_param, float *m_eject, float *yield,
+                       float *thermal, float *m_eject, float *yield,
              int *nmax, FLOAT *xstart, FLOAT *ystart, FLOAT *zstart,
 		       int *ibuff,
              FLOAT *xp, FLOAT *yp, FLOAT *zp, float *up, float *vp, float *wp,
              float *mp, float *tdp, float *tcp, float *metalf, int *type,
-	     float *justburn, float *kinf, float *exptime);
+	     float *justburn, float *exptime);
 
 extern "C" void FORTRAN_NAME(star_feedback3)(int *nx, int *ny, int *nz,
              float *d, float *dm, float *te, float *ge, float *u, float *v,
@@ -1727,7 +1727,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
        &dtFixed, BaryonField[NumberOfBaryonFields], &CellWidthTemp,
           &Time, &zred,
        &DensityUnits, &LengthUnits, &VelocityUnits, &TimeUnits,
-          &StarEnergyToThermalFeedback, &StarMassEjectionFraction,
+          &StarFeedbackAdditionalThermalEnergy, &StarMassEjectionFraction,
           &StarMetalYield, 
        &NumberOfParticles,
           CellLeftEdge[0], CellLeftEdge[1], CellLeftEdge[2], &GhostZones,
@@ -1737,7 +1737,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
           ParticleVelocity[2],
        ParticleMass, ParticleAttribute[1], ParticleAttribute[0],
        ParticleAttribute[2], ParticleType, &RadiationData.IntegratedStarFormation,
-       &StarFeedbackKineticFraction,&StarMakerExplosionDelayTime);
+       &StarMakerExplosionDelayTime);
 
     delete [] mu_field;
  

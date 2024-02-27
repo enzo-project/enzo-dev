@@ -282,11 +282,11 @@ c
      &               metal, zfield1, zfield2,
      &               idual, imetal, imulti_metals, imethod, 
      &               dt, r, dx, t, z,
-     &               dunits, x1, vunits, t1, sn_param, m_eject, yield,
+     &               dunits, x1, vunits, t1, thermal, m_eject, yield,
      &               npart, xstart, ystart, zstart, ibuff,
      &               xp, yp, zp, up, vp, wp,
      &               mp, tdp, tcp, metalf, type, justburn,
-     &               kinf_in,exptime_in)
+     &               exptime_in)
 
 c
 c  RELEASES "STAR" PARTICLE MOMENTUM, MASS AND METALS
@@ -318,9 +318,6 @@ c    idual    - dual energy flag
 c    imetal   - metallicity flag (0 - none, 1 - yes)
 c    imulti_metals - flag to use multi metals zfield 1 and 2
 c    imethod  - hydro method (0 - PPMDE, 1 - PPMLR, 2 - ZEUS)
-c    distrad  - feedback distribution radius in cells
-c    diststep - distance in walking steps to deposit feedback
-c    distcells - total number of cells over which to distribute feedback
 c
 c    x/y/z start - starting position of grid origin
 c    xp,yp,zp - positions of created particles
@@ -332,13 +329,10 @@ c               explosion has occurred
 c    tcp      - creation time of particle (-1 if not a star particle)
 c    metalf   - star particle metal fraction
 c    npart    - particle array size specified by calling routine
-c    sn_param - fraction of stellar rest mass that goes to feedback
+c    thermal  - thermal energy to deposit in addition to momentum
 c    m_eject  - fraction of stellar mass ejected back to gas
 c    yield    - fraction of stellar mass that is converted to metals
 c    type     - particle type
-c    kinf_fixed - fixed kinetic energy fraction for use when var is
-c                 false
-c    var      - variable kinetic energy flag
 c    exptime  - delay time for discrete explosions (if set to -1,
 c               continuous energy injection used)
 c
@@ -356,8 +350,7 @@ c
 c  Arguments
 c
       INTG_PREC nx, ny, nz, ibuff, npart, idual, imetal, 
-     &      imulti_metals, imethod,
-     &      distrad, diststep, distcells
+     &      imulti_metals, imethod
       R_PREC    d(nx,ny,nz), dm(nx,ny,nz), te(nx,ny,nz)
       R_PREC    u(nx,ny,nz), v(nx,ny,nz), w(nx,ny,nz)
       R_PREC    r(nx,ny,nz), ge(nx,ny,nz)
@@ -371,31 +364,44 @@ c
       R_PREC    up(npart), vp(npart), wp(npart)
       R_PREC    mp(npart), tdp(npart), tcp(npart), metalf(npart)
       INTG_PREC type(npart)
-      R_PREC 	  kinf,kinf_in,exptime_in,exptime
+      R_PREC 	 exptime_in,exptime
+      R_PREC    thermal
 c
 c  Locals
 c
       INTG_PREC n, ic, jc, kc, ip, jp, kp,
-     &     iface, jface, kface, i, j, k
-      R_PREC mform, energy, sn_param, msolar_e51,
-     &     m_eject, yield, minitial, xv1, xv2, 
-     &     dist_mass_cells, dist_mom_cells, mass_per_cell, te_per_cell,
-     &     thermal_energy_per_cell, kinetic_energy_per_cell,
-     &	   energy_per_cell, mom_per_cell(3,3,3), face_shift,
-     &     xface, yface, zface, xpos, ypos, zpos,
-     &     energy_before, energy_after, mass_before, mass_after,
-     &     kin_energy_before, kin_energy_after,
-     &     asum, bsum, csum, delta_ke, ke_injected, ke_after,
-     &     nsn, m_form, mass_end, kin_energy_end
-      R_PREC dxf, dyf, dzf, dxc, dyc, dzc, xfc, yfc, zfc,
+     &     i, j, k
+      R_PREC mform, energy,
+     &     m_eject, yield, minitial, xv1, xv2, distrad,
+     &     dist_mass_cells, mass_per_cell,
+     &     mass_before(3,3,3), 
+     &     mass_after(3,3,3), kin_energy_before(3,3,3),
+     &     kin_energy_after(3,3,3), kin_energy_inj(3,3,3),
+     &     delta_ke, ke_injected, ke_after,
+     &     nsn, mass_end(3,3,3), kin_energy_end(3,3,3), 
+     &     mom_start(3,3,3), mom_inj(3,3,3), mom_end(3,3,3)
+      R_PREC xfc, yfc, zfc,
      &     xfcshift,yfcshift,zfcshift
-      R_PREC u1(4,4,4), v1(4,4,4), w1(4,4,4), d1(4,4,4),
-     &     te1(4,4,4), ge1(4,4,4), metal1(4,4,4),
-     &     ke_before(4,4,4)
-      R_PREC Zsol, d_ave, num_d, energy_51, eunits, R_PDS, t_PDS, 
-     &	  R_resolve, KE_rem, ergs_51, realmass, mu_cell, fbuff
+      R_PREC ke_before(3,3,3), mom_per_cell(3,3,3), d_init(nx,ny,nz),
+     &     metal_init(nx,ny,nz)
+      R_PREC Z_avg, n_avg,
+     &	  realmass, mu_cell, fbuff, therm_per_cell
+      R_PREC te_sum, ke_sum, ge_sum, mom_sum, mass_sum, mom_term,
+     &     mass_term
 c
 c-----------------------------------------------------------------------
+c
+c     Make copies of density and metal fields for calculating momentum deposition
+c     without the ejected mass of nearby particles in the same timestep
+c
+      do k = 1_IKIND, nz
+         do j = 1_IKIND, ny
+            do i = 1_IKIND, nx
+               d_init(i,j,k) = d(i,j,k)
+               metal_init(i,j,k) = metal(i,j,k)
+            enddo
+         enddo
+      enddo
 c
 c     Loop over particles
 c
@@ -463,6 +469,15 @@ c
  5          ip = int((xp(n) - xstart)/dx) + 1_IKIND
             jp = int((yp(n) - ystart)/dx) + 1_IKIND
             kp = int((zp(n) - zstart)/dx) + 1_IKIND
+#ifdef FORTRAN_DEBUG
+            write(6,*) 'x1,dx,dunits,vunits:',x1,dx,dunits,vunits
+            write(6,*) 'mp(n):',mp(n)*dunits*x1**3._RKIND*dx**3_IKIND
+     &        /SolarMass
+            write(6,*) 'minitial:',minitial*dunits*x1**3._RKIND
+     &        /SolarMass*dx**3_IKIND
+            write(6,*) 'mform:',mform*dunits*x1**3._RKIND*dx**3_IKIND
+     &        /SolarMass
+#endif
 c
 c     Assuming 3x3x3 cube, calculate cell distribution
 c
@@ -486,7 +501,10 @@ c
 c           Calculate mass per cell ejected
 c     
             mass_per_cell = mform * m_eject / dist_mass_cells
-
+#ifdef FORTRAN_DEBUG
+            write(6,*) 'mass_per_cell:',mass_per_cell*
+     &         dunits*x1**3._RKIND/SolarMass*dx**3_IKIND
+#endif
             if (xp(n) .lt. xstart .or. xp(n) .gt. xstart+dx*nx .or.
      &          yp(n) .lt. ystart .or. yp(n) .gt. ystart+dx*ny .or.
      &          zp(n) .lt. zstart .or. zp(n) .gt. zstart+dx*nz) then
@@ -539,100 +557,66 @@ c
 #endif
             endif
 c
-c           If using zeus, then velocities are face-centered so shift
+c         Compute index of the center of feedback zone
 c
-            face_shift = 0._RKIND
-            if (imethod .eq. 2) face_shift = 0.5_RKIND
-c
-c         Compute index of the first cell to add momentum,
-c             accounting for possible face-centering
-c
-            xface = (xfc - xstart)/dx - 0.5_RKIND - face_shift
-            yface = (yfc - ystart)/dx - 0.5_RKIND - face_shift
-            zface = (zfc - zstart)/dx - 0.5_RKIND - face_shift
-c
-            iface = int(xface + 0.5_RKIND)
-            jface = int(yface + 0.5_RKIND)
-            kface = int(zface + 0.5_RKIND)
-c
-            dxf = real(iface) + 0.5_RKIND - xface
-            dyf = real(jface) + 0.5_RKIND - yface
-            dzf = real(kface) + 0.5_RKIND - zface
-c
-c         Compute index of the first cell to add mass, assuming cell-centering
-c 
-            xpos = (xfc - xstart)/dx - 0.5_RKIND
-            ypos = (yfc - ystart)/dx - 0.5_RKIND
-            zpos = (zfc - zstart)/dx - 0.5_RKIND
-c
-            ic = int(xpos + 0.5_RKIND)
-            jc = int(ypos + 0.5_RKIND)
-            kc = int(zpos + 0.5_RKIND)
-c
-            dxc = real(ic) + 0.5_RKIND - xpos
-            dyc = real(jc) + 0.5_RKIND - ypos
-            dzc = real(kc) + 0.5_RKIND - zpos
-c
-c           Determine which side of the host cell the star particle is in
-c
+            ic = int((xfc - xstart)/dx) + 1_RKIND
+            jc = int((yfc - ystart)/dx) + 1_RKIND
+            kc = int((zfc - zstart)/dx) + 1_RKIND
 c
 c           Calculate the number of SNe in this timestep from the stars formed
 c           in this timestep as 1 SN per 100 Msun formed.
 c           
-            realmass = mform * dunits * dx * x1 *dx *x1 *dx *x1
+            realmass = mform * dunits * x1**3._RKIND*dx**3_IKIND
             realmass = realmass /SolarMass
             nsn = realmass / 100._RKIND
+            energy = nsn * 10._RKIND**51._RKIND / (dunits*
+     &                  x1**3._RKIND*vunits**2._RKIND*dx**3._RKIND)
+            therm_per_cell = thermal / dist_mass_cells
+#ifdef FORTRAN_DEBUG
+            write(6,*) 'realmass,nsn:',realmass,nsn
+            write(6,*) 'ic,jc,kc:',ic, jc, kc
+#endif
 c
-            Zsol = 0._RKIND
-            num_d = 0._RKIND
-            d_ave = 0._RKIND
+            Z_avg = 0._RKIND
+            n_avg = 0._RKIND
 c     
 c     Compute average density and metallcity around cell containing
 c     particle
 c     
 c            write(6,*) 'averaging over patch'
             do k = -1_IKIND,1_IKIND
-                do j = -1_IKIND,1_IKIND
-                    do i = -1_IKIND,1_IKIND
-                        mu_cell = mu(ic+i,jc+j,kc+k)
-                        Zsol = Zsol + 
-     &                       metal(ic+i,jc+j,kc+k)/0.02_RKIND
-                        num_d = num_d + 
-     &                       d(ic+i,jc+j,kc+k)*dunits/mu_cell/mass_h
-                        d_ave = d_ave + d(ic+i,jc+j,kc+k)*dunits
-                    enddo
-                enddo
-            enddo
-c               
-            Zsol = Zsol/27._RKIND
-            num_d = num_d/27._RKIND
-            d_ave = d_ave/27._RKIND
-c
-c     Inject energy, mass & metals
-c
-c     Zero local dummy field and kinetic energy field
-c
-            do k = 1_IKIND, 4_IKIND
-               do j = 1_IKIND, 4_IKIND
-                  do i = 1_IKIND, 4_IKIND
-                     u1(i,j,k) = 0._RKIND
-                     v1(i,j,k) = 0._RKIND
-                     w1(i,j,k) = 0._RKIND
-                     d1(i,j,k) = 0._RKIND
-                     ge1(i,j,k) = 0._RKIND
-                     te1(i,j,k) = 0._RKIND
-                     metal1(i,j,k) = 0._RKIND
+               do j = -1_IKIND,1_IKIND
+                  do i = -1_IKIND,1_IKIND
+                     mu_cell = mu(ic+i,jc+j,kc+k)
+                     Z_avg = Z_avg + 
+     &                 metal_init(ic+i,jc+j,kc+k)/0.02_RKIND
+                     n_avg = n_avg + 
+     &                 d_init(ic+i,jc+j,kc+k)*dunits*
+     &                 mu_cell/mass_h
                   enddo
                enddo
             enddo
+c               
+            Z_avg = max(Z_avg/27._RKIND, 0.01)
+            n_avg = n_avg/27._RKIND
+#ifdef FORTRAN_DEBUG
+            write(6,*) 'n_avg, Z_avg:', n_avg, Z_avg
+#endif
+c
+c     Inject energy, mass & metals
 c
 c     Compute the momentum that will be added to each cell.
 c
-            call get_mom_per_cell(d, metal, mass_per_cell,
+            call get_mom_per_cell(d_init, mass_per_cell,
      &                  dist_mass_cells, mom_per_cell,
-     &                  nsn, m_form, m_eject, d(ic,jc,kc), dx, x1,
-     &                  dunits, vunits, mu, t1,
+     &                  nsn, d_init(ic,jc,kc), dx, x1, n_avg, Z_avg,
+     &                  dunits, vunits, t1,
      &                  nx, ny, nz, ic, jc, kc)
+#ifdef FORTRAN_DEBUG
+            write(6,*) 'mom_per_cell:',mom_per_cell*
+     &           (dunits*(dx*x1)**3._RKIND)*vunits/SolarMass/1e5_RKIND
+#endif
+c           mom_per_cell has units of mass*velocity/volume
 c
 c     Compute the kinetic energy in the affected region
 c     before momentum is added (except for ZEUS).  This
@@ -640,107 +624,83 @@ c     is needed at the end of the calculation to update the
 c     total energy (te) field.
 c
             if (imethod .ne. 2_IKIND) then
-               do k = -2_IKIND, +1_IKIND
-                  do j = -2_IKIND, +1_IKIND
-                     do i = -2_IKIND, +1_IKIND
+               do k = -1_IKIND, +1_IKIND
+                  do j = -1_IKIND, +1_IKIND
+                     do i = -1_IKIND, +1_IKIND
                         ke_before(i+2, j+2, k+2) = 
      &                       0.5_RKIND*d(ic+i, jc+j, kc+k)*
      &                                (u(ic+i ,jc+j ,kc+k)**2_IKIND + 
      &                                 v(ic+i ,jc+j ,kc+k)**2_IKIND + 
-     &                                 w(ic+i ,jc+j ,kc+k)**2_IKIND)                     
+     &                                 w(ic+i ,jc+j ,kc+k)**2_IKIND)
                      enddo
                   enddo
                enddo
             endif
+#ifdef FORTRAN_DEBUG
+            write(6,*) 'ke_before:',ke_before*dunits*x1**3._RKIND*
+     &                  vunits**2._RKIND*dx**3._RKIND
+#endif
+c           ke_before has units of mass*velocity^2/volume
 c
 c     First convert velocities to momenta and transform
 c     into frame comoving with particle
 c
-            call momentum1(u, v, w, d, metal, up(n), vp(n), wp(n),
-     &                    nx, ny, nz, ic, jc, kc, 
-     &                    iface, jface, kface, imethod, imetal, 
-     &                    +1_IKIND)
+            call momentum_convert(u, v, w, d, metal, up(n), vp(n),
+     &                    wp(n), nx, ny, nz, ic, jc, kc, 
+     &                    imethod, imetal, 
+     &                    +1_IKIND, dx, dunits, vunits, x1)
 c
+c           u,v,w have units of mass*velocity/volume
 c           Now u,v,w are the particle-relative *momentum* directions
-c           Sum mass and energy before
 c
-            call sum_mass_kinetic_energy1(u, v, w, d, ge, te, nx, ny,
-     &           nz, iface, jface, kface, ic, jc, kc,
-     &           mass_before, kin_energy_before, idual, imethod)
-c            write(6,*) "m,e before:", mass_before, kinetic_energy_before
+#ifdef FORTRAN_DEBUG
 c
-c           Now add mass and momentum to the dummy cells
+c           Calculate mass and energy before in affected region
 c
-            call add_feedback1(u1, v1, w1, d1, ge1, te1, metal1,
-     &                        4_IKIND,
-     &                        4_IKIND, 4_IKIND, 
-     &                        2_IKIND, 2_IKIND, 2_IKIND, 2_IKIND, 
-     &                        2_IKIND, 2_IKIND,
-     &                        dxf, dyf, dzf, dxc, dyc, dzc,
+            call mass_kinetic_energy(u, v, w, d, nx, ny,
+     &           nz, ic, jc, kc, mass_before, kin_energy_before,
+     &           mom_start)
+            write(6,*) "m before:", mass_before*
+     &               (dunits*(x1*dx)**3._RKIND)/SolarMass
+            write(6,*) "e before:", kin_energy_before*dunits*
+     &                  vunits**2._RKIND*dx**3._RKIND*x1**3._RKIND
+            write(6,*) 'mom_start:',mom_start*dunits*vunits
+     &                  *(dx*x1)**3._RKIND/SolarMass/1e5_RKIND
+c           mass_before has units of mass/volume
+c           kin_energy_before has units of mass*velocity^2/volume
+c           mom_start has units of mass*velocity/volume
+c
+#endif
+c
+c           Now deposit the momentum onto the grid.
+c
+            call add_feedback_mech(u, v, w, d, ge, te, metal,
+     &                         nx, ny, nz, ic, jc, kc,
      &                        imethod, imetal, imulti_metals, idual,
      &                        m_eject, yield, metalf(n),
-     &                        mass_per_cell, mom_per_cell, 0._RKIND)
+     &                        mass_per_cell, mom_per_cell, 
+     &                        therm_per_cell, dx, x1, dunits, vunits)
+#ifdef FORTRAN_DEBUG
 c
-c           Sum the mass and energy in the dummy cells to find the kinetic energy
-c           added by the momentum deposition.
+c           Calculate the mass and energy in the affected region again.
 c
-            call sum_mass_kinetic_energy1(u1, v1, w1, d1, ge1, te1,
-     &                        4_IKIND, 4_IKIND, 4_IKIND, 2_IKIND,
-     &                        2_IKIND, 2_IKIND, 2_IKIND, 2_IKIND,
-     &                        2_IKIND,
-     &                        mass_after, kin_energy_after, idual, 
-     &                        imethod)
-c
-c           Now deposit the momentum back onto the grid using CIC deposit.
-c
-            call add_feedback1(u, v, w, d, ge, te, metal, nx, ny, nz, 
-     &                        ic, jc, kc, iface, jface, kface, 
-     &                        dxf, dyf, dzf, dxc, dyc, dzc,
-     &                        imethod, imetal, imulti_metals, idual,
-     &                        m_eject, yield, metalf(n),
-     &                        mass_per_cell, mom_per_cell, 0._RKIND)
-c
-c           Calculate the total kinetic energy in the affected region again.
-c
-            call sum_mass_kinetic_energy1(u, v, w, d, ge, te, nx, ny,
-     &                          nz, iface, jface, kface, ic, jc, kc,
-     &                          mass_end, kin_energy_end, idual,
-     &                          imethod)
-c
-c           Check if the end kinetic energy after deposit is less than
-c           the kinetic energy injected by the particle, to account for
-c           energy lost due to momentum cancellation.
-c
-            if (kin_energy_end .lt. kin_energy_after) then
-c
-c           If end energy is less than injected energy, add the residual
-c           as thermal energy.
-c
-                thermal_energy_per_cell = (kin_energy_after - 
-     &               kin_energy_end) / (dist_mass_cells)
-                if (imethod .ne. 2_IKIND) then
-                    do k = -2_IKIND, +1_IKIND
-                        do j = -2_IKIND, +1_IKIND
-                            do i = -2_IKIND, +1_IKIND
-                                if (idual .eq. 1_IKIND)
-     &                              ge(ic+i ,jc+j ,kc+k) = 
-     &                                  ge(ic+i ,jc+j ,kc+k) + 
-     &                                  thermal_energy_per_cell
-                                te(ic+i ,jc+j ,kc+k) = 
-     &                              te(ic+i ,jc+j ,kc+k) + 
-     &                              thermal_energy_per_cell
-                            enddo
-                        enddo
-                    enddo
-                endif
-            endif
+            call mass_kinetic_energy(u, v, w, d, nx, ny,
+     &                          nz, ic, jc, kc,
+     &                          mass_end, kin_energy_end, mom_end)
+            write(6,*) "m end:", mass_end*
+     &               (dunits*(dx*x1)**3._RKIND)/SolarMass
+            write(6,*) 'kin_energy_end:',kin_energy_end*dunits*
+     &                  vunits**2._RKIND*dx**3._RKIND*x1**3._RKIND
+            write(6,*) 'mom_end:',mom_end*dunits*vunits
+     &                  *(dx*x1)**3._RKIND/SolarMass/1e5_RKIND
+#endif
 c
 c           Convert momenta back to velocities and transform back to lab frame
 c
-            call momentum1(u, v, w, d, metal, up(n), vp(n), wp(n),
-     &                    nx, ny, nz, ic, jc, kc, 
-     &                    iface, jface, kface, imethod, imetal,
-     &                    -1_IKIND)
+            call momentum_convert(u, v, w, d, metal, up(n), vp(n), 
+     &                    wp(n), nx, ny, nz, ic, jc, kc, 
+     &                    imethod, imetal,
+     &                    -1_IKIND, dx, dunits, vunits, x1)
 c
 c           Add the increase in the kinetic energy to the total energy field
 c             (unless we're using Zeus).  If using dual energy formalism, we
@@ -748,10 +708,10 @@ c             might want to enforce consistency.
 c     
             if (imethod .ne. 2_IKIND) then
                ke_injected = 0._RKIND
-               do k = -2_IKIND, +1_IKIND
-                  do j = -2_IKIND, +1_IKIND
-                     do i = -2_IKIND, +1_IKIND
-                        ke_after = 0.5_RKIND*
+               do k = -1_IKIND, +1_IKIND
+                  do j = -1_IKIND, +1_IKIND
+                     do i = -1_IKIND, +1_IKIND
+                        ke_after = 0.5_RKIND *
      &                        d(ic+i, jc+j, kc+k) *
      &                       (u(ic+i ,jc+j ,kc+k)**2_IKIND + 
      &                        v(ic+i ,jc+j ,kc+k)**2_IKIND + 
@@ -761,11 +721,51 @@ c
      &                       te(ic+i ,jc+j ,kc+k) + 
      &                       delta_ke/d(ic+i, jc+j, kc+k)
                         ke_injected = ke_injected + delta_ke
+c                    ke_after has units of mass*velocity^2/volume
+c                    te has units of mass*velocity^2/volume/mass*volume = velocity^2
+c                    te is *specific* energy (energy/mass)
                      enddo
                   enddo
                enddo
             endif
-
+#ifdef FORTRAN_DEBUG
+c
+c           Sum and print the momentum, kinetic energy, thermal energy, and
+c           total energy in a large region surrounding the particle
+c
+            te_sum = 0._RKIND
+            ke_sum = 0._RKIND
+            ge_sum = 0._RKIND
+            mom_sum = 0._RKIND
+            mass_sum = 0._RKIND
+            do k = -5_IKIND, +5_IKIND
+               do j = -5_IKIND, +5_IKIND
+                  do i = -5_IKIND, +5_IKIND
+                     mass_term = d(ic+i, jc+j, kc+k)
+                     mom_term = u(ic+i, jc+j, kc+k)**2._RKIND + 
+     &                    v(ic+i, jc+j, kc+k)**2._RKIND + 
+     &                    w(ic+i, jc+j, kc+k)**2._RKIND
+                     ke_sum = ke_sum + 0.5_RKIND*(mom_term*mass_term)
+                     mom_sum = mom_sum + mass_term*mom_term**0.5_RKIND
+                     mass_sum = mass_sum + mass_term
+                     te_sum = te_sum + te(ic+i, jc+j, kc+k) * mass_term
+                     ge_sum = ge_sum + ge(ic+i, jc+j, kc+k) * mass_term
+c           mass_sum has units mass/volume
+c           mom_sum has units mass*velocity/volume
+c           ke_sum has units mass*velocity^2/volume
+c           te_sum has units mass*velocity^2/volume
+c           ge_sum has units mass*velocity^2/volume
+                  enddo
+               enddo
+            enddo
+            write(6,*) 'mass, mom, KE, GE, TE:',
+     &        mass_sum*dunits*(x1*dx)**3._RKIND/SolarMass,
+     &        mom_sum*dunits*(x1*dx)**3._RKIND*vunits/
+     &        SolarMass/1e5_RKIND,
+     &        ke_sum*dunits*(x1*dx)**3._RKIND*vunits**2._RKIND,
+     &        ge_sum*dunits*(x1*dx)**3._RKIND*vunits**2._RKIND,
+     &        te_sum*dunits*(x1*dx)**3._RKIND*vunits**2._RKIND
+#endif
 c
  10         continue
          endif
@@ -782,10 +782,10 @@ c ==========================================================
 c
 c     Calculate the amount of momentum to add to each neighboring cell
 c
-      subroutine get_mom_per_cell(d, metal, mass_per_cell, 
+      subroutine get_mom_per_cell(d_init, mass_per_cell, 
      &               dist_mass_cells, mom_per_cell,
-     &               nsn, m_form, m_eject, d_fbck_cell, dx, x1,
-     &               dunits, vunits, mu, t1,
+     &               nsn, d_fbck_cell, dx, x1,
+     &               n_avg, Z_avg, dunits, vunits, t1,
      &               nx, ny, nz, ic, jc, kc)
 c
       implicit none
@@ -794,61 +794,99 @@ c
 c     Arguments
 c
       INTG_PREC nx, ny, nz, ic, jc, kc
-      R_PREC    d(nx,ny,nz), metal(nx,ny,nz), dx
-      R_PREC    mu(nx,ny,nz), t1
+      R_PREC    d_init(nx,ny,nz), dx
+      R_PREC    t1, Z_avg, n_avg
       R_PREC    mom_per_cell(3_IKIND, 3_IKIND, 3_IKIND)
       R_PREC    mass_per_cell, dist_mass_cells
-      R_PREC    nsn, m_form, m_eject, x1, dunits, d_fbck_cell, vunits
+      R_PREC    nsn, x1, dunits, d_fbck_cell, vunits
 c
 c     Locals
 c
-      INTG_PREC i, j, k
+      INTG_PREC i, j, k, dist
       R_PREC    dMswept, chi, chi_th, fe, pSN, ergs_51
-      R_PREC    den_cell, metal_cell, mu_cell
-
-        ergs_51 = 1.e51_RKIND/(dunits*x1**5._RKIND/t1**2._RKIND)
-
+      R_PREC    den_cell, Mej, dMej, Nnbors, betaSN
+c
+        ergs_51 = 1.e51_RKIND
+        Nnbors = dist_mass_cells - 1._RKIND
+        betaSN = 1._RKIND/dist_mass_cells
+        Mej = mass_per_cell*dist_mass_cells*dunits*(x1*dx)**3._RKIND
+        chi_th = 69.58_RKIND*(nsn)**(-2._RKIND/17._RKIND) * 
+     &               (n_avg)**(-4._RKIND/17._RKIND) * 
+     &               (Z_avg)**(-0.28_RKIND)
+#ifdef FORTRAN_DEBUG
+        write(6,*) 'chi_th:',chi_th
+#endif
         do k = -1_IKIND, +1_IKIND
             do j = -1_IKIND, +1_IKIND
-                do i = -1_IKIND, +1_IKIND
-c
+               do i = -1_IKIND, +1_IKIND
+                  dist = i**2_IKIND + j**2_IKIND + k**2_IKIND
+                  if (dist .eq. 0_IKIND) then
+                     pSN = 0._RKIND
+                  else
 c
 c       Compute the mass fraction of swept-up to ejected mass.
 c
-                  den_cell = d(ic+i,jc+j,kc+k)
-                  metal_cell = metal(ic+i,jc+j,kc+k)
-                  metal_cell = max(metal_cell/0.02_RKIND, 0.01_RKIND)
-                  dMswept = den_cell * 
-     &                (dx/2._RKIND)**(3._RKIND) + 
-     &                (d_fbck_cell*dx**(3._RKIND)) /
-     &                dist_mass_cells + mass_per_cell
+                     den_cell = d_init(ic+i,jc+j,kc+k)*dunits
+                     dMej = (1._RKIND-betaSN)*Mej/Nnbors
+                     dMswept = den_cell * 
+     &                     (dx*x1/2._RKIND)**(3._RKIND) + 
+     &                     ((1._RKIND-betaSN)*
+     &                     (d_fbck_cell*dunits)*(dx*x1)**3._RKIND) /
+     &                     Nnbors + dMej
 c
-                    chi = dMswept/mass_per_cell
+                     chi = dMswept/dMej
+#ifdef FORTRAN_DEBUG
+                     write(6,*) 'chi:',chi
+#endif
 c
 c       Compare chi to threshold and set momentum injection.
 c
-                    chi_th = 69.58_RKIND*(nsn)**(-2._RKIND/17._RKIND) * 
-     &               (den_cell*dunits)**(-4._RKIND/17._RKIND) * 
-     &               (metal_cell/0.02_RKIND)**(-0.28_RKIND)
-                    if (chi .lt. chi_th) then
+                     if (chi .lt. chi_th) then
                         fe = 1._RKIND - ((chi - 1._RKIND)/
-     &                     (3._RKIND*(chi_th - 1._RKIND)))
-                        pSN = (2._RKIND*chi * m_form * m_eject * fe *
-     &                     nsn * ergs_51)**(1._RKIND/2._RKIND)
-                    else
-                        mu_cell = mu(ic+i,jc+j,kc+k)
-                        pSN = 3.e5_RKIND*SolarMass*1.e5_RKIND * 
-     &                    (nsn)**(16._RKIND/17._RKIND) * 
-     &                    (den_cell * dunits / mu_cell /
-     &                    mass_h)**(-2._RKIND/17._RKIND) * 
-     &                    (metal_cell/ 
-     &                    0.02_RKIND)**(-0.14_RKIND)
-                        pSN = pSN/(dunits*x1**3._RKIND)/vunits
-                    endif
+     &                        (3._RKIND*(chi_th - 1._RKIND)))
+                        pSN = (2._RKIND*chi * Mej * fe *
+     &                        nsn * ergs_51)**(0.5_RKIND)
+#ifdef FORTRAN_DEBUG
+                        write(6,*) 'lt chi_th, pSN:',
+     &                        pSN/SolarMass/1e5_RKIND
+#endif
+                     else
+                        pSN = 3.e10_RKIND*SolarMass * 
+     &                        (nsn)**(16._RKIND/17._RKIND) * 
+     &                        (n_avg)**(-2._RKIND/17._RKIND) * 
+     &                        (Z_avg)**(-0.14_RKIND)
+#ifdef FORTRAN_DEBUG
+                        write(6,*) 'gt chi_th, pSN:',
+     &                        pSN/SolarMass/1e5_RKIND
+#endif
+                     endif
+c              pSN has units of cgs-mass*cgs-velocity, want it to have units of code-mass*code-velocity/code-volume
+c              conversion of mass from code units is (dunits*(dx*x1)**3._RKIND) (density times volume)
+                     pSN = pSN/(dunits*(dx*x1)**3._RKIND)/vunits/Nnbors
+c              dunits = cgs-density/code-density = cgs-mass*code-volume/(cgs-volume*code-mass)
+c              x1^3 = cgs-volume/code-volume
+c              vunits = cgs-velocity/code-velocity
+c              dx^3 = code-volume
+c              dunits*(dx*x1)**3._RKIND = cgs-mass*code-volume/(cgs-volume*code-mass)*code-volume*cgs-volume/code-volume
+c              dunits*(dx*x1)**3._RKIND = cgs-mass*code-volume/code-mass
+c              pSN = cgs-mass*cgs-velocity/(cgs-mass*code-volume/code-mass)/(cgs-velocity/code-velocity)
+c              pSN = code-mass*code-velocity/code-volume
+c              pSN now has units code-mass*code-velocity/code-volume
+c              So pSN is actually in the right units after all!
 c
-                    mom_per_cell(ic+i,jc+j,kc+k) = pSN
+c        If cell is on edge or corner of injection cube, reduce the
+c        amount of momentum that gets added to each cartesian direction
+c        to avoid double-counting.
 c
-                enddo
+                     if (dist .eq. 2_IKIND) then
+                        pSN = pSN/(2._RKIND**0.5_RKIND)
+                     else if (dist .eq. 3_IKIND) then
+                        pSN = pSN/(3._RKIND**0.5_RKIND)
+                     endif
+                  endif
+                  mom_per_cell(i+2,j+2,k+2) = pSN
+c
+               enddo
             enddo
         enddo
 c
@@ -859,9 +897,9 @@ c ==========================================================
 c
 c     Convert velocities to momentum and back
 c
-      subroutine momentum1(u, v, w, d, metal, up, vp, wp, 
-     &                    nx, ny, nz, ic, jc, kc, 
-     &                    iface, jface, kface, imethod, imetal, idir)
+      subroutine momentum_convert(u, v, w, d, metal, up, vp, wp, 
+     &                    nx, ny, nz, ic, jc, kc,
+     &                    imethod, imetal, idir, dx, dunits, vunits, x1)
 c
       implicit none
 #include "fortran_types.def"
@@ -869,10 +907,11 @@ c
 c     Arguments
 c
       INTG_PREC nx, ny, nz, ic, jc, kc
-      INTG_PREC iface, jface, kface, imethod, imetal, idir
+      INTG_PREC imethod, imetal, idir
       R_PREC    d(nx, ny, nz), metal(nx,ny,nz)
       R_PREC    u(nx,ny,nz), v(nx,ny,nz), w(nx,ny,nz)
-      R_PREC    up, vp, wp
+      R_PREC    up, vp, wp, dx
+      R_PREC    dunits, vunits, x1
 c
 c     Locals
 c
@@ -888,33 +927,23 @@ c
 c     Loop over velocities, multiplying by densities (or dividing if
 c       converting back)
 c
-      do k = -2_IKIND, +1_IKIND
-         do j = -2_IKIND, +1_IKIND
-            do i = -2_IKIND, +1_IKIND
+      do k = -1_IKIND, +1_IKIND
+         do j = -1_IKIND, +1_IKIND
+            do i = -1_IKIND, +1_IKIND
 c
 c              idir = +1: convert vel -> mom
 c               
                if (idir. eq. +1_IKIND) then
                   if (imethod .eq. 2_IKIND) then
-                     u(iface+i ,jc+j ,kc+k) = 
-     &                    (u(iface+i ,jc+j ,kc+k) - up)
-     &                    * 0.5_RKIND * (d(iface+i  , jc+j, kc+k) +
-     &                    d(iface+i+1_IKIND, jc+j, kc+k))
-                     v(ic+i ,jface+j ,kc+k) = 
-     &                    (v(ic+i ,jface+j ,kc+k) - vp)
-     &                    * 0.5_RKIND * (d(ic+i, jface+j  , kc+k) + 
-     &                    d(ic+i, jface+j+1_IKIND, kc+k))
-                     w(ic+i ,jc+j ,kface+k) = 
-     &                    (w(ic+i ,jc+j ,kface+k) - wp)
-     &                    * 0.5_RKIND * (d(ic+i, jc+j, kface+k  ) + 
-     &                    d(ic+i, jc+j, kface+k+1_IKIND))
+                     write(6,*) 'Zeus not supported!'
+                     ERROR_MESSAGE
                   else
                      u(ic+i ,jc+j ,kc+k) = (u(ic+i ,jc+j ,kc+k)-up) *
-     &                                      d(ic+i, jc+j, kc+k)
+     &                       d(ic+i, jc+j, kc+k)
                      v(ic+i ,jc+j ,kc+k) = (v(ic+i ,jc+j ,kc+k)-vp) *
-     &                                      d(ic+i, jc+j, kc+k)
+     &                       d(ic+i, jc+j, kc+k)
                      w(ic+i ,jc+j ,kc+k) = (w(ic+i ,jc+j ,kc+k)-wp) *
-     &                                      d(ic+i, jc+j, kc+k)
+     &                       d(ic+i, jc+j, kc+k)
                   endif
                   if (imetal .eq. 1_IKIND) then
                      metal(ic+i,jc+j,kc+k) = metal(ic+i,jc+j,kc+k) *
@@ -925,22 +954,15 @@ c              if idir = -1: convert mom -> vel
 c               
                else
                   if (imethod .eq. 2_IKIND) then
-                     u(iface+i ,jc+j ,kc+k) = u(iface+i ,jc+j ,kc+k)
-     &                    /( 0.5_RKIND * (d(iface+i  , jc+j, kc+k) +
-     &                             d(iface+i+1_IKIND, jc+j, kc+k))) + up
-                     v(ic+i ,jface+j ,kc+k) = v(ic+i ,jface+j ,kc+k) 
-     &                    /( 0.5_RKIND * (d(ic+i, jface+j  , kc+k) + 
-     &                             d(ic+i, jface+j+1_IKIND, kc+k))) + vp
-                     w(ic+i ,jc+j ,kface+k) = w(ic+i ,jc+j ,kface+k) 
-     &                    /( 0.5_RKIND * (d(ic+i, jc+j, kface+k  ) + 
-     &                             d(ic+i, jc+j, kface+k+1_IKIND))) + wp
+                     write(6,*) 'Zeus not supported!'
+                     ERROR_MESSAGE
                   else
                      u(ic+i ,jc+j ,kc+k) = u(ic+i ,jc+j ,kc+k) /
-     &                                     d(ic+i, jc+j, kc+k) + up
+     &                    (d(ic+i, jc+j, kc+k)) + up
                      v(ic+i ,jc+j ,kc+k) = v(ic+i ,jc+j ,kc+k) /
-     &                                     d(ic+i, jc+j, kc+k) + vp
+     &                    (d(ic+i, jc+j, kc+k)) + vp
                      w(ic+i ,jc+j ,kc+k) = w(ic+i ,jc+j ,kc+k) /
-     &                                     d(ic+i, jc+j, kc+k) + wp
+     &                    (d(ic+i, jc+j, kc+k)) + wp
                   endif
                   if (imetal .eq. 1_IKIND) then
                      metal(ic+i,jc+j,kc+k) = metal(ic+i,jc+j,kc+k) /
@@ -960,46 +982,49 @@ c
 c     Sum mass, momentum, and energy, and add mass and momentum, if requested
 c       Note that pu, pv, pw are momenta
 c
-      subroutine sum_mass_kinetic_energy1(pu, pv, pw, d, ge, te, 
+      subroutine mass_kinetic_energy(pu, pv, pw, d,
      &                           nx, ny, nz,
-     &                           iface, jface, kface, ic, jc, kc,
-     &                           mass_sum, kin_energy_sum,
-     &                           idual, imethod)
+     &                           ic, jc, kc,
+     &                           mass_grid, kin_energy_grid, mom_grid)
 c
       implicit none
 #include "fortran_types.def"
 c
 c     Arguments
 c
-      INTG_PREC nx, ny, nz, iface, jface, kface, ic, jc, kc, idual
-      INTG_PREC imethod
+      INTG_PREC nx, ny, nz, ic, jc, kc
       R_PREC    pu(nx,ny,nz), pv(nx,ny,nz), pw(nx,ny,nz)
-      R_PREC    d(nx,ny,nz), ge(nx,ny,nz), te(nx,ny,nz)
-      R_PREC    mass_sum, kin_energy_sum
+      R_PREC    d(nx,ny,nz)
+      R_PREC    mass_grid(3,3,3), kin_energy_grid(3,3,3)
+      R_PREC    mom_grid(3,3,3)
 c
 c     Locals
 c
       INTG_PREC i, j, k
       R_PREC    mass_term, mom_term, kin_energy
 c
-      mass_sum = 0._RKIND
-      kin_energy_sum = 0._RKIND
 c
 c     Sum mass and energy      
 c
-      do k = -2_IKIND, +1_IKIND
-         do j = -2_IKIND, +1_IKIND
-            do i = -2_IKIND, +1_IKIND
+      do k = -1_IKIND, +1_IKIND
+         do j = -1_IKIND, +1_IKIND
+            do i = -1_IKIND, +1_IKIND
                mass_term = d(ic   +i ,jc   +j ,kc   +k)
-               mom_term = pu(iface+i ,jc   +j, kc   +k)**2_IKIND + 
-     &                    pv(ic   +i ,jface+j, kc   +k)**2_IKIND + 
-     &                    pw(ic   +i ,jc   +j, kface+k)**2_IKIND
+               mom_term = pu(ic   +i ,jc   +j, kc   +k)**2_IKIND + 
+     &                    pv(ic   +i ,jc   +j, kc   +k)**2_IKIND + 
+     &                    pw(ic   +i ,jc   +j, kc   +k)**2_IKIND
+c              mass_term has units of mass/volume
+c              mom_term has units of mass^2*velocity^2/volume^2
 c
 c              Compute total mass and energy
 c              
                kin_energy = mom_term / (2._RKIND * mass_term)
-               mass_sum = mass_sum + mass_term
-               kin_energy_sum = kin_energy_sum + kin_energy
+c              kin_energy has units of mass^2*velocity^2/volume^2 / (mass/volume)
+c                          = mass*velocity^2/volume
+               mass_grid(i+2,j+2,k+2) = mass_term
+               kin_energy_grid(i+2,j+2,k+2) = kin_energy
+               mom_grid(i+2,j+2,k+2) = mom_term**0.5_RKIND
+c              mom_grid has units of mass*velocity/volume
             enddo
          enddo
       enddo
@@ -1012,13 +1037,12 @@ c
 c     Add mass, momentum, and energy to affected cells.
 c       Note that pu, pv, pw are momenta
 c
-      subroutine add_feedback1(pu, pv, pw, d, ge, te, metal, nx, ny, nz, 
-     &                        ic, jc, kc, iface, jface, kface,
-     &                        dxf, dyf, dzf, dxc, dyc, dzc,
+      subroutine add_feedback_mech(pu, pv, pw, d, ge, te, metal, 
+     &                        nx, ny, nz, ic, jc, kc,
      &                        imethod, imetal, imulti_metals, idual,
      &                        m_eject, yield, metalf,
      &                        mass_per_cell, mom_per_cell, 
-     &                        therm_per_cell)
+     &                        therm_per_cell, dx, x1, dunits, vunits)
 c
       implicit none
 #include "fortran_types.def"
@@ -1026,19 +1050,20 @@ c
 c     Arguments
 c
       INTG_PREC nx, ny, nz, ic, jc, kc, idual
-      INTG_PREC iface, jface, kface, imethod, imetal, imulti_metals
+      INTG_PREC imethod, imetal, imulti_metals
       R_PREC    d(nx, ny, nz), metal(nx,ny,nz), ge(nx,ny,nz)
       R_PREC    pu(nx,ny,nz), pv(nx,ny,nz), pw(nx,ny,nz), te(nx,ny,nz)
       R_PREC    mass_per_cell, mom_per_cell(3_IKIND,3_IKIND,3_IKIND)
       R_PREC    m_eject, yield, metalf, therm_per_cell
-      R_PREC    dxf, dyf, dzf, dxc, dyc, dzc,
-     &        dxf1, dyf1, dzf1, dxc1, dyc1, dzc1
+      R_PREC    dunits, x1, vunits, dx
 c
 c     Locals
 c
-      INTG_PREC i, j, k, i1, j1, k1
+      INTG_PREC i, j, k
       R_PREC    delta_mass, delta_pu, delta_pv, delta_pw, delta_therm,
-     &     dratio, tot_mass
+     &          dratio
+      R_PREC    pu_start, pu_deposit, pv_start, pv_deposit, pw_start,
+     &          pw_deposit
 c
 c     Error check
 c
@@ -1047,97 +1072,128 @@ c
          ERROR_MESSAGE
       endif
 c
-c     Loop "cells" in particle-frame
-c
-      tot_mass = 0._RKIND
+c     Loop cells in particle-frame
 c
       do k = -1_IKIND, +1_IKIND
          do j = -1_IKIND, +1_IKIND
             do i = -1_IKIND, +1_IKIND
 c
-c     For each particle "cell", do CIC-like deposit
-c     compute zone and face centered weight factors
-c
-               do i1 = i, i+1_IKIND
-                  dxf1 = dxf
-                  dxc1 = dxc
-                  if (i1 .eq. i+1_IKIND) dxf1 = 1._RKIND - dxf
-                  if (i1 .eq. i+1_IKIND) dxc1 = 1._RKIND - dxc
-                  do j1 = j, j+1_IKIND
-                     dyf1 = dyf
-                     dyc1 = dyc
-                     if (j1 .eq. j+1_IKIND) dyf1 = 1._RKIND - dyf
-                     if (j1 .eq. j+1_IKIND) dyc1 = 1._RKIND - dyc
-                     do k1 = k, k+1_IKIND
-                        dzf1 = dzf
-                        dzc1 = dzc
-                        if (k1 .eq. k+1_IKIND) dzf1 = 1._RKIND - dzf
-                        if (k1 .eq. k+1_IKIND) dzc1 = 1._RKIND - dzc
-
-                        delta_mass = mass_per_cell*dxc1*dyc1*dzc1
-                        delta_pu = i*mom_per_cell(i,j,k)*dxf1*dyc1*dzc1
-                        delta_pv = j*mom_per_cell(i,j,k)*dxc1*dyf1*dzc1
-                        delta_pw = k*mom_per_cell(i,j,k)*dxc1*dyc1*dzf1
-                        delta_therm = therm_per_cell*dxc1*dyc1*dzc1
+               delta_mass =   mass_per_cell
+c              delta_mass has units of mass/volume
+               delta_pu   =  i*mom_per_cell(i+2,j+2,k+2)
+               delta_pv   =  j*mom_per_cell(i+2,j+2,k+2)
+               delta_pw   =  k*mom_per_cell(i+2,j+2,k+2)
+               delta_therm = therm_per_cell
+c              delta_p's have units of mass*velocity/volume
+c              delta_therm has units of mass*velocity^2/volume
+#ifdef FORTRAN_DEBUG
+               write(6,*) 'i,j,k', i, j, k
+               write(6,*) 'p_before:',pu(ic+i,jc+j,kc+k)*dx**3._RKIND*
+     &            (dunits*x1**3._RKIND)*vunits/SolarMass/1e5_RKIND,
+     &            pv(ic+i,jc+j,kc+k)*dx**3._RKIND*
+     &            (dunits*x1**3._RKIND)*vunits/SolarMass/1e5_RKIND,
+     &            pw(ic+i,jc+j,kc+k)*dx**3._RKIND*
+     &            (dunits*x1**3._RKIND)*vunits/SolarMass/1e5_RKIND
+               write(6,*) 'delta_p:',delta_pu*dx**3._RKIND*
+     &            (dunits*x1**3._RKIND)*vunits/SolarMass/1e5_RKIND,
+     &            delta_pv*dx**3._RKIND*
+     &            (dunits*x1**3._RKIND)*vunits/SolarMass/1e5_RKIND,
+     &            delta_pw*dx**3._RKIND*
+     &            (dunits*x1**3._RKIND)*vunits/SolarMass/1e5_RKIND
+#endif
 c
 c     Add mass, momentum
 c     (add thermal energy here)
-c
-                        dratio = d(ic+i1, jc+j1, kc+k1)/
-     &                       (d(ic+i1, jc+j1, kc+k1) + delta_mass)
-                        d(ic+i1 ,jc+j1 ,kc+k1) = d(ic+i1 ,jc+j1 ,kc+k1)
+c           
+               pu_start = pu(ic+i,jc+j,kc+k)
+               pv_start = pv(ic+i,jc+j,kc+k)
+               pw_start = pw(ic+i,jc+j,kc+k)
+               dratio = d(ic+i, jc+j, kc+k)/
+     &                       (d(ic+i, jc+j, kc+k) + delta_mass)
+               d(ic+i,jc+j,kc+k) = d(ic+i,jc+j,kc+k)
      &                       + delta_mass
-                        pu(iface+i1 ,jc+j1 ,kc+k1) = 
-     &                       pu(iface+i1 ,jc+j1 ,kc+k1)+ delta_pu
-                        pv(ic+i1 ,jface+j1 ,kc+k1) = 
-     &                       pv(ic+i1 ,jface+j1 ,kc+k1) + delta_pv
-                        pw(ic+i1 ,jc+j1 ,kface+k1) = 
-     &                       pw(ic+i1 ,jc+j1 ,kface+k1)+ delta_pw
+               pu(ic+i,jc+j,kc+k) = 
+     &                       pu_start + delta_pu
+               pv(ic+i,jc+j,kc+k) = 
+     &                       pv_start + delta_pv
+               pw(ic+i,jc+j,kc+k) = 
+     &                       pw_start+ delta_pw
 c                        
-                        tot_mass = tot_mass + delta_mass
+c        If absolute value of momentum after deposition is less than it was
+c        before deposition, add the canceled momentum as thermal energy
+c
+               pu_deposit = pu(ic+i,jc+j,kc+k)**2._RKIND - 
+     &                      pu_start**2._RKIND
+               if (pu_deposit .lt. 0._RKIND)
+     &             delta_therm = delta_therm - 0.5_RKIND * 
+     &                     pu_deposit/d(ic+i, jc+j, kc+k)
+               pv_deposit = pv(ic+i,jc+j,kc+k)**2._RKIND - 
+     &                      pv_start**2._RKIND
+               if (pv_deposit .lt. 0._RKIND)
+     &            delta_therm = delta_therm - 0.5_RKIND * 
+     &                     pv_deposit/d(ic+i, jc+j, kc+k)
+               pw_deposit = pw(ic+i,jc+j,kc+k)**2._RKIND - 
+     &                      pw_start**2._RKIND
+               if (pw_deposit .lt. 0._RKIND)
+     &            delta_therm = delta_therm - 0.5_RKIND * 
+     &                     pw_deposit/d(ic+i, jc+j, kc+k)
+#ifdef FORTRAN_DEBUG 
+               write(6,*) 'p_after,delta_therm:',
+     &           pu(ic+i, jc+j, kc+k)*dx**3._RKIND*
+     &           (dunits*x1**3._RKIND)*vunits/SolarMass/1e5_RKIND,
+     &           pv(ic+i, jc+j, kc+k)*dx**3._RKIND*
+     &           (dunits*x1**3._RKIND)*vunits/SolarMass/1e5_RKIND,
+     &           pw(ic+i, jc+j, kc+k)*dx**3._RKIND*
+     &           (dunits*x1**3._RKIND)*vunits/SolarMass/1e5_RKIND,
+     &           delta_therm*dx**3._RKIND*
+     &           (dunits*x1**3._RKIND)*vunits**2._RKIND
+#endif
 c
 c     Add thermal energy
 c     
-                        te(ic+i1 ,jc+j1 ,kc+k1) = 
-     &                       te(ic+i1 ,jc+j1 ,kc+k1)*dratio + 
-     &                       delta_therm / d(ic+i1, jc+j1, kc+k1)
-c                        
-                        if (idual .eq. 1_IKIND)
-     &                       ge(ic+i1 ,jc+j1 ,kc+k1) = 
-     &                       ge(ic+i1, jc+j1, kc+k1)*dratio +
-     &                       delta_therm / d(ic+i1, jc+j1, kc+k1)
-                        
+#ifdef FORTRAN_DEBUG
+               write(6,*) 'te_before',te(ic+i,jc+j,kc+k)*
+     &            (dunits*(dx*x1)**3._RKIND*vunits**2._RKIND)
+#endif
+               te(ic+i, jc+j, kc+k) = 
+     &                   te(ic+i, jc+j, kc+k)*dratio + 
+     &                   delta_therm / d(ic+i, jc+j, kc+k)
+#ifdef FORTRAN_DEBUG
+               write(6,*) 'te_after',te(ic+i,jc+j,kc+k)*
+     &            (dunits*(dx*x1)**3._RKIND*vunits**2._RKIND)                        
+               write(6,*) 'ge_before',ge(ic+i,jc+j,kc+k)*
+     &            (dunits*(dx*x1)**3._RKIND*vunits**2._RKIND)
+#endif
+               if (idual .eq. 1_IKIND)
+     &                   ge(ic+i, jc+j, kc+k) = 
+     &                   ge(ic+i, jc+j, kc+k)*dratio +
+     &                   delta_therm / d(ic+i, jc+j, kc+k)
+#ifdef FORTRAN_DEBUG
+               write(6,*) 'ge_after',ge(ic+i,jc+j,kc+k)*
+     &            (dunits*(dx*x1)**3._RKIND*vunits**2._RKIND)
+#endif
 c     
 c     Metal feedback (note that in this function gas metal is
 c     a fraction (rho_metal/rho_gas) rather than a density.
 c     The conversion has been done in the handling routine)
 c     
-                        if (imetal .eq. 1_IKIND) then
+               if (imetal .eq. 1_IKIND) then
 c     
 c     "Cen method".  This takes into account gas recycling.
 c     (metal is not a fraction here)
 c     
-                           metal(ic+i1, jc+j1, kc+k1) = 
-     &                          metal(ic+i1, jc+j1, kc+k1) + 
-     &                          (delta_mass/m_eject)
-     &                          * (yield * (1._RKIND-metalf) + 
-     &                          m_eject * metalf)
-                           
-                        endif
+                  metal(ic+i, jc+j, kc+k) = 
+     &                   metal(ic+i, jc+j, kc+k) + 
+     &                   (delta_mass/m_eject)
+     &                    * (yield * (1._RKIND-metalf) + 
+     &                    m_eject * metalf)
+                     
+               endif
 c     
-c     End loop over CIC-deposit
-c     
-                     enddo
-                  enddo
-               enddo
-c     
-c     End loop over "cells" in particle-frame
+c     End loop over cells in particle-frame
 c     
             enddo
          enddo
       enddo
-c
-c     write(6,*) 'tot_mass:',tot_mass
-c     
       return
       end

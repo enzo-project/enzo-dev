@@ -58,6 +58,7 @@ SPEXTERN float StarMakerMinimumDynamicalTime;
 SPEXTERN float StarMassEjectionFraction;
 SPEXTERN float StarMetalYield;
 SPEXTERN float StarEnergyToThermalFeedback;
+SPEXTERN float StarFeedbackAdditionalThermalEnergy;
 SPEXTERN float StarEnergyFeedbackRate;
 SPEXTERN float StarEnergyToStellarUV;
 SPEXTERN float StarEnergyToQuasarUV;
