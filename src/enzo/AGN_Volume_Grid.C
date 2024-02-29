@@ -2,7 +2,7 @@
 
 // Constructor that takes the grid dimensions (ncells * ncells) and the
 // left and right corners of the grid [x,y,z].
-AGN_Volume_Grid::AGN_Volume_Grid(int* ndim, float* gl, float* gr) {
+AGN_Volume_Grid::AGN_Volume_Grid(int* ndim, FLOAT* gl, FLOAT* gr) {
    // Set grid parameters
    for (int i = 0; i < 3; i++) {
       dim[i] = ndim[i];
@@ -91,8 +91,8 @@ float*** AGN_Volume_Grid::get_intersection_volume(AGN_Volume_Cylinder* cyl, int 
                vol[k][j][i] = 0.0;
 
             else {
-               float rlc[3];
-               float rrc[3];
+               FLOAT rlc[3];
+               FLOAT rrc[3];
 
                rlc[0] = cell_left[0][i];
                rlc[1] = cell_left[1][j];

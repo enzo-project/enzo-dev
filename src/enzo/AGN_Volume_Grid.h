@@ -7,7 +7,7 @@
 
 class AGN_Volume_Grid {
    public:
-      AGN_Volume_Grid(int*, float*, float*);
+      AGN_Volume_Grid(int*, FLOAT*, FLOAT*);
       ~AGN_Volume_Grid();
 
       float*** get_intersection_volume(AGN_Volume_Cylinder*, int, int, int);
