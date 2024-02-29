@@ -220,6 +220,7 @@ External libraries
 **hypre-[no\|yes]**           Include HYPRE libraries (implicit RT solvers)
 **cuda-[no\|yes]**            Set whether to use CUDA (GPU-computing)
 **python-[no\|yes]**          Set whether to use inline python
+**libyt-[no\|yes]**           Set whether to use libyt in situ analysis (Do not use python-yes and libyt-yes at the same time.)
 **use-hdf4-[no\|yes]**        Set whether to use HDF4
 ===========================   =====================================
 
