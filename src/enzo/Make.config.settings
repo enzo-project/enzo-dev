@@ -27,6 +27,7 @@
 #    CONFIG_LIBYT
 #    CONFIG_LIBYT_INTERACTIVE
 #    CONFIG_LIBYT_RELOAD
+#    CONFIG_LIBYT_JUPYTER
 #    CONFIG_NEW_PROBLEM_TYPES
 #    CONFIG_PAPI
 #    CONFIG_OOC_BOUNDARY
@@ -198,6 +199,15 @@
 #-----------------------------------------------------------------------
 
      CONFIG_LIBYT_RELOAD = no
+
+#=======================================================================
+# CONFIG_LIBYT_JUPYTER
+#=======================================================================
+#    yes           use libyt Jupyter Notebook feature
+#    no            don't use libyt Jupyter Notebook feature
+#-----------------------------------------------------------------------
+
+     CONFIG_LIBYT_JUPYTER = no
 
 #=======================================================================
 # CONFIG_NEW_PROBLEM_TYPES

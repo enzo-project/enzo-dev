@@ -356,12 +356,14 @@ int CallInSitulibyt(LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
     }
 #endif
 
+#ifdef USE_LIBYT_JUPYTER
     /* Launch libyt Jupyter kernel */
-    // if (yt_run_JupyterKernel("LIBYT_STOP", false) != YT_SUCCESS) {
-    //      fprintf(stderr, "Error in libyt API yt_run_JupyterKernel\n");
-    //      fprintf(stderr, "One reason might be compiling libyt without -DJUPYTER_KERNEL=ON, "
-    //                      "which does not support yt_run_JupyterKernel.\n");
-    // }
+    if (yt_run_JupyterKernel("LIBYT_STOP", false) != YT_SUCCESS) {
+         fprintf(stderr, "Error in libyt API yt_run_JupyterKernel\n");
+         fprintf(stderr, "One reason might be compiling libyt without -DJUPYTER_KERNEL=ON, "
+                         "which does not support yt_run_JupyterKernel.\n");
+    }
+#endif
 
     /* Free resources allocated for libyt. */
     if (yt_free() != YT_SUCCESS) {
