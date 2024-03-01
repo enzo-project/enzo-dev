@@ -1,28 +1,31 @@
 #=======================================================================
 #
-# FILE:        Make.mach.ubuntu
+# FILE:        Make.mach.conda
 #
-# DESCRIPTION: Makefile settings for a machine running Ubuntu
+# DESCRIPTION: Using a conda environment for your enzo build.
+#              This requires the conda packages:
+#                   - gxx_linux-64
+#                   - gcc_linux-64
+#                   - mpi4py
+#                   - hdf5
 #
-# AUTHOR:      Rick Wagner (rick@ucsd.edu)
+#              conda-forge seems the most reliable for these.
 #
-# DATE:        2008-09-16
+# AUTHOR:      Matthew Turk <matthewturk@gmail.com>
 #
-# This configuration assumes that build-essentials, gfortran, 
-# OpenMPI and HDF5 have been installed using apt-get.
+# DATE:        2022-10-12
 #
 #=======================================================================
 
-MACH_TEXT  = Use apt-get to install libhdf5-serial-dev gfortran openmpi-bin libopenmpi-dev
+MACH_TEXT  = Conda environment
 MACH_VALID = 1
-MACH_FILE  = Make.mach.ubuntu
+MACH_FILE  = Make.mach.conda
 
 #-----------------------------------------------------------------------
 # Install paths (local variables)
 #-----------------------------------------------------------------------
 
-LOCAL_GRACKLE_INSTALL = $(HOME)/local
-LOCAL_HYPRE_INSTALL = $(HOME)/local
+LOCAL_GRACKLE_INSTALL = /usr/local
 
 #-----------------------------------------------------------------------
 # Compiler settings
@@ -50,18 +53,21 @@ MACH_LD_NOMPI  = g++ # Linker when not using MPI
 # Machine-dependent defines
 #-----------------------------------------------------------------------
 
-MACH_DEFINES   = -DLINUX -DH5_USE_16_API 
+# Note: When compiling against HDF5 version 1.8 or greater, you need to
+# compile HDF5 with --with-default-api-version=v16, or Enzo with
+# -DH5_USE_16_API.
+
+MACH_DEFINES   = -DLINUX -DH5_USE_16_API
 
 #-----------------------------------------------------------------------
 # Compiler flag settings
 #-----------------------------------------------------------------------
 
-
 MACH_CPPFLAGS = -P -traditional 
 MACH_CFLAGS   = 
 MACH_CXXFLAGS =
-MACH_FFLAGS   = -std=legacy -fno-second-underscore -ffixed-line-length-132
-MACH_F90FLAGS = -std=legacy -fno-second-underscore
+MACH_FFLAGS   = -fno-second-underscore -ffixed-line-length-132 -std=legacy
+MACH_F90FLAGS = -fno-second-underscore -std=legacy
 MACH_LDFLAGS  = 
 
 #-----------------------------------------------------------------------
@@ -78,8 +84,8 @@ MACH_OPT_AGGRESSIVE  = -O3 -g
 #-----------------------------------------------------------------------
 
 LOCAL_INCLUDES_MPI    = # MPI includes
-LOCAL_INCLUDES_HDF5   = -I/usr/include/hdf5/serial # HDF5 includes
-LOCAL_INCLUDES_HYPRE  = -I$(LOCAL_HYPRE_INSTALL)/include
+LOCAL_INCLUDES_HDF5   = -I${CONDA_PREFIX}/include/ # HDF5 includes
+LOCAL_INCLUDES_HYPRE  = -I$(LOCAL_HYPRE_INSTALL)/include # hypre includes
 LOCAL_INCLUDES_PAPI   = # PAPI includes
 LOCAL_INCLUDES_GRACKLE = -I$(LOCAL_GRACKLE_INSTALL)/include
 
@@ -87,21 +93,24 @@ MACH_INCLUDES         = $(LOCAL_INCLUDES_HDF5)
 MACH_INCLUDES_MPI     = $(LOCAL_INCLUDES_MPI)
 MACH_INCLUDES_HYPRE   = $(LOCAL_INCLUDES_HYPRE)
 MACH_INCLUDES_PAPI    = $(LOCAL_INCLUDES_PAPI)
-MACH_INCLUDES_GRACKLE  = $(LOCAL_INCLUDES_GRACKLE)
+MACH_INCLUDES_GRACKLE = $(LOCAL_INCLUDES_GRACKLE)
 
 #-----------------------------------------------------------------------
 # Libraries
 #-----------------------------------------------------------------------
 
 LOCAL_LIBS_MPI    = # MPI libraries
-LOCAL_LIBS_HDF5   = -L/usr/lib/x86_64-linux-gnu/ -lhdf5_serial -lz
-LOCAL_LIBS_HYPRE  = -L$(LOCAL_HYPRE_INSTALL)/lib -lHYPRE
+LOCAL_LIBS_HDF5   = -L${CONDA_PREFIX}/lib/ -lhdf5 -lz # HDF5 libraries
+LOCAL_LIBS_HYPRE  = -L$(LOCAL_HYPRE_INSTALL)/lib -lHYPRE # hypre libraries
 LOCAL_LIBS_PAPI   = # PAPI libraries
 LOCAL_LIBS_MACH   = -lgfortran # Machine-dependent libraries
 LOCAL_LIBS_GRACKLE = -L$(LOCAL_GRACKLE_INSTALL)/lib -lgrackle
+LOCAL_LIBS_PYTHON = -L${CONDA_PREFIX}/lib/ -lpython3
+LOCAL_LIBS_LIBYT  = $(LOCAL_LIBS_PYTHON) -L${CONDA_PREFIX}/lib/ -lyt -lreadline
 
 MACH_LIBS         = $(LOCAL_LIBS_HDF5) $(LOCAL_LIBS_MACH)
 MACH_LIBS_MPI     = $(LOCAL_LIBS_MPI)
 MACH_LIBS_HYPRE   = $(LOCAL_LIBS_HYPRE)
 MACH_LIBS_PAPI    = $(LOCAL_LIBS_PAPI)
 MACH_LIBS_GRACKLE = $(LOCAL_LIBS_GRACKLE)
+MACH_LIBS_LIBYT   = $(LOCAL_LIBS_LIBYT)

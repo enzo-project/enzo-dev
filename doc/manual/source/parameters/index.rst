@@ -1308,7 +1308,9 @@ added to the acceleration field for the baryons and particles.
     This flag (1 - on, 0 - off) indicates if there is to be a
     disk-like gravity field. The stellar disk potential follows 
     Miyamoto & Nagai 1975. A spherical stellar bulge component
-    and an NFW dark matter potential can also be specified.
+    can also be specified. Set ``DiskGravityDarkMatterUseNFW = 1``
+    or ``DiskGravityDarkMatterUseB95 = 1`` to impose an external
+    dark matter potential.
     Designed to work with the GalaxySimulation problem type.
     Default: 0
 ``DiskGravityPosition`` (external)
@@ -1332,11 +1334,27 @@ added to the acceleration field for the baryons and particles.
 ``DiskGravityStellarBulgeR`` (external)
     Disk stellar bulge scalue radius (in Mpc)
     Default: 1.0e-4
+``DiskGravityDarkMatterUseNFW`` (external)
+    Enable an NFW dark matter profile.
+    Uses ``DiskGravityDarkMatterMass`` and ``DiskGravityDarkMatterConcentration``
+    as parameters. Mutually exclusive with ``DiskGravityDarkMatterUseB95``.
+    Default: 0 
+``DiskGravityDarkMatterMass`` (external)
+    Dark matter halo mass (in Msun) used with ``DiskGravityDarkMatterUseNFW``.
+    Default: 1.0e12
+``DiskGravityDarkMatterConcentration`` (external)
+    Dark matter halo concentration used with ``DiskGravityDarkMatterUseNFW``.
+    Default: 10
+``DiskGravityDarkMatterUseB95`` (external)
+    Enable the dark matter profile from Burkert 1995.
+    Uses ``DiskGravityDarkMatterR`` and ``DiskGravityDarkMatterDensity``
+    as parameters. Mutually exclusive with ``DiskGravityDarkMatterUseNFW``.
+    Default: 0
 ``DiskGravityDarkMatterR`` (external)
-    Dark matter halo scale radius (in Mpc)
+    Dark matter halo scale radius (in Mpc) used with ``DiskGravityDarkMatterUseB95``.
     Default: 2.3e-2
 ``DiskGravityDarkMatterDensity`` (external)
-    Dark matter effective density (in cgs)
+    Dark matter effective density (in cgs) used with ``DiskGravityDarkMatterUseB95``.
     Default: 3.81323e-25
 
 .. _hydrodynamics_parameters:
@@ -2248,6 +2266,12 @@ The parameters below are considered in ``StarParticleCreation`` method
     the particle creation time by this amount.  This value is in units of Myrs.  If set
     to a negative value, energy, mass and metals are injected gradually in the same way as is
     done for ``StarParticleFeedback`` method = 1.  Default -1.
+``StarFormationOncePerRootGridTimeStep`` (external)
+    Only valid for ``StarParticleFeedback`` methods 1 and 11. Star formation will only
+    occur at the beginning of the root grid step and with a mass proportional to the root grid timestep.
+    Stars can still only form on the most refined grid in a given volume. This option
+    results in fewer, more massive star particles.
+    Default: 0 (off)
 ``StarMakerMinimumMassRamp`` (external)
      Sets the Minimum Stellar Mass (otherwise given by ``StarMakerMinimumMass`` to 
      ramp up over time, so that a small mass can be used early in the calculation
@@ -2336,8 +2360,6 @@ The parameters below are considered in ``StarParticleCreation`` method 11.
     See :ref:`molecular_hydrogen_regulated_star_formation`.
 ``H2StarMakerColdGasTemperature`` (external)
     See :ref:`molecular_hydrogen_regulated_star_formation`.
-``StarFormationOncePerRootGridTimeStep`` (external)
-    See :ref:`molecular_hydrogen_regulated_star_formation`.
 
 .. _popIII_star_formation_parameters:
 
@@ -2406,6 +2428,12 @@ The parameters below are considered in ``StarParticleCreation`` method 3.
     Above this density, a Pop III "color" particle forms, and it will populate the surrounding region with a color field.  Units: mean density. Default: 1e6
 ``PopIIIColorMass`` (external)
     A Pop III "color" particle will populate the surrounding region with a mass of PopIIIColorMass.  Units: solar masses.  Default: 1e6
+``PopIIIRotating`` (external)
+    Updates ionizing photon rates to the rotational and non-rotational rates given by Murphy et al. (2021). Default: 0
+
+    0 - Model is off, Schaerer (2002) photon rates are used.
+    1 - Rotating model is on
+    2 - Non-rotating model is on
 
 .. _radiative_star_cluster_formation_parameters:
 
@@ -2686,7 +2714,8 @@ Background Radiation Parameters
     set to 1, it calculates shielding for H/He. See
     ``calc_photo_rates.src`` for more details.  When set to 2, it
     shields only H2 with the Sobolev-like approximation from
-    Wolcott-Green et al. (2011).  Default: 0
+    Wolcott-Green et al. (2011). When set to 3, it shields H2 with updated
+    fit from Wolcott-Green & Haiman (2019). Default: 0
 ``RadiationFieldRedshift`` (external)
     This parameter specifies the redshift at which the radiation field
     is calculated.  If a UV radiation background is used in a
@@ -4887,7 +4916,8 @@ Isolated Galaxy Evolution (31)
     parameter subset.
 
     This problem type can use either the PointSourceGravity or DiskGravity
-    parameters.
+    parameters, including either ``DiskGravityDarkMatterUseB95`` or
+    ``DiskGravityDarkMatterUseNFW``.
 
 
 ``GalaxySimulationRefineAtStart`` (external)
@@ -4902,15 +4932,18 @@ Isolated Galaxy Evolution (31)
 ``GalaxySimulationUseMetallicityField`` (external)
     Turns on (1) or off (0) the metallicity field. Default: 0
 ``GalaxySimulationGalaxyMass`` (external)
-    Dark matter mass of the galaxy, in Msun. Needed to initialize the
-    NFW gravitational potential. If ``DiskGravity`` = 1, this parameter
-    will automatically be set to the value of ``DiskGravityDarkMatterMass``
-    to ensure consistency.
+    Dark matter mass of the galaxy, in Msun. 
+    Needed to initialize the NFW gravitational potential. 
+    If ``DiskGravity = 1`` and ``DiskGravityDarkMatterUseNFW = 1``,
+    this parameter will automatically be set to the value 
+    of ``DiskGravityDarkMatterMass`` to ensure consistency.
     Default: 1.0e+12
 ``GalaxySimulationDarkMatterConcentrationParameter`` (external)
-    NFW dark matter concentration parameter. If ``DiskGravity`` = 1, this parameter
-    will automatically be set to the value of ``DiskGravityDarkMatterConcentration``
-    to ensure consistency. Default: 12.0
+    NFW dark matter concentration parameter. 
+    If ``DiskGravity = 1`` and ``DiskGravityDarkMatterUseNFW = 1``,
+    this parameter will automatically be set to the value 
+    of ``DiskGravityDarkMatterConcentration`` to ensure consistency.
+    Default: 12.0
 ``GalaxySimulationGasMass`` (external)
     Amount of gas in the galaxy, in Msun. Used to initialize the
     density field in the galactic disk. Default: 4.0e+10
@@ -4938,6 +4971,11 @@ Isolated Galaxy Evolution (31)
     Default: 0.0
 ``GalaxySimulationDiskTemperature`` (external)
     Temperature of the gas in the galactic disk. Default: 1.0e+4
+``GalaxySimulationDiskPressureBalance`` (external)
+    Set disk temperature so that the gas is in pressure balance with the CGM/ICM.
+    The circular velocity will also be modified to account for pressure support.
+    Ignores ``GalaxySimulationDiskTemperature``.
+    Default: 0
 ``GalaxySimulationDiskMetallicityEnhancementFactor`` (external)
     Set the disk metallicity, expressed as a multiple of ``GalaxySimulationGasHaloMetallicity``.
     Default: 3.0
@@ -4946,18 +4984,20 @@ Isolated Galaxy Evolution (31)
     Any two radial profiles of density,
     temperature, entropy, and pressure (often via hydrostatic equilibrium) may be
     used to specify the CGM's density and temperature structure.
+    Methods 1 through 5 depend on a dark matter profile specified with either
+    ``DiskGravityDarkMatterUseNFW`` or ``DiskGravityDarkMatterUseB95``.
     Default: 0
 
     ===== =============================
     Value Profile & Relevant Parameters
     ===== =============================
     0     No CGM. Ambient medium is defined via ``GalaxySimulationUniformDensity`` & ``GalaxySimulationInitialTemperature``
-    1     Temperature is a function of radius derived from the virial theorem assuming an NFW profile. Assume hydrostatic equilibrium. Scaled to ``GalaxySimulationGasHaloScaleRadius``.
+    1     Temperature is a function of radius derived from the virial theorem. Assume hydrostatic equilibrium with a chosen dark matter profile. Scaled to ``GalaxySimulationGasHaloScaleRadius``.
     2     Isothermal with temperature ``GalaxySimulationGasHaloTemperature`` and a power-law entropy profile specified with ``GalaxySimulationGasHaloScaleRadius`` and ``GalaxySimulationGasHaloAlpha``. The density is anchored with ``GalaxySimulationGasHaloDensity``.
     3     As with 2, but the entropy profile has a floor, ``GalaxySimulationGasHaloCoreEntropy``.
     4     As with 2, but instead of being isothermal, the halo is assumed to be in hydrostatic equilibrium.
     5     As with 4, but the entropy profile has a floor, ``GalaxySimulationGasHaloCoreEntropy``.
-    6     As with 4, but the entropy profile assumes precipitation-regulation (Voit 2019). This profile _requires_ Grackle. Use ``GalaxySimulationGasHaloRatio``.
+    6     As with 4, but the entropy profile assumes precipitation-regulation (Voit 2019). This profile _requires_ Grackle and is _only_ consistent with an NFW dark matter profile. Use ``GalaxySimulationGasHaloRatio``.
     7     Unused
     8     Density and entropy following the fits in the Appendix of Voit 2019. For the density, use ``GalaxySimulationGasHaloZeta``, ``GalaxySimulationGasHaloZeta2``, ``GalaxySimulationGasHaloDensity``, and ``GalaxySimulationGasHaloDensity2``. For entropy, use ``GalaxySimulationGasHaloCoreEntropy`` for K:sub:`1` and ``GalaxySimulationGasHaloAlpha``.
     ===== =============================

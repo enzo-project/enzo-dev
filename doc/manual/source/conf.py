@@ -84,7 +84,7 @@ exclude_patterns = []
 
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = 'sphinx'
-highlight_language = "bash"
+highlight_language = 'bash'
 
 # A list of ignored prefixes for module index sorting.
 #modindex_common_prefix = []
@@ -103,10 +103,10 @@ html_theme = 'theme-agogo-local'
 #html_theme_options = {}
 
 # Add any paths that contain custom themes here, relative to this directory.
-html_theme_path = ["."]
+html_theme_path = ['.']
 
 # The name for this set of Sphinx documents.  If None, it defaults to
-# "<project> v<release> documentation".
+# '<project> v<release> documentation'.
 #html_title = None
 
 # A shorter title for the navigation bar.  Default is the same as html_title.
@@ -123,7 +123,7 @@ html_theme_path = ["."]
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
-# so a file named "default.css" will overwrite the builtin "default.css".
+# so a file named 'default.css' will overwrite the builtin 'default.css'.
 html_static_path = ['_static']
 
 # If not '', a 'Last updated on:' timestamp is inserted at every page bottom,
@@ -153,10 +153,10 @@ html_last_updated_fmt = '%b %d, %Y'
 # If true, links to the reST sources are added to the pages.
 #html_show_sourcelink = True
 
-# If true, "Created using Sphinx" is shown in the HTML footer. Default is True.
+# If true, 'Created using Sphinx' is shown in the HTML footer. Default is True.
 #html_show_sphinx = True
 
-# If true, "(C) Copyright ..." is shown in the HTML footer. Default is True.
+# If true, '(C) Copyright ...' is shown in the HTML footer. Default is True.
 #html_show_copyright = True
 
 # If true, an OpenSearch description file will be output, and all pages will
@@ -164,7 +164,7 @@ html_last_updated_fmt = '%b %d, %Y'
 # base URL from which the finished HTML is served.
 #html_use_opensearch = ''
 
-# If nonempty, this is the file name suffix for HTML files (e.g. ".xhtml").
+# If nonempty, this is the file name suffix for HTML files (e.g. '.xhtml').
 #html_file_suffix = ''
 
 # Output file base name for HTML help builder.
@@ -190,7 +190,7 @@ latex_documents = [
 # the title page.
 #latex_logo = None
 
-# For "manual" documents, if this is true, then toplevel headings are parts,
+# For 'manual' documents, if this is true, then toplevel headings are parts,
 # not chapters.
 #latex_use_parts = False
 
@@ -219,11 +219,8 @@ man_pages = [
      [u'Enzo Developers'], 1)
 ]
 
-# Example configuration for intersphinx: refer to the Python standard library.
-intersphinx_mapping = {'http://docs.python.org/': None,
-                       'http://ipython.org/ipython-doc/stable/': None,
-                       'http://docs.scipy.org/doc/numpy/': None,
-                       'http://matplotlib.sourceforge.net/': None,
+intersphinx_mapping = {'python': ('https://docs.python.org/3', None),
+                       'ipython': ('https://ipython.org/ipython-doc/stable/', None),
+                       'scipy': ('https://numpy.org/doc/stable/', None), 
+                       'matplotlib': ('https://matplotlib.org/stable/', None)
                        }
-
-

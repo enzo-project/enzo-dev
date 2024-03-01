@@ -148,8 +148,8 @@ class grid
 
 // For once-per-rootgrid-timestep star formation, the following flag
 // determines whether SF is about to occur or not. It's currently
-//(April 2012) only implemented for H2REG_STAR and completely
-// ignored for all other star makers.
+// (September 2023) only implemented for H2REG_STAR and NORMAL_STAR
+// but completely ignored for all other star makers.
   int MakeStars;
 
 //
@@ -1127,7 +1127,7 @@ gradient force to gravitational force for one-zone collapse test. */
    };
 
    void PrintBaryonFieldValues(int field, int index)
-     {fprintf(stdout, "Baryonfield[field = %"ISYM"][index = %"ISYM"] = %g\n", 
+     {fprintf(stdout, "Baryonfield[field = %" ISYM "][index = %" ISYM "] = %g\n", 
 	      field, index, BaryonField[field][index]);};
 
 // -------------------------------------------------------------------------
@@ -2330,6 +2330,7 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
                  double DiskDensityCap,
 				     double DMConcentration,
 				     double DiskTemperature,
+                 int    DiskPressureBalance,
 				     double InitialTemperature,
 				     double UniformDensity,
 				     int   EquilibrateChem,

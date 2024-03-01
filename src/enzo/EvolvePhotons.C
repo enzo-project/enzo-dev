@@ -268,12 +268,13 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	TempGridList = TempGridList->NextGrid;
       }
     }
+
+    if (debug) fprintf(stdout, "%"ISYM" SRC(s)\n", NumberOfSources);
+
     if (NumberOfSources == 0) {
       PhotonTime += dtPhoton;
       continue;
     }
-
-    if (debug) fprintf(stdout, "%"ISYM" SRC(s)\n", NumberOfSources);
 
   /* Temporarily load balance grids according to the number of ray
      segments.  We'll move the grids back at the end of this

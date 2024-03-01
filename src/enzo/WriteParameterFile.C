@@ -462,8 +462,12 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "DiskGravityStellarDiskScaleHeightz = %"GSYM"\n",DiskGravityStellarDiskScaleHeightz);
   fprintf(fptr, "DiskGravityStellarBulgeMass        = %"GSYM"\n",DiskGravityStellarBulgeMass);
   fprintf(fptr, "DiskGravityStellarBulgeR           = %"GSYM"\n",DiskGravityStellarBulgeR);
+  fprintf(fptr, "DiskGravityDarkMatterUseNFW        = %"ISYM"\n",DiskGravityDarkMatterUseNFW);
   fprintf(fptr, "DiskGravityDarkMatterMass          = %"GSYM"\n",DiskGravityDarkMatterMass);
   fprintf(fptr, "DiskGravityDarkMatterConcentration = %"GSYM"\n",DiskGravityDarkMatterConcentration);
+  fprintf(fptr, "DiskGravityDarkMatterUseB95        = %"ISYM"\n",DiskGravityDarkMatterUseB95);
+  fprintf(fptr, "DiskGravityDarkMatterR             = %"GSYM"\n",DiskGravityDarkMatterR);
+  fprintf(fptr, "DiskGravityDarkMatterDensity       = %"GSYM"\n",DiskGravityDarkMatterDensity);
 
   fprintf(fptr, "ExternalGravity           = %"ISYM"\n",ExternalGravity); 
   fprintf(fptr, "ExternalGravityConstant     = %"FSYM"\n",ExternalGravityConstant);
@@ -1294,6 +1298,9 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "MagneticSupernovaRadius = %"GSYM"\n", MagneticSupernovaRadius);
   fprintf(fptr,"MagneticSupernovaEnergy = %"GSYM"\n",MagneticSupernovaEnergy);
   fprintf(fptr,"MagneticSupernovaDuration = %"GSYM"\n",MagneticSupernovaDuration);
+
+  /* Rotating PopIII Stars Model */
+  fprintf(fptr, "PopIIIRotating = %"ISYM"\n", PopIIIRotating);
 
   /* Output current time */
   time_t ID;

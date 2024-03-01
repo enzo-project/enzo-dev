@@ -1045,7 +1045,8 @@ OBJS_CONFIG_LIB = \
    ParallelFDMCollapseInitialize.o \
    Grid_ParallelFDMCollapseInitialize.o \
    FDMCollapse.o \
-   Grid_FDMCollapse.o
+   Grid_FDMCollapse.o \
+   PopIIIRotationModel.o
 
 #-----------------------------------------------------------------------
 # Objects for radiative transfer module
@@ -1107,6 +1108,7 @@ POBJS_CONFIG_LIB = \
         Grid_SetSubgridMarkerFromSubgrid.o \
         Grid_SubgridMarkerPostParallel.o \
         Grid_Shine.o \
+        Grid_TestRadiatingStarParticleInitializeGrid.o \
         Grid_TransportPhotonPackages.o \
         Grid_WalkPhotonPackage.o \
         LinkedListRoutines.o \
@@ -1138,6 +1140,7 @@ POBJS_CONFIG_LIB = \
         StarParticleRadTransfer.o \
         TemperatureFieldToolsForComptonHeating.o \
 	TemperatureFieldToolsH2Shielding.o \
+        TestRadiatingStarParticleInitialize.o \
 	WritePhotonSources.o
 
 OBJS_HYDRO_RK = \
