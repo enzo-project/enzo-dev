@@ -25,6 +25,7 @@
 #    CONFIG_LCAPERF
 #    CONFIG_PYTHON
 #    CONFIG_LIBYT
+#    CONFIG_LIBYT_INTERACTIVE
 #    CONFIG_NEW_PROBLEM_TYPES
 #    CONFIG_PAPI
 #    CONFIG_OOC_BOUNDARY
@@ -178,6 +179,15 @@
 #-----------------------------------------------------------------------
 
      CONFIG_LIBYT = no
+
+#=======================================================================
+# CONFIG_LIBYT
+#=======================================================================
+#    yes           use libyt interactive prompt
+#    no            don't use libyt interactive prompt
+#-----------------------------------------------------------------------
+
+     CONFIG_LIBYT_INTERACTIVE = no
 
 #=======================================================================
 # CONFIG_NEW_PROBLEM_TYPES

@@ -418,19 +418,25 @@
 	$(error Illegal value '$(CONFIG_PYTHON)' for $$(CONFIG_PYTHON))
     endif
 
-#-----------------------------------------------------------------------
+#--------------------------------------------------------------------------
 # DETERMINE LIBYT SETTINGS
-#-----------------------------------------------------------------------
+# DETERMINE LIBYT SUBSETTINGS (Interactive Prompt, Reload, Jupyter Kernel)
+#--------------------------------------------------------------------------
 
     ERROR_LIBYT = 1
 
-    # Settings to turn Python ON
+    # Settings to turn LIBYT ON,
+    # and to turn on other subsettings (interactive prompt, reload script, jupyter kernel)
 
     ifeq ($(CONFIG_LIBYT),yes)
         ERROR_LIBYT = 0
         ASSEMBLE_LIBYT_DEFINES = -DUSE_LIBYT
         ASSEMBLE_LIBYT_INCLUDES = $(MACH_INCLUDES_LIBYT)
         ASSEMBLE_LIBYT_LIBS     = $(MACH_LIBS_LIBYT)
+
+        ifeq ($(CONFIG_LIBYT_INTERACTIVE), yes)
+            ASSEMBLE_LIBYT_DEFINES += -DUSE_LIBYT_INTERACTIVE
+        endif
     endif
 
     # Settings to turn LIBYT OFF

@@ -269,6 +269,7 @@ show-config:
 	@echo "   CONFIG_PAPI  [papi-{yes,no}]                              : $(CONFIG_PAPI)"
 	@echo "   CONFIG_PYTHON  [python-{yes,no}]                          : $(CONFIG_PYTHON)"
 	@echo "   CONFIG_LIBYT  [libyt-{yes,no}]                            : $(CONFIG_LIBYT)"
+	@echo "   CONFIG_LIBYT_INTERACTIVE  [libyt-interactive-{yes,no}]    : $(CONFIG_LIBYT_INTERACTIVE)"
 	@echo "   CONFIG_NEW_PROBLEM_TYPES  [new-problem-types-{yes,no}]    : $(CONFIG_NEW_PROBLEM_TYPES)"
 	@echo "   CONFIG_ECUDA  [cuda-{yes,no}]                             : $(CONFIG_ECUDA)"
 	@echo "   CONFIG_OOC_BOUNDARY  [ooc-boundary-{yes,no}]              : $(CONFIG_OOC_BOUNDARY)"
@@ -650,10 +651,29 @@ libyt-%:
 	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_LIBYT)]\n\n"
 CONFIG_LIBYT-%: suggest-clean
 	@tmp=.config.temp; \
-        grep -v CONFIG_LIBYT $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
+        grep -vw CONFIG_LIBYT $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
         mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
         echo "CONFIG_LIBYT = $*" >> $(MAKE_CONFIG_OVERRIDE); \
 	$(MAKE)  show-config | grep CONFIG_LIBYT; \
+	echo
+
+#-----------------------------------------------------------------------
+
+VALID_LIBYT_INTERACTIVE = libyt-interactive-yes libyt-interactive-no
+.PHONY: $(VALID_LIBYT_INTERACTIVE)
+
+libyt-interactive-yes: CONFIG_LIBYT_INTERACTIVE-yes
+libyt-interactive-no: CONFIG_LIBYT_INTERACTIVE-no
+libyt-interactive-%:
+	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_LIBYT_INTERACTIVE)]\n\n"
+CONFIG_LIBYT_INTERACTIVE-%: suggest-clean
+	@tmp=.config.temp; \
+        grep -v CONFIG_LIBYT_INTERACTIVE $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
+        mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
+        echo "CONFIG_LIBYT_INTERACTIVE = $*" >> $(MAKE_CONFIG_OVERRIDE); \
+	$(MAKE)  show-config | grep CONFIG_LIBYT; \
+	echo ""; \
+	echo " Must use 'libyt-yes' when using 'libyt-interactive/reload/jupyter-yes'"; \
 	echo
 
 #-----------------------------------------------------------------------

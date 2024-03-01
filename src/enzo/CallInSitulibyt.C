@@ -338,12 +338,14 @@ int CallInSitulibyt(LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
 	//     return FAIL;
     // }
 
+#ifdef USE_LIBYT_INTERACTIVE
     /* Call interactive Python prompt. */
-    // if (yt_run_InteractiveMode("LIBYT_STOP") != YT_SUCCESS) {
-    //     fprintf(stderr, "Error in libyt API yt_run_InteractiveMode\n");
-    //     fprintf(stderr, "One reason might be compiling libyt without -DINTERACTIVE_MODE=ON, "
-    //                     "which does not support yt_run_InteractiveMode.\n");
-    // }
+    if (yt_run_InteractiveMode("LIBYT_STOP") != YT_SUCCESS) {
+        fprintf(stderr, "Error in libyt API yt_run_InteractiveMode\n");
+        fprintf(stderr, "One reason might be compiling libyt without -DINTERACTIVE_MODE=ON, "
+                        "which does not support yt_run_InteractiveMode.\n");
+    }
+#endif
 
     /* Reloading script */
     // if (yt_run_ReloadScript("LIBYT_STOP", "RELOAD", "reload.py") != YT_SUCCESS) {
