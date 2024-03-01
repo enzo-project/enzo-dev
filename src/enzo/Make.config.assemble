@@ -437,6 +437,10 @@
         ifeq ($(CONFIG_LIBYT_INTERACTIVE), yes)
             ASSEMBLE_LIBYT_DEFINES += -DUSE_LIBYT_INTERACTIVE
         endif
+
+        ifeq ($(CONFIG_LIBYT_RELOAD), yes)
+            ASSEMBLE_LIBYT_DEFINES += -DUSE_LIBYT_RELOAD
+        endif
     endif
 
     # Settings to turn LIBYT OFF

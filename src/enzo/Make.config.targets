@@ -270,6 +270,7 @@ show-config:
 	@echo "   CONFIG_PYTHON  [python-{yes,no}]                          : $(CONFIG_PYTHON)"
 	@echo "   CONFIG_LIBYT  [libyt-{yes,no}]                            : $(CONFIG_LIBYT)"
 	@echo "   CONFIG_LIBYT_INTERACTIVE  [libyt-interactive-{yes,no}]    : $(CONFIG_LIBYT_INTERACTIVE)"
+	@echo "   CONFIG_LIBYT_RELOAD  [libyt-reload-{yes,no}]              : $(CONFIG_LIBYT_RELOAD)"
 	@echo "   CONFIG_NEW_PROBLEM_TYPES  [new-problem-types-{yes,no}]    : $(CONFIG_NEW_PROBLEM_TYPES)"
 	@echo "   CONFIG_ECUDA  [cuda-{yes,no}]                             : $(CONFIG_ECUDA)"
 	@echo "   CONFIG_OOC_BOUNDARY  [ooc-boundary-{yes,no}]              : $(CONFIG_OOC_BOUNDARY)"
@@ -671,6 +672,25 @@ CONFIG_LIBYT_INTERACTIVE-%: suggest-clean
         grep -v CONFIG_LIBYT_INTERACTIVE $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
         mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
         echo "CONFIG_LIBYT_INTERACTIVE = $*" >> $(MAKE_CONFIG_OVERRIDE); \
+	$(MAKE)  show-config | grep CONFIG_LIBYT; \
+	echo ""; \
+	echo " Must use 'libyt-yes' when using 'libyt-interactive/reload/jupyter-yes'"; \
+	echo
+
+#-----------------------------------------------------------------------
+
+VALID_LIBYT_RELOAD = libyt-reload-yes libyt-reload-no
+.PHONY: $(VALID_LIBYT_RELOAD)
+
+libyt-reload-yes: CONFIG_LIBYT_RELOAD-yes
+libyt-reload-no: CONFIG_LIBYT_RELOAD-no
+libyt-reload-%:
+	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_LIBYT_RELOAD)]\n\n"
+CONFIG_LIBYT_RELOAD-%: suggest-clean
+	@tmp=.config.temp; \
+        grep -v CONFIG_LIBYT_RELOAD $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
+        mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
+        echo "CONFIG_LIBYT_RELOAD = $*" >> $(MAKE_CONFIG_OVERRIDE); \
 	$(MAKE)  show-config | grep CONFIG_LIBYT; \
 	echo ""; \
 	echo " Must use 'libyt-yes' when using 'libyt-interactive/reload/jupyter-yes'"; \

@@ -222,6 +222,7 @@ External libraries
 **python-[no\|yes]**             Set whether to use inline python
 **libyt-[no\|yes]**              Set whether to use libyt in situ analysis (Do not use python-yes and libyt-yes at the same time)
 **libyt-interactive-[no\|yes]**  Set whether to use libyt interactive prompt (Must have libyt-yes)
+**libyt-reload-[no\|yes]**       Set whether to use libyt reloading script feature (Must have libyt-yes)
 **use-hdf4-[no\|yes]**           Set whether to use HDF4
 ===============================  =====================================
 
