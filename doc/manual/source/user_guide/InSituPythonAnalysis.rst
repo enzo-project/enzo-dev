@@ -140,16 +140,18 @@ Interactive Python Prompt
 
 * **How to activate interactive Python prompt in Enzo?**
 
-  We have to compile ``libyt`` in **interactive mode** and then un-comment the code in ``src/enzo/CallInSitulibyt.C``:
+  We have to compile ``libyt`` in **interactive mode** and then use ``libyt-yes`` and ``libyt-interactive-yes`` options to compile Enzo.
+
+  The code in ``src/enzo/CallInSitulibyt.C`` will call libyt API:
 
   ::
 
     /* Call interactive Python prompt. */
-    // if (yt_run_InteractiveMode("LIBYT_STOP") != YT_SUCCESS) {
-    //     fprintf(stderr, "Error in libyt API yt_run_InteractiveMode\n");
-    //     fprintf(stderr, "One reason might be compiling libyt without -DINTERACTIVE_MODE=ON, "
-    //                     "which does not support yt_run_InteractiveMode.\n");
-    // }
+    if (yt_run_InteractiveMode("LIBYT_STOP") != YT_SUCCESS) {
+        fprintf(stderr, "Error in libyt API yt_run_InteractiveMode\n");
+        fprintf(stderr, "One reason might be compiling libyt without -DINTERACTIVE_MODE=ON, "
+                        "which does not support yt_run_InteractiveMode.\n");
+    }
 
   If Enzo detects ``LIBYT_STOP`` file, then interactive Python prompt will activate.
   We can find more about libyt API ``yt_run_InteractiveMode`` `here <https://libyt.readthedocs.io/en/latest/libyt-api/yt_run_interactivemode.html>`__.
@@ -170,18 +172,20 @@ Reloading Script
 
 * **How to activate reload Python script in Enzo?**
 
-  We have to compile ``libyt`` in **interactive mode** and then un-comment the code in ``src/enzo/CallInSitulibyt.C``:
+  We have to compile ``libyt`` in **interactive mode** and then use ``libyt-yes`` and ``libyt-reload-yes`` options to compile Enzo.
+
+  The code in ``src/enzo/CallInSitulibyt.C`` will call libyt API:
 
   ::
 
     /* Reloading script */
-    // if (yt_run_ReloadScript("LIBYT_STOP", "RELOAD", "reload.py") != YT_SUCCESS) {
-    //     fprintf(stderr, "Error in libyt API yt_run_ReloadScript\n");
-    //     fprintf(stderr, "One reason might be compiling libyt without -DINTERACTIVE_MODE=ON, "
-    //                     "which does not support yt_run_ReloadScript.\n");
-    // }
+    if (yt_run_ReloadScript("LIBYT_STOP", "RELOAD", "reload.py") != YT_SUCCESS) {
+        fprintf(stderr, "Error in libyt API yt_run_ReloadScript\n");
+        fprintf(stderr, "One reason might be compiling libyt without -DINTERACTIVE_MODE=ON, "
+                        "which does not support yt_run_ReloadScript.\n");
+    }
 
-  If an error occurred when running inline Python functions or Enzo detects ``LIBYT_STOP`` file, then it will enter reloading script phase.
+  If an error occurred when running inline Python functions or Enzo detects ``LIBYT_STOP`` file, then it will enter reloading script stage.
   Document about ``yt_run_ReloadScript`` is `here <https://libyt.readthedocs.io/en/latest/libyt-api/yt_run_reloadscript.html>`__.
 
 * **How to reload a script?**
@@ -214,16 +218,18 @@ Jupyter Notebook / JupyterLab UI
 
 * **How to launch libyt kernel in Enzo?**
 
-  We have to compile ``libyt`` in **jupyter kernel mode** and then un-comment the code in ``src/enzo/CallInSitulibyt.C``:
+  We have to compile ``libyt`` in **jupyter kernel mode** and then use ``libyt-yes`` and ``libyt-jupyter-yes`` options to compile Enzo.
+
+  The code in ``src/enzo/CallInSitulibyt.C`` will call libyt API:
 
   ::
 
     /* Launch libyt Jupyter kernel */
-    // if (yt_run_JupyterKernel("LIBYT_STOP", false) != YT_SUCCESS) {
-    //      fprintf(stderr, "Error in libyt API yt_run_JupyterKernel\n");
-    //      fprintf(stderr, "One reason might be compiling libyt without -DJUPYTER_KERNEL=ON, "
-    //                      "which does not support yt_run_JupyterKernel.\n");
-    // }
+    if (yt_run_JupyterKernel("LIBYT_STOP", false) != YT_SUCCESS) {
+         fprintf(stderr, "Error in libyt API yt_run_JupyterKernel\n");
+         fprintf(stderr, "One reason might be compiling libyt without -DJUPYTER_KERNEL=ON, "
+                         "which does not support yt_run_JupyterKernel.\n");
+    }
 
   If Enzo detects ``LIBYT_STOP`` file, it will launch a libyt kernel.
   Since we set the second argument to ``false``, libyt kernel will bind to empty ports automatically.
@@ -243,8 +249,7 @@ Jupyter Notebook / JupyterLab UI
 
 How to Compile
 --------------
-The configure option that controls whether or not to use ``libyt``
-can be toggled with:
+The configure option that controls whether or not to use ``libyt`` can be toggled with:
 
 ::
 
@@ -256,9 +261,17 @@ or to turn it off,
 
     make libyt-no
 
+There are other subsettings, and they must use ``libyt-yes``:
+
+* ``libyt-interactive-yes``/``libyt-interactive-no``: set whether to use libyt :ref:`Interactive Python Prompt`
+
+* ``libyt-reload-yes``/``libyt-reload-no``: set whether to use libyt :ref:`Reloading Script` feature
+
+* ``libyt-jupyter-yes``/``libyt-jupyter-no``: set whether to use :ref:`Jupyter Notebook / JupyterLab UI`.
+
 *DO NOT* use ``libyt-yes`` option and ``python-yes`` at the same time to avoid any conflicts. They are different settings.
 
-The option will look for the following variables in the machine-specific Makefile:
+The option ``libyt-yes`` will look for the following variables in the machine-specific Makefile:
 
 ::
 
