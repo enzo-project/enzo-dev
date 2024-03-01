@@ -456,8 +456,8 @@
     # error if CONFIG_LIBYT is incorrect
 
     ifeq ($(ERROR_LIBYT),1)
-       .PHONY: error_LIBYT
-       error_LIBYT:
+        .PHONY: error_LIBYT
+        error_LIBYT:
 	$(error Illegal value '$(CONFIG_LIBYT)' for $$(CONFIG_LIBYT))
     endif
 
