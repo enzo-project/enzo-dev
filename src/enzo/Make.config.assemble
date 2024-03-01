@@ -67,8 +67,8 @@
     # error if CONFIG_INTEGERS is incorrect
 
     ifeq ($(ERROR_IDS),1)
-       .PHONY: error_ids
-       error_ids:
+        .PHONY: error_ids
+        error_ids:
 	$(error Illegal value '$(CONFIG_PARTICLE_IDS)' for $$(CONFIG_PARTICLE_IDS))
     endif
 
@@ -95,8 +95,8 @@
     # error if CONFIG_INTEGERS is incorrect
 
     ifeq ($(ERROR_INTEGERS),1)
-       .PHONY: error_integers
-       error_integers:
+        .PHONY: error_integers
+        error_integers:
 	$(error Illegal value '$(CONFIG_INTEGERS)' for $$(CONFIG_INTEGERS))
     endif
 
@@ -125,8 +125,8 @@
     # error if CONFIG_PRECISION is incorrect
 
     ifeq ($(ERROR_PRECISION),1)
-       .PHONY: error_precision
-       error_precision:
+        .PHONY: error_precision
+        error_precision:
 	$(error Illegal value '$(CONFIG_PRECISION)' for $$(CONFIG_PRECISION))
     endif
 
@@ -163,8 +163,8 @@
     # error if CONFIG_PARTICLES is incorrect
 
     ifeq ($(ERROR_PARTICLES),1)
-       .PHONY: error_particles
-       error_particles:
+        .PHONY: error_particles
+        error_particles:
 	$(error Illegal value '$(CONFIG_PARTICLES)' for $$(CONFIG_PARTICLES))
     endif
 
@@ -191,8 +191,8 @@
     # error if CONFIG_INITS is incorrect
 
     ifeq ($(ERROR_INITS),1)
-       .PHONY: error_inits
-       error_inits: ;  $(error Illegal value $(CONFIG_INITS) for $$(CONFIG_INITS))
+        .PHONY: error_inits
+        error_inits: ;  $(error Illegal value $(CONFIG_INITS) for $$(CONFIG_INITS))
     endif
 
 #-----------------------------------------------------------------------
@@ -218,8 +218,8 @@
     # error if CONFIG_IO is incorrect
 
     ifeq ($(ERROR_IO),1)
-       .PHONY: error_io
-       error_io:
+        .PHONY: error_io
+        error_io:
 	$(error Illegal value '$(CONFIG_IO)' for $$(CONFIG_IO))
     endif
 
@@ -259,8 +259,8 @@
     # error if CONFIG_USE_MPI is incorrect
 
     ifeq ($(ERROR_USE_MPI),1)
-       .PHONY: error_compilers
-       error_compilers:
+        .PHONY: error_compilers
+        error_compilers:
 	$(error Illegal value '$(CONFIG_USE_MPI)' for $$(CONFIG_USE_MPI))
     endif
 
@@ -294,8 +294,8 @@
     # error if CONFIG_TASKMAP is incorrect
 
     ifeq ($(ERROR_TASKMAP),1)
-       .PHONY: error_taskmap
-       error_taskmap:
+        .PHONY: error_taskmap
+        error_taskmap:
 	$(error Illegal value '$(CONFIG_TASKMAP)' for $$(CONFIG_TASKMAP))
     endif
 
@@ -324,8 +324,8 @@
     # error if CONFIG_PACKED_AMR is incorrect
 
     ifeq ($(ERROR_PACKED_AMR),1)
-       .PHONY: error_packed_amr
-       error_packed_amr:
+        .PHONY: error_packed_amr
+        error_packed_amr:
 	$(error Illegal value '$(CONFIG_PACKED_AMR)' for $$(CONFIG_PACKED_AMR))
     endif
 
@@ -352,8 +352,8 @@
     # error if CONFIG_PACKED_MEM is incorrect
 
     ifeq ($(ERROR_PACKED_MEM),1)
-       .PHONY: error_packed_mem
-       error_packed_mem:
+        .PHONY: error_packed_mem
+        error_packed_mem:
 	$(error Illegal value '$(CONFIG_PACKED_MEM)' for $$(CONFIG_PACKED_MEM))
     endif
 
@@ -383,8 +383,8 @@
     # error if CONFIG_LCAPERF is incorrect
 
     ifeq ($(ERROR_LCAPERF),1)
-       .PHONY: error_lcaperf
-       error_lcaperf:
+        .PHONY: error_lcaperf
+        error_lcaperf:
 	$(error Illegal value '$(CONFIG_LCAPERF)' for $$(CONFIG_LCAPERF))
     endif
 
@@ -413,8 +413,8 @@
     # error if CONFIG_PYTHON is incorrect
 
     ifeq ($(ERROR_PYTHON),1)
-       .PHONY: error_PYTHON
-       error_PYTHON:
+        .PHONY: error_PYTHON
+        error_PYTHON:
 	$(error Illegal value '$(CONFIG_PYTHON)' for $$(CONFIG_PYTHON))
     endif
 
@@ -446,8 +446,8 @@
     # error if CONFIG_NEW_PROBLEM_TYPES is incorrect
 
     ifeq ($(ERROR_NEW_PROBLEM_TYPES),1)
-       .PHONY: error_NEW_PROBLEM_TYPES
-       error_NEW_PROBLEM_TYPES:
+        .PHONY: error_NEW_PROBLEM_TYPES
+        error_NEW_PROBLEM_TYPES:
 	$(error Illegal value '$(CONFIG_NEW_PROBLEM_TYPES)' for $$(CONFIG_NEW_PROBLEM_TYPES))
     endif
 
@@ -475,8 +475,8 @@
     # error if CONFIG_PAPI is incorrect
 
     ifeq ($(ERROR_PAPI),1)
-       .PHONY: error_papi
-       error_papi:
+        .PHONY: error_papi
+        error_papi:
 	$(error Illegal value '$(CONFIG_PAPI)' for $$(CONFIG_PAPI))
     endif
 
@@ -503,8 +503,8 @@
     # error if CONFIG_OOC_BOUNDARY is incorrect
 
     ifeq ($(ERROR_OOC_BOUNDARY),1)
-       .PHONY: error_ooc_boundary
-       error_ooc_boundary:
+        .PHONY: error_ooc_boundary
+        error_ooc_boundary:
 	$(error Illegal value '$(CONFIG_OOC_BOUNDARY)' for $$(CONFIG_OOC_BOUNDARY))
     endif
     
@@ -531,8 +531,8 @@
     # error if CONFIG_ACCELERATION_BOUNDARY is incorrect
 
     ifeq ($(ERROR_ACCELERATION_BOUNDARY),1)
-       .PHONY: error_sab
-       error_sab:
+        .PHONY: error_sab
+        error_sab:
 	$(error Illegal value '$(CONFIG_ACCELERATION_BOUNDARY)' for $$(CONFIG_ACCELERATION_BOUNDARY))
     endif
 
@@ -583,8 +583,8 @@
     # error if CONFIG_OPT is incorrect
 
     ifeq ($(ERROR_OPT),1)
-       .PHONY: error_opt
-       error_opt:
+        .PHONY: error_opt
+        error_opt:
 	$(error Illegal value '$(CONFIG_OPT)' for $$(CONFIG_OPT))
     endif
 
@@ -611,8 +611,8 @@
     # error if CONFIG_TESTING is incorrect
 
     ifeq ($(ERROR_TESTING),1)
-       .PHONY: error_testing
-       error_testing:
+        .PHONY: error_testing
+        error_testing:
 	$(error Illegal value '$(CONFIG_TESTING)' for $$(CONFIG_TESTING))
     endif
 
@@ -641,8 +641,8 @@
     # error if CONFIG_PHOTON is incorrect
 
     ifeq ($(ERROR_PHOTON),1)
-       .PHONY: error_transfer
-       error_transfer:
+        .PHONY: error_transfer
+        error_transfer:
 	$(error Illegal value '$(CONFIG_PHOTON)' for $$(CONFIG_PHOTON))
     endif
 
@@ -669,8 +669,8 @@
     # error if CONFIG_EMISSIVITY is incorrect
 
     ifeq ($(ERROR_EMISSIVITY),1)
-       .PHONY: error_emissivity
-       error_emissivity:
+        .PHONY: error_emissivity
+        error_emissivity:
 	$(error Illegal value '$(CONFIG_EMISSIVITY)' for $$(CONFIG_EMISSIVITY))
     endif
 
@@ -697,8 +697,8 @@
     # error if CONFIG_NEW_GRID_IO is incorrect
 
     ifeq ($(ERROR_NEW_GRID_IO),1)
-       .PHONY: error_NEW_GRID_IO
-       error_NEW_GRID_IO:
+        .PHONY: error_NEW_GRID_IO
+        error_NEW_GRID_IO:
 	$(error Illegal value '$(CONFIG_NEW_GRID_IO)' for $$(CONFIG_NEW_GRID_IO))
     endif
 
@@ -729,8 +729,8 @@
     # error if CONFIG_HYPRE is incorrect
 
     ifeq ($(ERROR_HYPRE),1)
-       .PHONY: error_hypre
-       error_hypre:
+        .PHONY: error_hypre
+        error_hypre:
 	$(error Illegal value '$(CONFIG_HYPRE)' for $$(CONFIG_HYPRE))
     endif
 
@@ -758,8 +758,8 @@
     # error if CONFIG_FAST_SIBis incorrect
 
     ifeq ($(ERROR_FAST_SIB),1)
-       .PHONY: error_fast_sib
-       error_fast_sib:
+        .PHONY: error_fast_sib
+        error_fast_sib:
 	$(error Illegal value '$(CONFIG_FAST_SIB)' for $$(CONFIG_FAST_SIB))
     endif
 
@@ -787,8 +787,8 @@
     # error if CONFIG_BITWISE_IDENTICALITYis incorrect
 
     ifeq ($(ERROR_BITWISE_IDENTICALITY),1)
-       .PHONY: error_BITWISE_IDENTICALITY
-       error_BITWISE_IDENTICALITY:
+        .PHONY: error_BITWISE_IDENTICALITY
+        error_BITWISE_IDENTICALITY:
 	$(error Illegal value '$(CONFIG_BITWISE_IDENTICALITY)' for $$(CONFIG_BITWISE_IDENTICALITY))
     endif
 
@@ -822,8 +822,8 @@
     # error if 
 
     ifeq ($(ERROR_ECUDA),1)
-       .PHONY: error_ecuda
-       error_ecuda:
+        .PHONY: error_ecuda
+        error_ecuda:
 	$(error Illegal value '$(CONFIG_ECUDA)' for $$(CONFIG_ECUDA))
     endif
 
@@ -852,8 +852,8 @@
     # error if CONFIG_USE_HDF4 is incorrect
 
     ifeq ($(ERROR_USE_HDF4),1)
-       .PHONY: error_compilers
-       error_compilers:
+        .PHONY: error_compilers
+        error_compilers:
 	$(error Illegal value '$(CONFIG_USE_HDF4)' for $$(CONFIG_USE_HDF4))
     endif
 
@@ -880,8 +880,8 @@
     # error if CONFIG_GRAVITY_4S is incorrect
 
     ifeq ($(ERROR_GRAVITY_4S),1)
-       .PHONY: error_compilers
-       error_compilers:
+        .PHONY: error_compilers
+        error_compilers:
 	$(error Illegal value '$(CONFIG_GRAVITY_4S)' for $$(CONFIG_GRAVITY_4S))
     endif
 
@@ -908,8 +908,8 @@
     # error if CONFIG_ENZO_PERFORMANCE is incorrect
 
     ifeq ($(ERROR_ENZO_PERFORMANCE),1)
-       .PHONY: error_compilers
-       error_compilers:
+        .PHONY: error_compilers
+        error_compilers:
 	$(error Illegal value '$(CONFIG_ENZO_PERFORMANCE)' for $$(CONFIG_ENZO_PERFORMANCE))
     endif
 
@@ -939,8 +939,8 @@
     # error if CONFIG_GRACKLE is incorrect
 
     ifeq ($(ERROR_GRACKLE),1)
-       .PHONY: error_compilers
-       error_compilers:
+        .PHONY: error_compilers
+        error_compilers:
 	$(error Illegal value '$(CONFIG_GRACKLE)' for $$(CONFIG_GRACKLE))
     endif
 
@@ -968,8 +968,8 @@
     # error if CONFIG_LOG2ALLOCis incorrect
 
     ifeq ($(ERROR_LOG2ALLOC),1)
-       .PHONY: error_log2alloc
-       error_log2alloc:
+        .PHONY: error_log2alloc
+        error_log2alloc:
 	$(error Illegal value '$(CONFIG_LOG2ALLOC)' for $$(CONFIG_LOG2ALLOC))
     endif
 
@@ -999,8 +999,8 @@
     # error if CONFIG_UUID is incorrect
 
     ifeq ($(ERROR_UUID),1)
-       .PHONY: error_uuid
-       error_uuid:
+        .PHONY: error_uuid
+        error_uuid:
 	$(error Illegal value '$(CONFIG_UUID)' for $$(CONFIG_UUID))
     endif
 
