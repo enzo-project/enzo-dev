@@ -664,6 +664,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       /* Solve the cooling and species rate equations. */
  
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
+
       Grids[grid1]->GridData->MultiSpeciesHandler();
 
       /* Update particle positions (if present). */
@@ -671,9 +672,8 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       UpdateParticlePositions(Grids[grid1]->GridData);
 
     /*Trying after solving for radiative transfer */
-#ifdef EMISSIVITY
-    /*                                                                                                           
-        clear the Emissivity of the level below, after the level below                                            
+#ifdef EMISSIVITY                                                                                                           
+    /*    clear the Emissivity of the level below, after the level below                                            
         updated the current level (it's parent) and before the next
         timestep at the current level.                                                                            
     */
@@ -686,16 +686,15 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       }
       }*/
 #endif
-
-
       /* Include 'star' particle creation and feedback. */
 
       Grids[grid1]->GridData->StarParticleHandler
 	(Grids[grid1]->NextGridNextLevel, level ,dtLevelAbove, TopGridTimeStep);
 
+      // MetaData added by DP
       Grids[grid1]->GridData->ActiveParticleHandler
-        (Grids[grid1]->NextGridNextLevel, level ,dtLevelAbove,
-         NumberOfNewActiveParticles[grid1]);
+        (Grids[grid1]->NextGridNextLevel, level , MetaData, 
+         dtLevelAbove, NumberOfNewActiveParticles[grid1]);
 
       /* Include shock-finding */
 
@@ -739,6 +738,8 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	Grids[grid1]->GridData->DeleteAccelerationField();
 #endif //!SAB
 
+
+      
       Grids[grid1]->GridData->DeleteParticleAcceleration();
 
       if (UseFloor) 
@@ -755,11 +756,17 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
  
       if (UseMagneticSupernovaFeedback)
 	Grids[grid1]->GridData->MagneticSupernovaList.clear(); 
+
     } //end loop over grids
 
+    
+      
+
+    //Modification Added by Deovrat Prasad
     /* Finalize (accretion, feedback etc) for Active particles. */
     ActiveParticleFinalize(Grids, MetaData, NumberOfGrids, LevelArray,
                            level, NumberOfNewActiveParticles);
+
     /* Finalize (accretion, feedback, etc.) star particles */
     StarParticleFinalize(Grids, MetaData, NumberOfGrids, LevelArray,
 			 level, AllStars, TotalStarParticleCountPrevious, OutputNow);

@@ -153,6 +153,8 @@ void ActiveParticleFindAll(
     else {
       *GlobalNumberOfActiveParticles = LocalNumberOfActiveParticles;
     }
+    //if (*GlobalNumberOfActiveParticles > 1)
+    //  fprintf(stderr,"Global AGN Particle = ["ISYM"]\n", *GlobalNumberOfActiveParticles);
     /**************************************************/
     /*                                                */
     /* Gather the active particles on all processors  */

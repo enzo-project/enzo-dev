@@ -1373,6 +1373,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
       active_particle_types[active_particles] = dummy;
       active_particles++;
     }
+    ret += sscanf(line, "ActiveParticleCounter = %"ISYM, &ActiveParticleCounter);
+
     ret += sscanf(line, "ActiveParticleDensityThreshold = %"FSYM,
 		  &ActiveParticleDensityThreshold);
     ret += sscanf(line, "SmartStarAccretion    = %"ISYM, &SmartStarAccretion);
@@ -1391,6 +1393,66 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "SmartStarJetVelocity                  = %"FSYM, &SmartStarJetVelocity);
     ret += sscanf(line, "UseGasDrag = %"ISYM, &UseGasDrag);
     ret += sscanf(line, "GasDragCoefficient = %"GSYM, &GasDragCoefficient);
+
+    // AGN particle parameters
+    ret += sscanf(line, "AGNParticleInsert_x = %"FSYM, &AGNParticleInsert_x);
+    ret += sscanf(line, "AGNParticleInsert_y = %"FSYM, &AGNParticleInsert_y);
+    ret += sscanf(line, "AGNParticleInsert_z = %"FSYM, &AGNParticleInsert_z);
+    ret += sscanf(line, "AGNParticleInsert_Time = %"FSYM, &AGNParticleInsert_Time);
+    ret += sscanf(line, "AGNParticleFeedbackEfficiency = %"FSYM, &AGNParticleFeedbackEfficiency);
+    ret += sscanf(line, "AGNParticleKineticFraction = %"FSYM, &AGNParticleKineticFraction);
+    ret += sscanf(line, "AGNParticleAccretionRadiusKpc = %"FSYM, &AGNParticleAccretionRadiusKpc);
+    ret += sscanf(line, "AGNParticleAccretionRadialExponent = %"FSYM, &AGNParticleAccretionRadialExponent);
+    ret += sscanf(line, "AGNParticleFeedbackRadiusKpc = %"FSYM, &AGNParticleFeedbackRadiusKpc);
+    ret += sscanf(line, "AGNParticleFeedbackType = %"ISYM, &AGNParticleFeedbackType);
+    ret += sscanf(line, "AGNParticleFeedbackWeight = %"ISYM, &AGNParticleFeedbackWeight);
+
+    ret += sscanf(line, "AGNParticleCondensationFraction = %"FSYM, &AGNParticleCondensationFraction);
+
+    ret += sscanf(line, "AGNParticleInjectionTemperature = %"FSYM, &AGNParticleInjectionTemperature);
+
+    ret += sscanf(line, "AGNParticleColdMassTemp = %"FSYM, &AGNParticleColdMassTemp);
+    ret += sscanf(line, "AGNParticleColdMassDelay = %"FSYM, &AGNParticleColdMassDelay);
+
+    ret += sscanf(line, "AGNParticleJetPower = %"FSYM, &AGNParticleJetPower);
+    ret += sscanf(line, "AGNParticleFixedWaitForCold = %"ISYM, &AGNParticleFixedWaitForCold);
+    ret += sscanf(line, "AGNParticleCycleLength = %"GSYM, &AGNParticleCycleLength);
+    ret += sscanf(line, "AGNParticleActiveFraction = %"GSYM, &AGNParticleActiveFraction);
+
+    ret += sscanf(line, "AGNParticleBondiBoostFactor = %"GSYM, &AGNParticleBondiBoostFactor);
+    ret += sscanf(line, "AGNParticleBSBondiDensityCGS = %"GSYM, &AGNParticleBSBondiDensityCGS);
+    ret += sscanf(line, "AGNParticleBSBondiBeta = %"FSYM, &AGNParticleBSBondiBeta);
+
+    ret += sscanf(line, "AGNParticleAccretionDelayTime = %"GSYM, &AGNParticleAccretionDelayTime);
+
+    ret += sscanf(line, "AGNParticleHighPower = %"GSYM, &AGNParticleHighPower);
+    ret += sscanf(line, "AGNParticleLowPower = %"GSYM, &AGNParticleLowPower);
+    ret += sscanf(line, "AGNParticleHighPowerTime = %"GSYM, &AGNParticleHighPowerTime);
+    ret += sscanf(line, "AGNParticleLowPowerTime = %"GSYM, &AGNParticleLowPowerTime);
+
+    ret += sscanf(line, "AGNParticleDiskRadius = %"GSYM, &AGNParticleDiskRadius);
+    ret += sscanf(line, "AGNParticleDiskDistance = %"GSYM, &AGNParticleDiskDistance);
+    ret += sscanf(line, "AGNParticleDiskOpeningAngle = %"FSYM, &AGNParticleDiskOpeningAngle);
+
+    ret += sscanf(line, "AGNTracerCyl = %"ISYM, &AGNTracerCyl);
+    ret += sscanf(line, "AGNTracerZkpc = %"FSYM, &AGNTracerZkpc);
+    ret += sscanf(line, "AGNTracerHkpc = %"FSYM, &AGNTracerHkpc);
+    ret += sscanf(line, "AGNTracerRInnerkpc = %"FSYM, &AGNTracerRInnerkpc);
+    ret += sscanf(line, "AGNTracerROuterkpc = %"FSYM, &AGNTracerROuterkpc);
+    ret += sscanf(line, "AGNTracerFrequencyMyr = %"FSYM, &AGNTracerFrequencyMyr);
+    ret += sscanf(line, "AGNTracerNextTimeMyr = %"FSYM, &AGNTracerNextTimeMyr);
+
+    ret += sscanf(line, "AGNPrecessionAngleRad = %"FSYM, &AGNPrecessionAngleRad);
+
+    ret += sscanf(line, "AGNUseTracer = %"ISYM, &AGNUseTracer);
+    ret += sscanf(line, "AGNTracerInjectionTime = %"FSYM, &AGNTracerInjectionTime);
+    ret += sscanf(line, "AGNTracerMinRadiusKPC = %"FSYM, &AGNTracerMinRadiusKPC);
+    ret += sscanf(line, "AGNTracerShellWidthKPC = %"FSYM, &AGNTracerShellWidthKPC);
+
+    ret += sscanf(line, "AGNCylinderHeightKpc = %"FSYM, &AGNCylinderHeightKpc);
+    ret += sscanf(line, "AGNCylinderRadiusKpc = %"FSYM, &AGNCylinderRadiusKpc);
+    ret += sscanf(line, "AGNCylinderDistanceKpc = %"FSYM, &AGNCylinderDistanceKpc);
+    ret += sscanf(line, "AGNParticleShockFraction = %"FSYM, &AGNParticleShockFraction);
 
     // Parameters for magnetic feedback from supernovae
     ret += sscanf(line, "UseMagneticSupernovaFeedback = %"ISYM, &UseMagneticSupernovaFeedback);
