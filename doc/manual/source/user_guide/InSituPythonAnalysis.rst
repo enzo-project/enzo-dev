@@ -89,14 +89,6 @@ General
       libyt_script_name = test
 
 
-* **How to activate in situ Python analysis process?**
-
-  The full process is encapsulated inside ``CallInSitulibyt`` function in ``src/enzo/CallInSitulibyt.C``.
-  We can put this function everywhere we want in Enzo to start in situ analysis.
-  It will load and use Enzo's current state and data.
-
-  Currently, it is called inside ``EvolveLevel`` function.
-
 * **How to call Python functions during simulation runtime? And what should I be aware of?**
 
   We can call Python function using libyt API ``yt_run_Function`` and ``yt_run_FunctionArguments``. See how to use them `here <https://libyt.readthedocs.io/en/latest/libyt-api/run-python-function.html>`__.
