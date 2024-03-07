@@ -268,6 +268,10 @@ show-config:
 	@echo "   CONFIG_LCAPERF  [lcaperf-{yes,no}]                        : $(CONFIG_LCAPERF)"
 	@echo "   CONFIG_PAPI  [papi-{yes,no}]                              : $(CONFIG_PAPI)"
 	@echo "   CONFIG_PYTHON  [python-{yes,no}]                          : $(CONFIG_PYTHON)"
+	@echo "   CONFIG_LIBYT  [libyt-{yes,no}]                            : $(CONFIG_LIBYT)"
+	@echo "   CONFIG_LIBYT_INTERACTIVE  [libyt-interactive-{yes,no}]    : $(CONFIG_LIBYT_INTERACTIVE)"
+	@echo "   CONFIG_LIBYT_RELOAD  [libyt-reload-{yes,no}]              : $(CONFIG_LIBYT_RELOAD)"
+	@echo "   CONFIG_LIBYT_JUPYTER  [libyt-jupyter-{yes,no}]            : $(CONFIG_LIBYT_JUPYTER)"
 	@echo "   CONFIG_NEW_PROBLEM_TYPES  [new-problem-types-{yes,no}]    : $(CONFIG_NEW_PROBLEM_TYPES)"
 	@echo "   CONFIG_ECUDA  [cuda-{yes,no}]                             : $(CONFIG_ECUDA)"
 	@echo "   CONFIG_OOC_BOUNDARY  [ooc-boundary-{yes,no}]              : $(CONFIG_OOC_BOUNDARY)"
@@ -636,6 +640,80 @@ CONFIG_PYTHON-%: suggest-clean
         mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
         echo "CONFIG_PYTHON = $*" >> $(MAKE_CONFIG_OVERRIDE); \
 	$(MAKE)  show-config | grep CONFIG_PYTHON; \
+	echo
+
+#-----------------------------------------------------------------------
+
+VALID_LIBYT = libyt-yes libyt-no
+.PHONY: $(VALID_LIBYT)
+
+libyt-yes: CONFIG_LIBYT-yes
+libyt-no: CONFIG_LIBYT-no
+libyt-%:
+	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_LIBYT)]\n\n"
+CONFIG_LIBYT-%: suggest-clean
+	@tmp=.config.temp; \
+        grep -vw CONFIG_LIBYT $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
+        mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
+        echo "CONFIG_LIBYT = $*" >> $(MAKE_CONFIG_OVERRIDE); \
+	$(MAKE)  show-config | grep CONFIG_LIBYT; \
+	echo
+
+#-----------------------------------------------------------------------
+
+VALID_LIBYT_INTERACTIVE = libyt-interactive-yes libyt-interactive-no
+.PHONY: $(VALID_LIBYT_INTERACTIVE)
+
+libyt-interactive-yes: CONFIG_LIBYT_INTERACTIVE-yes
+libyt-interactive-no: CONFIG_LIBYT_INTERACTIVE-no
+libyt-interactive-%:
+	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_LIBYT_INTERACTIVE)]\n\n"
+CONFIG_LIBYT_INTERACTIVE-%: suggest-clean
+	@tmp=.config.temp; \
+        grep -v CONFIG_LIBYT_INTERACTIVE $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
+        mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
+        echo "CONFIG_LIBYT_INTERACTIVE = $*" >> $(MAKE_CONFIG_OVERRIDE); \
+	$(MAKE)  show-config | grep CONFIG_LIBYT; \
+	echo ""; \
+	echo " Must use 'libyt-yes' when using 'libyt-interactive/reload/jupyter-yes'"; \
+	echo
+
+#-----------------------------------------------------------------------
+
+VALID_LIBYT_RELOAD = libyt-reload-yes libyt-reload-no
+.PHONY: $(VALID_LIBYT_RELOAD)
+
+libyt-reload-yes: CONFIG_LIBYT_RELOAD-yes
+libyt-reload-no: CONFIG_LIBYT_RELOAD-no
+libyt-reload-%:
+	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_LIBYT_RELOAD)]\n\n"
+CONFIG_LIBYT_RELOAD-%: suggest-clean
+	@tmp=.config.temp; \
+        grep -v CONFIG_LIBYT_RELOAD $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
+        mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
+        echo "CONFIG_LIBYT_RELOAD = $*" >> $(MAKE_CONFIG_OVERRIDE); \
+	$(MAKE)  show-config | grep CONFIG_LIBYT; \
+	echo ""; \
+	echo " Must use 'libyt-yes' when using 'libyt-interactive/reload/jupyter-yes'"; \
+	echo
+
+#-----------------------------------------------------------------------
+
+VALID_LIBYT_JUPYTER = libyt-jupyter-yes libyt-jupyter-no
+.PHONY: $(VALID_LIBYT_JUPYTER)
+
+libyt-jupyter-yes: CONFIG_LIBYT_JUPYTER-yes
+libyt-jupyter-no: CONFIG_LIBYT_JUPYTER-no
+libyt-jupyter-%:
+	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_LIBYT_JUPYTER)]\n\n"
+CONFIG_LIBYT_JUPYTER-%: suggest-clean
+	@tmp=.config.temp; \
+        grep -v CONFIG_LIBYT_JUPYTER $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
+        mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
+        echo "CONFIG_LIBYT_JUPYTER = $*" >> $(MAKE_CONFIG_OVERRIDE); \
+	$(MAKE)  show-config | grep CONFIG_LIBYT; \
+	echo ""; \
+	echo " Must use 'libyt-yes' when using 'libyt-interactive/reload/jupyter-yes'"; \
 	echo
 
 #-----------------------------------------------------------------------

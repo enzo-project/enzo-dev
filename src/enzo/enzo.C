@@ -59,6 +59,14 @@
 int InitializePythonInterface(int argc, char **argv);
 int FinalizePythonInterface();
 #endif
+#ifdef USE_LIBYT
+#ifdef SMALL_INTS
+int InitializeLibytInterface(int argc, char **argv);
+#else
+int InitializeLibytInterface(long long argc, char **argv);
+#endif
+int FinalizeLibytInterface();
+#endif
 
 // Function prototypes
  
@@ -785,6 +793,12 @@ Eint32 MAIN_NAME(Eint32 argc, char *argv[])
   InitializePythonInterface(argc, argv);
 #endif 
 
+#ifdef USE_LIBYT
+  // libyt handles the python initialization for us
+  if(debug)fprintf(stdout, "Initializing libyt interface\n");
+  InitializeLibytInterface(argc, argv);
+#endif
+
   MHDCT_EnergyToggle(TopGrid, MetaData, &Exterior, LevelArray);
 
   // Call the main evolution routine
@@ -902,6 +916,10 @@ void my_exit(int status)
   FinalizePythonInterface();
 #endif
 
+#ifdef USE_LIBYT
+  FinalizeLibytInterface();
+#endif
+
   if (status == EXIT_SUCCESS) {
 
     if (MyProcessorNumber==0) {
@@ -930,4 +948,3 @@ void my_exit(int status)
 
   }
 }
-
