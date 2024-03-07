@@ -342,7 +342,9 @@ typedef long long int   HDF5_hid_t;
 #define HDF5_FILE_PINT HDF5_FILE_I4
 #define PISYM "d"
 #define ENPY_PINT NPY_INT
+#ifdef USE_LIBYT
 #define EYT_PINT YT_INT
+#endif
 #endif
 
 #ifdef CONFIG_PINT_8
@@ -352,7 +354,9 @@ typedef long long int   HDF5_hid_t;
 #define HDF5_FILE_PINT HDF5_FILE_I8
 #define PISYM "lld"
 #define ENPY_PINT NPY_LONG
+#ifdef USE_LIBYT
 #define EYT_PINT YT_LONG
+#endif
 #endif
 
 /* Standard definitions (well, fairly standard) */

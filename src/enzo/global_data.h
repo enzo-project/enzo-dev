@@ -984,10 +984,10 @@ EXTERN char libyt_script_name[512];
 EXTERN void *param_libyt;
 EXTERN void *param_yt;
 EXTERN int libyt_field_lookup[FieldUndefined];
-#endif
 EXTERN int NumberOfLibytCalls;
 EXTERN int NumberOfLibytTopGridCalls;
 EXTERN int NumberOfLibytSubcycleCalls;
+#endif
 
 /* Multi-species rate equation flag and associated data. */
 
