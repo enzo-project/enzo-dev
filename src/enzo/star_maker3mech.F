@@ -489,7 +489,7 @@ c
             jp = int((yp(n) - ystart)/dx) + 1_IKIND
             kp = int((zp(n) - zstart)/dx) + 1_IKIND
 #ifdef FEEDBACK_LOG
-            write(4,*) 'm, mp(n):',n,mp(n)*dunits*(dx*x1)**3._RKIND
+            write(4,*) 'n, mp(n):',n,mp(n)*dunits*(dx*x1)**3._RKIND
      &        /SolarMass
             write(4,*) 'minitial:',minitial*dunits*x1**3._RKIND
      &        /SolarMass*dx**3_IKIND
