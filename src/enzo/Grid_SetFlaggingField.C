@@ -320,7 +320,7 @@ int grid::SetFlaggingField(int &NumberOfFlaggedCells, int level)
      criterion in order to setup an AND-clause with the refinement and
      must-refine particles. */
   
-/* The FALSE on line 325 implements the "MRPFix" from JT 2023*/
+  /* The FALSE on line 325 implements the "MRPFix" from JT 2023*/
   if (RestrictFlaggingToMustRefineParticles && pmethod != INT_UNDEFINED) {
     NumberOfFlaggedCells = this->FlagCellsToBeRefinedByMass(level, pmethod, FALSE);
     if (NumberOfFlaggedCells < 0) {
