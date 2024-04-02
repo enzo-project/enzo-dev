@@ -102,16 +102,16 @@ c
 c  Locals
 c
       INTG_PREC i, j, k, n, ic, jc, kc, stepk, stepj, cellstep, 
-     &          iter, z_upper, a_upper
-      R_PREC energy, events_ii, events_ia, 
+     &          iter, z_ub, a1_ub, a2_ub
+      R_PREC energy, events_ii, events_ia,
      &     meject, meject_ii, meject_ia,
      &     mzeject, mzeject_ii, mzeject_ia,
-     &     dratio, distmass, age, minit_msun,
+     &     dratio, distmass, age, minit_msun, meject_g,
      &     m1, dt_yr
-      INTG_PREC isnii, isnia
+      INTG_PREC iSNII, iSNIa
 c
-      isnii = 1_IKIND
-      isnia = 2_IKIND
+      iSNII = 1_IKIND
+      iSNIa = 2_IKIND
       m1 = d1 * dx**3
       dt_yr = dt*t1/yr_s
 c
@@ -138,60 +138,44 @@ c
             write(6,*) 'warning: star particle out of grid',i,j,k
             goto 100
          endif
-c
-c        Determine metal fraction and age bounds for the stellar population
-c
-            z_upper = 1_IKIND
-            do while (tabZ(z_upper) .lt. metalf(n) 
-     &                .and. z_upper .lt. ntabZ)
-               z_upper = z_upper + 1_IKIND
-            enddo
 c           
             age = (t-tcp(n)) * t1/yr_s
-            a_upper = 1_IKIND
-            do while (tabAge(a_upper) .lt. age 
-     &                .and. a_upper .lt. ntabAge)
-               a_upper = a_upper + 1_IKIND
-            enddo
 c
-c         Interpolate yield tables to get mass, metal frac, & event rate
-c         If the particle age falls outside the table, skip
+c         Integrate yield tables to get mass yield & total SN events
 c
-            if (a_upper .eq. 1 .or. a_upper .eq. ntabAge+1) then
-               goto 10
-            endif
-            call bilinear_interp(meject_ii, metalf(n), age,
+            call integrate_yields(meject_ii, metalf(n), age, dt_yr,
      &            tabMass, tabZ, tabAge, 
-     &            ntabZ, ntabAge, isnii,
-     &            z_upper-1, z_upper, a_upper-1, a_upper)
-            call bilinear_interp(meject_ia, metalf(n), age,
+     &            ntabZ, ntabAge, iSNII)
+            call integrate_yields(meject_ia, metalf(n), age, dt_yr,
      &            tabMass, tabZ, tabAge,
-     &            ntabZ, ntabAge, isnia,
-     &            z_upper-1, z_upper, a_upper-1, a_upper)
-            call bilinear_interp(events_ii, metalf(n), age,
+     &            ntabZ, ntabAge, iSNIa)
+            call integrate_yields(events_ii, metalf(n), age, dt_yr,
      &            tabEvents, tabZ, tabAge, 
-     &            ntabZ, ntabAge, isnii,
-     &            z_upper-1, z_upper, a_upper-1, a_upper)
-            call bilinear_interp(events_ia, metalf(n), age,
+     &            ntabZ, ntabAge, iSNII)
+            call integrate_yields(events_ia, metalf(n), age, dt_yr,
      &            tabEvents, tabZ, tabAge,
-     &            ntabZ, ntabAge, isnia,
-     &            z_upper-1, z_upper, a_upper-1, a_upper)
+     &            ntabZ, ntabAge, iSNIa)
 c
 c          Calculate mass & energy added to each cell
-c          Yields of mass and energy are rates per initial pop mass
+c          Yields of mass and energy are rates (per year) per initial pop mass
 c          That is, meject_ii & meject_ia are mass frac per year
 c          Note that minit is secretly a mass density
 c
-            meject = (meject_ii + meject_ia) * minit(n)*dt_yr ! minit in msun?
+            meject = (meject_ii + meject_ia) * minit(n)
             distmass = meject / distcells
             minit_msun = minit(n) * dx**3 * m1 / SolarMass
-            energy = (events_ii*ergSNII + events_ia*ergSNIa) 
-     &                  * minit_msun * dt_yr / dx**3 / distcells
-            write(6,*) 'age', age
-            write(6,*) 'nevents SNII, SNIa', events_ii*dt_yr, 
-     &                  events_ia*dt_yr
-            write(6,*) 'mass, energy per cell (code units)', 
-     &                 distmass, energy
+            meject_g = meject * dx**3 * m1
+c           erg per Msun per yr to erg
+            energy = (events_ii*ergSNII 
+     &              + events_ia*ergSNIa) 
+     &              * minit_msun
+c           to specific energy density (divide by density later)
+            energy = energy / v1**2 / dx**6 / distcells
+c
+c           subtract ejected mass from particle (ejection due
+c           to winds, supernovae)
+c
+            mp(n) = mp(n) - meject
 c
 c          if using distributed feedback, check if particle is
 c          too close to the boundary
@@ -203,12 +187,7 @@ c
      &              min((ny - ibuff - distrad), j))
                k = max((1 + ibuff + distrad), 
      &              min((nz - ibuff - distrad), k))
-            endif
-c
-c           subtract ejected mass from particle (ejection due
-c           to winds, supernovae)
-c
-            mp(n) = mp(n) - meject
+      endif
 c
 c           Deposit into neighboring cells
 c
@@ -224,36 +203,33 @@ c
 c           Add energy to energy field
 c                        
                         te(ic,jc,kc) = ((te(ic,jc,kc)*d(ic,jc,kc)) +
-     &                                  energy) * dratio
+     &                                  energy*dratio) * dratio
                         if (idual .eq. 1)
      &                   ge(ic,jc,kc) =
      &                       ((ge(ic,jc,kc)*d(ic,jc,kc)) +
-     &                        energy) * dratio
-
+     &                        energy*dratio) * dratio
 c
 c           Metal feedback. Similar to total ejected mass, 
 c           table has metal mass yield per initial population mass.
 c
-                        if (imetal .eq. 1) then
-                           call bilinear_interp(mzeject_ii, 
-     &                           metalf(n), age,
-     &                           tabMetal, tabZ, tabAge, 
-     &                           ntabZ, ntabAge, isnii,
-     &                           z_upper-1, z_upper, a_upper-1, a_upper)
-                           call bilinear_interp(mzeject_ia,
-     &                           metalf(n), age,
-     &                           tabMetal, tabZ, tabAge,
-     &                           ntabZ, ntabAge, isnia,
-     &                           z_upper-1, z_upper, a_upper-1, a_upper)
-                           mzeject = (mzeject_ii + mzeject_ia)
-     &                                    * minit(n)*dt_yr
+                         if (imetal .eq. 1) then
+                              call integrate_yields(mzeject_ii,
+     &                              metalf(n), age, dt_yr,
+     &                              tabMetal, tabZ, tabAge,
+     &                              ntabZ, ntabAge, iSNII)
+                              call integrate_yields(mzeject_ia,
+     &                              metalf(n), age, dt_yr,
+     &                              tabMetal, tabZ, tabAge,
+     &                              ntabZ, ntabAge, iSNIa)
+                           mzeject_ii = mzeject_ii * minit(n)
+                           mzeject_ia = mzeject_ia * minit(n)
+                           mzeject = mzeject_ii + mzeject_ia
 c
 c           Field is converted to metal fraction by handling routine.
 c
                            metal(ic,jc,kc) = 
      &                          (metal(ic,jc,kc)*d(ic,jc,kc) + 
      &                          mzeject / distcells) * dratio
-                           write(6,*)'metal added',mzeject / distcells
                            if (itracksrc .eq. 1) then
                               metalSNII(ic,jc,kc) =
      &                          (metalSNII(ic,jc,kc)*d(ic,jc,kc) + 
@@ -303,6 +279,109 @@ c      write(6,*) 'star_feedback2: end'
 c
 c ===============================================
 c 
+c     Time-integrate the yield from particular source type
+c     given a table of quantites and the stellar population
+c     initial metal fraction and age in years.
+c     Timestep dt must also be in years.
+c     Time integration will account for table entries that
+c     fall between the pop age and age+dt
+c
+      subroutine integrate_yields(yield, metal, age, dt,
+     &            tab_yield, tab_metal, tab_age,
+     &            ntab_metal, ntab_age, source_id)
+c
+      implicit none
+#include "fortran_types.def"
+c
+c     Arguments
+c
+      INTG_PREC ntab_metal, ntab_age, source_id
+      R_PREC yield, metal, age, dt
+      R_PREC tab_yield(ntab_metal, ntab_age, 4)
+      R_PREC tab_metal(ntab_metal), tab_age(ntab_age)
+c
+c     Locals
+c
+      R_PREC age1, age2         ! time integration bounds
+      R_PREC z_ub, a1_ub, a2_ub ! table index right bounds (for interp)
+      R_PREC rate1, rate2       
+c
+c     Set time integration bounds
+c
+      age1 = age
+      age2 = age + dt
+c
+c     Yield table will need to be interpolated in age & metal frac.
+c     Find index to the right (above) of the target values
+c
+      z_ub = 1_IKIND
+      do while (tab_metal(z_ub) .lt. metal 
+     &          .and. z_ub .lt. ntab_metal)
+         z_ub = z_ub + 1_IKIND
+      enddo
+      a1_ub = 1_IKIND
+      do while (tab_age(a1_ub) .lt. age1 
+     &                  .and. a1_ub .lt. ntab_age)
+         a1_ub = a1_ub + 1_IKIND
+      enddo
+      a2_ub = 1_IKIND
+      do while (tab_age(a2_ub) .lt. age2
+     &            .and. a2_ub .lt. ntab_age)
+         a2_ub = a2_ub + 1_IKIND
+      enddo
+c
+c     If particle falls outside of age table, exit
+c
+      if (a1_ub .eq. 1 .or. a1_ub .eq. ntab_age+1) then
+         goto 5
+      endif
+c
+c     Otherwise, find yield
+c
+      yield = 0
+c
+c     Case 1: both age (age1) & age+dt (age2) are in the same table "cell"
+c
+      if (a2_ub - a1_ub .eq. 0) then
+         call bilinear_interp(rate1, metal, age1,
+     &         tab_yield, tab_metal, tab_age,
+     &         ntab_metal, ntab_age, source_id,
+     &         z_ub-1, z_ub, a1_ub-1, a1_ub)
+      yield = rate1 * dt
+     
+c
+c     Case 2: age1 and age2 are in different table "cells"
+c     Therefore, integrate over all interveneing cells
+c
+      else
+c        2D interpolation for left bound of first interval
+         call bilinear_interp(rate1, metal, age1,
+     &         tab_yield, tab_metal, tab_age,
+     &         ntab_metal, ntab_age, source_id,
+     &         z_ub-1_IKIND, z_ub, a1_ub-1_IKIND, a1_ub)
+         do while(a1_ub .lt. a2_ub)
+c           1D interp (metal only) for right bound of current internval
+            call bilinear_interp(rate2, metal, tab_age(a1_ub),
+     &            tab_yield, tab_metal, tab_age,
+     &            ntab_metal, ntab_age, source_id,
+     &            z_ub-1, z_ub, a1_ub, a1_ub)
+c           Integrate this interval with trapezoid rule
+            yield = yield + (rate1 + rate2) * dt/2
+c           Shift right to the next interval
+            rate1 = rate2
+            a1_ub = a1_ub + 1
+         enddo
+c        2D interpolation for right bound of last interval
+         call bilinear_interp(rate2, metal, age2,
+     &         tab_yield, tab_metal, tab_age,
+     &         ntab_metal, ntab_age, source_id,
+     &         z_ub-1, z_ub, a2_ub-1, a2_ub)
+         yield = yield + (rate1 + rate2) * dt/2
+      endif
+ 5    end
+c
+c ===============================================
+c 
 c     Perform bilinear interpolation using a table
 c     Do not extrapolate
 c
@@ -342,8 +421,8 @@ c
       x2 = tabx(ix2)
       y1 = taby(iy1)
       y2 = taby(iy2)
-      write(6,*) 'x, x1, x2',x,x1,x2
-      write(6,*) 'y, y1, y2',y,y1,y2
+c      write(6,*) 'x, x1, x2',x,x1,x2
+c      write(6,*) 'y, y1, y2',y,y1,y2
 c
       if (ix1 .eq. ix2 .and. iy1 .eq. iy2) then
 c        both x & y fall outside the table
