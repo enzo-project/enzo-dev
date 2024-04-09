@@ -2,7 +2,7 @@
 #include "phys_const.def"
 #include "error.def"
 
-#define FEEDBACK_LOG
+c#define FORTRAN_DEBUG
 
 c=======================================================================
 c////////////////////////  SUBROUTINE STAR_MAKER \\\\\\\\\\\\\\\\\\\\\\\
@@ -288,7 +288,8 @@ c
      &               npart, xstart, ystart, zstart, ibuff,
      &               xp, yp, zp, up, vp, wp,
      &               mp, tdp, tcp, metalf, type, justburn,
-     &               exptime_in)
+     &               exptime_in, mom_mult,
+     &               mom_canc, feedback_log)
 
 c
 c  RELEASES "STAR" PARTICLE MOMENTUM, MASS AND METALS
@@ -368,6 +369,9 @@ c
       INTG_PREC type(npart)
       R_PREC 	 exptime_in,exptime
       R_PREC    thermal
+      INTG_PREC mom_canc
+      INTG_PREC feedback_log
+      R_PREC    mom_mult
 c
 c  Locals
 c
@@ -387,38 +391,22 @@ c
       R_PREC Z_avg, n_avg,
      &	  realmass, mu_cell, fbuff, add_therm
       R_PREC te_sum, ke_sum, ge_sum, mom_sum, mass_sum, mom_term,
-     &     mass_term
+     &     mass_term, therm_sum, lost_p
       R_PREC u1(3,3,3), v1(3,3,3), w1(3,3,3), d1(3,3,3),
      &     te1(3,3,3), ge1(3,3,3), metal1(3,3,3)
 
-#ifdef FEEDBACK_LOG      
       character*32 feedbacklog_filename
-
-#ifdef LARGE_TASK_COUNT
       character*8   post
-#else
-      character*4   post
-#endif
 
-! taken from mpi_error_file.F
-#ifdef LARGE_TASK_COUNT
-      write(post,'(i8)') procnum
-      do i=1,8
-      if(post(i:i).eq.' ') post(i:i)='0'
-      end do
-!     write(*,'(i8,4x,a8)') id,post
-#else
-      write(post,'(i4)') procnum
-      do i=1,4
-      if(post(i:i).eq.' ') post(i:i)='0'
-      end do
-!     write(*,'(i4,4x,a4)') id,post
-#endif
-
-      feedbacklog_filename = 'feedbacklog_' // post // '.txt'
-      open(unit=4,file=feedbacklog_filename,status='unknown',
-     $     position='append')
-#endif
+      if (feedback_log .eq. 1_IKIND) then
+         write(post,'(i8)') procnum
+         do i=1,8
+            if(post(i:i).eq.' ') post(i:i)='0'
+         enddo
+         feedbacklog_filename = 'feedbacklog_' // post // '.txt'
+         open(unit=4,file=feedbacklog_filename,status='unknown',
+     &        position='append')
+      endif
 c
 c-----------------------------------------------------------------------
 c
@@ -488,12 +476,12 @@ c
  5          ip = int((xp(n) - xstart)/dx) + 1_IKIND
             jp = int((yp(n) - ystart)/dx) + 1_IKIND
             kp = int((zp(n) - zstart)/dx) + 1_IKIND
-#ifdef FEEDBACK_LOG
-            write(4,*) 'n, mp(n):',n,mp(n)*dunits*(dx*x1)**3._RKIND
+#ifdef FORTRAN_DEBUG
+            write(6,*) 'n, mp(n):',n,mp(n)*dunits*(dx*x1)**3._RKIND
      &        /SolarMass
-            write(4,*) 'minitial:',minitial*dunits*x1**3._RKIND
+            write(6,*) 'minitial:',minitial*dunits*x1**3._RKIND
      &        /SolarMass*dx**3_IKIND
-            write(4,*) 'mform:',mform*dunits*x1**3._RKIND*dx**3_IKIND
+            write(6,*) 'mform:',mform*dunits*x1**3._RKIND*dx**3_IKIND
      &        /SolarMass
 #endif
 c
@@ -519,8 +507,8 @@ c
 c           Calculate mass per cell ejected
 c     
             mass_per_cell = mform * m_eject / dist_mass_cells
-#ifdef FEEDBACK_LOG
-            write(4,*) 'mass_per_cell:',mass_per_cell*
+#ifdef FORTRAN_DEBUG
+            write(6,*) 'mass_per_cell:',mass_per_cell*
      &         dunits*x1**3._RKIND/SolarMass*dx**3_IKIND
 #endif
             if (xp(n) .lt. xstart .or. xp(n) .gt. xstart+dx*nx .or.
@@ -612,9 +600,9 @@ c
             energy = nsn * 10._RKIND**51._RKIND / (dunits*
      &                  x1**3._RKIND*vunits**2._RKIND*dx**3._RKIND)
             add_therm = thermal / dist_mass_cells
-#ifdef FEEDBACK_LOG
-            write(4,*) 'realmass,nsn:',realmass,nsn
-c            write(6,*) 'ic,jc,kc:',ic, jc, kc
+#ifdef FORTRAN_DEBUG
+            write(6,*) 'realmass,nsn:',realmass,nsn
+            write(6,*) 'ic,jc,kc:',ic, jc, kc
 #endif
 c
             Z_avg = 0._RKIND
@@ -651,29 +639,9 @@ c
      &                  dist_mass_cells, mom_per_cell,
      &                  nsn, d(ic,jc,kc), dx, x1, n_avg, Z_avg,
      &                  dunits, vunits, t1,
-     &                  nx, ny, nz, ic, jc, kc)
-#ifdef FEEDBACK_LOG
-            write(4,*) 'mom_per_cell:',mom_per_cell*
-     &           (dunits*(dx*x1)**3._RKIND)*vunits/SolarMass/1e5_RKIND
-#endif
+     &                  nx, ny, nz, ic, jc, kc,
+     &                  mom_mult)
 c           mom_per_cell has units of mass*velocity/volume
-c
-c
-c     Zero local dummy field and kinetic energy field
-c
-            do k = 1_IKIND, 3_IKIND
-               do j = 1_IKIND, 3_IKIND
-                  do i = 1_IKIND, 3_IKIND
-                     u1(i,j,k) = 0._RKIND
-                     v1(i,j,k) = 0._RKIND
-                     w1(i,j,k) = 0._RKIND
-                     d1(i,j,k) = d(i,j,k)
-                     ge1(i,j,k) = 0._RKIND
-                     te1(i,j,k) = 0._RKIND
-                     metal1(i,j,k) = 0._RKIND
-                  enddo
-               enddo
-            enddo
 c
 c     Compute the kinetic energy in the affected region
 c     before momentum is added (except for ZEUS).  This
@@ -710,21 +678,37 @@ c
 c           u,v,w have units of mass*velocity/volume
 c           Now u,v,w are the particle-relative *momentum* directions
 c
+#ifdef FORTRAN_DEBUG
 c           Sum mass, energy, and momentum before
             call sum_energy_mom(u, v, w, d, nx, ny, nz,
      &            ic, jc, kc, iface, jface, kface,
      &            mass_before, kin_energy_before, mom_start)
-#ifdef FEEDBACK_LOG
-            write(4,*) "m before:", mass_before*
+
+            write(6,*) "m before:", mass_before*
      &               (dunits*(x1*dx)**3._RKIND)/SolarMass
-            write(4,*) "e before:", kin_energy_before*dunits*
+            write(6,*) "e before:", kin_energy_before*dunits*
      &                  vunits**2._RKIND*dx**3._RKIND*x1**3._RKIND
-            write(4,*) 'mom_start:',mom_start*dunits*vunits
+            write(6,*) 'mom_start:',mom_start*dunits*vunits
      &                  *(dx*x1)**3._RKIND/SolarMass/1e5_RKIND
-#endif
 c           mass_before has units of mass/volume
 c           kin_energy_before has units of mass*velocity^2/volume
 c           mom_start has units of mass*velocity/volume
+c
+c     Zero local dummy field and kinetic energy field
+c
+            do k = 1_IKIND, 3_IKIND
+               do j = 1_IKIND, 3_IKIND
+                  do i = 1_IKIND, 3_IKIND
+                     u1(i,j,k) = 0._RKIND
+                     v1(i,j,k) = 0._RKIND
+                     w1(i,j,k) = 0._RKIND
+                     d1(i,j,k) = d(i,j,k)
+                     ge1(i,j,k) = 0._RKIND
+                     te1(i,j,k) = 0._RKIND
+                     metal1(i,j,k) = 0._RKIND
+                  enddo
+               enddo
+            enddo
 c           Now add mass and momentum terms to
 c              local dummy fields
 c
@@ -734,8 +718,9 @@ c
      &                        2_IKIND, 2_IKIND, 2_IKIND,
      &                        imethod, imetal, imulti_metals, idual,
      &                        m_eject, yield, metalf(n),
-     &                        mass_per_cell, mom_per_cell,
-     &                        add_therm, dx, x1, dunits, vunits)
+     &                        mass_per_cell, mom_per_cell, therm_sum,
+     &                        add_therm, dx, x1, dunits, vunits,
+     &                        mom_canc, lost_p)
 c
 c           Calculate mass and energy in dummy fields
 c
@@ -743,36 +728,54 @@ c
      &          3_IKIND, 3_IKIND, 3_IKIND,
      &          2_IKIND, 2_IKIND, 2_IKIND, 2_IKIND, 2_IKIND, 2_IKIND,
      &            mass_dummy, kin_energy_dummy, mom_dummy)
-#ifdef FEEDBACK_LOG
-            write(4,*) "m dummy:", mass_dummy*
+            write(6,*) "m dummy:", mass_dummy*
      &               (dunits*(x1*dx)**3._RKIND)/SolarMass
-            write(4,*) "e dummy:", kin_energy_dummy*dunits*
+            write(6,*) "e dummy:", kin_energy_dummy*dunits*
      &                  vunits**2._RKIND*dx**3._RKIND*x1**3._RKIND
-            write(4,*) 'mom_dummy:',mom_dummy*dunits*vunits
+            write(6,*) 'mom_dummy:',mom_dummy*dunits*vunits
      &                  *(dx*x1)**3._RKIND/SolarMass/1e5_RKIND
 #endif
 c
 c           Now deposit the momentum onto the grid.
 c
+            therm_sum = 0._RKIND
             call add_feedback_mech(u, v, w, d, ge, te, metal,
      &                         nx, ny, nz, ic, jc, kc,
      &                        iface, jface, kface,
      &                        imethod, imetal, imulti_metals, idual,
      &                        m_eject, yield, metalf(n),
-     &                        mass_per_cell, mom_per_cell, 
-     &                        add_therm, dx, x1, dunits, vunits)
+     &                        mass_per_cell, mom_per_cell, therm_sum,
+     &                        add_therm, dx, x1, dunits, vunits,
+     &                        mom_canc, lost_p)
+            if (feedback_log .eq. 1_IKIND) then
+               mom_sum = 0._RKIND
+               do k = 1_IKIND, 3_IKIND
+                  do j = 1_IKIND, 3_IKIND
+                     do i = 1_IKIND, 3_IKIND
+                        mom_sum = mom_sum + mom_per_cell(i,j,k)
+                     enddo
+                  enddo
+               enddo
+               write(4,*) n, minitial*
+     &           (dunits*(x1*dx)**3._RKIND)/SolarMass, mform*
+     &           (dunits*(x1*dx)**3._RKIND)/SolarMass, nsn, mom_sum*
+     &           (dunits*(dx*x1)**3._RKIND)*vunits/SolarMass/1e5_RKIND,
+     &           lost_p*
+     &           (dunits*(dx*x1)**3._RKIND)*vunits/SolarMass/1e5_RKIND,
+     &           therm_sum*(dunits*(dx*x1)**3._RKIND)*vunits**2._RKIND
+            endif
 c
 c           Calculate the mass and energy in the affected region again.
 c
+#ifdef FORTRAN_DEBUG
             call sum_energy_mom(u, v, w, d, nx, ny, nz,
      &                          ic, jc, kc, iface, jface, kface,
      &                          mass_end, kin_energy_end, mom_end)
-#ifdef FEEDBACK_LOG
-            write(4,*) "m end:", mass_end*
+            write(6,*) "m end:", mass_end*
      &               (dunits*(dx*x1)**3._RKIND)/SolarMass
-            write(4,*) 'kin_energy_end:',kin_energy_end*dunits*
+            write(6,*) 'kin_energy_end:',kin_energy_end*dunits*
      &                  vunits**2._RKIND*dx**3._RKIND*x1**3._RKIND
-            write(4,*) 'mom_end:',mom_end*dunits*vunits
+            write(6,*) 'mom_end:',mom_end*dunits*vunits
      &                  *(dx*x1)**3._RKIND/SolarMass/1e5_RKIND
 #endif
 c
@@ -868,9 +871,9 @@ c
       enddo
 c
 c      write(6,*) 'star_feedback3: end'
-#ifdef FEEDBACK_LOG
-      close(4)
-#endif
+      if (feedback_log .eq. 1) then
+         close(4)
+      endif
       return
       end
 c
@@ -882,7 +885,8 @@ c
      &               dist_mass_cells, mom_per_cell,
      &               nsn, d_fbck_cell, dx, x1,
      &               n_avg, Z_avg, dunits, vunits, t1,
-     &               nx, ny, nz, ic, jc, kc)
+     &               nx, ny, nz, ic, jc, kc,
+     &               mom_mult)
 c
       implicit none
 #include "fortran_types.def"
@@ -895,6 +899,7 @@ c
       R_PREC    mom_per_cell(3_IKIND, 3_IKIND, 3_IKIND)
       R_PREC    mass_per_cell, dist_mass_cells
       R_PREC    nsn, x1, dunits, d_fbck_cell, vunits
+      R_PREC    mom_mult
 c
 c     Locals
 c
@@ -978,7 +983,7 @@ c                        pSN = pSN/(2._RKIND**0.5_RKIND)
 c                     else if (dist .eq. 3_IKIND) then
 c                        pSN = pSN/(3._RKIND**0.5_RKIND)
                      endif
-                  mom_per_cell(i+2,j+2,k+2) = pSN
+                  mom_per_cell(i+2,j+2,k+2) = pSN*mom_mult
 c
                enddo
             enddo
@@ -1156,8 +1161,9 @@ c
      &                        iface, jface, kface,
      &                        imethod, imetal, imulti_metals, idual,
      &                        m_eject, yield, metalf,
-     &                        mass_per_cell, mom_per_cell, 
-     &                        add_therm, dx, x1, dunits, vunits)
+     &                        mass_per_cell, mom_per_cell, therm_sum,
+     &                        add_therm, dx, x1, dunits, vunits,
+     &                        mom_canc, lost_p)
 c
       implicit none
 #include "fortran_types.def"
@@ -1169,15 +1175,16 @@ c
       R_PREC    d(nx, ny, nz), metal(nx,ny,nz), ge(nx,ny,nz)
       R_PREC    pu(nx,ny,nz), pv(nx,ny,nz), pw(nx,ny,nz), te(nx,ny,nz)
       R_PREC    mass_per_cell, mom_per_cell(3_IKIND,3_IKIND,3_IKIND)
-      R_PREC    m_eject, yield, metalf, add_therm
+      R_PREC    m_eject, yield, metalf, add_therm, therm_sum
       R_PREC    dunits, x1, vunits, dx, mult
-      R_PREC    p_start, p_end, p_inj, extra_p
+      R_PREC    p_start, p_end, p_inj, extra_p, lost_p
+      INTG_PREC    mom_canc
 c
 c     Locals
 c
       INTG_PREC i, j, k, i1, j1, k1
       R_PREC    delta_mass, delta_pu, delta_pv, delta_pw, delta_therm,
-     &          dratio
+     &          dratio, delta_p
       R_PREC    pu_start, pu_deposit, pv_start, pv_deposit, pw_start,
      &          pw_deposit
 c
@@ -1187,6 +1194,8 @@ c
          write(6,*) "momentum: not supported"
          ERROR_MESSAGE
       endif
+      therm_sum = 0._RKIND
+      lost_p = 0._RKIND
 c
 c     Loop cells in particle-frame
 c
@@ -1209,6 +1218,8 @@ c              delta_mass has units of mass/volume
                delta_pu   =  i*mult*mom_per_cell(i+2,j+2,k+2)
                delta_pv   =  j*mult*mom_per_cell(i+2,j+2,k+2)
                delta_pw   =  k*mult*mom_per_cell(i+2,j+2,k+2)
+               delta_p = (delta_pu**2._RKIND + delta_pv**2._RKIND + 
+     &            delta_pw**2._RKIND)**(0.5_RKIND)
                delta_therm = add_therm
 c              delta_p's have units of mass*velocity/volume
 c              delta_therm has units of mass*velocity^2/volume
@@ -1231,9 +1242,9 @@ c
 c     Add mass, momentum
 c     (add thermal energy here)
 c           
-               pu_start = pu(ic+i,jc+j,kc+k)
-               pv_start = pv(ic+i,jc+j,kc+k)
-               pw_start = pw(ic+i,jc+j,kc+k)
+               pu_start = pu(iface+i,jc+j,kc+k)
+               pv_start = pv(ic+i,jface+j,kc+k)
+               pw_start = pw(ic+i,jc+j,kface+k)
                p_start = (pu_start**2._RKIND + pv_start**2._RKIND +
      &           pw_start**2.)**(0.5_RKIND)
                dratio = d(ic+i, jc+j, kc+k)/
@@ -1249,14 +1260,15 @@ c
                p_end = (pu(iface+i,jc+j,kc+k)**2._RKIND + 
      &                  pv(ic+i,jface+j,kc+k)**2._RKIND +
      &                  pw(ic+i,jc+j,kface+k)**2._RKIND)**(0.5_RKIND)
+               if (mom_canc .eq. 1_IKIND) then
 c
 c     If the difference between end and start momentum is less than the
 c     total amount that should've been deposited (due to momentum cancellation),
 c     add the extra as thermal energy
 c
-               p_inj = p_end - p_start
+                  p_inj = p_end - p_start
 #ifdef FORTRAN_DEBUG
-               write(6,*) 'p_start,p_end,p_inj',
+                  write(6,*) 'p_start,p_end,p_inj',
      &            p_start*(x1*dx)**3._RKIND*dunits*vunits
      &            /SolarMass/1e5_RKIND,
      &            p_end*(x1*dx)**3._RKIND*dunits*vunits
@@ -1264,17 +1276,18 @@ c
      &            p_inj*(x1*dx)**3._RKIND*dunits*vunits
      &            /SolarMass/1e5_RKIND
 #endif
-               if (p_inj .lt. mom_per_cell(i+2,j+2,k+2)) then
-                  extra_p = mom_per_cell(i+2,j+2,k+2) - p_inj
-                  delta_therm = delta_therm + extra_p**2._RKIND /
-     &                           d(ic+i,jc+j,kc+k)
-#ifdef FEEDBACK_LOG
-                  write(4,*) 'extra_p,delta_therm',
-     &            extra_p*(x1*dx)**3._RKIND*dunits*vunits
-     &            /SolarMass/1e5_RKIND,
-     &            delta_therm*(x1*dx)**3._RKIND*dunits*vunits**2._RKIND
-     &            /SolarMass/1e5_RKIND
+                  if (p_inj .lt. delta_p) then
+                     extra_p = delta_p - p_inj
+                     lost_p = lost_p + extra_p
+#ifdef FORTRAN_DEBUG
+                     write(6,*) 'lost_p', extra_p*(x1*dx)**3._RKIND*
+     &                 dunits*vunits/SolarMass/1e5_RKIND
 #endif
+                     delta_therm = delta_therm + extra_p**2._RKIND /
+     &                           d(ic+i,jc+j,kc+k)
+                     therm_sum = therm_sum + 
+     &                           delta_therm/d(ic+i,jc+j,kc+k)
+                  endif
                endif
 c
 c     Add thermal energy
