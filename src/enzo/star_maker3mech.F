@@ -740,6 +740,7 @@ c
 c           Now deposit the momentum onto the grid.
 c
             therm_sum = 0._RKIND
+            lost_p = 0._RKIND
             call add_feedback_mech(u, v, w, d, ge, te, metal,
      &                         nx, ny, nz, ic, jc, kc,
      &                        iface, jface, kface,
@@ -1267,7 +1268,7 @@ c     If the difference between end and start momentum is less than the
 c     total amount that should've been deposited (due to momentum cancellation),
 c     add the extra as thermal energy
 c
-                  p_inj = p_end - p_start
+                  p_inj = ABS(p_end - p_start)
 #ifdef FORTRAN_DEBUG
                   write(6,*) 'p_start,p_end,p_inj',
      &            p_start*(x1*dx)**3._RKIND*dunits*vunits
