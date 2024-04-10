@@ -592,11 +592,12 @@ c
 c            write(6,*) 'ic, jc, kc:', ic, jc, kc
 c
 c           Calculate the number of SNe in this timestep from the stars formed
-c           in this timestep as 1 SN per 100 Msun formed.
+c           in this timestep as 1 SN per 100 Msun formed. If less than one, skip.
 c           
             realmass = mform * dunits * x1**3._RKIND*dx**3_IKIND
             realmass = realmass /SolarMass
             nsn = realmass / 100._RKIND
+            if (nsn .lt. 1._RKIND) goto 10
             energy = nsn * 10._RKIND**51._RKIND / (dunits*
      &                  x1**3._RKIND*vunits**2._RKIND*dx**3._RKIND)
             add_therm = thermal / dist_mass_cells
