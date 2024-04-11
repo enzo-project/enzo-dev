@@ -360,8 +360,8 @@ extern "C" void FORTRAN_NAME(star_feedback3mech)(int *nx, int *ny, int *nz,
 		       int *ibuff,
              FLOAT *xp, FLOAT *yp, FLOAT *zp, float *up, float *vp, float *wp,
              float *mp, float *tdp, float *tcp, float *metalf, int *type,
-	     float *justburn, float *exptime, float *MomentumMultiplier,
-             int *MomentumCancellationToThermal, int *WriteFeedbackLogFiles);
+	     float *justburn, float *exptime, float *mom_mult,
+             int *mom_canc, int *feedback_log);
 
 extern "C" void FORTRAN_NAME(star_feedback3)(int *nx, int *ny, int *nz,
              float *d, float *dm, float *te, float *ge, float *u, float *v,
