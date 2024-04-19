@@ -225,6 +225,8 @@ c
       character*32 starlog_filename
       character*8   post
 
+      maxflag = 0 
+
       if (WriteStarLogFiles .eq. 1) then
 
           write(post,'(i8)') procnum
@@ -388,15 +390,15 @@ c     only for cold gas (ColdGasTemperature).
                   endif  ! if (H2FloorInColdGas .gt. 0._RKIND)
 
                else if (H2Method .eq. 1) then
-                  H2_fraction = fH2(i,j,k) ! read fraction from chem field
+                  H2_fraction = fH2(i,j,k) ! read from chem field CK 
                endif
 
 c     No star formation if H2_fraction < MinimumH2FractionForStarFormation.
                if (H2_fraction .lt.
      $              MinimumH2FractionForStarFormation) then
 c                  write(4,*) 'Star formation prevented because ',
-c     $                 'H2 fraction too low: f_H2 = ',
-c     $                 MinimumH2FractionForStarFormation
+c    $                 'H2 fraction too low: f_H2 = ',
+c    $                 MinimumH2FractionForStarFormation
                   goto 10
                endif
                
@@ -420,21 +422,8 @@ c     starmass_in_Msun/StarFormationMinimumMass.
                
                starmass_in_Msun = starmass * m1
                
-               if (WriteStarLogFiles .eq. 1) then 
-                   write(4,80) 'SMInputs', d(i,j,k),fHI(i,j,k),
-     $                 temp(i,j,k),t,dt,z,dx,metal(i,j,k)
-80                 format(a,8(1pe10.3))  
-
-                   write(4,100) 'SMMath', nH, Sigma, phi_CNM, chi,tau_c,
-     $                     s,H2_fraction,densthresh,timeconstant,tau_ff,
-     $                     gasfrac, starmass, starmass_in_Msun, maxflag 
-               endif 
-
-
                if(starmass_in_Msun .lt. 
      $              StarFormationMinimumMass) then
-
-100               format(a,13(1pe12.3), i12)  
 
                   if (StochasticStarFormation .eq. 1) then
                      call random_number(random)
@@ -462,7 +451,6 @@ c                 JT added goto here 112623
 
                ii = ii + 1
 
-
 c            fill in star particle attributes
 
                if (starmass .eq. 0) then
@@ -477,6 +465,15 @@ c            fill in star particle attributes
                yp(ii) = ystart + (REAL(j,RKIND)-0.5_RKIND)*dx
                zp(ii) = zstart + (REAL(k,RKIND)-0.5_RKIND)*dx
                if (WriteStarLogFiles .eq. 1) then 
+                   write(4,80) 'SMInputs', d(i,j,k),fHI(i,j,k),
+     $                 temp(i,j,k),t,dt,z,dx,metal(i,j,k), H2Method 
+80                 format(a,8(1pe10.3), i5)
+
+                   write(4,100) 'SMMath', nH, Sigma, phi_CNM, chi,tau_c,
+     $                     s,H2_fraction,densthresh,timeconstant,tau_ff,
+     $                     gasfrac, starmass, starmass_in_Msun, maxflag
+100               format(a,13(1pe12.3), i5)  
+
                    write(4,250) 'SMOut', d(i,j,k)*d1, temp(i,j,k), 
      $                    H2_fraction, mp(ii), tcp(ii), tdp(ii) 
 250                format(a,6(1pe10.3))
