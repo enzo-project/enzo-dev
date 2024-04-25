@@ -26,11 +26,11 @@
 /* function prototypes */
 int CosmologyGetUnits(float *DensityUnits, float *LengthUnits,
 	      float *TemperatureUnits, float *TimeUnits,
-	      float *VelocityUnits, float Time);
+	      float *VelocityUnits, FLOAT Time);
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
-	     float *VelocityUnits, double *MassUnits, float Time)
+	     float *VelocityUnits, double *MassUnits, FLOAT Time)
 
 {
   /* If using cosmology, get cosmology units */
@@ -56,7 +56,7 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
-	     float *VelocityUnits, float Time)
+	     float *VelocityUnits, FLOAT Time)
 
 {
   /* If using cosmology, get cosmology units */
