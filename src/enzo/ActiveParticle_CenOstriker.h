@@ -30,7 +30,7 @@ public:
         new ActiveParticleType_CenOstriker(this)
       );
   }
-  static int EvaluateFormation(grid *thisgrid_orig, ActiveParticleFormationData &data);
+  static int EvaluateFormation(grid *thisgrid_orig, TopGridData *MetaData, ActiveParticleFormationData &data);
   static int EvaluateFeedback(grid *thisgrid_orig, ActiveParticleFormationData &data);
   static void DescribeSupplementalData(ActiveParticleFormationDataFlags &flags);
   template <class active_particle_class>

@@ -215,7 +215,7 @@
 #    aggressive    Use aggressive optimization
 #-----------------------------------------------------------------------
 
-     CONFIG_OPT = debug
+     CONFIG_OPT = high
 
 #=======================================================================
 # CONFIG_TESTING
