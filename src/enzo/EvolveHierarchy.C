@@ -487,7 +487,6 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
         Forcing.Evolve(dt); 
 
     /* Evolve the top grid (and hence the entire hierarchy). */
-
 #ifdef USE_MPI 
     CommunicationBarrier();
     tlev0 = MPI_Wtime();
@@ -508,7 +507,12 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
     }
 */
 #endif
-
+// Opening the AGNEdot file for writting output AGN energy.
+// Added by Deovrat Prasad
+    if (AGNEdotFile == NULL)
+       AGNEdotFile = fopen("edot_log.dat","a");
+    
+ 
     if (EvolveLevel(&MetaData, LevelArray, 0, dt, Exterior
 #ifdef TRANSFER
                 , ImplicitSolver
@@ -530,11 +534,11 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
     }
 
 
-
 #ifdef USE_MPI 
     CommunicationBarrier();
     tlev1 = MPI_Wtime();
 #endif
+
   
     /* Add time and check stopping criteria (steps #21 & #22)
        (note the topgrid is also keeping its own time but this statement will
@@ -674,7 +678,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
 
     if (MyProcessorNumber == ROOT_PROCESSOR) {
       evlog = fopen("Evtime", "a");
-      fprintf(evlog, "%8"ISYM"  %16.9e  %16.9e  %16.9e\n", MetaData.CycleNumber, tlev1-tlev0, treb1-treb0, tloop1-tloop0);
+      fprintf(evlog, "%8"ISYM"  %16.9e  %16.9e  %16.9e  %12d  %12d\n", MetaData.CycleNumber, tlev1-tlev0, treb1-treb0, tloop1-tloop0, NumberOfProcessors, NumberOfCores);
       fclose(evlog);
     }
 
@@ -693,7 +697,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
 
     TIMER_STOP("Total");
     if ((MetaData.CycleNumber-1) % TimingCycleSkip == 0)
-		  TIMER_WRITE(MetaData.CycleNumber);
+      TIMER_WRITE(MetaData.CycleNumber);
 
     FirstLoop = false;
  
@@ -710,7 +714,9 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
         StoppedByOutput = TRUE;
       }
     }
-
+// Closing the AGNEdotFile. Added by Deovrat Prasad.
+    fclose(AGNEdotFile);
+    AGNEdotFile = NULL;
   } // ===== end of main loop ====
 
 #ifdef USE_LCAPERF

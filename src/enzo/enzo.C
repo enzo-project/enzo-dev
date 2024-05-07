@@ -20,7 +20,11 @@
 #ifdef USE_MPI
 #include "mpi.h"
 #endif /* USE_MPI */
- 
+
+#ifdef _OPENMP
+#include "omp.h"
+#endif
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -297,6 +301,10 @@ Eint32 MAIN_NAME(Eint32 argc, char *argv[])
 
   t_init0 = MPI_Wtime();
 #endif /* USE_MPI */
+
+#ifdef _OPENMP
+  omp_set_dynamic(0);
+#endif
 
   // Create enzo timer and initialize default timers
   enzo_timer = new enzo_timing::enzo_timer();

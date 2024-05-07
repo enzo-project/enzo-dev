@@ -107,7 +107,7 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
   LCAPERF_START("PrepareDensityField");
 
   int grid1, grid2, StartGrid, EndGrid;
- 
+
   /* Set the time for evaluation of the fields, etc. */
  
   FLOAT EvaluateTime = LevelArray[level]->GridData->ReturnTime() +
@@ -162,6 +162,8 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
     /* Next, send data and process grids on the same processor. */
 
     CommunicationDirection = COMMUNICATION_SEND;
+	//this is where we want to place the OMP parallel region: FINDME
+#pragma omp parallel for
     for (grid1 = StartGrid; grid1 < EndGrid; grid1++)
       DepositParticleMassField(Grids[grid1], EvaluateTime);
 
@@ -225,7 +227,7 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
   if (traceMPI) 
     fprintf(tracePtr, "PrepareDensityField: P(%"ISYM"): PGMF2 (receive)\n", 
 	    MyProcessorNumber);
- 
+
   TIME_MSG("PrepareGravitatingMassField2");
   LCAPERF_START("PrepareGravitatingMassField2a");
   for (StartGrid = 0; StartGrid < NumberOfGrids; StartGrid += GRIDS_PER_LOOP) {
@@ -257,10 +259,12 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
 
     CommunicationDirection = COMMUNICATION_SEND;
 #ifdef FAST_SIB
+#pragma omp parallel for 
     for (grid1 = StartGrid; grid1 < EndGrid; grid1++)
       PrepareGravitatingMassField2a(Grids[grid1], grid1, SiblingList,
 				   MetaData, level, When);
 #else
+#pragma omp parallel for 
     for (grid1 = StartGrid; grid1 < EndGrid; grid1++)
       PrepareGravitatingMassField2a(Grids[grid1], MetaData, LevelArray,
 				   level, When);
@@ -314,7 +318,7 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
   if (traceMPI) 
     fprintf(tracePtr, "PrepareDensityField: P(%"ISYM"): COMF1 (send)\n", 
 	    MyProcessorNumber);
- 
+
   TIME_MSG("CopyOverlappingMassField");
   LCAPERF_START("CopyOverlappingMassField");
   for (StartGrid = 0; StartGrid < NumberOfGrids; StartGrid += GRIDS_PER_LOOP) {
@@ -419,6 +423,7 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
 	CopyPotentialFieldAverage = 2;
 
  
+#pragma omp parallel for schedule(guided)
       for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
 	Grids[grid1]->GridData->SolveForPotential(level, EvaluateTime);
 	if (CopyGravPotential)
@@ -524,7 +529,7 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
     TIMER_STOP("SolveForPotential");
     LCAPERF_STOP("SolveForPotential");
   } // ENDIF level > 0
-  
+
   /* if level > MaximumGravityRefinementLevel, then do final potential
      solve (and acceleration interpolation) here rather than in the main
      EvolveLevel since it involves communications. */
@@ -535,6 +540,7 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
        (but only if there is at least a subgrid -- it should be only
        if there is a subgrrid on reallevel, but this is ok). */
  
+#pragma omp parallel for schedule(guided)
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
       if (Grids[grid1]->NextGridNextLevel != NULL) {
 	Grids[grid1]->GridData->SolveForPotential(MaximumGravityRefinementLevel);

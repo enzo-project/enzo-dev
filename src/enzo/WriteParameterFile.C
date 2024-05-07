@@ -334,6 +334,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "ActiveParticleDensityThreshold = %"GSYM"\n",
 	  ActiveParticleDensityThreshold);
   fprintf(fptr, "SmartStarAccretion             = %"ISYM"\n", SmartStarAccretion);
+  fprintf(fptr, "ActiveParticleCounter = %"ISYM, &ActiveParticleCounter);
   fprintf(fptr, "SmartStarFeedback              = %"ISYM"\n", SmartStarFeedback);
   fprintf(fptr, "SmartStarEddingtonCap          = %"ISYM"\n", SmartStarEddingtonCap);
   fprintf(fptr, "SmartStarBHFeedback              = %"ISYM"\n", SmartStarBHFeedback);
@@ -346,6 +347,67 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "SmartStarJetVelocity                  = %"GSYM"\n", SmartStarJetVelocity);
   fprintf(fptr, "SmartStarSuperEddingtonAdjustment     = %"ISYM"\n", SmartStarSuperEddingtonAdjustment);
   fprintf(fptr, "SmartStarSMSLifetime                  = %"GSYM"\n", SmartStarSMSLifetime);
+
+  fprintf(fptr, "AGNParticleInsert_x                = %"GSYM"\n", AGNParticleInsert_x);
+  fprintf(fptr, "AGNParticleInsert_y                = %"GSYM"\n", AGNParticleInsert_y);
+  fprintf(fptr, "AGNParticleInsert_z                = %"GSYM"\n", AGNParticleInsert_z);
+  fprintf(fptr, "AGNParticleInsert_Time                = %"GSYM"\n", AGNParticleInsert_Time);
+  fprintf(fptr, "AGNParticleFeedbackEfficiency         = %"GSYM"\n", AGNParticleFeedbackEfficiency);
+  fprintf(fptr, "AGNParticleKineticFraction            = %"FSYM"\n", AGNParticleKineticFraction);
+  fprintf(fptr, "AGNParticleAccretionRadiusKpc         = %"GSYM"\n", AGNParticleAccretionRadiusKpc);
+  fprintf(fptr, "AGNParticleAccretionRadialExponent    = %"FSYM"\n", AGNParticleAccretionRadialExponent);
+  fprintf(fptr, "AGNParticleFeedbackRadiusKpc          = %"GSYM"\n", AGNParticleFeedbackRadiusKpc);
+  fprintf(fptr, "AGNParticleFeedbackType               = %"ISYM"\n", AGNParticleFeedbackType);
+  fprintf(fptr, "AGNParticleFeedbackWeight             = %"ISYM"\n", AGNParticleFeedbackWeight);
+
+  fprintf(fptr, "AGNParticleCondensationFraction       = %"FSYM"\n", AGNParticleCondensationFraction);
+
+  fprintf(fptr, "AGNParticleInjectionTemperature       = %"FSYM"\n", AGNParticleInjectionTemperature);
+
+  fprintf(fptr, "AGNParticleColdMassTemp               = %"GSYM"\n", AGNParticleColdMassTemp);
+  fprintf(fptr, "AGNParticleColdMassDelay              = %"GSYM"\n", AGNParticleColdMassDelay);
+
+  fprintf(fptr, "AGNParticleJetPower                   = %"GSYM"\n", AGNParticleJetPower);
+  fprintf(fptr, "AGNParticleFixedWaitForCold           = %"ISYM"\n", AGNParticleFixedWaitForCold);
+  fprintf(fptr, "AGNParticleCycleLength                = %"GSYM"\n", AGNParticleCycleLength);
+  fprintf(fptr, "AGNParticleActiveFraction             = %"GSYM"\n", AGNParticleActiveFraction);
+
+  fprintf(fptr, "AGNParticleBondiBoostFactor           = %"GSYM"\n", AGNParticleBondiBoostFactor);
+  fprintf(fptr, "AGNParticleBSBondiDensityCGS          = %"GSYM"\n", AGNParticleBSBondiDensityCGS);
+  fprintf(fptr, "AGNParticleBSBondiBeta                = %"FSYM"\n", AGNParticleBSBondiBeta);
+
+  fprintf(fptr, "AGNParticleAccretionDelayTime         = %"GSYM"\n", AGNParticleAccretionDelayTime);
+
+  fprintf(fptr, "AGNParticleHighPower                  = %"GSYM"\n", AGNParticleHighPower);
+  fprintf(fptr, "AGNParticleLowPower                   = %"GSYM"\n", AGNParticleLowPower);
+  fprintf(fptr, "AGNParticleHighPowerTime              = %"GSYM"\n", AGNParticleHighPowerTime);
+  fprintf(fptr, "AGNParticleLowPowerTime               = %"GSYM"\n", AGNParticleLowPowerTime);
+
+  fprintf(fptr, "AGNParticleDiskRadius                 = %"GSYM"\n", AGNParticleDiskRadius);
+  fprintf(fptr, "AGNParticleDiskDistance               = %"GSYM"\n", AGNParticleDiskDistance);
+  fprintf(fptr, "AGNParticleDiskOpeningAngle           = %"FSYM"\n", AGNParticleDiskOpeningAngle);
+
+  fprintf(fptr, "AGNPrecessionAngleRad = %"FSYM"\n", AGNPrecessionAngleRad);
+
+  fprintf(fptr, "AGNTracerCyl = %"ISYM"\n", AGNTracerCyl);
+  fprintf(fptr, "AGNTracerZkpc = %"FSYM"\n", AGNTracerZkpc);
+  fprintf(fptr, "AGNTracerHkpc = %"FSYM"\n", AGNTracerHkpc);
+  fprintf(fptr, "AGNTracerRInnerkpc = %"FSYM"\n", AGNTracerRInnerkpc);
+  fprintf(fptr, "AGNTracerROuterkpc = %"FSYM"\n", AGNTracerROuterkpc);
+  fprintf(fptr, "AGNTracerFrequencyMyr = %"FSYM"\n", AGNTracerFrequencyMyr);
+  fprintf(fptr, "AGNTracerNextTimeMyr = %"FSYM"\n", AGNTracerNextTimeMyr);
+
+  fprintf(fptr, "AGNUseTracer = %"ISYM"\n", AGNUseTracer);
+  fprintf(fptr, "AGNTracerInjectionTime = %"FSYM"\n", AGNTracerInjectionTime);
+  fprintf(fptr, "AGNTracerMinRadiusKPC = %"FSYM"\n", AGNTracerMinRadiusKPC);
+  fprintf(fptr, "AGNTracerShellWidthKPC = %"FSYM"\n", AGNTracerShellWidthKPC);
+  fprintf(fptr, "AGNTracerShellWidthKPC = %"FSYM"\n", AGNTracerShellWidthKPC);
+
+  fprintf(fptr, "AGNCylinderHeightKpc = %"FSYM"\n", AGNCylinderHeightKpc);
+  fprintf(fptr, "AGNCylinderRadiusKpc = %"FSYM"\n", AGNCylinderRadiusKpc);
+  fprintf(fptr, "AGNCylinderDistanceKpc = %"FSYM"\n", AGNCylinderDistanceKpc);
+  fprintf(fptr, "AGNParticleShockFraction = %"FSYM"\n", AGNParticleShockFraction);
+
   fprintf(fptr, "FluxCorrection                 = %"ISYM"\n", FluxCorrection);
   fprintf(fptr, "UseCoolingTimestep             = %"ISYM"\n", UseCoolingTimestep);
   fprintf(fptr, "CoolingTimestepSafetyFactor    = %"GSYM"\n", CoolingTimestepSafetyFactor);
@@ -371,6 +433,8 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
 	  MetallicityRefinementMinMetallicity);
   fprintf(fptr, "MetallicityRefinementMinDensity     = %"GSYM"\n", 
 	  MetallicityRefinementMinDensity);
+  fprintf(fptr, "MetallicityForRefinement            = %"GSYM"\n", 
+	  MetallicityForRefinement);
  
   fprintf(fptr, "DomainLeftEdge         = ");
   WriteListOfFloats(fptr, MetaData.TopGridRank, DomainLeftEdge);
@@ -759,6 +823,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "UnigridTranspose                = %"ISYM"\n", UnigridTranspose);
   fprintf(fptr, "NumberOfRootGridTilesPerDimensionPerProcessor = %"ISYM"\n", 
 	  NumberOfRootGridTilesPerDimensionPerProcessor);
+  fprintf(fptr, "HybridParallelRootGridSplit     = %"ISYM"\n", HybridParallelRootGridSplit);
   fprintf(fptr, "PartitionNestedGrids            = %"ISYM"\n", PartitionNestedGrids);
   fprintf(fptr, "ExtractFieldsOnly               = %"ISYM"\n", ExtractFieldsOnly);
   fprintf(fptr, "CubeDumpEnabled                 = %"ISYM"\n", CubeDumpEnabled);
