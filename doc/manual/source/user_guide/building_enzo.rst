@@ -27,6 +27,8 @@ compiler, the following libraries are necessary:
    * `yt <http://yt-project.org>`_, the yt visualization and analysis suite.  
      While it is not required to run enzo, ``yt`` enables the easiest analysis
      of its outputs, as well as the ability to run the enzo testing tools.
+   * `libyt <https://libyt.readthedocs.io/en/latest/>`__, a C library for in situ analysis using Python and ``yt``.
+     This is optional, see the details in :ref:`in_situ_python_analysis`.
  
 
 Downloading Enzo

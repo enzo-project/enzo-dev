@@ -136,6 +136,8 @@ common convention of 0 meaning false or off and 1 for true or on.
    
    * `Inline Python`_
 
+* `libyt In Situ Python Analysis`_
+
 * `Other Parameters`_
    
    * `Other External Parameters`_
@@ -3871,6 +3873,24 @@ Other Internal Parameters
 ``VersionNumber`` (internal)
     Sets the version number of the code which is written out to restart
     dumps.
+
+.. _libyt_in_situ_python_analysis:
+
+libyt In Situ Python Analysis
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+``libyt_script_name`` (external)
+    The Python script name to be imported.
+    The name should omit the file extension ``.py``.
+
+``NumberOfLibytCalls`` (internal)
+    Internal parameter tracked by Enzo.
+
+``NumberOfLibytTopGridCalls`` (internal)
+    Internal parameter tracked by Enzo.
+
+``NumberOfLibytSubcycleCalls`` (internal)
+    Internal parameter tracked by Enzo.
 
 .. _problem_type_parameters:
 
