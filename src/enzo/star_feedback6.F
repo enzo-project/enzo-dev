@@ -159,7 +159,7 @@ c     Do instantaneous injeciton
 c
             if (exptime_in .ge. 0._RKIND) then
 c              convert explosion time to code units
-               exptime = exptime_in * 1.e6_RKIND * 3.15e7_RKIND / t1  
+               exptime = exptime_in * Myr_s / t1  
 #ifdef FORTRAN_DEBUG
                write(6,*) 'mform, minitial = ',mform,minitial
                write(6,*) 'exptime,t,tcp,tdp = ',exptime,t,tcp(n),tdp(n)
@@ -309,6 +309,8 @@ c
 c            write(6,*) 'iface, jface, kface:', iface, jface, kface
 c
 c         Compute index of the center of feedback zone for mass
+c         Note that this is different than star_feedback3mom because
+c         this is center-indexed and star_feedback3mom is corner-indexed
 c 
             xpos = (xfc - xstart)/dx
             ypos = (yfc - ystart)/dx
@@ -354,6 +356,7 @@ c            write(6,*) 'averaging over patch'
                enddo
             enddo
 c               
+c        The floor on Z_avg is required by the Kimm & Cen (2014) scheme (eq A5)
             Z_avg = max(Z_avg/27._RKIND, 0.01)
             n_avg = n_avg/27._RKIND
 #ifdef FORTRAN_DEBUG
@@ -509,18 +512,6 @@ c
      &                  *(dx*x1)**3._RKIND/SolarMass/1e5_RKIND
 #endif
 c
-c           If momentum deposited onto grid is smaller than that
-c           deposited into dummy grid (due to momentum cancellation),
-c           add the missing momentum as thermal energy to the center cell
-c            mom_no_canc = mom_start + mom_dummy
-c            if (mom_end .lt. mom_no_canc) then
-c               delta_ke = kin_energy_dummy - kin_energy_inj
-c               write(6,*) 'delta_ke', delta_ke
-c               te(ic, jc, kc) = te(ic, jc, kc) + delta_ke/d(ic, jc, kc)
-c               if (idual .eq. 1_IKIND)
-c     &          ge(ic, jc, kc) = ge(ic, jc, kc) + delta_ke/d(ic, jc, kc)
-c            endif
-c
 c           Convert momenta back to velocities and transform back to lab frame
 c
             call momentum_convert(u, v, w, d, metal, up(n), vp(n), 
@@ -610,6 +601,7 @@ c
 c ==========================================================
 c
 c     Calculate the amount of momentum to add to each neighboring cell
+c     Formulae taken from Kimm & Cen (2014), Appendix A
 c
       subroutine get_mom_per_cell(d, mass_per_cell, 
      &               dist_mass_cells, mom_per_cell,
