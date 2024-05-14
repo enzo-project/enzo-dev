@@ -29,10 +29,10 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, double *MassUnits, FLOAT Time);
 
-int grid::TestDoubleStarParticleInitializeGrid(FLOAT TestStarParticleStarMass[], 
+int grid::TestDoubleStarParticleInitializeGrid(FLOAT TestStarParticleStarMass[2], 
 					 float *Initialdt,
-					 FLOAT TestStarParticleStarVelocity[][3],
-					 FLOAT TestStarParticleStarPosition[][3])
+					 FLOAT TestStarParticleStarVelocity[2][3],
+					 FLOAT TestStarParticleStarPosition[2][3])
 {
   /* declarations */
 
