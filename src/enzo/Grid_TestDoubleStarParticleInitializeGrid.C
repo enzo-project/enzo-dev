@@ -85,8 +85,6 @@ int grid::TestDoubleStarParticleInitializeGrid(FLOAT TestStarParticleStarMass[2]
     if (STARFEED_METHOD(MOM_STAR) || STARFEED_METHOD(MECH_STAR))
         if(StarMakerExplosionDelayTime >= 0.0)
         ParticleAttribute[1][i] = 1.0;
-        else
-        ParticleAttribute[1][i] = 10.0 * Myr_s/TimeUnits;
     
     ParticleAttribute[2][i] = 0.0;  // Metal fraction
     ParticleAttribute[3][i] = 0.0;  // metalfSNIa
