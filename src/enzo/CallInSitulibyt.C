@@ -391,6 +391,7 @@ int CallInSitulibyt(LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
     for (std::size_t i = 0; i < libyt_generated_derived_field.size(); i++) {
         delete [] libyt_generated_derived_field[i];
     }
+    libyt_generated_derived_field.clear();
 
     CommunicationBarrier();
     return SUCCESS;
