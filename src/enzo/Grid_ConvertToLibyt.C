@@ -92,8 +92,8 @@ void grid::ConvertToLibyt(int LocalGridID, int GlobalGridID, int ParentID, int l
     libyt_generated_derived_field.push_back(temp_field);
     libyt_generated_derived_field.push_back(cooling_time_field);
 
-    int temp_field_i = (yt_param_yt*)param_yt->num_fields - 2;
-    int cooling_time_field_i = (yt_param_yt*)param_yt->num_fields - 1;
+    int temp_field_i = ((yt_param_yt*)param_yt)->num_fields - 2;
+    int cooling_time_field_i = ((yt_param_yt*)param_yt)->num_fields - 1;
 
     GridInfo.field_data[temp_field_i].data_ptr = temp_field;
     GridInfo.field_data[cooling_time_field_i].data_ptr = cooling_time_field;
