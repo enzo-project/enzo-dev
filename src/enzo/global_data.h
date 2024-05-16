@@ -984,7 +984,7 @@ EXTERN PyObject *my_processor;
 EXTERN char libyt_script_name[512];
 EXTERN void *param_libyt;
 EXTERN void *param_yt;
-EXTERN std::vector<*void> libyt_generated_derived_field;
+EXTERN std::vector<void*> libyt_generated_derived_field;
 EXTERN int libyt_field_lookup[FieldUndefined];
 EXTERN int NumberOfLibytCalls;
 EXTERN int NumberOfLibytTopGridCalls;
