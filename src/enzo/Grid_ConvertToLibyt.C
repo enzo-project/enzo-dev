@@ -78,9 +78,25 @@ void grid::ConvertToLibyt(int LocalGridID, int GlobalGridID, int ParentID, int l
          *
          * */
         int libyt_field = libyt_field_lookup[field];
-        if (libyt_field == -1) continue;
+        if (libyt_field == -1) continue; // TODO: will this ever be -1?
         GridInfo.field_data[libyt_field].data_ptr = BaryonField[field];
     }
+
+    long grid_size = GridDimension[0] * GridDimension[1] * GridDimension[2];
+    float *temp_field = new float[grid_size];
+    float *cooling_time_field = new float[grid_size];
+
+    ComputeTemperatureField(temp_field);
+    ComputeCoolingTimeField(cooling_time_field);
+
+    libyt_generated_derived_field.push_bach(temp_field);
+    libyt_generated_derived_field.push_bach(cooling_time_field);
+
+    int temp_field_i = (yt_param_yt*)param_yt->num_fields - 2;
+    int cooling_time_field_i = (yt_param_yt*)param_yt->num_fields - 1;
+
+    GridInfo.field_data[temp_field_i].data_ptr = temp_field;
+    GridInfo.field_data[cooling_time_field_i].data_ptr = cooling_time_field;
 
     /* par_count_list can take multiple particle types */
     if (this->ReturnNumberOfParticles() > 0) {

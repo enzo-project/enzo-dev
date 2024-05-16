@@ -170,6 +170,8 @@ int CallInSitulibyt(LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
         }
     }
 
+    params->num_fields += 2; // TODO: BH: add fields for Temperature/Cooling_Time derived field from enzo
+
     params->num_par_types = 1;
     yt_par_type par_type_list[1];
     par_type_list[0].par_type = "io";
@@ -277,13 +279,28 @@ int CallInSitulibyt(LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
     /* Now we add on the following fields, as per grid::WriteGrid:
      *
      *  - Temperature
-     *  - Dust_Temperature
+     *  - Dust_Temperature (ignore for now)
      *  - Cooling_Time
      *
      *  Each of these is predicated on the global parameter associated with
      *  them.
      *
      * */
+
+    field_list[libyt_field_i].field_name = "Temperature";
+    field_list[libyt_field_i].field_type = "cell-centered";
+    field_list[libyt_field_i].field_dtype = EYT_BFLOAT;
+    for (j = 0; j < 6; j++) {
+        field_list[libyt_field_i].field_ghost_cell[j] = NumberOfGhostZones;
+    }
+    libyt_field_i = libyt_field_i + 1;
+
+    field_list[libyt_field_i].field_name = "Cooling_Time";
+    field_list[libyt_field_i].field_type = "cell-centered";
+    field_list[libyt_field_i].field_dtype = EYT_BFLOAT;
+    for (j = 0; j < 6; j++) {
+        field_list[libyt_field_i].field_ghost_cell[j] = NumberOfGhostZones;
+    }
 
     /* We now have to do everything we do in CallPython.C, which amounts to
      *
@@ -369,6 +386,10 @@ int CallInSitulibyt(LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
     if (yt_free() != YT_SUCCESS) {
         fprintf(stderr, "Error in libyt API yt_free\n");
         return FAIL;
+    }
+
+    for (std::size_t i = 0; i < libyt_generated_derived_field.size(); i++) {
+        delete [] libyt_generated_derived_field[i];
     }
 
     CommunicationBarrier();
