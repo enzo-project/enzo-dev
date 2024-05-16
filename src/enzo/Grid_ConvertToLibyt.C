@@ -89,8 +89,8 @@ void grid::ConvertToLibyt(int LocalGridID, int GlobalGridID, int ParentID, int l
     ComputeTemperatureField(temp_field);
     ComputeCoolingTime(cooling_time_field);
 
-    libyt_generated_derived_field.push_bach(temp_field);
-    libyt_generated_derived_field.push_bach(cooling_time_field);
+    libyt_generated_derived_field.push_back(temp_field);
+    libyt_generated_derived_field.push_back(cooling_time_field);
 
     int temp_field_i = (yt_param_yt*)param_yt->num_fields - 2;
     int cooling_time_field_i = (yt_param_yt*)param_yt->num_fields - 1;
