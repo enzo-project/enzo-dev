@@ -297,6 +297,7 @@ int CallInSitulibyt(LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
 
     field_list[libyt_field_i].field_name = "Cooling_Time";
     field_list[libyt_field_i].field_type = "cell-centered";
+    field_list[libyt_field_i].field_unit = "code_time";
     field_list[libyt_field_i].field_dtype = EYT_BFLOAT;
     for (j = 0; j < 6; j++) {
         field_list[libyt_field_i].field_ghost_cell[j] = NumberOfGhostZones;
