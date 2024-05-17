@@ -17,6 +17,7 @@
 #include <map>
 #include <stdlib.h>
 #include <stdio.h>
+#include <math.h>
 #include <unistd.h>
 #include "libyt.h"
 #include "ErrorExceptions.h"
@@ -28,6 +29,8 @@
 #include "ExternalBoundary.h"
 #include "Grid.h"
 #include "CosmologyParameters.h"
+
+int GetUnits(float *DensityUnits, float *LengthUnits, float *TemperatureUnits, float *TimeUnits, float *VelocityUnits, FLOAT Time);
 
 /* Note that previously we allowed WriteTime to be supplied and we do not now */
 void grid::ConvertToLibyt(int LocalGridID, int GlobalGridID, int ParentID, int level, yt_grid &GridInfo)
@@ -86,17 +89,21 @@ void grid::ConvertToLibyt(int LocalGridID, int GlobalGridID, int ParentID, int l
     float *temp_field = new float[grid_size];
     float *cooling_time_field = new float[grid_size];
 
-    ComputeTemperatureField(temp_field);
-    ComputeCoolingTime(cooling_time_field);
+    float TemperatureUnits = 1, DensityUnits = 1, LengthUnits = 1, VelocityUnits = 1, TimeUnits = 1, aUnits = 1;
+    GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits, &TimeUnits, &VelocityUnits, this->Time);
 
-    libyt_generated_derived_field.push_back(temp_field);
-    libyt_generated_derived_field.push_back(cooling_time_field);
+    if (this->ComputeTemperatureField(temp_field) == SUCCESS) {
+        libyt_generated_derived_field.push_back(temp_field);
+        int temp_field_i = ((yt_param_yt*)param_yt)->num_fields - 2;
+        GridInfo.field_data[temp_field_i].data_ptr = temp_field;
+    }
 
-    int temp_field_i = ((yt_param_yt*)param_yt)->num_fields - 2;
-    int cooling_time_field_i = ((yt_param_yt*)param_yt)->num_fields - 1;
-
-    GridInfo.field_data[temp_field_i].data_ptr = temp_field;
-    GridInfo.field_data[cooling_time_field_i].data_ptr = cooling_time_field;
+    if (this->ComputeCoolingTime(cooling_time_field) == SUCCESS) {
+        for (long i = 0; i < grid_size; i++) { cooling_time_field[i] = fabs(cooling_time_field[i]) * TimeUnits; }
+        libyt_generated_derived_field.push_back(cooling_time_field);
+        int cooling_time_field_i = ((yt_param_yt*)param_yt)->num_fields - 1;
+        GridInfo.field_data[cooling_time_field_i].data_ptr = cooling_time_field;
+    }
 
     /* par_count_list can take multiple particle types */
     if (this->ReturnNumberOfParticles() > 0) {
