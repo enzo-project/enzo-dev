@@ -149,7 +149,7 @@ int CallInSitulibyt(LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
     params->length_unit = LengthUnits;
     params->mass_unit = DensityUnits * LengthUnits * LengthUnits * LengthUnits; /* this right? */
     params->time_unit = TimeUnits;
-    params->magnetic_unit = 0.0; /* Not right */
+    params->velocity_unit = VelocityUnits;
     params->periodicity[0] = 1; /* also not right */
     params->periodicity[1] = 1;
     params->periodicity[2] = 1;
