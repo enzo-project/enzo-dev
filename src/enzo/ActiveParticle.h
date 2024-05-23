@@ -462,6 +462,18 @@ namespace ActiveParticleHelpers {
 
   }
 
+  template <class APClass> std::vector<std::string> GetParticleAttributes() {
+
+      std::vector<std::string> attributes;
+
+      AttributeVector &handlers = APClass::AttributeHandlers;
+      for (AttributeVector::iterator it = handlers.begin(); it != handlers.end(); ++it) {
+          attributes.push_back((*it)->name);
+      }
+
+      return attributes;
+  }
+
   template <class APClass> void WriteParticles(
           ActiveParticleList<ActiveParticleType>& InList, int ParticleTypeID,
           int TotalParticles,
@@ -687,6 +699,7 @@ public:
    void (*unpack_buffer)(char *buffer, int offset, ActiveParticleList<ActiveParticleType> &Outlist,
                        int OutCount),
    int (*element_size)(void),
+   std::vector<std::string> (*get_particle_attributes)(void),
    void (*write_particles)(ActiveParticleList<ActiveParticleType> &particles,
                          int type_id, int total_particles,
                          const std::string name, hid_t node),
@@ -709,6 +722,7 @@ public:
     this->AllocateBuffer = allocate_buffer;
     this->UnpackBuffer = unpack_buffer;
     this->ReturnElementSize = element_size;
+    this->GetParticleAttributes = get_particle_attributes;
     this->WriteParticles = write_particles;
     this->ReadParticles = read_particles;
     this->ResetAcceleration = reset_acceleration;
@@ -754,6 +768,7 @@ public:
                        int OutCount);
   int (*FillBuffer)(ActiveParticleList<ActiveParticleType> &InList, int InCount, char *buffer);
   int (*ReturnElementSize)(void);
+  std::vector<std::string> (*GetParticleAttributes)(void);
   void (*WriteParticles)(ActiveParticleList<ActiveParticleType> &InList,
                        int ParticleTypeID, int TotalParticles,
                        const std::string name, hid_t node);
@@ -793,6 +808,7 @@ ActiveParticleType_info *register_ptype(std::string name)
      (&ActiveParticleHelpers::FillBuffer<APClass>),
      (&ActiveParticleHelpers::Unpack<APClass>),
      (&ActiveParticleHelpers::CalculateElementSize<APClass>),
+     (&ActiveParticleHelpers::GetParticleAttributes<APClass>),
      (&ActiveParticleHelpers::WriteParticles<APClass>),
      (&ActiveParticleHelpers::ReadParticles<APClass>),
      (&APClass::ResetAcceleration),
