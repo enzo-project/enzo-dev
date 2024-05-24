@@ -34,7 +34,7 @@
 #include "CosmologyParameters.h"
 #include "phys_constants.h"
 
-#define DEBUG_PS
+#define NO_DEBUG_PS
 
 void mt_init(unsigned_int seed);
 
@@ -72,7 +72,7 @@ int grid::CreateChildParticles(float dx, int NumberOfParticles, float *ParticleM
   //Reproducible random seed
   mt_init(((unsigned_int) ParticleSplitterRandomSeed));
   
-  FLOAT sep[3], midpoint[3], newsep[3];
+  FLOAT sep[3] = {0.0}, midpoint[3] = {0.0}, newsep[3] = {0.0};
 
   /* 
    * The following three options determine over what region 
@@ -118,6 +118,7 @@ int grid::CreateChildParticles(float dx, int NumberOfParticles, float *ParticleM
     }
   }
 
+
  #ifdef DEBUG_PS
   fprintf(stdout, "%s: Iteration %d: midpoint = (%lf, %lf, %lf)\n", 
 	  __FUNCTION__, iter, midpoint[0], midpoint[1], midpoint[2]);
@@ -127,17 +128,16 @@ int grid::CreateChildParticles(float dx, int NumberOfParticles, float *ParticleM
 	  __FUNCTION__, iter, LeftEdge[0], LeftEdge[1], LeftEdge[2],
 	  RightEdge[0], RightEdge[1], RightEdge[2]);
  #endif
-  
 
   /* 
    * Loop over existing (parent) particles; It implicitly assumes that 
-   * only DM and conventional star particles  get splitted.  Other 
-   * particles - which usually become Star class particles - doesn't 
-   * seem to have any reason to be splitted.  (as of Oct.2009)
+   * only DM and conventional star particles  get split.  Other 
+   * particles - which usually become Star class particles - don't 
+   * seem to have any reason to be split.  (as of Oct.2009)
    */
 
   /* (Apr 2018) Include must-refine particles */
-  
+
   for(partnum = 0; partnum < NumberOfParticles; partnum++)
     {
       if(ParticleMass[partnum] > 0.0 &&
@@ -161,6 +161,14 @@ int grid::CreateChildParticles(float dx, int NumberOfParticles, float *ParticleM
 	      continue;
 	    }
 
+	  /* If we want to define the refinement region by 
+	   * the split particles then we only split the particles
+	   * that were read in and so are MRPs. 
+	   */
+	  if(ParticleSplitterMustRefineOnly &&
+	     ParticleType[partnum] != PARTICLE_TYPE_MUST_REFINE)
+	    continue;
+
 	  /*
 	   *  Compute index of the cell that the parent particle resides in.
 	   */
@@ -176,7 +184,6 @@ int grid::CreateChildParticles(float dx, int NumberOfParticles, float *ParticleM
 	      fprintf(stdout, "xind, yind, zind = %ld, %ld, %ld\n", xindex, yindex, zindex); 
 	      continue;
 	    }
-
 	  /*
 	   * CREATE CHILDREN PARTICLES 
 	   */

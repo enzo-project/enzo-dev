@@ -1017,6 +1017,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   ParticleSplitterRandomSeed = 131180;
   ParticleSplitterMustRefine = FALSE;
   ParticleSplitterMustRefineIDFile = NULL;
+  ParticleSplitterMustRefineOnly = FALSE;
   for(int i = 0; i < MAX_SPLIT_ITERATIONS; i++)
     ParticleSplitterFraction[i] = 1.0;
   for(int i = 0; i < MAX_DIMENSION; i++)
@@ -1051,14 +1052,14 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   SmartStarBHJetFeedback = FALSE;
   SmartStarBHThermalFeedback = FALSE;
   SmartStarStellarRadiativeFeedback = FALSE;
+  ActiveParticlesIMFSeed = -1;
   
   //SmartStar Feedback parameters - should be as minimal as possible
   SmartStarFeedbackEnergyCoupling = 0.016666;
   SmartStarFeedbackJetsThresholdMass = 1.0;
   SmartStarJetVelocity = 1e-1; //as a fraction of clight
   SmartStarSuperEddingtonAdjustment = TRUE;
-  SmartStarSpin = 0.7;
-  SmartStarSMSLifetime = 1e6; //1 Myr
+  SmartStarSpin = 0.674351; //This gives eta_disk = 0.1
   /* Gas drag parameters */
   UseGasDrag = 0;
   GasDragCoefficient = 0.;

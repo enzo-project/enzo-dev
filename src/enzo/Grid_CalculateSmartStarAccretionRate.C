@@ -31,6 +31,7 @@
 #define SMALL_NUMBER         1e-6
 #define ACCRETION_LIMIT     1e-1
 #define C_VISC              2.1e6
+
 float bondi_alpha(float x);
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
@@ -68,7 +69,7 @@ float grid::CalculateSmartStarAccretionRate(ActiveParticleType* ThisParticle,
   ActiveParticleType_SmartStar* SS;
   SS = static_cast<ActiveParticleType_SmartStar*>(ThisParticle);
   SS->mass_in_accretion_sphere = 0.0;
-  float eta_disk = SS->eta_disk;
+
   float WeightedSum = 0, AverageDensity = 0, RhoInfinity = 0.0;
   float AverageT=0, TotalGasMass = 0;
   float lambda_c = 0.25*exp(1.5);
@@ -522,13 +523,17 @@ float grid::ConvergentMassFlow(int DensNum, int Vel1Num, FLOAT AccretionRadius,
 	  float accrate = 0.0; 
 	  if(radialvelocity < 0) {
 #if USEBOUNDEDNESS
-	    float ke = pow(gasvelx[index], 2.0) + pow(gasvely[index], 2.0) + pow(gasvelz[index], 2.0);
-	    float te = BaryonField[GENum][index];
-	    FLOAT dist = sqrt(radius2);
-	    float ge = Gcode*SSmass/dist;
-	    if(ke+te-ge<0) { /*Only add if we are bound */
-	      continue;
+	    if(SSMass > 0.0){
+	      float ke = pow(gasvelx[index], 2.0) + pow(gasvely[index], 2.0) + pow(gasvelz[index], 2.0);
+	      float te = BaryonField[GENum][index];
+	      FLOAT dist = sqrt(radius2);
+	      float ge = Gcode*SSmass/dist;
+	      if(ke+te-ge<0) { /*Only add if we are bound */
+		continue;
+	      }
 	    }
+	    else
+	      ;
 #endif
 	    numincells++;
 	    accrate = density[index]*relposmag*relposmag*radialvelocity;

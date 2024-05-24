@@ -215,6 +215,7 @@ int CommunicationCollectParticles(LevelHierarchyEntry *LevelArray[],
 
     TotalNumber = 0;
     TotalStars  = 0;
+    APTotalNumber = 0;
     for (j = 0; j < NumberOfProcessors; j++) {
       TotalNumber += NumberToMove[j];
       TotalStars += StarsToMove[j];

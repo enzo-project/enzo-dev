@@ -146,10 +146,11 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
 
 	/* Sum enclosed mass in this grid */
 
-	Temp->GridData->GetEnclosedMassInShell(this, Radius-CellWidth, Radius, 
+	Temp->GridData->GetEnclosedMassInShell(this->pos, Radius-CellWidth, Radius, 
 					       ShellMass, ShellMetallicity2, 
 					       ShellMetallicity3,
-					       ShellColdGasMass, ShellVelocity);
+					       ShellColdGasMass, ShellVelocity,
+					       FeedbackFlag);
 
 	Temp = Temp->NextGridThisLevel;
 
