@@ -45,17 +45,16 @@ void ExportParameterFile(TopGridData *MetaData, FLOAT CurrentTime, FLOAT OldTime
 void CommunicationBarrier();
 
 static yt_dtype MapHDF5TypeToYTType(hid_t hdf5type) {
-    switch (hdf5type) {
-        case HDF5_INT:
-            return EYT_INT;
-        case HDF5_REAL:
-            return EYT_BFLOAT;
-        case HDF5_R8:
-            return YT_DOUBLE;
-        case HDF5_PREC:
-            return EYT_PFLOAT;
-        default:
-            return YT_DTYPE_UNKNOWN;
+    if (hdf5type == HDF5_INT) {
+        return EYT_INT;
+    } else if (hdf5type == HDF5_REAL) {
+        return EYT_BFLOAT;
+    } else if (hdf5type == HDF5_R8) {
+        return YT_DOUBLE;
+    } else if (hdf5type == HDF5_PREC) {
+        return EYT_PFLOAT;
+    } else {
+        return YT_DTYPE_UNKNOWN;
     }
 }
 
