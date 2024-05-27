@@ -44,6 +44,21 @@ void ExposeGridHierarchy(int NumberOfGrids);
 void ExportParameterFile(TopGridData *MetaData, FLOAT CurrentTime, FLOAT OldTime, float dtFixed);
 void CommunicationBarrier();
 
+static yt_dtype MapHDF5TypeToYTType(hid_t hdf5type) {
+    switch (hdf5type) {
+        case HDF5_INT:
+            return EYT_INT;
+        case HDF5_REAL:
+            return EYT_BFLOAT;
+        case HDF5_R8:
+            return YT_DOUBLE;
+        case HDF5_PREC:
+            return EYT_PFLOAT;
+        default:
+            return YT_DTYPE_UNKNOWN;
+    }
+}
+
 #endif
 
 int CallInSitulibyt(LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
@@ -184,10 +199,12 @@ int CallInSitulibyt(LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
     // the attributes name should be alive within the entire libyt in situ analysis,
     // because libyt does not make a copy of the names.
     std::vector<std::vector<std::string>> active_particles_attributes;
+    std::vector<std::vector<hid_t>> active_particles_attributes_hdf5type;
 
     for (int i = 0; i < EnabledActiveParticlesCount; i++) {
         ActiveParticleType_info *ActiveParticleTypeToEvaluate = EnabledActiveParticles[i];
         active_particles_attributes.emplace_back(ActiveParticleTypeToEvaluate->GetParticleAttributes());
+        active_particles_attributes_hdf5type.emplace_back(ActiveParticleTypeToEvaluate->GetParticleAttributesHDF5DataType());
 
         par_type_list[1 + i].par_type = ActiveParticleTypeToEvaluate->particle_name.c_str();
         par_type_list[1 + i].num_attr = active_particles_attributes[i].size();
@@ -246,13 +263,17 @@ int CallInSitulibyt(LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
     particle_list[0].coor_y = attr_name[1];
     particle_list[0].coor_z = attr_name[2];
 
+    // we need to map hdf5type to yt datatype,
+    // since we want to avoid storing yt data type in ParticleAttributeHandler class and causing
     for (int i = 0; i < EnabledActiveParticlesCount; i++) {
         for (int v = 0; v < active_particles_attributes[i].size(); v++) {
             particle_list[1 + i].attr_list[v].attr_name = active_particles_attributes[i][v].c_str();
-            // TODO: list attributes data type
+            particle_list[1 + i].attr_list[v].attr_dtype = MapHDF5TypeToYTType(active_particles_attributes_hdf5type[i][v]);
         }
 
-        // TODO: list attributes data type and Coor_X/Y/Z
+        particle_list[1 + i].coor_x = "particle_position_x";
+        particle_list[1 + i].coor_y = "particle_position_y";
+        particle_list[1 + i].coor_z = "particle_position_z";
     }
 
     /* Set code-specific parameter */

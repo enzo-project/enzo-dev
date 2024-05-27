@@ -462,6 +462,17 @@ namespace ActiveParticleHelpers {
 
   }
 
+  template <class APClass> std::vector<hid_t> GetParticleAttributesHDF5DataType() {
+      std::vector<hid_t> attribute_datatype;
+
+      AttributeVector &handlers = APClass::AttributeHandlers;
+      for (AttributeVector::iterator it = handlers.begin(); it != handlers.end(); ++it) {
+          attribute_datatype.push_back((*it)->hdf5type);
+      }
+
+      return attribute_datatype;
+  }
+
   template <class APClass> std::vector<std::string> GetParticleAttributes() {
 
       std::vector<std::string> attributes;
@@ -699,6 +710,7 @@ public:
    void (*unpack_buffer)(char *buffer, int offset, ActiveParticleList<ActiveParticleType> &Outlist,
                        int OutCount),
    int (*element_size)(void),
+   std::vector<hid_t> (*get_particle_attributes_hdf5_datatype)(void),
    std::vector<std::string> (*get_particle_attributes)(void),
    void (*write_particles)(ActiveParticleList<ActiveParticleType> &particles,
                          int type_id, int total_particles,
@@ -722,6 +734,7 @@ public:
     this->AllocateBuffer = allocate_buffer;
     this->UnpackBuffer = unpack_buffer;
     this->ReturnElementSize = element_size;
+    this->GetParticleAttributesHDF5DataType = get_particle_attributes_hdf5_datatype;
     this->GetParticleAttributes = get_particle_attributes;
     this->WriteParticles = write_particles;
     this->ReadParticles = read_particles;
@@ -768,6 +781,7 @@ public:
                        int OutCount);
   int (*FillBuffer)(ActiveParticleList<ActiveParticleType> &InList, int InCount, char *buffer);
   int (*ReturnElementSize)(void);
+  std::vector<hid_t> (*GetParticleAttributesHDF5DataType)(void);
   std::vector<std::string> (*GetParticleAttributes)(void);
   void (*WriteParticles)(ActiveParticleList<ActiveParticleType> &InList,
                        int ParticleTypeID, int TotalParticles,
@@ -808,6 +822,7 @@ ActiveParticleType_info *register_ptype(std::string name)
      (&ActiveParticleHelpers::FillBuffer<APClass>),
      (&ActiveParticleHelpers::Unpack<APClass>),
      (&ActiveParticleHelpers::CalculateElementSize<APClass>),
+     (&ActiveParticleHelpers::GetParticleAttributesHDF5DataType<APClass>),
      (&ActiveParticleHelpers::GetParticleAttributes<APClass>),
      (&ActiveParticleHelpers::WriteParticles<APClass>),
      (&ActiveParticleHelpers::ReadParticles<APClass>),

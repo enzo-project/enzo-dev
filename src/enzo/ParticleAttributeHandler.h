@@ -22,6 +22,9 @@
 #ifdef USE_MPI
 #include <mpi.h>
 #endif
+//#ifdef USE_LIBYT
+//#include "libyt.h"
+//#endif
 #include <hdf5.h>
 class ActiveParticleType;
 
@@ -34,6 +37,9 @@ class ParticleAttributeHandler
 #ifdef USE_MPI
     MPI_Datatype mpitype;
 #endif
+//#ifdef USE_LIBYT
+//    yt_dtype yttype;
+//#endif
     hid_t hdf5type;
     int element_size;
     int offset;
@@ -60,21 +66,33 @@ class Handler : public ParticleAttributeHandler
 #ifdef USE_MPI
             this->mpitype = IntDataType;
 #endif
+//#ifdef USE_LIBYT
+//            this->yttype = EYT_INT;
+//#endif
             this->hdf5type = HDF5_INT;
         } else if (typeid(Type) == typeid(float)) {
 #ifdef USE_MPI
             this->mpitype = FloatDataType;
 #endif
+//#ifdef USE_LIBYT
+//            this->yttype = EYT_BFLOAT;
+//#endif
             this->hdf5type = HDF5_REAL;
         } else if (typeid(Type) == typeid(double)) {
 #ifdef USE_MPI
             this->mpitype = MPI_DOUBLE;
 #endif
+//#ifdef USE_LIBYT
+//            this->yttype = YT_DOUBLE;
+//#endif
             this->hdf5type = HDF5_R8;
         } else if (typeid(Type) == typeid(FLOAT)) {
 #ifdef USE_MPI
             this->mpitype = FLOATDataType;
 #endif
+//#ifdef USE_LIBYT
+//            this->yttype = EYT_PFLOAT;
+//#endif
             this->hdf5type = HDF5_PREC;
         } else {
             ENZO_FAIL("Unrecognized data type");
@@ -118,21 +136,33 @@ class ArrayHandler : public ParticleAttributeHandler
 #ifdef USE_MPI
             this->mpitype = IntDataType;
 #endif
+//#ifdef USE_LIBYT
+//            this->yttype = EYT_INT;
+//#endif
             this->hdf5type = HDF5_INT;
         } else if (typeid(Type) == typeid(float)) {
 #ifdef USE_MPI
             this->mpitype = FloatDataType;
 #endif
+//#ifdef USE_LIBYT
+//            this->yttype = EYT_BFLOAT;
+//#endif
             this->hdf5type = HDF5_REAL;
         } else if (typeid(Type) == typeid(double)) {
 #ifdef USE_MPI
             this->mpitype = MPI_DOUBLE;
 #endif
+//#ifdef USE_LIBYT
+//            this->yttype = YT_DOUBLE;
+//#endif
             this->hdf5type = HDF5_R8;
         } else if (typeid(Type) == typeid(FLOAT)) {
 #ifdef USE_MPI
             this->mpitype = FLOATDataType;
 #endif
+//#ifdef USE_LIBYT
+//            this->yttype = EYT_PFLOAT;
+//#endif
             this->hdf5type = HDF5_PREC;
         } else {
             ENZO_FAIL("Unrecognized data type");
