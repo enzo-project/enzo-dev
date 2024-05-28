@@ -163,14 +163,14 @@ c          Note that minit is secretly a mass density
 c         
             meject = (meject_ii + meject_ia) * minit(n)
             distmass = meject / distcells
-c           erg per Msun per yr to erg
+c           Convert erg per Msun to erg
             minit_msun = minit(n) * dx**3 * m1 / SolarMass   
             energy = (events_ii*ergSNII 
      &              + events_ia*ergSNIa) 
      &              * minit_msun
             ! write(6,*) 'energy (ergs)', energy
 c           Convert energy in erg to energy density in code units
-            energy = energy / (m1*v1**2 * (dx)**2 * distcells)
+            energy = energy / (m1*v1**2 * (dx)**3 * distcells)
 c
 c           subtract ejected mass from particle (ejection due
 c           to winds, supernovae)
@@ -205,7 +205,7 @@ c
                         te(ic,jc,kc) = ((te(ic,jc,kc)*d(ic,jc,kc)) +
      &                                  energy) * dratio
                         if (idual .eq. 1)
-     &                   ge(ic,jc,kc) =
+     &                    ge(ic,jc,kc) =
      &                       ((ge(ic,jc,kc)*d(ic,jc,kc)) +
      &                        energy) * dratio
 c
