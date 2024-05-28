@@ -123,5 +123,14 @@ void grid::ConvertToLibyt(int LocalGridID, int GlobalGridID, int ParentID, int l
     else {
         GridInfo.par_count_list[0] = 0;
     }
+
+    /* fill in active particle count */
+    std::vector<long> active_particle_count(EnabledActiveParticlesCount, 0);
+    for (int i = 0; i < NumberOfActiveParticles; i++) {
+        active_particle_count[(this->ActiveParticles)[i]->GetEnabledParticleID()]++;
+    }
+    for (int i = 0; i < EnabledActiveParticlesCount; i++) {
+        GridInfo.par_count_list[1 + i] = active_particle_count[i];
+    }
 }
 #endif
