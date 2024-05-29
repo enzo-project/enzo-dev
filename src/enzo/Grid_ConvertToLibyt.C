@@ -125,12 +125,32 @@ void grid::ConvertToLibyt(int LocalGridID, int GlobalGridID, int ParentID, int l
     }
 
     /* fill in active particle count */
-    std::vector<long> active_particle_count(EnabledActiveParticlesCount, 0);
+    std::vector<int> active_particle_count(EnabledActiveParticlesCount, 0);
     for (int i = 0; i < NumberOfActiveParticles; i++) {
         active_particle_count[(this->ActiveParticles)[i]->GetEnabledParticleID()]++;
     }
     for (int i = 0; i < EnabledActiveParticlesCount; i++) {
-        GridInfo.par_count_list[1 + i] = active_particle_count[i];
+        GridInfo.par_count_list[1 + i] = active_particle_count[i]; // TODO: check why 1483, 1484 both have count 1
+    }
+
+    /* fill in buffer
+     * ignore AccretionRate/AccretionRateTime/Accreted_angmom for now since they are not one dimensional */
+    for (int i = 0; i < EnabledActiveParticlesCount; i++) {
+        ActiveParticleType_info *ActiveParticleTypeToEvaluate = EnabledActiveParticles[i];
+
+        // the returned buffer ignores multi-dimensional array for now, it set them as nullptr.
+        std::vector<void*> par_attr_buffer = ActiveParticleTypeToEvaluate->GetParticleAttributes(
+                this->ActiveParticles, i, NumberOfActiveParticles, active_particle_count[i],
+                ActiveParticleTypeToEvaluate->particle_name
+                );
+
+        for (int a = 0; a < par_attr_buffer.size(); a++) {
+            GridInfo.particle_data[1 + i][a].data_ptr = par_attr_buffer[a];
+        }
+
+        // TODO: rename libyt_generated_derived_field
+        // free these pre-allocated buffer at the very end.
+        libyt_generated_derived_field.insert(libyt_generated_derived_field.end(), par_attr_buffer.begin(), par_attr_buffer.end());
     }
 }
 #endif

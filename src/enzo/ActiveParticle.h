@@ -473,6 +473,44 @@ namespace ActiveParticleHelpers {
       return attribute_datatype;
   }
 
+  template <class APClass> std::vector<void*> GetParticleAttributes(ActiveParticleList<ActiveParticleType>& InList,
+          int ParticleTypeID, int TotalParticles, int Count, const std::string& particle_name) {
+
+      // This function allocates and returns the new buffer for particle attributes,
+      // and it is the caller's responsibility to free the buffer when it doesn't need it at all.
+      // It also ignores multi-dimensional arrays.
+      // Currently, this function is solely used in libyt.
+
+      std::vector<void*> attribute_values;
+
+      AttributeVector &handlers = APClass::AttributeHandlers;
+      for (AttributeVector::iterator it = handlers.begin(); it != handlers.end(); ++it) {
+          const char *attr_name = (*it)->name.c_str();
+
+          // ignores multi-dimensional arrays
+          if ((strcmp(attr_name, "AccretionRate") == 0 || strcmp(attr_name, "AccretionRateTime") == 0 || strcmp(attr_name, "Accreted_angmom") == 0)
+              && strcmp(particle_name.c_str(), "SmartStar") == 0) {
+              attribute_values.push_back(nullptr);
+          }
+          // allocates memory and get a copy of the attribute's value
+          else {
+              int size = Count * (*it)->element_size;
+              char *buffer = new char [size];
+
+              for (int i = 0; i < TotalParticles; i++) {
+                  if (InList[i]->GetEnabledParticleID() != ParticleTypeID) {
+                      continue;
+                  }
+                  (*it)->GetAttribute(&buffer, InList[i]);
+              }
+
+              attribute_values.push_back((void*) buffer);
+          }
+      }
+
+      return attribute_values
+  }
+
   template <class APClass> std::vector<std::string> GetParticleAttributeNames() {
 
       std::vector<std::string> attributes;
@@ -711,6 +749,8 @@ public:
                        int OutCount),
    int (*element_size)(void),
    std::vector<hid_t> (*get_particle_attributes_hdf5_datatype)(void),
+   std::vector<void*> (*get_particle_attributes)(ActiveParticleList<ActiveParticleType> &particles,
+                                                 int type_id, int total_particles, int count, const std::string& particle_name);
    std::vector<std::string> (*get_particle_attribute_names)(void),
    void (*write_particles)(ActiveParticleList<ActiveParticleType> &particles,
                          int type_id, int total_particles,
@@ -735,6 +775,7 @@ public:
     this->UnpackBuffer = unpack_buffer;
     this->ReturnElementSize = element_size;
     this->GetParticleAttributesHDF5DataType = get_particle_attributes_hdf5_datatype;
+    this->GetParticleAttributes = get_particle_attributes;
     this->GetParticleAttributeNames = get_particle_attribute_names;
     this->WriteParticles = write_particles;
     this->ReadParticles = read_particles;
@@ -782,6 +823,9 @@ public:
   int (*FillBuffer)(ActiveParticleList<ActiveParticleType> &InList, int InCount, char *buffer);
   int (*ReturnElementSize)(void);
   std::vector<hid_t> (*GetParticleAttributesHDF5DataType)(void);
+  std::vector<void*> (*GetParticleAttributes)(ActiveParticleList<ActiveParticleType> &InList,
+                                              int ParticleTypeID, int TotalParticles, int Count,
+                                              const std::string& particle_name);
   std::vector<std::string> (*GetParticleAttributeNames)(void);
   void (*WriteParticles)(ActiveParticleList<ActiveParticleType> &InList,
                        int ParticleTypeID, int TotalParticles,
@@ -823,6 +867,7 @@ ActiveParticleType_info *register_ptype(std::string name)
      (&ActiveParticleHelpers::Unpack<APClass>),
      (&ActiveParticleHelpers::CalculateElementSize<APClass>),
      (&ActiveParticleHelpers::GetParticleAttributesHDF5DataType<APClass>),
+     (&ActiveParticleHelpers::GetParticleAttributes<APClass>),
      (&ActiveParticleHelpers::GetParticleAttributeNames<APClass>),
      (&ActiveParticleHelpers::WriteParticles<APClass>),
      (&ActiveParticleHelpers::ReadParticles<APClass>),
