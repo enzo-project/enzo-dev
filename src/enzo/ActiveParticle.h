@@ -508,7 +508,7 @@ namespace ActiveParticleHelpers {
           }
       }
 
-      return attribute_values
+      return attribute_values;
   }
 
   template <class APClass> std::vector<std::string> GetParticleAttributeNames() {
@@ -750,7 +750,7 @@ public:
    int (*element_size)(void),
    std::vector<hid_t> (*get_particle_attributes_hdf5_datatype)(void),
    std::vector<void*> (*get_particle_attributes)(ActiveParticleList<ActiveParticleType> &particles,
-                                                 int type_id, int total_particles, int count, const std::string& particle_name);
+                                                 int type_id, int total_particles, int count, const std::string& particle_name),
    std::vector<std::string> (*get_particle_attribute_names)(void),
    void (*write_particles)(ActiveParticleList<ActiveParticleType> &particles,
                          int type_id, int total_particles,
