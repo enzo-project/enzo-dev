@@ -202,7 +202,7 @@ int CallInSitulibyt(LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
 
     for (int i = 0; i < EnabledActiveParticlesCount; i++) {
         ActiveParticleType_info *ActiveParticleTypeToEvaluate = EnabledActiveParticles[i];
-        active_particles_attributes.emplace_back(ActiveParticleTypeToEvaluate->GetParticleAttributes());
+        active_particles_attributes.emplace_back(ActiveParticleTypeToEvaluate->GetParticleAttributeNames());
         active_particles_attributes_hdf5type.emplace_back(ActiveParticleTypeToEvaluate->GetParticleAttributesHDF5DataType());
 
         par_type_list[1 + i].par_type = ActiveParticleTypeToEvaluate->particle_name.c_str();
