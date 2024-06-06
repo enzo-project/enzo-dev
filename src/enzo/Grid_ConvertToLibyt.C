@@ -133,24 +133,26 @@ void grid::ConvertToLibyt(int LocalGridID, int GlobalGridID, int ParentID, int l
         GridInfo.par_count_list[1 + i] = active_particle_count[i]; // TODO: check why 1483, 1484 both have count 1
     }
 
-    /* fill in buffer
+    /* fill in buffer only if there is active particle, which is sum of active particle count > 0
      * ignore AccretionRate/AccretionRateTime/Accreted_angmom for now since they are not one dimensional */
-    for (int i = 0; i < EnabledActiveParticlesCount; i++) {
-        ActiveParticleType_info *ActiveParticleTypeToEvaluate = EnabledActiveParticles[i];
+    if (NumberOfActiveParticles > 0) {
+        for (int i = 0; i < EnabledActiveParticlesCount; i++) {
+            ActiveParticleType_info *ActiveParticleTypeToEvaluate = EnabledActiveParticles[i];
 
-        // the returned buffer ignores multi-dimensional array for now, it set them as nullptr.
-        std::vector<void*> par_attr_buffer = ActiveParticleTypeToEvaluate->GetParticleAttributes(
-                this->ActiveParticles, i, NumberOfActiveParticles, active_particle_count[i],
-                ActiveParticleTypeToEvaluate->particle_name
-                );
+            // the returned buffer ignores multi-dimensional array for now, it set them as nullptr.
+            std::vector<void*> par_attr_buffer = ActiveParticleTypeToEvaluate->GetParticleAttributes(
+                    this->ActiveParticles, i, NumberOfActiveParticles, active_particle_count[i],
+                    ActiveParticleTypeToEvaluate->particle_name
+                    );
 
-        for (int a = 0; a < par_attr_buffer.size(); a++) {
-            GridInfo.particle_data[1 + i][a].data_ptr = par_attr_buffer[a];
+            for (int a = 0; a < par_attr_buffer.size(); a++) {
+                GridInfo.particle_data[1 + i][a].data_ptr = par_attr_buffer[a];
+            }
+
+            // TODO: rename libyt_generated_derived_field
+            // free these pre-allocated buffer after libyt in situ analysis is done.
+            libyt_generated_derived_field.insert(libyt_generated_derived_field.end(), par_attr_buffer.begin(), par_attr_buffer.end());
         }
-
-        // TODO: rename libyt_generated_derived_field
-        // free these pre-allocated buffer at the very end.
-        libyt_generated_derived_field.insert(libyt_generated_derived_field.end(), par_attr_buffer.begin(), par_attr_buffer.end());
     }
 }
 #endif
