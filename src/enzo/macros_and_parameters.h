@@ -355,7 +355,7 @@ typedef long long int   HDF5_hid_t;
 #define PISYM "lld"
 #define ENPY_PINT NPY_LONG
 #ifdef USE_LIBYT
-#define EYT_PINT YT_LONG
+#define EYT_PINT YT_LONGLONG
 #endif
 #endif
 
