@@ -496,6 +496,7 @@ namespace ActiveParticleHelpers {
           else {
               int size = Count * (*it)->element_size;
               char *buffer = new char [size];
+              char *_buffer = buffer; // This is because GetAttribute _shifts_ the pointer after returning
 
               for (int i = 0; i < TotalParticles; i++) {
                   if (InList[i]->GetEnabledParticleID() != ParticleTypeID) {
@@ -504,7 +505,7 @@ namespace ActiveParticleHelpers {
                   (*it)->GetAttribute(&buffer, InList[i]);
               }
 
-              attribute_values.push_back((void*) buffer);
+              attribute_values.push_back((void*) _buffer);
           }
       }
 
