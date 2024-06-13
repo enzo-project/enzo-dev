@@ -295,7 +295,7 @@ Please add ``OMPI_MCA_osc=sm,pt2pt`` before ``mpirun``, for example:
 
     OMPI_MCA_osc=sm,pt2pt mpirun -np 4 ./enzo.exe -d CollapseTestNonCosmological.enzo
 
-This is something ``libyt`` will update and improve in the future.
+It is for one-sided MPI communication settings.
 
 .. _Doing In Situ Analysis:
 
