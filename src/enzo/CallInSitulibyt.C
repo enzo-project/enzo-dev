@@ -186,9 +186,10 @@ int CallInSitulibyt(LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
         }
     }
 
-    params->num_fields += 2; // TODO: BH: add fields for Temperature/Cooling_Time derived field from enzo
+    // Add fields for Temperature/Cooling_Time derived field from enzo
+    params->num_fields += 2;
 
-    // TODO: PARTICLE need to add other ptypes (Active Ptype)
+    // Add active particle ptypes
     params->num_par_types = 1 + EnabledActiveParticlesCount; // DarkMatter and Other ActiveParticle (ex: SmartStar)
     yt_par_type *par_type_list = new yt_par_type [params->num_par_types];
 
@@ -436,10 +437,10 @@ int CallInSitulibyt(LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
         return FAIL;
     }
 
-    for (std::size_t i = 0; i < libyt_generated_derived_field.size(); i++) {
-        delete [] libyt_generated_derived_field[i];
+    for (std::size_t i = 0; i < libyt_generated_data.size(); i++) {
+        delete [] libyt_generated_data[i];
     }
-    libyt_generated_derived_field.clear();
+    libyt_generated_data.clear();
 
     CommunicationBarrier();
     return SUCCESS;

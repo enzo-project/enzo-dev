@@ -93,14 +93,14 @@ void grid::ConvertToLibyt(int LocalGridID, int GlobalGridID, int ParentID, int l
     GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits, &TimeUnits, &VelocityUnits, this->Time);
 
     if (this->ComputeTemperatureField(temp_field) == SUCCESS) {
-        libyt_generated_derived_field.push_back(temp_field);
+        libyt_generated_data.push_back(temp_field);
         int temp_field_i = ((yt_param_yt*)param_yt)->num_fields - 2;
         GridInfo.field_data[temp_field_i].data_ptr = temp_field;
     }
 
     if (this->ComputeCoolingTime(cooling_time_field) == SUCCESS) {
         for (long i = 0; i < grid_size; i++) { cooling_time_field[i] = fabs(cooling_time_field[i]) * TimeUnits; }
-        libyt_generated_derived_field.push_back(cooling_time_field);
+        libyt_generated_data.push_back(cooling_time_field);
         int cooling_time_field_i = ((yt_param_yt*)param_yt)->num_fields - 1;
         GridInfo.field_data[cooling_time_field_i].data_ptr = cooling_time_field;
     }
@@ -130,7 +130,7 @@ void grid::ConvertToLibyt(int LocalGridID, int GlobalGridID, int ParentID, int l
         active_particle_count[(this->ActiveParticles)[i]->GetEnabledParticleID()]++;
     }
     for (int i = 0; i < EnabledActiveParticlesCount; i++) {
-        GridInfo.par_count_list[1 + i] = active_particle_count[i]; // TODO: check why 1483, 1484 both have count 1
+        GridInfo.par_count_list[1 + i] = active_particle_count[i];
     }
 
     /* fill in buffer only if there is active particle, which is sum of active particle count > 0
@@ -149,9 +149,8 @@ void grid::ConvertToLibyt(int LocalGridID, int GlobalGridID, int ParentID, int l
                 GridInfo.particle_data[1 + i][a].data_ptr = par_attr_buffer[a];
             }
 
-            // TODO: rename libyt_generated_derived_field
             // free these pre-allocated buffer after libyt in situ analysis is done.
-            libyt_generated_derived_field.insert(libyt_generated_derived_field.end(), par_attr_buffer.begin(), par_attr_buffer.end());
+            libyt_generated_data.insert(libyt_generated_data.end(), par_attr_buffer.begin(), par_attr_buffer.end());
         }
     }
 }
