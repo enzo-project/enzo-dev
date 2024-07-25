@@ -1111,6 +1111,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "StellarWindCenterPosition   = ");
   WriteListOfFloats(fptr, MetaData.TopGridRank, StellarWindCenterPosition);
 
+  fprintf(fptr, "H2StarMakerH2FractionMethod        = %"ISYM"\n", H2StarMakerH2FractionMethod);
   fprintf(fptr, "H2StarMakerEfficiency              = %"GSYM"\n", H2StarMakerEfficiency);
   fprintf(fptr, "H2StarMakerNumberDensityThreshold  = %"GSYM"\n", H2StarMakerNumberDensityThreshold);
   fprintf(fptr, "H2StarMakerMinimumMass             = %"GSYM"\n", H2StarMakerMinimumMass);

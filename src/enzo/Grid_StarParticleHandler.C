@@ -248,17 +248,17 @@ extern "C" void FORTRAN_NAME(star_maker_ssn)(int *nx, int *ny, int *nz,
     int *imetalSNII, float *metalSNII, float *metalfSNII, float *mfcell);
 
 extern "C" void FORTRAN_NAME(star_maker_h2reg)(int *nx, int *ny, int *nz,
-             float *d, float *dm, float *temp, float *u, float *v, float *w,
+             float *d, float *dH1, float *dH2, float *temp, float *u, float *v, float *w,
              float *dt, float *r, float *metal, float *dx, FLOAT *t, float *z, 
              int *procnum,
              float *d1, float *x1, float *v1, float *t1,
              int *nmax, FLOAT *xstart, FLOAT *ystart, FLOAT *zstart, 
      		 int *ibuff, 
-             int *imetal, hydro_method *imethod, 
-	     float *StarFormationEfficiency,
-             float *StarFormationNumberDensityThreshold, 
-             float *StarFormationMinimumMass, 
-             float *MinimumH2FractionForStarFormation,
+             int *imetal, hydro_method *imethod, int *H2Method,
+	     float *H2StarMakerEfficiency,
+             float *H2StarFormationNumberDensityThreshold, 
+             float *H2StarMakerMinimumMass, 
+             float *H2StarMakerMinimumH2FractionForStarFormation, 
              int *StochasticStarFormation,
              int *UseSobolevColumn,
              float *SigmaOverR,
@@ -560,14 +560,9 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
   int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, B1Num, B2Num, B3Num;
   int CRNum;
 
-  /* Find Multi-species fields. */
+  /* Declare Multi-species fields. Remember to find them if the method needs it. */
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
     DINum, DIINum, HDINum; 
-  if (STARMAKE_METHOD(H2REG_STAR))
-    if (IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum,
-			      HMNum, H2INum, H2IINum, DINum, DIINum, HDINum) == FAIL) {
-      ENZO_FAIL("Error in grid->IdentifySpeciesFields.\n");
-    }
 
   /* If only star cluster formation, check now if we're restricting
      formation in a region. */
@@ -613,6 +608,12 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
       float B2 = Bx*Bx + By*By + Bz*Bz;
       BaryonField[TENum][n] -= 0.5*B2/den;
     }
+  }
+
+  if (MultiSpecies) {
+      HINum    = FindField(HIDensity, FieldType, NumberOfBaryonFields);
+  } else {
+      HINum    = DensNum;
   }
 
   if (MultiSpecies > 1) {
@@ -708,14 +709,14 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
 
   float *h2field = NULL;
   int kdissH2INum, kphHINum;
-  if (STARMAKE_METHOD(POP3_STAR)) {
+  if (STARMAKE_METHOD(POP3_STAR) || STARMAKE_METHOD(H2REG_STAR)) {
     h2field = new float[size];
     for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++)
       for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
-	index = (k*GridDimension[1] + j)*GridDimension[0] + 
-	  GridStartIndex[0];
-	for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, index++) 
-	  h2field[index] = BaryonField[H2INum][index] + BaryonField[H2IINum][index];
+         index = (k*GridDimension[1] + j)*GridDimension[0] + 
+                  GridStartIndex[0];
+      for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, index++) 
+         h2field[index] = BaryonField[H2INum][index] + BaryonField[H2IINum][index];
       }
 
     // get H2 photo-dissociation and HI-ionizing fields
@@ -1228,10 +1229,11 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
     if ( STARMAKE_METHOD(H2REG_STAR) && 
 	 ( this->MakeStars || !StarFormationOncePerRootGridTimeStep ) ) {
 
-      if (IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum,
-                    HMNum, H2INum, H2IINum, DINum, DIINum, HDINum) == FAIL) {
-        ENZO_FAIL("Error in grid->IdentifySpeciesFields.\n");
-      }
+      // check that MultiSpecies is set correctly
+      if (!MultiSpecies)
+         ENZO_FAIL("Error in Grid_StarParticleHandler: H2 Regulated Star Formation must have MultiSpecies >= 1.\n");
+      if (H2StarMakerH2FractionMethod==1 && MultiSpecies < 2)
+         ENZO_FAIL("Error in Grid_StarParticleHandler: H2 Fraction method 1 must have MultiSpecies >= 2.\n");
 
       NumberOfNewParticlesSoFar = NumberOfNewParticles;
 
@@ -1240,20 +1242,20 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
 	 created once per root level time step. */
       float TimeStep;
       if(StarFormationOncePerRootGridTimeStep)
-	TimeStep = TopGridTimeStep;
+         TimeStep = TopGridTimeStep;
       else
-	TimeStep = dtFixed;
+         TimeStep = dtFixed;
 
       FORTRAN_NAME(star_maker_h2reg)(
        GridDimension, GridDimension+1, GridDimension+2,
-       BaryonField[DensNum], BaryonField[HINum], temperature,
+       BaryonField[DensNum], BaryonField[HINum], h2field, temperature,
        BaryonField[Vel1Num], BaryonField[Vel2Num], BaryonField[Vel3Num],
        &TimeStep, BaryonField[NumberOfBaryonFields], 
        MetalPointer, &CellWidthTemp, &Time, &zred, &MyProcessorNumber,
        &DensityUnits, &LengthUnits, &VelocityUnits, &TimeUnits,
        &MaximumNumberOfNewParticles, 
        CellLeftEdge[0], CellLeftEdge[1], CellLeftEdge[2], &GhostZones, 
-       &MetallicityField, &HydroMethod,
+       &MetallicityField, &HydroMethod, &H2StarMakerH2FractionMethod,
        &H2StarMakerEfficiency,
        &H2StarMakerNumberDensityThreshold, 
        &H2StarMakerMinimumMass,
@@ -1281,10 +1283,10 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
           tg->ParticleType[i] = NormalStarType;
 
       /* If StarFormationOncePerRootGridTimeStep, reset
-	 this::MakeStars to 0, to prevent further star formation until
-	 next top level time step has been taken. */
+         this::MakeStars to 0, to prevent further star formation until
+         next top level time step has been taken. */
       if(StarFormationOncePerRootGridTimeStep)
-	this->MakeStars = 0;
+         this->MakeStars = 0;
     }
 
     if (STARMAKE_METHOD(DISTR_FEEDBACK)) {

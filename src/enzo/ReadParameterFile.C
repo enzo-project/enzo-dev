@@ -1101,6 +1101,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     if (sscanf(line, "MBHInsertLocationFilename = %s", dummy) == 1)
       MBHInsertLocationFilename = dummy;
 
+    ret += sscanf(line, "H2StarMakerH2FractionMethod = %"ISYM,
+		  &H2StarMakerH2FractionMethod);
     ret += sscanf(line, "H2StarMakerEfficiency = %"FSYM,
 		  &H2StarMakerEfficiency);
     ret += sscanf(line, "H2StarMakerNumberDensityThreshold = %"FSYM,
