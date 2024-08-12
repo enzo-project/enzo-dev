@@ -139,6 +139,10 @@ int GrackleReadParameters(FILE *fptr, FLOAT InitTime)
 
     ret += sscanf(line, "local_dust_to_gas_ratio = %f",
                   &grackle_data->local_dust_to_gas_ratio);
+    ret += sscanf(line, "interstellar_radiation_field = %f",
+                  &grackle_data->interstellar_radiation_field);
+    ret += sscanf(line, "dust_recombination_cooling = %d",
+                  &grackle_data->dust_recombination_cooling);
 
     ret += sscanf(line, "dust_chemistry = %d",
                   &grackle_data->dust_chemistry);
