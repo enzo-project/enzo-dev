@@ -73,7 +73,8 @@ c    d,u,v,w,ge,e - modified field
 c
 c
 c-----------------------------------------------------------------------
-       implicit none
+      use tabular_feedback
+      implicit none
 #include "fortran_types.def"
 c-----------------------------------------------------------------------
 c
@@ -106,14 +107,7 @@ c
       R_PREC energy, events_ii, events_ia,
      &     meject, meject_ii, meject_ia,
      &     mzeject, mzeject_ii, mzeject_ia,
-     &     dratio, distmass, age, minit_msun,
-     &     m1, dt_yr
-      INTG_PREC iSNII, iSNIa
-c
-      iSNII = 1_IKIND
-      iSNIa = 2_IKIND
-      m1 = d1 * x1**3
-      dt_yr = dt*t1/yr_s
+     &     dratio, distmass, age
 c
 c-----------------------------------------------------------------------
 c
@@ -141,36 +135,19 @@ c
 c           
             age = (t-tcp(n)) * t1/yr_s
 c
-c         Integrate yield tables to get mass yield & total SN events
+c         Integrate yield tables to get mass & energy yields
 c
-            call integrate_yields(meject_ii, metalf(n), age, dt_yr,
-     &            tabMass, tabZ, tabAge, 
-     &            ntabZ, ntabAge, 4_IKIND, iSNII)
-            call integrate_yields(meject_ia, metalf(n), age, dt_yr,
-     &            tabMass, tabZ, tabAge,
-     &            ntabZ, ntabAge, 4_IKIND, iSNIa)
-            call integrate_yields(events_ii, metalf(n), age, dt_yr,
-     &            tabEvents, tabZ, tabAge, 
-     &            ntabZ, ntabAge, 2_IKIND, iSNII)
-            call integrate_yields(events_ia, metalf(n), age, dt_yr,
-     &            tabEvents, tabZ, tabAge,
-     &            ntabZ, ntabAge, 2_IKIND, iSNIa)
+            call sne_mass(meject, minit(n), metalf(n), age,
+     &              dt, t1,
+     &              tabMass, tabZ, tabAge, ntabZ, ntabAge)
+            call sne_energy(energy, minit(n), metalf(n), age,
+     &              ergSNIa, ergSNII,
+     &              dx, dt, x1, t1, d1, v1,
+     &              tabMass, tabZ, tabAge, ntabZ, ntabAge)
 c
-c          Calculate mass & energy added to each cell
-c          Yields of mass and energy are rates (per year) per initial pop mass
-c          That is, meject_ii & meject_ia are mass frac per year
-c          Note that minit is secretly a mass density
-c         
-            meject = (meject_ii + meject_ia) * minit(n)
+c          Distribute mass & energy among feedback zone
             distmass = meject / distcells
-c           Convert erg per Msun to erg
-            minit_msun = minit(n) * dx**3 * m1 / SolarMass   
-            energy = (events_ii*ergSNII 
-     &              + events_ia*ergSNIa) 
-     &              * minit_msun
-            ! write(6,*) 'energy (ergs)', energy
-c           Convert energy in erg to energy density in code units
-            energy = energy / (m1*v1**2 * (dx)**3 * distcells)
+            energy = energy / distcells
 c
 c           subtract ejected mass from particle (ejection due
 c           to winds, supernovae)
@@ -213,16 +190,14 @@ c           Metal feedback. Similar to total ejected mass,
 c           table has metal mass yield per initial population mass.
 c
                          if (imetal .eq. 1) then
-                              call integrate_yields(mzeject_ii,
-     &                              metalf(n), age, dt_yr,
-     &                              tabMetal, tabZ, tabAge,
-     &                              ntabZ, ntabAge, 4_IKIND, iSNII)
-                              call integrate_yields(mzeject_ia,
-     &                              metalf(n), age, dt_yr,
-     &                              tabMetal, tabZ, tabAge,
-     &                              ntabZ, ntabAge, 4_IKIND, iSNIa)
-                           mzeject_ii = mzeject_ii * minit(n)
-                           mzeject_ia = mzeject_ia * minit(n)
+                              call sne_II_metal(mzeject_ii,
+     &                         minit(n), metalf(n), age,
+     &                         dt, t1,
+     &                         tabMass, tabZ, tabAge, ntabZ, ntabAge)
+                              call sne_Ia_metal(mzeject_ia,
+     &                         minit(n), metalf(n), age,
+     &                         dt, t1,
+     &                         tabMass, tabZ, tabAge, ntabZ, ntabAge)
                            mzeject = mzeject_ii + mzeject_ia
 c
 c           Field is converted to metal fraction by handling routine.
@@ -249,6 +224,7 @@ c
                         w(ic,jc,kc) = w(ic,jc,kc)*d(ic,jc,kc) +
      &                       distmass * wp(n)
                         d(ic,jc,kc) = d(ic,jc,kc) + distmass
+                        !write(6,*) 'updated dens', d(ic,kc,jc)
                         u(ic,jc,kc) = u(ic,jc,kc)/d(ic,jc,kc)
                         v(ic,jc,kc) = v(ic,jc,kc)/d(ic,jc,kc)
                         w(ic,jc,kc) = w(ic,jc,kc)/d(ic,jc,kc)
@@ -274,192 +250,5 @@ c
       enddo
 c
 c      write(6,*) 'star_feedback2: end'
-      return
-      end
-c
-c ===============================================
-c 
-c     Time-integrate the yield from particular source type
-c     given a table of quantites and the stellar population
-c     initial metal fraction and age in years.
-c     Timestep dt must also be in years.
-c     Time integration will account for table entries that
-c     fall between the pop age and age+dt
-c
-      subroutine integrate_yields(yield, metal, age, dt,
-     &            tab_yield, tab_metal, tab_age,
-     &            ntab_metal, ntab_age, num_sources, source_id)
-c
-      implicit none
-#include "fortran_types.def"
-c
-c     Arguments
-c
-      INTG_PREC ntab_metal, ntab_age, num_sources, source_id
-      R_PREC yield, metal, age, dt
-      R_PREC tab_yield(4, ntab_age, ntab_metal)
-      R_PREC tab_metal(ntab_metal), tab_age(ntab_age)
-c
-c     Locals
-c
-      INTG_PREC z_ub, a1_ub, a2_ub ! table index right bounds (for interp)
-      R_PREC age1, age2            ! time integration bounds
-      R_PREC rate1, rate2, t1, t2 
-c
-c     Set time integration bounds
-c
-      age1 = age
-      if (age .lt. 0) age1 = 0
-      age2 = age1 + dt
-c
-c     Yield table will need to be interpolated in age & metal frac.
-c     Find index to the right (above) of the target values
-c
-      z_ub = 1_IKIND
-      do while (tab_metal(z_ub) .lt. metal 
-     &          .and. z_ub .lt. ntab_metal)
-         z_ub = z_ub + 1_IKIND
-      enddo
-      a1_ub = 1_IKIND
-      do while (tab_age(a1_ub) .lt. age1 
-     &                  .and. a1_ub .lt. ntab_age)
-         a1_ub = a1_ub + 1_IKIND
-      enddo
-      a2_ub = 1_IKIND
-      do while (tab_age(a2_ub) .lt. age2
-     &            .and. a2_ub .lt. ntab_age)
-         a2_ub = a2_ub + 1_IKIND
-      enddo
-c
-c     If particle falls outside of age table, exit
-c
-      if (a1_ub .eq. ntab_age+1) then
-         goto 5
-      endif
-c
-c     Otherwise, find yield
-c
-      yield = 0
-c
-c     Case 1: both age (age1) & age+dt (age2) are in the same table "cell"
-c
-      if (a2_ub - a1_ub .eq. 0) then
-         call bilinear_interp(rate1, metal, age1,
-     &         tab_yield, tab_metal, tab_age,
-     &         ntab_metal, ntab_age, num_sources, source_id,
-     &         z_ub-1, z_ub, a1_ub-1, a1_ub)
-        yield = rate1 * dt
-     
-c
-c     Case 2: age1 and age2 are in different table "cells"
-c     Therefore, integrate over all interveneing cells
-c
-      else
-         t1 = age1
-c        2D interpolation for left bound of first interval
-         call bilinear_interp(rate1, metal, t1,
-     &         tab_yield, tab_metal, tab_age,
-     &         ntab_metal, ntab_age, num_sources, source_id,
-     &         z_ub-1_IKIND, z_ub, a1_ub-1_IKIND, a1_ub)
-c
-         do while(a1_ub .lt. a2_ub)
-            t2 = tab_age(a1_ub)
-c           1D interp (metal only) for right bound of current internval
-            call bilinear_interp(rate2, metal, t2,
-     &            tab_yield, tab_metal, tab_age,
-     &            ntab_metal, ntab_age, num_sources, source_id,
-     &            z_ub-1, z_ub, a1_ub, a1_ub)
-c           Integrate this interval with trapezoid rule
-            yield = yield + (rate1 + rate2) * (t2-t1)/2
-c           Shift right to the next interval
-            rate1 = rate2
-            t1 = t2
-            a1_ub = a1_ub + 1
-         enddo
-c
-c        2D interpolation for right bound of last interval
-         call bilinear_interp(rate2, metal, age2,
-     &         tab_yield, tab_metal, tab_age,
-     &         ntab_metal, ntab_age, num_sources, source_id,
-     &         z_ub-1, z_ub, a2_ub-1, a2_ub)
-         yield = yield + (rate1 + rate2) * (age2-t1)/2
-      endif
- 5    end
-c
-c ===============================================
-c 
-c     Perform bilinear interpolation using a table
-c     Do not extrapolate
-c
-      subroutine bilinear_interp(interp, x, y,
-     &                           tabinterp, tabx, taby, 
-     &                           nx, ny, nsrcs, srcid,
-     &                           ix1, ix2, iy1, iy2)
-c
-      implicit none
-#include "fortran_types.def"
-c
-c     Arguments
-c
-      INTG_PREC nx, ny, nsrcs, srcid, ix1, ix2, iy1, iy2
-      R_PREC x, y
-      R_PREC tabinterp(nsrcs,ny,nx), tabx(nx), taby(ny)
-c
-c     Locals
-c
-      R_PREC x1, x2, y1, y2
-      R_PREC fx1y1, fx1y2, fx2y1, fx2y2
-c
-c     Return
-c
-      R_PREC interp
-c
-c     Reset indicies to be in bounds
-c
-      if (ix1 .lt. 1) ix1 = 1
-      if (iy1 .lt. 1) iy1 = 1
-      if (ix2 .gt. nx) ix2 = nx
-      if (iy2 .gt. ny) iy2 = ny
-c
-c     Find x & y associated with lower & upper bounds
-c
-      x1 = tabx(ix1)
-      x2 = tabx(ix2)
-      y1 = taby(iy1)
-      y2 = taby(iy2)
-c      write(6,*) 'x, x1, x2',x,x1,x2
-c      write(6,*) 'y, y1, y2',y,y1,y2
-c
-      if (ix1 .eq. ix2 .and. iy1 .eq. iy2) then
-c        both x & y fall outside the table
-      !   write(6,*) 'case: no interpolation'
-         interp = tabinterp(srcid, iy1, ix1)
-      elseif (ix1 .eq. ix2) then
-c        only x falls outside the table; interpolate y
-      !    write(6,*) 'case: interpolate y'
-         fx1y1 = tabinterp(srcid, iy1, ix1)
-         fx1y2 = tabinterp(srcid, iy2, ix1)
-         interp = fx1y1*(y2-y) + fx1y2*(y-y1)
-         interp = interp / (y2-y1)
-      elseif (iy1 .eq. iy2) then
-c        only y falls outside the table; interpolate x
-      !   write(6,*) 'case: interpolate x'
-         fx1y1 = tabinterp(srcid, iy1, ix1)
-         fx2y1 = tabinterp(srcid, iy1, ix2)
-         interp = fx1y1*(x2-x) + fx2y1*(x-x1)
-         interp = interp / (x2-x1)
-      else
-c        everything is inside the table; interpolate x & y
-      !   write(6,*) 'case: interpolate both'
-         fx1y1 = tabinterp(srcid, iy1, ix1)
-         fx1y2 = tabinterp(srcid, iy2, ix1)
-         fx2y1 = tabinterp(srcid, iy1, ix2)
-         fx2y2 = tabinterp(srcid, iy2, ix2)
-c
-         interp = fx1y1*(x2-x)*(y2-y) + fx2y1*(x-x1)*(y2-y) 
-     &          + fx1y2*(x2-x)*(y-y1) + fx2y2*(x-x1)*(y-y1)
-c
-         interp = interp / ( (x2-x1)*(y2-y1) )
-      endif
       return
       end

@@ -924,6 +924,7 @@ OBJS_CONFIG_LIB = \
         Star_SetFeedbackFlag.o \
 	Star_SphereContained.o \
 	Star_SubtractAccretedMassFromCell.o \
+        tabular_feedback.o \
 	star_feedback_pn_snia.o \
         star_feedback2_tab.o \
         star_maker1.o \
