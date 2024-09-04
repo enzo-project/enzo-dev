@@ -89,6 +89,8 @@ int StratifiedMediumExplosionInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntr
 			     TopGridData &MetaData);
 int TestStarParticleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 			       TopGridData &MetaData, float *Initialdt);
+int TestDoubleStarParticleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
+			       TopGridData &MetaData, float *Initialdt);
 int KHInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
                           TopGridData &MetaData);
 int NohInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
@@ -597,6 +599,11 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   // 90) Test a star particle explosion
   if (ProblemType == 90)
     ret = TestStarParticleInitialize(fptr, Outfptr, TopGrid, MetaData, 
+				     Initialdt);
+  
+  // 91) Test double star particle explosion
+  if (ProblemType == 91)
+    ret = TestDoubleStarParticleInitialize(fptr, Outfptr, TopGrid, MetaData, 
 				     Initialdt);
   
   /* 101) 3D Collapse */

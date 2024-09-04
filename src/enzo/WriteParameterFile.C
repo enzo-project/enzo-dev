@@ -933,6 +933,14 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
           StarMetalYield);
   fprintf(fptr, "StarEnergyToThermalFeedback           = %"GSYM"\n",
           StarEnergyToThermalFeedback);
+  fprintf(fptr, "StarFeedbackAdditionalThermalEnergy   = %"GSYM"\n",
+          StarFeedbackAdditionalThermalEnergy);
+  fprintf(fptr, "MomentumMultiplier                    = %"GSYM"\n",
+          MomentumMultiplier);
+  fprintf(fptr, "MomentumCancellationToThermal         = %"ISYM"\n",
+          MomentumCancellationToThermal);
+  fprintf(fptr, "WriteFeedbackLogFiles                 = %"ISYM"\n",
+          WriteFeedbackLogFiles);
   fprintf(fptr, "StarEnergyToStellarUV                 = %"GSYM"\n",
           StarEnergyToStellarUV);
   fprintf(fptr, "StarEnergyToQuasarUV                  = %"GSYM"\n",

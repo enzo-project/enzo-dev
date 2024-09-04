@@ -29,14 +29,15 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, double *MassUnits, FLOAT Time);
 
-int grid::TestStarParticleInitializeGrid(float TestStarParticleStarMass, 
+int grid::TestDoubleStarParticleInitializeGrid(FLOAT TestStarParticleStarMass[2], 
 					 float *Initialdt,
-					 FLOAT TestStarParticleStarVelocity[],
-					 FLOAT TestStarParticleStarPosition[])
+					 FLOAT TestStarParticleStarVelocity[2][3],
+					 FLOAT TestStarParticleStarPosition[2][3])
 {
   /* declarations */
 
-  float CentralMass = 1.0;
+  float StarMass1 = 1.0;
+  float StarMass2 = 1.0;
   int i, dim;
   float TestInitialdt = *Initialdt;
   
@@ -56,15 +57,9 @@ int grid::TestStarParticleInitializeGrid(float TestStarParticleStarMass,
     ENZO_FAIL("Error in GetUnits.\n");
   }
 
-  /* Set Central Mass in simulation units */
-
-  CentralMass = TestStarParticleStarMass*1.99e33* pow(LengthUnits*CellWidth[0][0],-3.0)/DensityUnits;
-
-  printf("Central Mass: %f \n",CentralMass);
-
   /* Set number of particles for this grid and allocate space. */
 
-  NumberOfParticles = 1;
+  NumberOfParticles = 2;
   NumberOfParticleAttributes = 4;
   this->AllocateNewParticles(NumberOfParticles);
   printf("Allocated %d particles\n", NumberOfParticles);
@@ -77,21 +72,23 @@ int grid::TestStarParticleInitializeGrid(float TestStarParticleStarMass,
   }
 
   /* Set central particle. */ 
-  for (dim = 0; dim < GridRank; dim++) {
-    ParticlePosition[dim][0] = TestStarParticleStarPosition[dim];
-    ParticleVelocity[dim][0] = TestStarParticleStarVelocity[dim]*1e5*TimeUnits/LengthUnits;
-  }
-  ParticleMass[0] = CentralMass;
-  ParticleAttribute[0][0] = Time+1e-7;
-  ParticleAttribute[1][0] = 10.0 * Myr_s/TimeUnits;
+  for (i = 0; i < NumberOfParticles; i++) {
+    for (dim = 0; dim < GridRank; dim++) {
+        ParticlePosition[dim][i] = TestStarParticleStarPosition[i][dim];
+        ParticleVelocity[dim][i] = TestStarParticleStarVelocity[i][dim]*1e5*TimeUnits/LengthUnits;
+    }
+    ParticleMass[i] = TestStarParticleStarMass[i]*1.99e33* pow(LengthUnits*CellWidth[0][0],-3.0)/DensityUnits;
+    ParticleAttribute[0][i] = Time+1e-7;
+    ParticleAttribute[1][i] = 10.0 * Myr_s/TimeUnits;
 
-  if (STARFEED_METHOD(UNIGRID_STAR)) ParticleAttribute[1][0] = 10.0 * Myr_s/TimeUnits;
-  if (STARFEED_METHOD(MOM_STAR) || STARFEED_METHOD(MECH_STAR))
-    if(StarMakerExplosionDelayTime >= 0.0)
-      ParticleAttribute[1][0] = 1.0;
-  
-  ParticleAttribute[2][0] = 0.0;  // Metal fraction
-  ParticleAttribute[3][0] = 0.0;  // metalfSNIa
+    if (STARFEED_METHOD(UNIGRID_STAR)) ParticleAttribute[1][i] = 10.0 * Myr_s/TimeUnits;
+    if (STARFEED_METHOD(MOM_STAR) || STARFEED_METHOD(MECH_STAR))
+        if(StarMakerExplosionDelayTime >= 0.0)
+        ParticleAttribute[1][i] = 1.0;
+    
+    ParticleAttribute[2][i] = 0.0;  // Metal fraction
+    ParticleAttribute[3][i] = 0.0;  // metalfSNIa
+  }
 
   return SUCCESS;
 }

@@ -656,6 +656,7 @@ OBJS_CONFIG_LIB = \
         Grid_TestGravitySphereInitializeGrid.o \
         Grid_TestOrbitInitializeGrid.o \
 	Grid_TestStarParticleInitializeGrid.o \
+	Grid_TestDoubleStarParticleInitializeGrid.o \
         Grid_TracerParticleCreateParticles.o \
         Grid_TracerParticleOutputData.o \
         Grid_TracerParticleSetVelocity.o \
@@ -924,6 +925,7 @@ OBJS_CONFIG_LIB = \
 	Star_SphereContained.o \
 	Star_SubtractAccretedMassFromCell.o \
 	star_feedback_pn_snia.o \
+        star_feedback6.o \
         star_maker1.o \
         star_maker2.o \
 	star_maker3mom.o \
@@ -946,6 +948,7 @@ OBJS_CONFIG_LIB = \
         TestGravitySphereInitialize.o \
         TestOrbitInitialize.o \
 	TestStarParticleInitialize.o \
+	TestDoubleStarParticleInitialize.o \
         TracerParticleCreation.o \
 	TransposeRegionOverlap.o \
         tscint1d.o \
