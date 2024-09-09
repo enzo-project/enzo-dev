@@ -138,7 +138,7 @@ c      Return metal fraction yielded by by
 c      both Type Ia and II supernovae
 c 
       subroutine sne_metal(frac_yield,
-     & mass_init, metal_frac, age, 
+     &                    mass_init, metal_frac, age, 
      &                    dt, t1,
      &                    metal_table, metal_array, age_array,
      &                    metal_size, age_size)

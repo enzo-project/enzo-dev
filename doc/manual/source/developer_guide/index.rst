@@ -27,6 +27,7 @@ of AMR and numerical methods is assumed throughout this documentation.
    NewLocalOperator.rst
    NewTestProblem1.rst
    NewTestProblem3.rst
+   UsingTabulatedFeedback.rst
    using_mhd.rst
    mhdct_details.rst
    DoingARelease.rst
