@@ -52,9 +52,8 @@ order of sources should not be changed.** Rather, these attributes
 can be used as a reminder of how to index the third dimension of the yield tables.
 
 The ``ejecta_mass`` and ``ejecta_metal_mass`` tables have total sizes
-``N(initial_metal_fraction) * N(population_age) * N(sources)`` where ``N(sources)``
-is currently four. The ``sne_event_rate`` table has size ``N(initial_metal_fraction) * N(population_age) * 2``
-as only two kinds of supernovae are tracked.
+``N(initial_metal_fraction) * N(population_age) * 4``. 
+The ``sne_event_rate`` table has size ``N(initial_metal_fraction) * N(population_age) * 2``.
 
 The various parameters used to generate the table are stored as attributes in
 the ``sygma_models`` group for posterity.
@@ -113,7 +112,10 @@ The subroutines available for use in your feedback routine are as follows:
 * ``sne_II_metal``: metal yield for only Type II supernovae
 * ``sne_Ia_metal``: metal yield for only Typa Ia supernova
 * ``sne_energy``: total energy yield for Type II and Ia supernovae
-* TODO pre-sne routines
+* ``wind_mass``: total mass yield for AGB and massive stars
+* ``wind_metal``: total metal yield for AGB and massive stars
+* ``wind_AGB_metal``: metal yield for only AGB stars
+* ``wind_msv_metal``: metal yield for only massive stars
 
 The ``mass`` and ``metal`` subroutines share the same call signature::
 
