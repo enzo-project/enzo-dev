@@ -76,7 +76,7 @@ c-----------------------------------------------------------------------
        implicit none
 #include "fortran_types.def"
 c-----------------------------------------------------------------------
-#define NO_FORTRAN_DEBUG
+#define FORTRAN_DEBUG
 c
 c  Arguments
 c
@@ -330,7 +330,7 @@ c
             if (nsn .lt. 1._RKIND) goto 10
             energy = nsn * 10._RKIND**51._RKIND / (dunits*
      &                  x1**3._RKIND*vunits**2._RKIND*dx**3._RKIND)
-            add_therm = thermal / dist_mass_cells
+            add_therm = thermal
 #ifdef FORTRAN_DEBUG
             write(6,*) 'realmass,nsn:',realmass,nsn
             write(6,*) 'ic,jc,kc:',ic, jc, kc
@@ -339,7 +339,7 @@ c
             Z_avg = 0._RKIND
             n_avg = 0._RKIND
 c     
-c     Compute average density and metallcity around cell containing
+c     Compute average density and metallicity around cell containing
 c     particle
 c     
 c            write(6,*) 'averaging over patch'
@@ -426,6 +426,7 @@ c           mass_before has units of mass/volume
 c           kin_energy_before has units of mass*velocity^2/volume
 c           mom_start has units of mass*velocity/volume
 c
+#endif
 c     Zero local dummy field and kinetic energy field
 c
             do k = 1_IKIND, 3_IKIND
@@ -451,7 +452,7 @@ c
      &                        imethod, imetal, imulti_metals, idual,
      &                        m_eject, yield, metalf(n),
      &                        mass_per_cell, mom_per_cell, therm_sum,
-     &                        add_therm, dx, x1, dunits, vunits,
+     &                        0._RKIND, dx, x1, dunits, vunits,
      &                        mom_canc, lost_p)
 c
 c           Calculate mass and energy in dummy fields
@@ -460,6 +461,7 @@ c
      &          3_IKIND, 3_IKIND, 3_IKIND,
      &          2_IKIND, 2_IKIND, 2_IKIND, 2_IKIND, 2_IKIND, 2_IKIND,
      &            mass_dummy, kin_energy_dummy, mom_dummy)
+#ifdef FORTRAN_DEBUG
             write(6,*) "m dummy:", mass_dummy*
      &               (dunits*(x1*dx)**3._RKIND)/SolarMass
             write(6,*) "e dummy:", kin_energy_dummy*dunits*
@@ -468,10 +470,22 @@ c
      &                  *(dx*x1)**3._RKIND/SolarMass/1e5_RKIND
 #endif
 c
+c           If kin_energy_dummy is less than 10^51 ergs per SN, add
+c           the remaining energy as thermal into the host cell.
+            if (kin_energy_dummy .lt. energy) then
+               add_therm = add_therm + (energy - kin_energy_dummy)
+#ifdef FORTRAN_DEBUG
+               write(6,*) "leftover energy injected as thermal:",
+     &                  (energy-kin_energy_dummy)*dunits*
+     &                  vunits**2._RKIND*dx**3._RKIND*x1**3._RKIND
+#endif
+            endif
+c
 c           Now deposit the momentum onto the grid.
 c
             therm_sum = 0._RKIND
             lost_p = 0._RKIND
+            add_therm = add_therm/dist_mass_cells
             call add_feedback_mech(u, v, w, d, ge, te, metal,
      &                         nx, ny, nz, ic, jc, kc,
      &                        iface, jface, kface,
@@ -906,7 +920,7 @@ c     Locals
 c
       INTG_PREC i, j, k, i1, j1, k1
       R_PREC    delta_mass, delta_pu, delta_pv, delta_pw, delta_therm,
-     &          dratio, delta_p
+     &          dratio, delta_p, vel_kick
       R_PREC    pu_start, pu_deposit, pv_start, pv_deposit, pw_start,
      &          pw_deposit
 c
@@ -936,13 +950,22 @@ c
                   mult = 1._RKIND/(3._RKIND**0.5_RKIND)
                endif
                delta_mass =   mass_per_cell
+               delta_therm = add_therm
 c              delta_mass has units of mass/volume
                delta_pu   =  i*mult*mom_per_cell(i+2,j+2,k+2)
                delta_pv   =  j*mult*mom_per_cell(i+2,j+2,k+2)
                delta_pw   =  k*mult*mom_per_cell(i+2,j+2,k+2)
                delta_p = (delta_pu**2._RKIND + delta_pv**2._RKIND + 
      &            delta_pw**2._RKIND)**(0.5_RKIND)
-               delta_therm = add_therm
+c              If delta_p leads to a velocity kick of more than
+c              1000 km/s, limit to 1000
+               vel_kick = delta_p/(d(ic+i,jc+j,kc+k) + delta_mass)*
+     &                    vunits/1e5_RKIND
+               if (vel_kick .gt. 1000._RKIND) then
+                  delta_p = 1000._RKIND/(vunits/1e5_RKIND)*
+     &                   (d(ic+i,jc+j,kc+k) + delta_mass)
+               endif
+c              
 c              delta_p's have units of mass*velocity/volume
 c              delta_therm has units of mass*velocity^2/volume
 #ifdef FORTRAN_DEBUG
