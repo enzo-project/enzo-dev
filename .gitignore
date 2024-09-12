@@ -56,8 +56,17 @@ src/P-GroupFinder/P-GroupFinder
 doc/manual/build
 doc/manual/source/_build
 
-run/results.js
-
-Make.mach.claire-linux
 *__test_standard.py
 run/test_output/
+run/results.js
+amr.out
+Enzo_Build
+OutputLog
+Evtime
+OutputLevelInformation.out
+performance.out
+RunFinished
+data*
+
+Make.mach.claire-linux
+

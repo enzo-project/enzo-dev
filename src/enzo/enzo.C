@@ -902,6 +902,18 @@ void my_exit(int status)
   FinalizePythonInterface();
 #endif
 
+  /* 
+    Always free memory for feedback tables.
+    These were loaded in ReadParameterFile.C
+  */
+  if (StarFeedbackUseTabularYields) {
+    delete [] FBTable.ini_met;
+    delete [] FBTable.pop_age;
+    delete [] FBTable.mass_yield;
+    delete [] FBTable.metm_yield;
+    delete [] FBTable.event_rate;
+  }
+
   if (status == EXIT_SUCCESS) {
 
     if (MyProcessorNumber==0) {

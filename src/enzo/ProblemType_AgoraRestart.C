@@ -736,6 +736,7 @@ public:
       Velocity[i] = new float[nParticles];
     }
     float *Mass = new float[nParticles];
+    float *InitialMass = (StarMakerStoreInitialMass) ? new float[nParticles] : NULL;
     float *Attribute[MAX_NUMBER_OF_PARTICLE_ATTRIBUTES];
     for (int i = 0; i < NumberOfParticleAttributes; i++)
     {
@@ -760,7 +761,7 @@ public:
 
     thisgrid->SetNumberOfParticles(count);
     thisgrid->SetParticlePointers(Mass, Number, Type, Position,
-				  Velocity, Attribute);
+				  Velocity, Attribute, InitialMass);
     MetaData.NumberOfParticles = count;
     if(debug) fprintf(stderr, "InitializeParticles: Set Number of Particles %"ISYM"\n", count);
 

@@ -379,6 +379,10 @@ EXTERN CloudyCoolingDataType CloudyCoolingData;
 
 EXTERN EquilibriumTableType EquilibriumTable;
 
+/* Table of stellar feedback yields */
+
+EXTERN FeedbackTableType FBTable;
+
 /* Gadget Equilibrium cooling on/off flag */
 
 EXTERN int GadgetEquilibriumCooling;

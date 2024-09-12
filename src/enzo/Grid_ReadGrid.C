@@ -733,6 +733,14 @@ int grid::ReadGrid(FILE *fptr, int GridID, char DataFilename[],
 		      "particle_mass") == FAIL)
 	  return FAIL;
 	
+	/* Read ParticleInitialMass. */
+
+	if (StarMakerStoreInitialMass) {
+		if (ReadField(ParticleInitialMass, &NumberOfParticles, 1, name,
+				"particle_initial_mass") == FAIL)
+		return FAIL;
+	}
+
 	/* Read ParticleNumber */
 	
 	if (ReadField((float *) ParticleNumber, &NumberOfParticles, 1, name,
@@ -901,6 +909,35 @@ int grid::ReadGrid(FILE *fptr, int GridID, char DataFilename[],
 	
 	for (i = 0; i < NumberOfParticles; i++)
 	  ParticleMass[i] = float(temp[i]);
+
+	if (StarMakerStoreInitialMass) {
+		/* Read ParticleInitialMass into temporary buffer and Copy to ParticleInitialMass. */
+	
+		file_dsp_id = H5Screate_simple((Eint32) 1, TempIntArray, NULL);
+		if (io_log) fprintf(log_fptr, "H5Screate file_dsp_id: %"ISYM"\n", file_dsp_id);
+		if( file_dsp_id == h5_error ){ENZO_FAIL("line 747  Grid_ReadGrid \n");}
+		
+		if (io_log) fprintf(log_fptr,"H5Dopen with Name = particle_initial_mass\n");
+		
+		dset_id =  H5Dopen(file_id, "particle_initial_mass");
+		if (io_log) fprintf(log_fptr, "H5Dopen id: %"ISYM"\n", dset_id);
+		if( dset_id == h5_error ){ENZO_FAIL("line 753  Grid_ReadGrid \n");}
+		
+		h5_status = H5Dread(dset_id, float_type_id, H5S_ALL, H5S_ALL, H5P_DEFAULT, (VOIDP) temp);
+		if (io_log) fprintf(log_fptr, "H5Dread: %"ISYM"\n", h5_status);
+		if( h5_status == h5_error ){ENZO_FAIL("line   Grid_ReadGrid \n");}
+		
+		h5_status = H5Sclose(file_dsp_id);
+		if (io_log) fprintf(log_fptr, "H5Sclose: %"ISYM"\n", h5_status);
+		if( h5_status == h5_error ){ENZO_FAIL("line 761  Grid_ReadGrid \n");}
+		
+		h5_status = H5Dclose(dset_id);
+		if (io_log) fprintf(log_fptr, "H5Dclose: %"ISYM"\n", h5_status);
+		if( h5_status == h5_error ){ENZO_FAIL("line 765  Grid_ReadGrid \n");}
+		
+		for (i = 0; i < NumberOfParticles; i++)
+		ParticleInitialMass[i] = float(temp[i]);
+	}
 	
 	/* Read ParticleNumber into temporary buffer and Copy to ParticleNumber. */
 	

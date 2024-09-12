@@ -167,6 +167,7 @@ int grid::TransferSubgridParticles(grid* Subgrids[], int NumberOfSubgrids,
 	    List[n1].vel[dim] = ParticleVelocity[dim][i];
 	  }
 	  List[n1].mass = ParticleMass[i] * MassIncrease;
+    if (StarMakerStoreInitialMass) List[n1].initial_mass = ParticleInitialMass[i] * MassIncrease;
 	  List[n1].id = ParticleNumber[i];
 	  List[n1].type = ParticleType[i];
 	  for (j = 0; j < NumberOfParticleAttributes; j++)
@@ -210,7 +211,7 @@ int grid::TransferSubgridParticles(grid* Subgrids[], int NumberOfSubgrids,
     /* Allocate space for the particles. */
 
     FLOAT *Position[MAX_DIMENSION];
-    float *Velocity[MAX_DIMENSION], *Mass,
+    float *Velocity[MAX_DIMENSION], *Mass, *InitialMass,
           *Attribute[MAX_NUMBER_OF_PARTICLE_ATTRIBUTES];
     PINT *Number;
     int  *Type = NULL;
@@ -218,6 +219,7 @@ int grid::TransferSubgridParticles(grid* Subgrids[], int NumberOfSubgrids,
     if (TotalNumberOfParticles > 0) {
 
     Mass = new float[TotalNumberOfParticles];
+    InitialMass = (StarMakerStoreInitialMass) ? new float[TotalNumberOfParticles] : NULL;
     Number = new PINT[TotalNumberOfParticles];
     Type = new int[TotalNumberOfParticles];
     for (dim = 0; dim < GridRank; dim++) {
@@ -233,11 +235,19 @@ int grid::TransferSubgridParticles(grid* Subgrids[], int NumberOfSubgrids,
     }
 
     /* Copy this grid's particles to the new space. */
-
-    for (i = 0; i < NumberOfParticles; i++) {
-      Mass[i] = ParticleMass[i];
-      Number[i] = ParticleNumber[i];
-      Type[i] = ParticleType[i];
+    if (StarMakerStoreInitialMass) {
+      for (i = 0; i < NumberOfParticles; i++) {
+        Mass[i] = ParticleMass[i];
+        InitialMass[i] = ParticleInitialMass[i]; // if ensures RHS should not be NULL
+        Number[i] = ParticleNumber[i];
+        Type[i] = ParticleType[i];
+      }
+    } else {
+      for (i = 0; i < NumberOfParticles; i++) {
+        Mass[i] = ParticleMass[i];
+        Number[i] = ParticleNumber[i];
+        Type[i] = ParticleType[i];
+      }
     }
 
     for (dim = 0; dim < GridRank; dim++)
@@ -254,11 +264,21 @@ int grid::TransferSubgridParticles(grid* Subgrids[], int NumberOfSubgrids,
 
     int n = NumberOfParticles;
 
-    for (i = StartIndex; i < EndIndex; i++) {
-      Mass[n] = List[i].mass;
-      Number[n] = List[i].id;
-      Type[n] = List[i].type;
-      n++;
+    if (StarMakerStoreInitialMass) {
+      for (i = StartIndex; i < EndIndex; i++) {
+        Mass[n] = List[i].mass;
+        InitialMass[n] = List[i].initial_mass;
+        Number[n] = List[i].id;
+        Type[n] = List[i].type;
+        n++;
+      }
+    } else {
+      for (i = StartIndex; i < EndIndex; i++) {
+        Mass[n] = List[i].mass;
+        Number[n] = List[i].id;
+        Type[n] = List[i].type;
+        n++;
+    }
     }
 
     for (dim = 0; dim < GridRank; dim++) {
@@ -289,7 +309,7 @@ int grid::TransferSubgridParticles(grid* Subgrids[], int NumberOfSubgrids,
     this->DeleteParticles();
     if (TotalNumberOfParticles > 0)
       this->SetParticlePointers(Mass, Number, Type, Position, Velocity,
-				Attribute);
+				Attribute, InitialMass);
  
   } // end: if (COPY_IN)
 

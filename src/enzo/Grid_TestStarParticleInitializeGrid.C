@@ -32,7 +32,8 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 int grid::TestStarParticleInitializeGrid(float TestStarParticleStarMass, 
 					 float *Initialdt,
 					 FLOAT TestStarParticleStarVelocity[],
-					 FLOAT TestStarParticleStarPosition[])
+					 FLOAT TestStarParticleStarPosition[],
+           float TestStarParticleMetallicity)
 {
   /* declarations */
 
@@ -58,14 +59,14 @@ int grid::TestStarParticleInitializeGrid(float TestStarParticleStarMass,
 
   /* Set Central Mass in simulation units */
 
-  CentralMass = TestStarParticleStarMass*1.99e33* pow(LengthUnits*CellWidth[0][0],-3.0)/DensityUnits;
+  CentralMass = TestStarParticleStarMass*SolarMass* pow(LengthUnits*CellWidth[0][0],-3.0)/DensityUnits;
 
   printf("Central Mass: %f \n",CentralMass);
 
   /* Set number of particles for this grid and allocate space. */
 
   NumberOfParticles = 1;
-  NumberOfParticleAttributes = 4;
+  NumberOfParticleAttributes = 4; // this may be causing issues with my custom attributes & need updating
   this->AllocateNewParticles(NumberOfParticles);
   printf("Allocated %d particles\n", NumberOfParticles);
 
@@ -82,15 +83,18 @@ int grid::TestStarParticleInitializeGrid(float TestStarParticleStarMass,
     ParticleVelocity[dim][0] = TestStarParticleStarVelocity[dim]*1e5*TimeUnits/LengthUnits;
   }
   ParticleMass[0] = CentralMass;
+  if (StarMakerStoreInitialMass)
+    ParticleInitialMass[0] = CentralMass;
   ParticleAttribute[0][0] = Time+1e-7;
   ParticleAttribute[1][0] = 10.0 * Myr_s/TimeUnits;
 
+  ParticleAttribute[1][0] = StarMakerMinimumDynamicalTime * yr_s/TimeUnits; // default
   if (STARFEED_METHOD(UNIGRID_STAR)) ParticleAttribute[1][0] = 10.0 * Myr_s/TimeUnits;
   if (STARFEED_METHOD(MOM_STAR) || STARFEED_METHOD(MECH_STAR))
     if(StarMakerExplosionDelayTime >= 0.0)
       ParticleAttribute[1][0] = 1.0;
   
-  ParticleAttribute[2][0] = 0.0;  // Metal fraction
+  ParticleAttribute[2][0] = TestStarParticleMetallicity;  // Metal fraction
   ParticleAttribute[3][0] = 0.0;  // metalfSNIa
 
   return SUCCESS;

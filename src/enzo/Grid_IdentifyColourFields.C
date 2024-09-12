@@ -27,17 +27,21 @@
 int FindField(int f, int farray[], int n);
 
 int grid::IdentifyColourFields(int &SNColourNum, int &MetalNum, 
-			       int &MetalIaNum, int &MetalIINum, int &MBHColourNum,
+			       int &MetalIaNum, int &MetalIINum, 
+             int &MetalAGBNum, int& MetalMsvNum,
+             int &MBHColourNum,
 			       int &Galaxy1ColourNum, int &Galaxy2ColourNum)
 {
  
-  SNColourNum = MetalNum = MetalIaNum = MBHColourNum = Galaxy1ColourNum = 
-    MetalIINum = Galaxy2ColourNum = 0;
+  SNColourNum = MetalNum = MetalIaNum = MetalIINum = MetalAGBNum
+    = MetalMsvNum = MBHColourNum = Galaxy1ColourNum = Galaxy2ColourNum = 0;
  
   SNColourNum = FindField(SNColour, FieldType, NumberOfBaryonFields);
   MetalNum = FindField(Metallicity, FieldType, NumberOfBaryonFields);
   MetalIaNum = FindField(MetalSNIaDensity, FieldType, NumberOfBaryonFields);
   MetalIINum = FindField(MetalSNIIDensity, FieldType, NumberOfBaryonFields);
+  MetalAGBNum = FindField(MetalAGBDensity, FieldType, NumberOfBaryonFields);
+  MetalMsvNum = FindField(MetalMassiveDensity, FieldType, NumberOfBaryonFields);
   MBHColourNum = FindField(MBHColour, FieldType, NumberOfBaryonFields);
   Galaxy1ColourNum = FindField(Galaxy1Colour, FieldType, NumberOfBaryonFields);
   Galaxy2ColourNum = FindField(Galaxy2Colour, FieldType, NumberOfBaryonFields);

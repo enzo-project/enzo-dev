@@ -15,7 +15,8 @@ c
      &                      odthresh, masseff, smthresh, level, np, 
      &                      xp, yp, zp, up, vp, wp,
      &                      mp, tdp, tcp, metalf,
-     &                      imetalSNIa, metalSNIa, metalfSNIa)
+     &                      imetalSNIa, metalSNIa, metalfSNIa,
+     &                      iminit, minit)
 
 c
 c  CREATES GALAXY PARTICLES
@@ -61,6 +62,7 @@ c    mintdyn  - minimum dynamical time, in years
 c    level - current level of refinement
 c    procnum - processor number (for output)
 c    imetalSNIa - SN Ia metallicity flag (0 - none, 1 - yes)
+c    iminit - whether to store initial mass separately
 c
 c  OUTPUTS:
 c
@@ -74,6 +76,7 @@ c    tcp      - creation time of particle
 c    metalf   - metallicity fraction of particle
 c    nmax     - particle array size specified by calling routine
 c    metalfSNIa - metallicity fraction of particle (from SN Ia) ! MKRJ
+c    minit    - initial mass of new particles
 c
 c
 c-----------------------------------------------------------------------
@@ -84,7 +87,7 @@ c
 c  Arguments
 c
       INTG_PREC nx, ny, nz, ibuff, nmax, np, level, imetal, imethod
-      INTG_PREC procnum, imetalSNIa
+      INTG_PREC procnum, imetalSNIa, iminit
       R_PREC    d(nx,ny,nz), dm(nx,ny,nz), temp(nx,ny,nz)
       R_PREC    u(nx,ny,nz), v(nx,ny,nz), w(nx,ny,nz)
       R_PREC    r(nx,ny,nz), cooltime(nx,ny,nz)
@@ -95,7 +98,7 @@ c
       P_PREC xp(nmax), yp(nmax), zp(nmax)
       R_PREC    up(nmax), vp(nmax), wp(nmax)
       R_PREC    mp(nmax), tdp(nmax), tcp(nmax), metalf(nmax)
-      R_PREC    metalSNIa(nx,ny,nz), metalfSNIa(nmax)
+      R_PREC    metalSNIa(nx,ny,nz), metalfSNIa(nmax), minit(nmax)
       R_PREC    odthresh, masseff, smthresh, mintdyn
 c
       R_PREC   sformsum
@@ -215,6 +218,9 @@ c              Create a star particle
 c
                ii = ii + 1
                mp(ii)  = starfraction * d(i,j,k)
+               if (iminit .eq. 1) then
+                  minit(ii) = mp(ii)
+               endif
                tcp(ii) = t
                tdp(ii) = tdyn
                xp(ii) = xstart + (REAL(i,RKIND)-0.5_RKIND)*dx
@@ -297,6 +303,7 @@ c
      &                      npart, xstart, ystart, zstart, ibuff,
      &                      xp, yp, zp, up, vp, wp,
      &                      mp, tdp, tcp, metalf, type, justburn,
+     &                      iminit, minit,
      &                      crmodel, crfeedback, cr )
 
 c
@@ -363,7 +370,7 @@ c
 c  Arguments
 c
       INTG_PREC nx, ny, nz, ibuff, npart, idual, imetal, 
-     &      imulti_metals, imethod,
+     &      imulti_metals, imethod, iminit,
      &      distrad, diststep, distcells
       R_PREC    d(nx,ny,nz), dm(nx,ny,nz), te(nx,ny,nz)
       R_PREC    u(nx,ny,nz), v(nx,ny,nz), w(nx,ny,nz)
@@ -378,7 +385,7 @@ c
       R_PREC    mp(npart), tdp(npart), tcp(npart), metalf(npart)
       INTG_PREC type(npart)
       INTG_PREC crmodel
-      R_PREC cr(nx,ny,nz)
+      R_PREC cr(nx,ny,nz), minit(npart)
       R_PREC crfeedback
 c
 c  Locals
@@ -418,9 +425,13 @@ c          form of the Cen & Ostriker formula.
 
 c        First calculate the initial mass of the star particle 
 c          in question.
-            minitial = mp(n) / 
+            if (iminit .eq. 1) then
+               minitial = minit(n)
+            else
+               minitial = mp(n) / 
      &           (1._RKIND - m_eject*(1._RKIND - (1._RKIND + xv1)
      &           *exp(-xv1)))
+            endif
 c
 c       Then, calculate the amount of mass that would have formed in
 c         this timestep.

@@ -2096,6 +2096,11 @@ General Star Formation
       14 - Cen & Ostriker (1992) stochastic star formation with kinetic feedback 
              / Simpson et al. (2015)
 
+``StarMakerStoreInitialMass`` (external)
+    Optionally track a particle's initial mass. 
+    Implemented for all creation methods but 4.
+    Default: 0 (OFF)
+
 ``StarParticleFeedback`` (external)
     This parameter works the same way as ``StarParticleCreation`` but only
     is valid for ``StarParticleCreation`` method = 0, 1, 2, 7, 8 and 14 because methods 3, 5 and 9
@@ -2178,6 +2183,38 @@ General Star Formation
     methods (0, 1, 2, 5, 7, 8, 13) will become radiation sources with
     the UV luminosity being determined with the parameter
     ``StarEnergyToStellarUV``.  Default: OFF
+
+``StarFeedbackUseTabularYields`` (external)
+    Setting this parameter to 1 will enable a feedback routine to 
+    calculate mass, metal, and energy yields from a table.
+    Requires ``StarMakerStoreInitialMass`` to be enabled (i.e. set to 1).
+    Default: 0 (OFF)
+
+``StarFeedbackTabularFilename`` (external)
+    Filename of the HDF5 file that contains the feedback yields.
+    Used with ``StarFeedbackUseTabularYields``.
+
+``StarFeedbackTabularSNIIEnergy`` (external)
+    The energy in ergs of Type II supernovae. 
+    Used in conjunction with ``StarFeedbackUseTabularYields``
+    as the yield tables specify the rate of Type II SNe 
+    per year per solar mass of the initial stellar population mass.
+    Default: 1e+51
+
+``StarFeedbackTabularSNIaEnergy`` (external)
+    The energy in ergs of Type Ia supernovae.
+    Used in conjunction with ``StarFeedbackUseTabularYields``
+    as the yield tables specify the rate of Type Ia SNe 
+    per year per solar mass of the initial stellar population mass.
+    Default: 1e+51
+
+``StarFeedbackTrackMetalSources`` (external)
+    This parameter must be used in conjunction with ``StarFeedbackUseTabularFields``.
+    Setting this parameter to 1 will allow metals injected from Type II SNe, Type Ia SNe,
+    AGB stars, and massive stars to be tracked by separate metal fields:
+    ``MetalSNII_Density``, ``MetalSNIa_Density``, ``MetalAGB_Density``, ``MetalMassive_Density``.
+    These metals will all contribute to the total metallicity (which is important for cooling.)
+    Default: 0 (OFF)
 
 .. _normal_star_formation_parameters:
 

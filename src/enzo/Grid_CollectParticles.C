@@ -57,21 +57,40 @@ int grid::CollectParticles(int GridNum, int* &NumberToMove,
 
     n1 = StartIndex;
 
-    for (i = 0; i < NumberOfParticles; i++) {
-      for (dim = 0; dim < GridRank; dim++) {
-	List[n1].pos[dim] = ParticlePosition[dim][i];
-	List[n1].vel[dim] = ParticleVelocity[dim][i];
-      }
-      List[n1].mass = ParticleMass[i];
-      List[n1].id = ParticleNumber[i];
-      List[n1].type = ParticleType[i];
-      for (j = 0; j < NumberOfParticleAttributes; j++)
-	List[n1].attribute[j] = ParticleAttribute[j][i];
-      List[n1].grid = GridNum;
-      List[n1].proc = ProcessorNumber;
-      //ParticleMass[i] = FLOAT_UNDEFINED;
-      n1++;
-    } // ENDFOR particles
+    if (StarMakerStoreInitialMass) {
+      for (i = 0; i < NumberOfParticles; i++) {
+        for (dim = 0; dim < GridRank; dim++) {
+          List[n1].pos[dim] = ParticlePosition[dim][i];
+          List[n1].vel[dim] = ParticleVelocity[dim][i];
+        }
+        List[n1].mass = ParticleMass[i];
+        List[n1].initial_mass = ParticleInitialMass[i];
+        List[n1].id = ParticleNumber[i];
+        List[n1].type = ParticleType[i];
+        for (j = 0; j < NumberOfParticleAttributes; j++)
+          List[n1].attribute[j] = ParticleAttribute[j][i];
+        List[n1].grid = GridNum;
+        List[n1].proc = ProcessorNumber;
+        //ParticleMass[i] = FLOAT_UNDEFINED;
+        n1++;
+      } // ENDFOR particles
+    } else {
+      for (i = 0; i < NumberOfParticles; i++) {
+        for (dim = 0; dim < GridRank; dim++) {
+          List[n1].pos[dim] = ParticlePosition[dim][i];
+          List[n1].vel[dim] = ParticleVelocity[dim][i];
+        }
+        List[n1].mass = ParticleMass[i];
+        List[n1].id = ParticleNumber[i];
+        List[n1].type = ParticleType[i];
+        for (j = 0; j < NumberOfParticleAttributes; j++)
+          List[n1].attribute[j] = ParticleAttribute[j][i];
+        List[n1].grid = GridNum;
+        List[n1].proc = ProcessorNumber;
+        //ParticleMass[i] = FLOAT_UNDEFINED;
+        n1++;
+      } // ENDFOR particles
+    }
 
     StartIndex = n1;
     this->DeleteParticles();
@@ -99,7 +118,7 @@ int grid::CollectParticles(int GridNum, int* &NumberToMove,
     /* Allocate space for the particles. */
 
     FLOAT *Position[MAX_DIMENSION];
-    float *Velocity[MAX_DIMENSION], *Mass,
+    float *Velocity[MAX_DIMENSION], *Mass, *InitialMass,
           *Attribute[MAX_NUMBER_OF_PARTICLE_ATTRIBUTES];
     int *Type;
     PINT *Number;
@@ -107,6 +126,7 @@ int grid::CollectParticles(int GridNum, int* &NumberToMove,
     if (TotalNumberOfParticles > 0) {
 
       Mass = new float[TotalNumberOfParticles];
+      InitialMass = (StarMakerStoreInitialMass) ? new float[TotalNumberOfParticles]: NULL;
       Number = new PINT[TotalNumberOfParticles];
       Type = new int[TotalNumberOfParticles];
       for (dim = 0; dim < GridRank; dim++) {
@@ -124,10 +144,19 @@ int grid::CollectParticles(int GridNum, int* &NumberToMove,
 
       int n;
 
-      for (i = 0; i < NumberOfParticles; i++) {
-	Mass[i] = ParticleMass[i];
-	Number[i] = ParticleNumber[i];
-	Type[i] = ParticleType[i];
+      if (StarMakerStoreInitialMass) {
+        for (i = 0; i < NumberOfParticles; i++) {
+          Mass[i] = ParticleMass[i];
+          InitialMass[i] = ParticleInitialMass[i];
+          Number[i] = ParticleNumber[i];
+          Type[i] = ParticleType[i];
+        }
+      } else {
+        for (i = 0; i < NumberOfParticles; i++) {
+          Mass[i] = ParticleMass[i];
+          Number[i] = ParticleNumber[i];
+          Type[i] = ParticleType[i];
+        }
       }
 
       for (dim = 0; dim < GridRank; dim++)
@@ -143,11 +172,21 @@ int grid::CollectParticles(int GridNum, int* &NumberToMove,
       /* Copy new particles */
 
       n = NumberOfParticles;
-      for (i = StartIndex; i < EndIndex; i++) {
-	Mass[n] = List[i].mass;
-	Number[n] = List[i].id;
-	Type[n] = List[i].type;
-	n++;
+      if (StarMakerStoreInitialMass) {
+        for (i = StartIndex; i < EndIndex; i++) {
+          Mass[n] = List[i].mass;
+          InitialMass[n] = List[i].initial_mass;
+          Number[n] = List[i].id;
+          Type[n] = List[i].type;
+          n++;
+        }
+      } else {
+        for (i = StartIndex; i < EndIndex; i++) {
+          Mass[n] = List[i].mass;
+          Number[n] = List[i].id;
+          Type[n] = List[i].type;
+          n++;
+        }
       }
 
       for (dim = 0; dim < GridRank; dim++) {
@@ -178,7 +217,7 @@ int grid::CollectParticles(int GridNum, int* &NumberToMove,
     this->DeleteParticles();
     if (TotalNumberOfParticles > 0)
       this->SetParticlePointers(Mass, Number, Type, Position, Velocity,
-				Attribute);
+				Attribute, InitialMass);
  
   } // end: if (COPY_IN)
 
