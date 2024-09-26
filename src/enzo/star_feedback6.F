@@ -17,7 +17,11 @@ c
      &               xp, yp, zp, up, vp, wp,
      &               mp, tdp, tcp, metalf, type, justburn,
      &               exptime_in, mom_mult,
-     &               mom_canc, feedback_log)
+     &               mom_canc, feedback_log,
+     &               use_tabfbk, minit, ergSNII, ergSNIa,
+     &               itracksrc, metalSNII, metalSNIa,
+     &               ntabZ, ntabAge,
+     &               tabZ, tabAge, tabMass, tabMetal, tabEvents)
 
 c
 c  RELEASES "STAR" PARTICLE MOMENTUM, MASS AND METALS
@@ -67,13 +71,28 @@ c    type     - particle type
 c    exptime  - delay time for discrete explosions (if set to -1,
 c               continuous energy injection used)
 c
+c    minit     - initial particle mass
+c    ergSNII   - energy in ergs per SNII event
+c    ergSNIa   - energy in ergs per SNIa event
+c    itracksrc - track SNII & SNIa metals separately?
+c    metalSNII - field for SNII metals
+c    metalSNIa - field for SNIa metals
+c    ntabZ     - number of initial metallicities
+c    ntabAge   - number of population ages
+c    tabZ      - metal indicies for FB yield table
+c    tabAge    - age indicies for FB yield table
+c    tabMass   - table of SNe mass rates
+c    tabMetal  - table of SNe metal rates
+c    tabEvents - table of SNe event rates
+c
 c  OUTPUTS:
 c    d,u,v,w,ge,e - modified field
 c    justburn     - time-weighted mass of star formation (code units)
 c
 c
 c-----------------------------------------------------------------------
-       implicit none
+      use tabular_feedback
+      implicit none
 #include "fortran_types.def"
 c-----------------------------------------------------------------------
 #define FORTRAN_DEBUG
@@ -100,6 +119,13 @@ c
       INTG_PREC mom_canc
       INTG_PREC feedback_log
       R_PREC    mom_mult
+      R_PREC    minit(npart)
+      R_PREC    ergSNII, ergSNIa, age
+      INTG_PREC itracksrc, ntabZ, ntabAge, use_tabfbk
+      R_PREC    metalSNII(nx,ny,nz), metalSNIa(nx,ny,nz)
+      R_PREC    tabZ(ntabZ), tabAge(ntabAge)
+      R_PREC    tabMass(4, ntabAge, ntabZ), tabMetal(4, ntabAge, ntabZ)
+      R_PREC    tabEvents(2, ntabAge, ntabZ)
 c
 c  Locals
 c
@@ -107,7 +133,7 @@ c
      &     i, j, k, iface, jface, kface
       R_PREC mform, energy,
      &     m_eject, yield, minitial, xv1, xv2, distrad,
-     &     dist_mass_cells, mass_per_cell,
+     &     distcells, mass_per_cell,
      &     mass_before, mass_dummy,
      &     kin_energy_before, mom_dummy,
      &     delta_ke, ke_injected, ke_after, kin_energy_inj,
@@ -116,7 +142,7 @@ c
       R_PREC xfcshift, yfcshift, zfcshift, xfc, yfc, zfc,
      &     xface, yface, zface, xpos, ypos, zpos, face_shift
       R_PREC ke_before(3,3,3), mom_per_cell(3,3,3)
-      R_PREC Z_avg, n_avg,
+      R_PREC Z_avg, n_avg, Z_floor,
      &	  realmass, mu_cell, fbuff, add_therm
       R_PREC te_sum, ke_sum, ge_sum, mom_sum, mass_sum, mom_term,
      &     mass_term, therm_sum, lost_p
@@ -145,8 +171,71 @@ c      write(6,*) 'star_feedback6: start',npart
          if (tcp(n) .gt. 0._RKIND .and. mp(n) .gt. 0._RKIND .and. 
      &        type(n) .eq. 2_IKIND) then
 c
-c        The star particle creation algorithm partnered with this 
-c        feedback algorithm creates a star particle instantaneously.
+c     Compute index of the cell that the star particle
+c     resides in.
+c 
+            ip = int((xp(n) - xstart)/dx) + 1_IKIND
+            jp = int((yp(n) - ystart)/dx) + 1_IKIND
+            kp = int((zp(n) - zstart)/dx) + 1_IKIND
+#ifdef FORTRAN_DEBUG
+            write(6,*) 'n, mp(n):',n,mp(n)*dunits*(dx*x1)**3._RKIND
+     &        /SolarMass
+#endif
+            if (xp(n) .lt. xstart .or. xp(n) .gt. xstart+dx*nx .or.
+     &          yp(n) .lt. ystart .or. yp(n) .gt. ystart+dx*ny .or.
+     &          zp(n) .lt. zstart .or. zp(n) .gt. zstart+dx*nz) then
+               write(6,*) 'warning: star particle out of grid',
+     &              xp(n),yp(n),zp(n), xstart, ystart, zstart
+               goto 100
+            endif
+c
+c     Assuming 3x3x3 cube, calculate cell distribution
+c
+            distrad = 3_IKIND
+            distcells = distrad**3_IKIND
+c
+            if (use_tabfbk .eq. 1_IKIND) then
+               age = (t-tcp(n)) * t1/yr_s
+#ifdef FORTRAN_DEBUG
+               write(6,*) 'creation time, age, dt:', tcp*t1/yr_s,
+     &                        age, dt*t1/yr_s
+               write(6,*) 'metalf:',metalf(n)
+#endif
+c
+c         Integrate yield tables to get mass & energy yields
+c
+               call sne_mass(m_eject, minit(n), metalf(n), age,
+     &                        dt, t1,
+     &                        tabMass, tabZ, tabAge, ntabZ, ntabAge)
+               call sne_energy(energy, minit(n), metalf(n), age,
+     &                        ergSNIa, ergSNII,
+     &                        dx, dt, x1, t1, dunits, vunits,
+     &                        tabMass, tabZ, tabAge, ntabZ, ntabAge)
+c
+c           Normalize energy by 10^51 ergs for momentum injection routine
+               nsn = energy/(10._RKIND**51._RKIND / (dunits*
+     &                  x1**3._RKIND*vunits**2._RKIND*dx**3._RKIND))
+#ifdef FORTRAN_DEBUG
+               write(6,*) 'nsn,m_eject,energy:',nsn,m_eject*
+     &              dunits*x1**3._RKIND/SolarMass*dx**3_IKIND,
+     &              energy*(dunits*x1**3._RKIND*vunits**2._RKIND*
+     &               dx**3._RKIND)
+#endif
+c
+c          Skip feedback if fewer than 0.1 SNe in this timestep
+               if (nsn .lt. 0.1_RKIND) goto 10
+c          Distribute mass among feedback zone
+               mass_per_cell = m_eject / distcells
+c
+c           subtract ejected mass from particle (ejection due
+c           to winds, supernovae)
+c
+               mp(n) = mp(n) - m_eject
+               minitial = minit(n)
+c
+            else
+c
+c        The star_maker2 algorithm creates a star particle instantaneously.
 c        This feedback routine can either be used to also inject energy
 c        instantaneously or to do feedback over a longer period of time
 c        as done in star_maker3 modeled on Cen & Ostriker's method that
@@ -157,95 +246,78 @@ c        handful of SN.
 c
 c     Do instantaneous injeciton
 c
-            if (exptime_in .ge. 0._RKIND) then
+               if (exptime_in .ge. 0._RKIND) then
 c              convert explosion time to code units
-               exptime = exptime_in * Myr_s / t1  
-#ifdef FORTRAN_DEBUG
-               write(6,*) 'mform, minitial = ',mform,minitial
-               write(6,*) 'exptime,t,tcp,tdp = ',exptime,t,tcp(n),tdp(n)
-#endif
-               if (tdp(n) .eq. 0._RKIND
-     &              .or. abs(t-tcp(n)) .lt. exptime) goto 10
-               tdp(n) = 0._RKIND
-               minitial = mp(n)
-               mform = mp(n)
-               goto 5
-            endif
-
+                  exptime = exptime_in * Myr_s / t1  
+                  if (tdp(n) .eq. 0._RKIND
+     &                .or. abs(t-tcp(n)) .lt. exptime) goto 10
+                  tdp(n) = 0._RKIND
+                  minitial = mp(n)
+                  mform = mp(n)
+               else
+c
 c     Determine how much of a given star particle would have been 
 c     turned into stars during this timestep.  Then calculate the mass
-c     which should have formed during this timestel dt using the integral
+c     which should have formed during this timestep dt using the integral
 c     form of the Cen & Ostriker formula.
-
-            xv1 = (t      - tcp(n))/tdp(n)
+c
+                  xv1 = (t - tcp(n))/tdp(n)
 #ifdef FORTRAN_DEBUG
-            write(6,*) t,tcp(n),tdp(n),xv1
+                  write(6,*) t,tcp(n),tdp(n),xv1
 #endif
-            if (xv1 .lt. 0._RKIND) goto 10
-            if (xv1 .gt. 12._RKIND) goto 10 ! t-tcp >> tdp so ignore
-            xv2 = (t + dt - tcp(n))/tdp(n)
-
+                  if (xv1 .lt. 0._RKIND) goto 10
+                  if (xv1 .gt. 12._RKIND) goto 10 ! t-tcp >> tdp so ignore
+                  xv2 = (t + dt - tcp(n))/tdp(n)
+c
 c     First calculate the initial mass of the star particle 
 c     in question.
-            minitial = mp(n) / 
-     &           (1._RKIND - 
-     &            m_eject*(1._RKIND - (1._RKIND + xv1)*exp(-xv1)))
+                  minitial = mp(n) / 
+     &               (1._RKIND - 
+     &               m_eject*(1._RKIND - (1._RKIND + xv1)*exp(-xv1)))
 c     
 c     Then, calculate the amount of mass that would have formed in
 c     this timestep.
 c     
-            mform = minitial * ((1._RKIND + xv1)*exp(-xv1) - 
-     &           (1._RKIND + xv2)*exp(-xv2))
-            mform = max(min(mform, mp(n)), 0._RKIND)
-            
-c     Compute index of the cell that the star particle
-c     resides in.
-c 
- 5          ip = int((xp(n) - xstart)/dx) + 1_IKIND
-            jp = int((yp(n) - ystart)/dx) + 1_IKIND
-            kp = int((zp(n) - zstart)/dx) + 1_IKIND
-#ifdef FORTRAN_DEBUG
-            write(6,*) 'n, mp(n):',n,mp(n)*dunits*(dx*x1)**3._RKIND
-     &        /SolarMass
-            write(6,*) 'minitial:',minitial*dunits*x1**3._RKIND
-     &        /SolarMass*dx**3_IKIND
-            write(6,*) 'mform:',mform*dunits*x1**3._RKIND*dx**3_IKIND
-     &        /SolarMass
-#endif
-c
-c     Assuming 3x3x3 cube, calculate cell distribution
-c
-            distrad = 3_IKIND
-            dist_mass_cells = distrad**3_IKIND
-c
+                  mform = minitial * ((1._RKIND + xv1)*exp(-xv1) - 
+     &               (1._RKIND + xv2)*exp(-xv2))
+                  mform = max(min(mform, mp(n)), 0._RKIND)
+               endif
+
 c          skip if very little mass is formed.
 c
-            if (mform/dist_mass_cells/d(ip,jp,kp) .lt. 1e-10_RKIND) 
-     &           goto 10
+               if (mform/distcells/d(ip,jp,kp) .lt. 1e-10_RKIND) 
+     &             goto 10
 c
 c           subtract ejected mass from particle (ejection due
 c           to winds, supernovae)
 c
-            mp(n) = mp(n) - mform * m_eject
+               mp(n) = mp(n) - mform * m_eject
 c     
 c     Record amount of star formation in this grid.
 c
-            justburn = justburn + mform * dt * dx**3_IKIND
+               justburn = justburn + mform * dt * dx**3_IKIND
 c     
 c           Calculate mass per cell ejected
 c     
-            mass_per_cell = mform * m_eject / dist_mass_cells
+               mass_per_cell = mform * m_eject / distcells
+c
+c           Calculate the number of SNe in this timestep from the stars formed
+c           in this timestep as 1 SN per 100 Msun formed. If less than one, skip.
+c           
+               realmass = mform * dunits * x1**3._RKIND*dx**3_IKIND
+               realmass = realmass /SolarMass
+               nsn = realmass / 100._RKIND
+               if (nsn .lt. 1._RKIND) goto 10
+               energy = nsn * 10._RKIND**51._RKIND / (dunits*
+     &                  x1**3._RKIND*vunits**2._RKIND*dx**3._RKIND)
+            endif
+c
 #ifdef FORTRAN_DEBUG
             write(6,*) 'mass_per_cell:',mass_per_cell*
      &         dunits*x1**3._RKIND/SolarMass*dx**3_IKIND
+            write(6,*) 'energy:',energy * (dunits*
+     &                  x1**3._RKIND*vunits**2._RKIND*dx**3._RKIND)
 #endif
-            if (xp(n) .lt. xstart .or. xp(n) .gt. xstart+dx*nx .or.
-     &          yp(n) .lt. ystart .or. yp(n) .gt. ystart+dx*ny .or.
-     &          zp(n) .lt. zstart .or. zp(n) .gt. zstart+dx*nz) then
-               write(6,*) 'warning: star particle out of grid',
-     &              xp(n),yp(n),zp(n), xstart, ystart, zstart
-               goto 100
-            endif
 c
 c	Set center of feedback zone
 c
@@ -268,26 +340,26 @@ c
      &              xfc,yfc,zfc, xstart, ystart, zstart,fbuff
 #endif
 c               
-	       xfcshift = xfc
-	       yfcshift = yfc 
-	       zfcshift	= zfc
+	            xfcshift = xfc
+	            yfcshift = yfc 
+	            zfcshift	= zfc
 c
-	       xfc = max(xfc,xstart+fbuff*dx) 
-	       yfc = max(yfc,ystart+fbuff*dx) 
-	       zfc = max(zfc,zstart+fbuff*dx) 
+	            xfc = max(xfc,xstart+fbuff*dx) 
+	            yfc = max(yfc,ystart+fbuff*dx) 
+	            zfc = max(zfc,zstart+fbuff*dx) 
 c              
-	       xfc = min(xfc,xstart+dx*nx-fbuff*dx) 
-	       yfc = min(yfc,ystart+dx*ny-fbuff*dx) 
-	       zfc = min(zfc,zstart+dx*nz-fbuff*dx)
+	            xfc = min(xfc,xstart+dx*nx-fbuff*dx) 
+	            yfc = min(yfc,ystart+dx*ny-fbuff*dx) 
+	            zfc = min(zfc,zstart+dx*nz-fbuff*dx)
 c
-	       xfcshift = xfcshift - xfc
-	       yfcshift = yfcshift - yfc 
-	       zfcshift	= zfcshift - zfc
+	            xfcshift = xfcshift - xfc
+	            yfcshift = yfcshift - yfc
+	            zfcshift	= zfcshift - zfc
 c
 #ifdef FORTRAN_DEBUG
-	       write(6,*) 'warning2: star feedback zone shifted',
+	            write(6,*) 'warning2: star feedback zone shifted',
      &              xfc,yfc,zfc,dx,xfcshift,yfcshift,zfcshift, 
-     &		    nx, ny,nz
+     &		        nx, ny,nz
 #endif
             endif
 c
@@ -321,18 +393,8 @@ c
             kc = int(zpos) + 1_IKIND
 c            write(6,*) 'ic, jc, kc:', ic, jc, kc
 c
-c           Calculate the number of SNe in this timestep from the stars formed
-c           in this timestep as 1 SN per 100 Msun formed. If less than one, skip.
-c           
-            realmass = mform * dunits * x1**3._RKIND*dx**3_IKIND
-            realmass = realmass /SolarMass
-            nsn = realmass / 100._RKIND
-            if (nsn .lt. 1._RKIND) goto 10
-            energy = nsn * 10._RKIND**51._RKIND / (dunits*
-     &                  x1**3._RKIND*vunits**2._RKIND*dx**3._RKIND)
             add_therm = thermal
 #ifdef FORTRAN_DEBUG
-            write(6,*) 'realmass,nsn:',realmass,nsn
             write(6,*) 'ic,jc,kc:',ic, jc, kc
 #endif
 c
@@ -357,10 +419,10 @@ c            write(6,*) 'averaging over patch'
             enddo
 c               
 c        The floor on Z_avg is required by the Kimm & Cen (2014) scheme (eq A5)
-            Z_avg = max(Z_avg/27._RKIND, 0.01)
+            Z_floor = max(Z_avg/27._RKIND, 0.01)
             n_avg = n_avg/27._RKIND
 #ifdef FORTRAN_DEBUG
-            write(6,*) 'n_avg, Z_avg:', n_avg, Z_avg
+            write(6,*) 'n_avg, Z_avg:', n_avg, Z_avg/27._RKIND
 #endif
 c
 c     Inject energy, mass & metals
@@ -368,12 +430,27 @@ c
 c     Compute the momentum that will be added to each cell.
 c
             call get_mom_per_cell(d, mass_per_cell,
-     &                  dist_mass_cells, mom_per_cell,
-     &                  nsn, d(ic,jc,kc), dx, x1, n_avg, Z_avg,
+     &                  distcells, mom_per_cell,
+     &                  nsn, d(ic,jc,kc), dx, x1, n_avg, Z_floor,
      &                  dunits, vunits, t1,
      &                  nx, ny, nz, ic, jc, kc,
      &                  mom_mult)
 c           mom_per_cell has units of mass*velocity/volume
+c           If not injecting any momentum, skip
+            mom_sum = 0._RKIND
+            do k = 1_IKIND,3_IKIND
+               do j = 1_IKIND,3_IKIND
+                  do i = 1_IKIND,3_IKIND
+                     mom_sum = mom_sum + mom_per_cell(i, j, k)
+                  enddo
+               enddo
+            enddo
+            if (mom_sum .eq. 0._RKIND) then
+#ifdef FORTRAN_DEBUG
+               write(6,*) 'no momentum injection for particle', n
+#endif
+               goto 10
+            endif
 c
 c     Compute the kinetic energy in the affected region
 c     before momentum is added (except for ZEUS).  This
@@ -470,7 +547,7 @@ c
      &                  *(dx*x1)**3._RKIND/SolarMass/1e5_RKIND
 #endif
 c
-c           If kin_energy_dummy is less than 10^51 ergs per SN, add
+c           If kin_energy_dummy is less than tabular SNe energy, add
 c           the remaining energy as thermal into the host cell.
             if (kin_energy_dummy .lt. energy) then
                add_therm = add_therm + (energy - kin_energy_dummy)
@@ -485,7 +562,7 @@ c           Now deposit the momentum onto the grid.
 c
             therm_sum = 0._RKIND
             lost_p = 0._RKIND
-            add_therm = add_therm/dist_mass_cells
+            add_therm = add_therm/distcells
             call add_feedback_mech(u, v, w, d, ge, te, metal,
      &                         nx, ny, nz, ic, jc, kc,
      &                        iface, jface, kface,
@@ -504,8 +581,7 @@ c
                   enddo
                enddo
                write(4,*) n, minitial*
-     &           (dunits*(x1*dx)**3._RKIND)/SolarMass, mform*
-     &           (dunits*(x1*dx)**3._RKIND)/SolarMass, nsn, mom_sum*
+     &           (dunits*(x1*dx)**3._RKIND)/SolarMass, mom_sum*
      &           (dunits*(dx*x1)**3._RKIND)*vunits/SolarMass/1e5_RKIND,
      &           lost_p*
      &           (dunits*(dx*x1)**3._RKIND)*vunits/SolarMass/1e5_RKIND,
@@ -618,9 +694,9 @@ c     Calculate the amount of momentum to add to each neighboring cell
 c     Formulae taken from Kimm & Cen (2014), Appendix A
 c
       subroutine get_mom_per_cell(d, mass_per_cell, 
-     &               dist_mass_cells, mom_per_cell,
+     &               distcells, mom_per_cell,
      &               nsn, d_fbck_cell, dx, x1,
-     &               n_avg, Z_avg, dunits, vunits, t1,
+     &               n_avg, Z_floor, dunits, vunits, t1,
      &               nx, ny, nz, ic, jc, kc,
      &               mom_mult)
 c
@@ -631,9 +707,9 @@ c     Arguments
 c
       INTG_PREC nx, ny, nz, ic, jc, kc
       R_PREC    d(nx,ny,nz), dx
-      R_PREC    t1, Z_avg, n_avg
+      R_PREC    t1, Z_floor, n_avg
       R_PREC    mom_per_cell(3_IKIND, 3_IKIND, 3_IKIND)
-      R_PREC    mass_per_cell, dist_mass_cells
+      R_PREC    mass_per_cell, distcells
       R_PREC    nsn, x1, dunits, d_fbck_cell, vunits
       R_PREC    mom_mult
 c
@@ -644,12 +720,12 @@ c
       R_PREC    den_cell, Mej, dMej, Nnbors, betaSN
 c
         ergs_51 = 1.e51_RKIND
-        Nnbors = dist_mass_cells - 1._RKIND
-        betaSN = 1._RKIND/dist_mass_cells
-        Mej = mass_per_cell*dist_mass_cells*dunits*(x1*dx)**3._RKIND
+        Nnbors = distcells - 1._RKIND
+        betaSN = 1._RKIND/distcells
+        Mej = mass_per_cell*distcells*dunits*(x1*dx)**3._RKIND
         chi_th = 69.58_RKIND*(nsn)**(-2._RKIND/17._RKIND) * 
      &               (n_avg)**(-4._RKIND/17._RKIND) * 
-     &               (Z_avg)**(-0.28_RKIND)
+     &               (Z_floor)**(-0.28_RKIND)
 #ifdef FORTRAN_DEBUG
         write(6,*) 'chi_th:',chi_th
 #endif
@@ -687,7 +763,7 @@ c
                      pSN = 3.e10_RKIND*SolarMass * 
      &                        (nsn)**(16._RKIND/17._RKIND) * 
      &                        (n_avg)**(-2._RKIND/17._RKIND) * 
-     &                        (Z_avg)**(-0.14_RKIND)
+     &                        (Z_floor)**(-0.14_RKIND)
 #ifdef FORTRAN_DEBUG
                      write(6,*) 'gt chi_th, pSN:',
      &                        pSN/SolarMass/1e5_RKIND

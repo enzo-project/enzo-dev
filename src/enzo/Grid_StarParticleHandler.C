@@ -370,7 +370,10 @@ extern "C" void FORTRAN_NAME(star_feedback6)(int *nx, int *ny, int *nz,
              FLOAT *xp, FLOAT *yp, FLOAT *zp, float *up, float *vp, float *wp,
              float *mp, float *tdp, float *tcp, float *metalf, int *type,
 	     float *justburn, float *exptime, float *mom_mult,
-             int *mom_canc, int *feedback_log);
+             int *mom_canc, int *feedback_log, int *use_tabfbk, float *minit,
+             float *ergSNII, float *ergSNIa, int *itracksrc, float *metalSNII,
+             float *metalSNIa, int *ntabZ, int *ntabAge, float *tabZ, float *tabAge, 
+         float *tabMass, float *tabMetal, float *tabEvents);
 
 extern "C" void FORTRAN_NAME(star_feedback3)(int *nx, int *ny, int *nz,
              float *d, float *dm, float *te, float *ge, float *u, float *v,
@@ -1774,7 +1777,11 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
        ParticleMass, ParticleAttribute[1], ParticleAttribute[0],
        ParticleAttribute[2], ParticleType, &RadiationData.IntegratedStarFormation,
        &StarMakerExplosionDelayTime, &MomentumMultiplier, &MomentumCancellationToThermal,
-       &WriteFeedbackLogFiles);
+       &WriteFeedbackLogFiles, &StarFeedbackUseTabularYields, ParticleInitialMass,
+       &StarFeedbackTabularSNIIEnergy, &StarFeedbackTabularSNIaEnergy,
+       &StarFeedbackTrackMetalSources, BaryonField[MetalIINum], BaryonField[MetalIaNum],
+       &FBTable.n_met, &FBTable.n_age, FBTable.ini_met, FBTable.pop_age, 
+       FBTable.mass_yield, FBTable.metm_yield, FBTable.event_rate);
 
     delete [] mu_field;
  
