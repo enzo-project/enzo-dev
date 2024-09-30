@@ -166,9 +166,9 @@ int CallInSitulibyt(LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
     params->time_unit = TimeUnits;
     params->velocity_unit = VelocityUnits;
     params->magnetic_unit = sqrt(4.0 * 3.141592653589793238462643383279502884L * DensityUnits) * VelocityUnits;
-    params->periodicity[0] = MetaData->LeftFaceBoundaryCondition[0];
-    params->periodicity[1] = MetaData->LeftFaceBoundaryCondition[1];
-    params->periodicity[2] = MetaData->LeftFaceBoundaryCondition[2];
+    params->periodicity[0] = (MetaData->LeftFaceBoundaryCondition[0] == periodic);
+    params->periodicity[1] = (MetaData->LeftFaceBoundaryCondition[1] == periodic);
+    params->periodicity[2] = (MetaData->LeftFaceBoundaryCondition[2] == periodic);
     params->dimensionality = MetaData->TopGridRank;
     params->domain_dimensions[0] = MetaData->TopGridDims[0];
     params->domain_dimensions[1] = MetaData->TopGridDims[1];
