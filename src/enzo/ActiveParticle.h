@@ -487,9 +487,11 @@ namespace ActiveParticleHelpers {
       for (AttributeVector::iterator it = handlers.begin(); it != handlers.end(); ++it) {
           const char *attr_name = (*it)->name.c_str();
 
-          // ignores multi-dimensional arrays
-          if ((strcmp(attr_name, "AccretionRate") == 0 || strcmp(attr_name, "AccretionRateTime") == 0 || strcmp(attr_name, "Accreted_angmom") == 0)
-              && strcmp(particle_name.c_str(), "SmartStar") == 0) {
+          // Ignore multi-dimensional array (attribute that contains multiple values) for now
+          // If it is ArrayHandler class and attribute name != "particle_*", then element_size = sizeof(Type) * N.
+          // This is when a particle attribute contains multiple values and is stored in an array.
+          // (See how element_size is set in ParticleAttributeHandler.h)
+          if ((*it)->element_size / H5Tget_size((*it)->hdf5type) > 1) {
               attribute_values.push_back(nullptr);
           }
           // allocates memory and get a copy of the attribute's value
