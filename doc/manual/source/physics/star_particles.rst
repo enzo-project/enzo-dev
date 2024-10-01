@@ -626,11 +626,6 @@ offer a number of benefits including
 Tabulated Feedback
 ++++++++++++++++++
 
-Tabulated feedback yields can currently be used by the following
-feedback methods:
-
-* :ref:`method_0`
-
 To use tabulated feedback, use the following parameters:
 
 1. Set ``StarMakerStoreInitialMass = 1``
@@ -639,16 +634,13 @@ To use tabulated feedback, use the following parameters:
 4. Optionally set ``StarFeedbackTabularSNIIEnergy`` and ``StarFeedbackTabularSNIaEnergy`` 
    if you want these supernovae to have different energies than the canonical 1e51 erg.
 
+Tabulated feedback yields can currently be used by the following
+feedback methods:
+
+* :ref:`method_0`
+
 Source Tracking
 +++++++++++++++
-
-The following problem types are currently set up to track 
-metals from specific feedback sources when using tabulated feedback:
-
-* Cosmology Simulation
-* Galaxy Simulation
-* Nested Cosmology
-* Test Star Particle
 
 To use source tracking, set the following parameters:
 
@@ -658,6 +650,14 @@ To use source tracking, set the following parameters:
 **NOTE:** You should **not** use both ``StarMakerTypeIaSNe`` and ``StarFeedbackTrackMetalSources``
 at the same time, as both will inject metals from Type Ia supernovae into the simulation using
 different theoretical frameworks.
+
+The following problem types are currently set up to track 
+metals from specific feedback sources when using tabulated feedback:
+
+* Cosmology Simulation
+* Galaxy Simulation
+* Nested Cosmology
+* Test Star Particle
 
 Enabling source tracking will add four metallicity color fields to
 your outputs:

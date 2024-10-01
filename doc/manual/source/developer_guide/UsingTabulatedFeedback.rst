@@ -134,7 +134,7 @@ The ``energy`` subroutines have the following call signature::
           table_key_size_metal, table_key_size_age)
 
 The ``initial_particle_mass`` should be pulled from the ``ParticleInitialMass`` array.
-Pointers and sizes related to the ``yield_table`` and it's ``table_key``s should be
+Pointers and sizes related to the ``yield_table`` and ``table_key`` parameters should be
 the ``FBTable`` members that were passed into your feedback routine from
 ``Grid_StarParticleHandler.C``.
 
