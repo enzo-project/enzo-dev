@@ -18,7 +18,7 @@ We can compile ``libyt`` using different options based on our used cases, so tha
 A brief description of each mode (option) is shown here. The options are for compiling ``libyt`` only, and they are mutually independent.
 Please follow the instructions in ``libyt`` documents:
 
-* `libyt`_: a C shared library for in situ analysis.
+* `libyt`_ (>=0.1.0, <1.0): a C shared library for in situ analysis.
 
   * **Serial Mode** (``-DSERIAL_MODE=ON``): Compile ``libyt`` using GCC compiler.
 
@@ -36,9 +36,9 @@ Please follow the instructions in ``libyt`` documents:
 
   * `yt`_: An open-source, permissively-licensed python package for analyzing and visualizing volumetric data.
 
-  * `yt_libyt`_ (>=0.0.9): ``libyt``'s yt frontend.
+  * `yt_libyt`_ (>=0.1.0, <1.0): ``libyt``'s yt frontend.
 
-  * `jupyter_libyt`_: A Jupyter Client plugin for connecting to libyt Jupyter kernel. This is only required in **jupyter kernel mode**.
+  * `jupyter_libyt`_ (>=0.1.0, <1.0): A Jupyter Client plugin for connecting to libyt Jupyter kernel. This is only required in **jupyter kernel mode**.
 
 .. _libyt: https://libyt.readthedocs.io/en/latest/
 
