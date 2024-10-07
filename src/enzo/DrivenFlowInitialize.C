@@ -124,15 +124,6 @@ int DrivenFlowInitialize(FILE *fptr, FILE *Outfptr,
     return FALSE;
   }
 
-  if (SelfGravity) {
-      fprintf(stderr,"DrivenFlowInitialize: SelfGravity untested at this point.\n");
-      return FALSE;
-  }
-
-  if ((HydroMethod != MHD_RK) && (HydroMethod != HD_RK) && (HydroMethod != MHD_Li)) {
-      fprintf(stderr,"DrivenFlowInitialize: Only support for MUSCL framework and MHDCT at this point.\n");
-      return FALSE;
-  }
 
   if (MetaData.TopGridRank != 3) {
       fprintf(stderr,"DrivenFlowInitialize: Only 3D tested at this point.\n");
