@@ -76,7 +76,7 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
   char *MetalIIName = "MetalSNII_Density";
   char *MetalIaName = "MetalSNIa_Density";
   char *MetalAGBName = "MetalAGB_Density";
-  char *MetalMsvName = "MetalMassive_Density";
+  char *MetalNSMName = "MetalNSM_Density";
   char *BxName      = "Bx";
   char *ByName      = "By";
   char *BzName      = "Bz";
@@ -579,7 +579,7 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
    if (StarFeedbackTrackMetalSources) {
       DataLabel[count++] = MetalIIName;
       DataLabel[count++] = MetalAGBName;
-      DataLabel[count++] = MetalMsvName;
+      DataLabel[count++] = MetalNSMName;
    }
  }
 

@@ -25,7 +25,7 @@ int ReadFeedbackTable(char* name)
   long_int* type2_index = new long_int[1];
   long_int* type1a_index = new long_int[1];
   long_int* agb_index = new long_int[1];
-  long_int* massive_index = new long_int[1];
+  long_int* nsm_index = new long_int[1];
 
   long_int* num_met = new long_int[1];
   long_int* num_age = new long_int[1];
@@ -90,12 +90,12 @@ int ReadFeedbackTable(char* name)
       return FAIL;
     }
   
-    attr_id = H5Aopen_name(grp_id, "massive_index");
+    attr_id = H5Aopen_name(grp_id, "nsm_index");
     if (attr_id == h5_error) {
       fprintf(stderr,"Failed to open type2_index attribute in %s.\n",name);
       return FAIL;
     }
-    status = H5Aread(attr_id, HDF5_I8, massive_index);
+    status = H5Aread(attr_id, HDF5_I8, nsm_index);
     if (attr_id == h5_error) {
       fprintf(stderr,"Failed to read type2_index in indexer group of %s.\n",name);
       return FAIL;
@@ -115,7 +115,7 @@ int ReadFeedbackTable(char* name)
 
     /* Check index labels against internal enum (see typedefs.h) */
     if ((*type2_index != TabSN2) || (*type1a_index != TabSN1a) ||
-        (*agb_index != TabAGB) || (*massive_index != TabMsv)){
+        (*agb_index != TabAGB) || (*nsm_index != TabNSM)){
           fprintf(stderr, "Source indexes in %s don't follow expected order.\n",name);
           return FAIL;
         }
@@ -123,7 +123,7 @@ int ReadFeedbackTable(char* name)
     delete [] type2_index;
     delete [] type1a_index;
     delete [] agb_index;
-    delete [] massive_index;
+    delete [] nsm_index;
 
     /* Read indexer arrays (initial metal frac & population age) */
     dset_id = H5Dopen(file_id, "/indexer/initial_metal_fraction");

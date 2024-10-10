@@ -36,7 +36,7 @@ int grid::InitializeUniformGrid(float UniformDensity,
 
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
     DINum, DIINum, HDINum, MetalNum, MetalIaNum, B1Num, B2Num, B3Num, PhiNum, CRNum,
-    MetalIINum, MetalAGBNum, MetalMsvNum;
+    MetalIINum, MetalAGBNum, MetalNSMNum;
 
   int CINum, CIINum, OINum, OIINum, SiINum, SiIINum, SiIIINum, CHINum, CH2INum, 
     CH3IINum, C2INum, COINum, HCOIINum, OHINum, H2OINum, O2INum;
@@ -111,7 +111,7 @@ int grid::InitializeUniformGrid(float UniformDensity,
     if (StarFeedbackTrackMetalSources) {
       FieldType[MetalIINum = NumberOfBaryonFields++] = MetalSNIIDensity;
       FieldType[MetalAGBNum = NumberOfBaryonFields++] = MetalAGBDensity;
-      FieldType[MetalMsvNum = NumberOfBaryonFields++] = MetalMassiveDensity;
+      FieldType[MetalNSMNum = NumberOfBaryonFields++] = MetalNSMDensity;
     }
     
     if(TestProblemData.MultiMetals){
@@ -298,7 +298,7 @@ int grid::InitializeUniformGrid(float UniformDensity,
 
       if (StarFeedbackTrackMetalSources){
         BaryonField[MetalAGBNum][i] = tiny_number;
-        BaryonField[MetalMsvNum][i] = tiny_number;
+        BaryonField[MetalNSMNum][i] = tiny_number;
         BaryonField[MetalIINum][i]  = tiny_number;
       }
 

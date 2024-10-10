@@ -181,9 +181,9 @@ const field_type
   ImPsi = 102,
   FDMDensity = 103,
 
-  /* Metals from AGB & massive star winds */
+  /* Metals from AGB winds & neutron star mergers */
   MetalAGBDensity = 104,
-  MetalMassiveDensity = 105,
+  MetalNSMDensity = 105,
 
   FieldUndefined  = 106;
 
@@ -326,7 +326,7 @@ const enum_type
   TabSN2 = 0,
   TabSN1a = 1,
   TabAGB = 2,
-  TabMsv = 3;
+  TabNSM = 3;
 
 /* Define a float/int union. */
 

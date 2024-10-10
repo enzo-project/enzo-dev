@@ -33,7 +33,8 @@ c
       R_PREC mass_Ia, mass_II
       R_PREC dt_yr
       INTG_PREC iSNII, iSNIa
-c 
+c
+c     I'm not clever enough to auto sync these with typedefs.h
       iSNII = 1_IKIND
       iSNIa = 2_IKIND
       dt_yr = dt*t1/yr_s
@@ -79,6 +80,7 @@ c
       R_PREC dt_yr
       INTG_PREC iSNII
 c 
+c     I'm not clever enough to auto sync these with typedefs.h
       iSNII = 1_IKIND
       dt_yr = dt*t1/yr_s
 c 
@@ -119,6 +121,7 @@ c
       R_PREC dt_yr
       INTG_PREC iSNIa
 c 
+c     I'm not clever enough to auto sync these with typedefs.h
       iSNIa = 2_IKIND
       dt_yr = dt*t1/yr_s
 c 
@@ -200,6 +203,7 @@ c
       R_PREC m1, dt_yr, minit_msun
       INTG_PREC iSNII, iSNIa
 c 
+c     I'm not clever enough to auto sync these with typedefs.h
       iSNII = 1_IKIND
       iSNIa = 2_IKIND
       m1 = d1 * x1**3
@@ -226,7 +230,7 @@ c
 c     Return mass density in code units yielded by
 c     stellar winds
 c 
-      subroutine wind_mass(mass_yield,
+      subroutine agb_mass(mass_yield,
      &                   mass_init, metal_frac, age, 
      &                   dt, t1,
      &                   mass_table, metal_array, age_array,
@@ -246,26 +250,19 @@ c
 c 
 c      Locals
 c 
-      R_PREC mass_AGB, mass_Msv
       R_PREC dt_yr
-      INTG_PREC iAGB, iMsv
+      INTG_PREC iAGB
 c 
       iAGB = 3_IKIND
-      iMsv = 4_IKIND
       dt_yr = dt*t1/yr_s
 c 
 c      Mass yields are rates (per year) per initial population mass
 c      Note that the initial mass is expressed as a mass density
-      call integrate_yields(mass_Msv, metal_frac, age, dt_yr,
-     &            mass_table, metal_array, age_array, 
-     &            metal_size, age_size, 4_IKIND, iAGB)
-      call integrate_yields(mass_AGB, metal_frac, age, dt_yr,
+      call integrate_yields(mass_yield, metal_frac, age, dt_yr,
      &            mass_table, metal_array, age_array,
-     &            metal_size, age_size, 4_IKIND, iMsv)
+     &            metal_size, age_size, 4_IKIND, iAGB)
  
-      mass_AGB = mass_AGB * mass_init
-      mass_Msv = mass_Msv * mass_init
-      mass_yield = mass_AGB + mass_Msv
+      mass_yield = mass_yield * mass_init
       end subroutine
  
 c  ===============================================
@@ -307,83 +304,7 @@ c
 c            Convert erg per Msun to erg
       fracAGB_yield = fracAGB_yield * mass_init
       end subroutine
-c 
-c  ===============================================
-c  
-c      Return metal fraction yielded by Type Ia supernovae
-c 
-      subroutine wind_msv_metal(fracMsv_yield,
-     &                    mass_init, metal_frac, age, 
-     &                    dt, t1,
-     &                    metal_table, metal_array, age_array,
-     &                    metal_size, age_size)
-c 
-      implicit none
-#include "fortran_types.def"
-c 
-c      Arguments
-c 
-      R_PREC fracMsv_yield
-      R_PREC mass_init, metal_frac, age
-      R_PREC dt, t1
-      INTG_PREC metal_size, age_size
-      R_PREC metal_table(4, age_size, metal_size)
-      R_PREC metal_array(metal_size), age_array(age_size)
-c 
-c      Locals
-c 
-      R_PREC dt_yr
-      INTG_PREC iMsv
-c 
-      iMsv = 4_IKIND
-      dt_yr = dt*t1/yr_s
-c 
-c      SNe numbers are are rates (per year) per initial population mass
-c      Note that the initial mass is expressed as a mass density
-       call integrate_yields(fracMsv_yield, metal_frac, age, dt_yr,
-     &            metal_table, metal_array, age_array,
-     &            metal_size, age_size, 4_IKIND, iMsv)
-c 
-c            Convert erg per Msun to erg
-      fracMsv_yield = fracMsv_yield * mass_init
-      end subroutine
-c 
-c  ===============================================
-c  
-c      Return metal fraction yielded by by
-c      both Type Ia and II supernovae
-c 
-      subroutine wind_metal(frac_yield,
-     &                    mass_init, metal_frac, age, 
-     &                    dt, t1,
-     &                    metal_table, metal_array, age_array,
-     &                    metal_size, age_size)
-c 
-      implicit none
-#include "fortran_types.def"
-c 
-c      Arguments
-c 
-      R_PREC frac_yield
-      R_PREC mass_init, metal_frac, age
-      R_PREC dt, t1
-      INTG_PREC metal_size, age_size
-      R_PREC metal_table(4, age_size, metal_size)
-      R_PREC metal_array(metal_size), age_array(age_size)
-c 
-c      Locals
-c 
-      R_PREC fracMsv_yield, fracAGB_yield
-c 
-      call wind_msv_metal(fracMsv_yield, mass_init, metal_frac, age,
-     &                  dt, t1, metal_table, metal_array, age_array,
-     &                  metal_size, age_size)
-      call wind_agb_metal(fracAGB_yield, mass_init, metal_frac, age,
-     &                  dt, t1, metal_table, metal_array, age_array,
-     &                  metal_size, age_size)
-      frac_yield = fracMsv_yield + fracAGB_yield
-      end subroutine
- 
+
 c  ===============================================
   
 c      Time-integrate the yield from particular source type
