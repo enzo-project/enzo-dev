@@ -112,10 +112,8 @@ The subroutines available for use in your feedback routine are as follows:
 * ``sne_II_metal``: metal yield for only Type II supernovae
 * ``sne_Ia_metal``: metal yield for only Typa Ia supernova
 * ``sne_energy``: total energy yield for Type II and Ia supernovae
-* ``wind_mass``: total mass yield for AGB and massive stars
-* ``wind_metal``: total metal yield for AGB and massive stars
-* ``wind_AGB_metal``: metal yield for only AGB stars
-* ``wind_msv_metal``: metal yield for only massive stars
+* ``AGB_mass``: mass yield for AGB winds
+* ``AGB_metal``: metal yield for AGB winds
 
 The ``mass`` and ``metal`` subroutines share the same call signature::
 
@@ -150,7 +148,7 @@ blocks::
   char *MetalIIName = "MetalSNII_Density";
   char *MetalIaName = "MetalSNIa_Density";
   char *MetalAGBName = "MetalAGB_Density";
-  char *MetalMsvName = "MetalMassive_Density"
+  char *MetalNSMName = "MetalNSM_Density"
 
 and ::
 
@@ -159,7 +157,7 @@ and ::
   if (StarFeedbackTrackMetalSources) {
     DataLabel[count++] = MetalIIName;
     DataLabel[count++] = MetalAGBName;
-    DataLabel[count++] = MetalMsvName;
+    DataLabel[count++] = MetalNSMName;
   }
 
 Make sure to follow the order in which these fields were added to ``Grid_InitializeUniformGrid.C``!

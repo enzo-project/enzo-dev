@@ -269,7 +269,7 @@ c  ===============================================
   
 c      Return metal fraction yielded by Type II supernovae
  
-      subroutine wind_agb_metal(fracAGB_yield,
+      subroutine agb_metal(fracAGB_yield,
      &                    mass_init, metal_frac, age, 
      &                    dt, t1,
      &                    metal_table, metal_array, age_array,
