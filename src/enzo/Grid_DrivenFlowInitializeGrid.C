@@ -59,11 +59,9 @@ int grid::DrivenFlowInitializeGrid(float DrivenFlowDensity,
 
   int accel = NumberOfBaryonFields;
 
-  if ( UseDrivingField ){
   FieldType[NumberOfBaryonFields++] = DrivingField1;
   FieldType[NumberOfBaryonFields++] = DrivingField2;
   FieldType[NumberOfBaryonFields++] = DrivingField3;
-  }
 
 
   /* Return if this doesn't concern us. */
@@ -99,7 +97,6 @@ int grid::DrivenFlowInitializeGrid(float DrivenFlowDensity,
     for (int i = 0; i < size; i++) {
       BaryonField[ieint][i] = Energy;
     }
-  if ( debug2)
   printf("DrivenFlowInitializeGrid %"FSYM" %"FSYM" %"FSYM" %"FSYM"\n",
     DrivenFlowDensity,DrivenFlowPressure,Gamma,Energy);
   
