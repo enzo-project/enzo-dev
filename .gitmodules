@@ -1,0 +1,4 @@
+[submodule "input/stellar_feedback_for_hydro"]
+	path = input/stellar_feedback_for_hydro
+	url = git@github.com:becot85/stellar_feedback_for_hydro.git
+	branch = hdf5_table

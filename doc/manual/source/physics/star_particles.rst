@@ -640,11 +640,6 @@ offer a number of benefits including
 Tabulated Feedback
 ++++++++++++++++++
 
-Tabulated feedback yields can currently be used by the following
-feedback methods:
-
-* :ref:`method_0`
-
 To use tabulated feedback, use the following parameters:
 
 1. Set ``StarMakerStoreInitialMass = 1``
@@ -653,16 +648,13 @@ To use tabulated feedback, use the following parameters:
 4. Optionally set ``StarFeedbackTabularSNIIEnergy`` and ``StarFeedbackTabularSNIaEnergy`` 
    if you want these supernovae to have different energies than the canonical 1e51 erg.
 
+Tabulated feedback yields can currently be used by the following
+feedback methods:
+
+* :ref:`method_0`
+
 Source Tracking
 +++++++++++++++
-
-The following problem types are currently set up to track 
-metals from specific feedback sources when using tabulated feedback:
-
-* Cosmology Simulation
-* Galaxy Simulation
-* Nested Cosmology
-* Test Star Particle
 
 To use source tracking, set the following parameters:
 
@@ -673,19 +665,44 @@ To use source tracking, set the following parameters:
 at the same time, as both will inject metals from Type Ia supernovae into the simulation using
 different theoretical frameworks.
 
+The following problem types are currently set up to track 
+metals from specific feedback sources when using tabulated feedback:
+
+* Cosmology Simulation
+* Galaxy Simulation
+* Nested Cosmology
+* Test Star Particle
+
 Enabling source tracking will add four metallicity color fields to
 your outputs:
 
 * ``MetalSNIa_Density`` for Type Ia SNe (this field is also used by the ``StarMakerTypeIaSNe`` parameter)
-* ``MetalSNII_Density`` for Type II SNe
-* ``MetalAGB_Density`` for AGB stars
-* ``MetalOB_Density`` for other massive stars such as OB
+* ``MetalSNII_Density`` for Type II SNe and swept up stellar winds from massive stars
+* ``MetalAGB_Density`` for AGB stellar winds
+* ``MetalNSM_Density`` for material from neutron star mergers
+
+To read these additional fields into `yt <https://yt-project.org/>`_ you'll need a 
+`modified version of yt <https://github.com/clairekope/yt/tree/enzo_frontend_addition>`_.
 
 Generating Feedback Tables
 ++++++++++++++++++++++++++
 
-TODO The most relevant SYGMA parameters should be described 
-as well as how to generate your own table.
+The script for generating feedback yield tables is provided as a 
+git submodule inside the ``input/stellar_feedback_for_hydro`` directory.
+If you've cloned the Enzo source code from GitHub, 
+you can run ``git submodule update --init --recursive`` to activate this submodule
+and its components recursively.
+
+Once the ``input/stellar_feedback_for_hydro`` directory has been populated by 
+activating the submodule, you can generate a feedback table using the
+``chemical_feedback.py`` script. You will need NumPy and h5py to be installed
+in your Python environment. The resulting table will be saved as
+``input/stellar_feedback_for_hydro/output_tables/sygma_feedback_table.h5``.
+
+SYGMA parameters such as the IMF, nucleosynthetic yield tables, Type II SNe mass range,
+and Type Ia SNe delay time distribution can be set by modifying the ``params`` dictionary
+at the top of ``chemical_feedback.py``. Additional parameters supported by SYGMA can also
+be added to this dictionary; see the `SYGMA documentation <https://nugrid.github.io/NuPyCEE/SPHINX/build/html/sygma.html>`_.
 
 .. _active_particles_dk:
 

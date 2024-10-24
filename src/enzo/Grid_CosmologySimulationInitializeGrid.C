@@ -119,7 +119,7 @@ int grid::CosmologySimulationInitializeGrid(
  
   int idim, dim, i, j, vel, OneComponentPerFile, ndim, level;
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
-    DINum, DIINum, HDINum, MetalNum, MetalIaNum, MetalIINum, MetalAGBNum, MetalMsvNum;
+    DINum, DIINum, HDINum, MetalNum, MetalIaNum, MetalIINum, MetalAGBNum, MetalNSMNum;
 #ifdef TRANSFER
   int EgNum;
 #endif
@@ -293,7 +293,7 @@ int grid::CosmologySimulationInitializeGrid(
       if (StarFeedbackTrackMetalSources) {
         FieldType[MetalIINum = NumberOfBaryonFields++] = MetalSNIIDensity;
         FieldType[MetalAGBNum = NumberOfBaryonFields++] = MetalAGBDensity;
-        FieldType[MetalMsvNum = NumberOfBaryonFields++] = MetalMassiveDensity;
+        FieldType[MetalNSMNum = NumberOfBaryonFields++] = MetalNSMDensity;
       }
       if(MultiMetals){
         FieldType[ExtraField[0] = NumberOfBaryonFields++] = ExtraType0;
@@ -524,7 +524,7 @@ int grid::CosmologySimulationInitializeGrid(
     if (StarFeedbackTrackMetalSources)
       for (i = 0; i < size; i++) {
         BaryonField[MetalAGBNum][i] = tiny_number;
-        BaryonField[MetalMsvNum][i] = tiny_number;
+        BaryonField[MetalNSMNum][i] = tiny_number;
         BaryonField[MetalIINum][i]  = tiny_number;
     }
 

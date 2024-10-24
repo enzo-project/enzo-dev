@@ -318,7 +318,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
       NumberOfParticleAttributes == 0) {
     if (StarParticleCreation || StarParticleFeedback) {
       NumberOfParticleAttributes = 3;
-      if (StarMakerTypeIaSNe) NumberOfParticleAttributes++;
+      if (StarMakerTypeIaSNe) NumberOfParticleAttributes++; // TODO do I need to do something here?
       if (StarMakerTypeIISNeMetalField) NumberOfParticleAttributes++;
     } else {
       NumberOfParticleAttributes = 0;

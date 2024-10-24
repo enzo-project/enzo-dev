@@ -143,7 +143,7 @@ c
             call sne_energy(energy, minit(n), metalf(n), age,
      &              ergSNIa, ergSNII,
      &              dx, dt, x1, t1, d1, v1,
-     &              tabMass, tabZ, tabAge, ntabZ, ntabAge)
+     &              tabEvents, tabZ, tabAge, ntabZ, ntabAge)
 c
 c          Distribute mass & energy among feedback zone
             distmass = meject / distcells
@@ -193,11 +193,11 @@ c
                               call sne_II_metal(mzeject_ii,
      &                         minit(n), metalf(n), age,
      &                         dt, t1,
-     &                         tabMass, tabZ, tabAge, ntabZ, ntabAge)
+     &                         tabMetal, tabZ, tabAge, ntabZ, ntabAge)
                               call sne_Ia_metal(mzeject_ia,
      &                         minit(n), metalf(n), age,
      &                         dt, t1,
-     &                         tabMass, tabZ, tabAge, ntabZ, ntabAge)
+     &                         tabMetal, tabZ, tabAge, ntabZ, ntabAge)
                            mzeject = mzeject_ii + mzeject_ia
 c
 c           Field is converted to metal fraction by handling routine.

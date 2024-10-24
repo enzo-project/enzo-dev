@@ -119,7 +119,7 @@ int grid::NestedCosmologySimulationInitializeGrid(
  
   int idim, ndim, dim, i, j, vel, OneComponentPerFile, level;
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
-    DINum, DIINum, HDINum, MetalNum, MetalIaNum, MetalIINum, MetalAGBNum, MetalMsvNum;
+    DINum, DIINum, HDINum, MetalNum, MetalIaNum, MetalIINum, MetalAGBNum, MetalNSMNum;
  
   int iTE = ietot;
   int ExtraField[2];
@@ -398,7 +398,7 @@ int grid::NestedCosmologySimulationInitializeGrid(
       if (StarFeedbackTrackMetalSources) {
         FieldType[MetalIINum = NumberOfBaryonFields++] = MetalSNIIDensity;
         FieldType[MetalAGBNum = NumberOfBaryonFields++] = MetalAGBDensity;
-        FieldType[MetalMsvNum = NumberOfBaryonFields++] = MetalMassiveDensity;
+        FieldType[MetalNSMNum = NumberOfBaryonFields++] = MetalNSMDensity;
       }
       if(MultiMetals){
 	FieldType[ExtraField[0] = NumberOfBaryonFields++] = ExtraType0;
@@ -632,7 +632,7 @@ int grid::NestedCosmologySimulationInitializeGrid(
 		for (i=0; i<size; i++){
 			BaryonField[MetalIINum][i]  = tiny_number;
 			BaryonField[MetalAGBNum][i] = tiny_number;
-			BaryonField[MetalMsvNum][i] = tiny_number;
+			BaryonField[MetalNSMNum][i] = tiny_number;
 	}
 	
 	if (MultiMetals) {

@@ -47,7 +47,7 @@ int TestStarParticleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGri
   char *MetalIIName = "MetalSNII_Density";
   char *MetalIaName = "MetalSNIa_Density";
   char *MetalAGBName = "MetalAGB_Density";
-  char *MetalMsvName = "MetalMassive_Density";
+  char *MetalNSMName = "MetalNSM_Density";
   char *ElectronName = "Electron_Density";
   char *HIName    = "HI_Density";
   char *HIIName   = "HII_Density";
@@ -198,7 +198,7 @@ int TestStarParticleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGri
     if (StarFeedbackTrackMetalSources) {
       DataLabel[count++] = MetalIIName;
       DataLabel[count++] = MetalAGBName;
-      DataLabel[count++] = MetalMsvName;
+      DataLabel[count++] = MetalNSMName;
     }
 
 

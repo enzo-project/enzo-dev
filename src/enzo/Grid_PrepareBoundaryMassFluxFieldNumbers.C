@@ -54,10 +54,10 @@ int grid::PrepareBoundaryMassFluxFieldNumbers(){
 
   /* identify colour fields if they exist */
   int SNColourNum, MetalNum, MBHColourNum, Galaxy1ColourNum, Galaxy2ColourNum,
-    MetalIaNum, MetalIINum, MetalAGBNum, MetalMsvNum;
+    MetalIaNum, MetalIINum, MetalAGBNum, MetalNSMNum;
 
   if (this->IdentifyColourFields(SNColourNum, MetalNum, MetalIaNum, MetalIINum,
-              MetalAGBNum, MetalMsvNum,
+              MetalAGBNum, MetalNSMNum,
               MBHColourNum, Galaxy1ColourNum, Galaxy2ColourNum) == FAIL)
     ENZO_FAIL("Error in grid->IdentifyColourFields.\n");
 

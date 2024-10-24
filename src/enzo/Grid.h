@@ -1836,7 +1836,7 @@ int TransferSubgridActiveParticles(grid* Subgrids[], int NumberOfSubgrids,
   /* Identify colour field */
   // !!! looks useful
   int IdentifyColourFields(int &SNColourNum, int &MetalNum, 
-			   int &MetalIaNum, int &MetalIINum, int &MetalAGBNum, int &MetalMsvNum,
+			   int &MetalIaNum, int &MetalIINum, int &MetalAGBNum, int &MetalNSMNum,
             int &MBHColourNum, int &Galaxy1ColourNum, int &Galaxy2ColourNum);
 
   /* Identify Multi-species fields. */

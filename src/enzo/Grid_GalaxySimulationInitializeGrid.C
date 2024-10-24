@@ -189,7 +189,7 @@ int grid::GalaxySimulationInitializeGrid(double DiskRadius,
   /* declarations */
 
   int dim, i, j, k, m, field, disk, size, MetalNum, MetalIaNum, vel;
-  int MetalIINum, MetalAGBNum, MetalMsvNum;
+  int MetalIINum, MetalAGBNum, MetalNSMNum;
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum,
     H2IINum, DINum, DIINum, HDINum, B1Num, B2Num, B3Num, PhiNum;
   double DiskDensity, DiskVelocityMag;
@@ -282,7 +282,7 @@ int grid::GalaxySimulationInitializeGrid(double DiskRadius,
   if (StarFeedbackTrackMetalSources) {
     FieldType[MetalIINum = NumberOfBaryonFields++] = MetalSNIIDensity;
     FieldType[MetalAGBNum = NumberOfBaryonFields++] = MetalAGBDensity;
-    FieldType[MetalMsvNum = NumberOfBaryonFields++] = MetalMassiveDensity;
+    FieldType[MetalNSMNum = NumberOfBaryonFields++] = MetalNSMDensity;
   }
 
   /* Return if this doesn't concern us. */
@@ -619,7 +619,7 @@ int grid::GalaxySimulationInitializeGrid(double DiskRadius,
   if (StarFeedbackTrackMetalSources){
     BaryonField[MetalIINum][n] = tiny_number;
     BaryonField[MetalAGBNum][n] = tiny_number;
-    BaryonField[MetalMsvNum][n] = tiny_number;
+    BaryonField[MetalNSMNum][n] = tiny_number;
   }
    
 	for (dim = 0; dim < GridRank; dim++)
