@@ -95,7 +95,7 @@ c-----------------------------------------------------------------------
       implicit none
 #include "fortran_types.def"
 c-----------------------------------------------------------------------
-#define FORTRAN_DEBUG
+c#define FORTRAN_DEBUG
 c
 c  Arguments
 c
@@ -146,6 +146,7 @@ c
      &	  realmass, mu_cell, fbuff, add_therm
       R_PREC te_sum, ke_sum, ge_sum, mom_sum, mass_sum, mom_term,
      &     mass_term, therm_sum, lost_p
+      R_PREC mzeject, mzeject_ii, mzeject_ia
       R_PREC u1(3,3,3), v1(3,3,3), w1(3,3,3), d1(3,3,3),
      &     te1(3,3,3), ge1(3,3,3), metal1(3,3,3)
 
@@ -202,7 +203,7 @@ c
                write(6,*) 'metalf:',metalf(n)
 #endif
 c
-c         Integrate yield tables to get mass & energy yields
+c         Integrate yield tables to get mass, energy, and metal yields
 c
                call sne_mass(m_eject, minit(n), metalf(n), age,
      &                        dt, t1,
@@ -211,6 +212,24 @@ c
      &                        ergSNIa, ergSNII,
      &                        dx, dt, x1, t1, dunits, vunits,
      &                        tabMass, tabZ, tabAge, ntabZ, ntabAge)
+c
+c           Metal feedback. Similar to total ejected mass, 
+c           table has metal mass yield per initial population mass.
+c
+               if (imetal .eq. 1) then
+                  call sne_II_metal(mzeject_ii,
+     &                 minit(n), metalf(n), age,
+     &                 dt, t1,
+     &                 tabMass, tabZ, tabAge, ntabZ, ntabAge)
+                  call sne_Ia_metal(mzeject_ia,
+     &                 minit(n), metalf(n), age,
+     &                 dt, t1,
+     &                 tabMass, tabZ, tabAge, ntabZ, ntabAge)
+                  mzeject = mzeject_ii + mzeject_ia
+                  mzeject = mzeject / distcells
+                  mzeject_ii = mzeject_ii / distcells
+                  mzeject_ia = mzeject_ia / distcells
+               endif
 c
 c           Normalize energy by 10^51 ergs for momentum injection routine
                nsn = energy/(10._RKIND**51._RKIND / (dunits*
@@ -527,7 +546,9 @@ c
      &                        2_IKIND, 2_IKIND, 2_IKIND,
      &                        2_IKIND, 2_IKIND, 2_IKIND,
      &                        imethod, imetal, imulti_metals, idual,
-     &                        m_eject, yield, metalf(n),
+     &                        m_eject, yield, metalf(n), itracksrc,
+     &                        mzeject, mzeject_ia, mzeject_ii,
+     &                        metalSNII, metalSNIa,
      &                        mass_per_cell, mom_per_cell, therm_sum,
      &                        0._RKIND, dx, x1, dunits, vunits,
      &                        mom_canc, lost_p)
@@ -567,7 +588,9 @@ c
      &                         nx, ny, nz, ic, jc, kc,
      &                        iface, jface, kface,
      &                        imethod, imetal, imulti_metals, idual,
-     &                        m_eject, yield, metalf(n),
+     &                        m_eject, yield, metalf(n), itracksrc,
+     &                        mzeject, mzeject_ia, mzeject_ii,
+     &                        metalSNII, metalSNIa,
      &                        mass_per_cell, mom_per_cell, therm_sum,
      &                        add_therm, dx, x1, dunits, vunits,
      &                        mom_canc, lost_p)
@@ -580,11 +603,18 @@ c
                      enddo
                   enddo
                enddo
-               write(4,*) n, minitial*
-     &           (dunits*(x1*dx)**3._RKIND)/SolarMass, mom_sum*
+               write(4,*) t, n, age, minitial*
+     &           (dunits*(x1*dx)**3._RKIND)/SolarMass, nsn,
+     &           m_eject*dunits*x1**3._RKIND/SolarMass*dx**3_IKIND,
+     &           energy*(dunits*(dx*x1)**3._RKIND)*vunits**2._RKIND,
+     &           mom_sum*
      &           (dunits*(dx*x1)**3._RKIND)*vunits/SolarMass/1e5_RKIND,
+     &           kin_energy_dummy*
+     &           (dunits*(dx*x1)**3._RKIND)*vunits**2._RKIND,
      &           lost_p*
-     &           (dunits*(dx*x1)**3._RKIND)*vunits/SolarMass/1e5_RKIND,
+     &           (dunits*(dx*x1)**3._RKIND)*vunits**2._RKIND,
+     &           add_therm*distcells*
+     &           dunits*vunits**2._RKIND*(x1*dx)**3._RKIND,
      &           therm_sum*(dunits*(dx*x1)**3._RKIND)*vunits**2._RKIND
             endif
 c
@@ -972,7 +1002,9 @@ c
      &                        nx, ny, nz, ic, jc, kc,
      &                        iface, jface, kface,
      &                        imethod, imetal, imulti_metals, idual,
-     &                        m_eject, yield, metalf,
+     &                        m_eject, yield, metalf, itracksrc,
+     &                        mzeject, mzeject_ia, mzeject_ii,
+     &                        metalSNII, metalSNIa,
      &                        mass_per_cell, mom_per_cell, therm_sum,
      &                        add_therm, dx, x1, dunits, vunits,
      &                        mom_canc, lost_p)
@@ -988,9 +1020,11 @@ c
       R_PREC    pu(nx,ny,nz), pv(nx,ny,nz), pw(nx,ny,nz), te(nx,ny,nz)
       R_PREC    mass_per_cell, mom_per_cell(3_IKIND,3_IKIND,3_IKIND)
       R_PREC    m_eject, yield, metalf, add_therm, therm_sum
+      R_PREC    mzeject, mzeject_ia, mzeject_ii
+      R_PREC    metalSNII(nx,ny,nz), metalSNIa(nx,ny,nz)
       R_PREC    dunits, x1, vunits, dx, mult
       R_PREC    p_start, p_end, p_inj, extra_p, lost_p
-      INTG_PREC    mom_canc
+      INTG_PREC    mom_canc, itracksrc
 c
 c     Locals
 c
@@ -1099,17 +1133,20 @@ c
 #endif
                   if (p_inj .lt. delta_p) then
                      extra_p = delta_p - p_inj
-                     lost_p = lost_p + extra_p
+                     lost_p = lost_p + extra_p**2._RKIND /
+     &                 d(ic+i,jc+j,kc+k)
 #ifdef FORTRAN_DEBUG
                      write(6,*) 'lost_p', extra_p*(x1*dx)**3._RKIND*
      &                 dunits*vunits/SolarMass/1e5_RKIND
+                     write(6,*) 'lost_p energy', extra_p**2._RKIND /
+     &                 d(ic+i,jc+j,kc+k)*
+     &                 (dunits*(dx*x1)**3._RKIND*vunits**2._RKIND)
 #endif
                      delta_therm = delta_therm + extra_p**2._RKIND /
      &                           d(ic+i,jc+j,kc+k)
-                     therm_sum = therm_sum + 
-     &                           delta_therm/d(ic+i,jc+j,kc+k)
                   endif
                endif
+               therm_sum = therm_sum + delta_therm
 c
 c     Add thermal energy
 c     
@@ -1140,16 +1177,20 @@ c     a fraction (rho_metal/rho_gas) rather than a density.
 c     The conversion has been done in the handling routine)
 c     
                if (imetal .eq. 1_IKIND) then
-c     
-c     "Cen method".  This takes into account gas recycling.
-c     (metal is not a fraction here)
-c     
-                  metal(ic+i, jc+j, kc+k) = 
-     &                   metal(ic+i, jc+j, kc+k) + 
-     &                   (delta_mass/m_eject)
-     &                    * (yield * (1._RKIND-metalf) + 
-     &                    m_eject * metalf)
-                     
+c
+c           Field is converted to metal fraction by handling routine.
+c
+                  metal(ic+i,jc+j,kc+k) = 
+     &             (metal(ic+i,jc+j,kc+k)*d(ic+i,jc+j,kc+k) + 
+     &             mzeject) * dratio
+                  if (itracksrc .eq. 1) then
+                     metalSNII(ic+i,jc+j,kc+k) =
+     &                 (metalSNII(ic+i,jc+j,kc+k)*d(ic+i,jc+j,kc+k) + 
+     &                 mzeject_ii) * dratio
+                     metalSNIa(ic+i,jc+j,kc+k) =
+     &                 (metalSNIa(ic+i,jc+j,kc+k)*d(ic+i,jc+j,kc+k) + 
+     &                 mzeject_ia) * dratio
+                  endif
                endif
 c     
 c     End loop over cells in particle-frame
