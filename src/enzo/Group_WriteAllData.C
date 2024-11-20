@@ -273,7 +273,7 @@ int Group_WriteAllData(char *basename, int filenumber,
       if (debug) fprintf(stdout, "Extra dump: %s\n", name);
 
     } // if ExtraDumpName
-    /******************** CYCLE / DT BASED OUTPUTS ********************/
+    /******************** CYCLE BASED OUTPUTS ********************/
  
     if ( (cptr = strstr(basename, MetaData.DataDumpName)) ) {
  
@@ -305,6 +305,66 @@ int Group_WriteAllData(char *basename, int filenumber,
             strcpy(dumpdirname, MetaData.GlobalDir);
             strcat(dumpdirname, "/");
             strcat(dumpdirname, MetaData.DataDumpDir);
+            strcat(dumpdirname, id);
+            // Do mkdir on cpu 0 only
+            strcpy(name, dumpdirname);
+            strcat(name, "/");
+            strcat(name, basename);
+          } // if GlobalDir
+ 
+          else
+ 
+          {
+            // No local or global specified
+            strcpy(name, basename);
+          } // else GlobalDir
+ 
+        } // else LocalDir
+ 
+      } // if DataDumpDir
+ 
+      else
+ 
+      {
+        strcpy(name, basename);
+      } // else DataDumpDir
+ 
+      if (debug) fprintf(stdout, "DATA dump: %s\n", name);
+ 
+    } // if DataDumpName
+
+    /******************** DT BASED OUTPUTS ********************/
+ 
+    if ( (cptr = strstr(basename, MetaData.TimeDumpName)) ) {
+ 
+      if (MetaData.DataDumpDir != NULL)
+      {
+        if (MetaData.LocalDir != NULL) {
+          // Local fs
+          strcpy(dumpdirname, MetaData.LocalDir);
+          strcat(dumpdirname, "/");
+          strcat(dumpdirname, MetaData.TimeDumpDir);
+          strcat(dumpdirname, id);
+  
+          // Create once per node...
+#ifdef USE_NODE_LOCAL
+            strcat(dumpdirname, "/mpi");
+            strcat(dumpdirname, pid);
+#endif /* USE_NODE_LOCAL */
+ 
+          strcpy(name, dumpdirname);
+          strcat(name, "/");
+          strcat(name, basename);
+        } // if LocalDir
+ 
+        else
+ 
+        {
+          if (MetaData.GlobalDir != NULL) {
+            // Global fs
+            strcpy(dumpdirname, MetaData.GlobalDir);
+            strcat(dumpdirname, "/");
+            strcat(dumpdirname, MetaData.TimeDumpDir);
             strcat(dumpdirname, id);
             // Do mkdir on cpu 0 only
             strcpy(name, dumpdirname);
@@ -503,6 +563,7 @@ int Group_WriteAllData(char *basename, int filenumber,
         CommunicationBarrier();
         if( pe == ii )
         {
+            ENZO_FAIL("fail here");
           if ( (cptr = strstr(basename, MetaData.ExtraDumpName)) ) {
             if (MetaData.ExtraDumpDir != NULL) {
 #ifdef SYSCALL
@@ -530,6 +591,18 @@ int Group_WriteAllData(char *basename, int filenumber,
             }
           } // ENDIF datadump
  
+          if ( (cptr = strstr(basename, MetaData.TimeDumpName)) ) {
+            if (MetaData.TimeDumpDir != NULL) {
+#ifdef SYSCALL
+              unixresult = SysMkdir("", dumpdirname);
+              if (debug) fprintf(stdout, "Time dump: dumpdirname=(%s) == unixresult=%"ISYM"\n", dumpdirname, unixresult);
+#else
+              strcat(strcpy(unixcommand, "mkdir -p "), dumpdirname);
+              unixresult = system(unixcommand);
+              if (debug) fprintf(stdout, "Time dump: %s == %"ISYM"\n", unixcommand, unixresult);
+#endif
+            }
+          } // ENDIF datadump
           if ( (cptr = strstr(basename, MetaData.RedshiftDumpName)) ) {
             if (MetaData.RedshiftDumpDir != NULL) {
 #ifdef SYSCALL
@@ -576,9 +649,23 @@ int Group_WriteAllData(char *basename, int filenumber,
 #endif
           }
         } // ENDIF datadump
- 
+          //
         if ( (cptr = strstr(basename, MetaData.DataDumpName)) ) {
           if (MetaData.DataDumpDir != NULL) {
+#ifdef SYSCALL
+            unixresult = SysMkdir("", dumpdirname);
+            if (debug) fprintf(stdout, "DATA dump: dumpdirname=(%s) == unixresult=%"ISYM"\n", dumpdirname, unixresult);
+#else
+            strcat(strcpy(unixcommand, "mkdir -p "), dumpdirname);
+            unixresult = system(unixcommand);
+            if (debug) fprintf(stdout, "DATA dump: %s == %"ISYM"\n", unixcommand, unixresult);
+#endif
+          }
+        } // ENDIF datadump
+ 
+ 
+        if ( (cptr = strstr(basename, MetaData.TimeDumpName)) ) {
+          if (MetaData.TimeDumpDir != NULL) {
 #ifdef SYSCALL
             unixresult = SysMkdir("", dumpdirname);
             if (debug) fprintf(stdout, "DATA dump: dumpdirname=(%s) == unixresult=%"ISYM"\n", dumpdirname, unixresult);
