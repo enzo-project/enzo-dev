@@ -81,6 +81,7 @@ int grid::TestDoubleStarParticleInitializeGrid(FLOAT TestStarParticleStarMass[2]
     ParticleAttribute[0][i] = Time+1e-7;
     ParticleAttribute[1][i] = 10.0 * Myr_s/TimeUnits;
 
+    ParticleAttribute[1][i] = StarMakerMinimumDynamicalTime * yr_s/TimeUnits; // default
     if (STARFEED_METHOD(UNIGRID_STAR)) ParticleAttribute[1][i] = 10.0 * Myr_s/TimeUnits;
     if (STARFEED_METHOD(MOM_STAR) || STARFEED_METHOD(MECH_STAR))
         if(StarMakerExplosionDelayTime >= 0.0)
