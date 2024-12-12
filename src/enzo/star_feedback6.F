@@ -605,7 +605,8 @@ c
                enddo
                write(4,*) t, n, age, minitial*
      &           (dunits*(x1*dx)**3._RKIND)/SolarMass, nsn,
-     &           m_eject*dunits*x1**3._RKIND/SolarMass*dx**3_IKIND,
+     &           mass_per_cell*distcells*(dunits*(x1*dx)**3._RKIND)/
+     &           SolarMass,
      &           energy*(dunits*(dx*x1)**3._RKIND)*vunits**2._RKIND,
      &           mom_sum*
      &           (dunits*(dx*x1)**3._RKIND)*vunits/SolarMass/1e5_RKIND,
