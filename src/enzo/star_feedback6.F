@@ -211,7 +211,7 @@ c
                call sne_energy(energy, minit(n), metalf(n), age,
      &                        ergSNIa, ergSNII,
      &                        dx, dt, x1, t1, dunits, vunits,
-     &                        tabMass, tabZ, tabAge, ntabZ, ntabAge)
+     &                        tabEvents, tabZ, tabAge, ntabZ, ntabAge)
 c
 c           Metal feedback. Similar to total ejected mass, 
 c           table has metal mass yield per initial population mass.
@@ -220,11 +220,11 @@ c
                   call sne_II_metal(mzeject_ii,
      &                 minit(n), metalf(n), age,
      &                 dt, t1,
-     &                 tabMass, tabZ, tabAge, ntabZ, ntabAge)
+     &                 tabMetal, tabZ, tabAge, ntabZ, ntabAge)
                   call sne_Ia_metal(mzeject_ia,
      &                 minit(n), metalf(n), age,
      &                 dt, t1,
-     &                 tabMass, tabZ, tabAge, ntabZ, ntabAge)
+     &                 tabMetal, tabZ, tabAge, ntabZ, ntabAge)
                   mzeject = mzeject_ii + mzeject_ia
                   mzeject = mzeject / distcells
                   mzeject_ii = mzeject_ii / distcells
