@@ -195,8 +195,8 @@ c
             distrad = 3_IKIND
             distcells = distrad**3_IKIND
 c
+            age = (t-tcp(n)) * t1/yr_s
             if (use_tabfbk .eq. 1_IKIND) then
-               age = (t-tcp(n)) * t1/yr_s
 #ifdef FORTRAN_DEBUG
                write(6,*) 'creation time, age, dt:', tcp*t1/yr_s,
      &                        age, dt*t1/yr_s
@@ -241,8 +241,8 @@ c           Normalize energy by 10^51 ergs for momentum injection routine
      &               dx**3._RKIND)
 #endif
 c
-c          Skip feedback if fewer than 0.1 SNe in this timestep
-               if (nsn .lt. 0.1_RKIND) goto 10
+c          Skip feedback if fewer than 0.01 SNe in this timestep
+               if (nsn .lt. 0.01_RKIND) goto 10
 c          Distribute mass among feedback zone
                mass_per_cell = m_eject / distcells
 c
@@ -321,14 +321,20 @@ c
                mass_per_cell = mform * m_eject / distcells
 c
 c           Calculate the number of SNe in this timestep from the stars formed
-c           in this timestep as 1 SN per 100 Msun formed. If less than one, skip.
+c           in this timestep as 1 SN per 100 Msun formed. If a small fraction, skip.
 c           
                realmass = mform * dunits * x1**3._RKIND*dx**3_IKIND
                realmass = realmass /SolarMass
                nsn = realmass / 100._RKIND
-               if (nsn .lt. 1._RKIND) goto 10
+               if (nsn .lt. 1e-2_RKIND) goto 10
                energy = nsn * 10._RKIND**51._RKIND / (dunits*
      &                  x1**3._RKIND*vunits**2._RKIND*dx**3._RKIND)
+c
+c           Calculate the metals to deposit later in add_feedback function
+c
+               mzeject = (mform / distcells) * 
+     &                   (yield * (1._RKIND-metalf(n)) + 
+     &                   m_eject * metalf(n))
             endif
 c
 #ifdef FORTRAN_DEBUG
@@ -607,15 +613,10 @@ c
      &           (dunits*(x1*dx)**3._RKIND)/SolarMass, nsn,
      &           mass_per_cell*distcells*(dunits*(x1*dx)**3._RKIND)/
      &           SolarMass,
-     &           energy*(dunits*(dx*x1)**3._RKIND)*vunits**2._RKIND,
+     &           mzeject*distcells*(dunits*(x1*dx)**3._RKIND)/
+     &           SolarMass,
      &           mom_sum*
      &           (dunits*(dx*x1)**3._RKIND)*vunits/SolarMass/1e5_RKIND,
-     &           kin_energy_dummy*
-     &           (dunits*(dx*x1)**3._RKIND)*vunits**2._RKIND,
-     &           lost_p*
-     &           (dunits*(dx*x1)**3._RKIND)*vunits**2._RKIND,
-     &           add_therm*distcells*
-     &           dunits*vunits**2._RKIND*(x1*dx)**3._RKIND,
      &           therm_sum*(dunits*(dx*x1)**3._RKIND)*vunits**2._RKIND
             endif
 c
@@ -897,10 +898,6 @@ c
                      w(ic+i ,jc+j ,kc+k) = (w(ic+i ,jc+j ,kc+k)-wp) *
      &                       d(ic+i, jc+j, kc+k)
                   endif
-                  if (imetal .eq. 1_IKIND) then
-                     metal(ic+i,jc+j,kc+k) = metal(ic+i,jc+j,kc+k) *
-     &                    d(ic+i,jc+j,kc+k)
-                  endif
 c
 c              if idir = -1: convert mom -> vel
 c               
@@ -922,10 +919,6 @@ c
      &                    (d(ic+i, jc+j, kc+k)) + vp
                      w(ic+i ,jc+j ,kc+k) = w(ic+i ,jc+j ,kc+k) /
      &                    (d(ic+i, jc+j, kc+k)) + wp
-                  endif
-                  if (imetal .eq. 1_IKIND) then
-                     metal(ic+i,jc+j,kc+k) = metal(ic+i,jc+j,kc+k) /
-     &                    d(ic+i,jc+j,kc+k)
                   endif
                endif
 c
@@ -1182,15 +1175,15 @@ c
 c           Field is converted to metal fraction by handling routine.
 c
                   metal(ic+i,jc+j,kc+k) = 
-     &             (metal(ic+i,jc+j,kc+k)*d(ic+i,jc+j,kc+k) + 
-     &             mzeject) * dratio
+     &               (metal(ic+i,jc+j,kc+k)*d(ic+i,jc+j,kc+k) + 
+     &               mzeject) /(d(ic+i, jc+j, kc+k) + delta_mass)
                   if (itracksrc .eq. 1) then
                      metalSNII(ic+i,jc+j,kc+k) =
      &                 (metalSNII(ic+i,jc+j,kc+k)*d(ic+i,jc+j,kc+k) + 
-     &                 mzeject_ii) * dratio
+     &                 mzeject_ii) /(d(ic+i, jc+j, kc+k) + delta_mass)
                      metalSNIa(ic+i,jc+j,kc+k) =
      &                 (metalSNIa(ic+i,jc+j,kc+k)*d(ic+i,jc+j,kc+k) + 
-     &                 mzeject_ia) * dratio
+     &                 mzeject_ia) /(d(ic+i, jc+j, kc+k) + delta_mass)
                   endif
                endif
 c     
