@@ -225,7 +225,7 @@ c            Convert erg per Msun to erg
      &             * minit_msun
       energy_yield = energy_yield / (m1*v1**2 * (dx)**3)
 c      write(6,*) 'in sne_energy: num_II, num_Ia:',num_II*minit_msun,
-     &           num_Ia*minit_msun
+c     &           num_Ia*minit_msun
       end subroutine
 c ===============================================
 c 
