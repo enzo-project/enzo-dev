@@ -1028,12 +1028,6 @@ c
       R_PREC    pu_start, pu_deposit, pv_start, pv_deposit, pw_start,
      &          pw_deposit
 c
-c     Error check
-c
-      if (imulti_metals .eq. 1_IKIND) then
-         write(6,*) "momentum: not supported"
-         ERROR_MESSAGE
-      endif
       therm_sum = 0._RKIND
       lost_p = 0._RKIND
 c
