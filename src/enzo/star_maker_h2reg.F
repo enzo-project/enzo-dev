@@ -385,6 +385,11 @@ c     only for cold gas (ColdGasTemperature).
                   H2_fraction = fH2(i,j,k) ! read from chem field CK 
                   Sigma = SobolevColumn(d, fHI, nx, ny, nz,
                   $                 i, j, k, dx, d1, x1, maxflag)
+
+                  if (UseLocalDensityMax > 0) then
+                     if (maxflag .lt. 1) goto 10
+                  endif
+
                endif
 c              This endif closes the if statement on line 303
 
