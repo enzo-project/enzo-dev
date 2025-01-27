@@ -46,6 +46,8 @@ int GrackleWriteParameters(FILE *fptr)
   fprintf(fptr, "LWbackground_sawtooth_suppression = %d\n", grackle_data->LWbackground_sawtooth_suppression);
   fprintf(fptr, "dust_chemistry              = %d\n",  grackle_data->dust_chemistry);
   fprintf(fptr, "local_dust_to_gas_ratio     = %lf\n", grackle_data->local_dust_to_gas_ratio);
+  fprintf(fptr, "interstellar_radiation_field = %lf\n", grackle_data->interstellar_radiation_field);
+  fprintf(fptr, "dust_recombination_cooling  = %d\n",  grackle_data->dust_recombination_cooling);
   fprintf(fptr, "use_isrf_field              = %d\n",  grackle_data->use_isrf_field);
   fprintf(fptr, "use_dust_density_field      = %d\n",  grackle_data->use_dust_density_field);
 

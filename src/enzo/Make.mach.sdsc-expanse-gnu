@@ -13,23 +13,15 @@
 MACH_TEXT  = Expanse
 MACH_VALID = 1
 MACH_FILE  = Make.mach.sdsc-expanse
-MACHINE_NOTES = "Remember that 'module spider <module>/<version>' will tell you compatible modules. \
-	      	 The following modules (if available) are suggested: \
-		 gcc/10.2.0 \
-		 mvapich2/2.3.6 \
-		 hdf5/1.10.7 \
-"
 
 #-----------------------------------------------------------------------
 # Compiler settings
 #-----------------------------------------------------------------------
 
-#LOCAL_PYTHON_INSTALL = /usr
-LOCAL_COMPILER = ${INTELHOME}/compiler
 LOCAL_MPI_INSTALL = ${MPIHOME}
 LOCAL_HDF5_INSTALL = ${HDF5HOME}
 LOCAL_HYPRE_INSTALL =
-LOCAL_GRACKLE_INSTALL = ${HOME}/grackle3.1.1
+LOCAL_GRACKLE_INSTALL = ${HOME}/local
 
 # With MPI
 
@@ -39,14 +31,6 @@ MACH_CXX_MPI   = mpicxx # C++ compiler when using MPI
 MACH_FC_MPI    = gfortran # Fortran 77 compiler when using MPI
 MACH_F90_MPI   = gfortran # Fortran 90 compiler when using MPI
 MACH_LD_MPI    = mpicxx # Linker when using MPI
-
-# Without MPI
-
-MACH_CC_NOMPI  = icc # C compiler when not using MPI
-MACH_CXX_NOMPI = icpc # C++ compiler when not using MPI
-MACH_FC_NOMPI  = ifort # Fortran 77 compiler when not using MPI
-MACH_F90_NOMPI = ifort # Fortran 90 compiler when not using MPI
-MACH_LD_NOMPI  = icpc # Linker when not using MPI
 
 #-----------------------------------------------------------------------
 # Machine-dependent defines
@@ -116,8 +100,6 @@ LOCAL_LIBS_HDF5   = -L$(LOCAL_HDF5_INSTALL)/lib -lhdf5 -lz # HDF5 libraries
 LOCAL_LIBS_HYPRE  = 
 LOCAL_LIBS_PYTHON  =
 LOCAL_LIBS_GRACKLE = -L$(LOCAL_GRACKLE_INSTALL)/lib -lgrackle
-
-LOCAL_LIBS_MACH  = -L$(LOCAL_COMPILER)/lib/intel64 
 
 MACH_LIBS         = $(LOCAL_LIBS_HDF5) $(LOCAL_LIBS_MACH)
 MACH_LIBS_MPI     = $(LOCAL_LIBS_MPI)
