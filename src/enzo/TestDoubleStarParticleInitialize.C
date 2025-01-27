@@ -40,6 +40,10 @@ int TestDoubleStarParticleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &
   char *Vel2Name = "y-velocity";
   char *Vel3Name = "z-velocity";
   char *MetalName = "Metal_Density";
+  char *MetalIIName = "MetalSNII_Density";
+  char *MetalIaName = "MetalSNIa_Density";
+  char *MetalAGBName = "MetalAGB_Density";
+  char *MetalNSMName = "MetalNSM_Density";
   char *ElectronName = "Electron_Density";
   char *HIName    = "HI_Density";
   char *HIIName   = "HII_Density";
@@ -67,6 +71,7 @@ int TestDoubleStarParticleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &
   float TestStarParticleStarMass[2]    = {100.0, 100.0};
   int TestProblemUseMetallicityField = 1;
   float TestProblemInitialMetallicityFraction = 2e-3; // 0.1 Zsun
+  float TestStarParticleStarMetallicityFraction[2] = {0.0, 0.0};
 
 
 
@@ -92,6 +97,10 @@ int TestDoubleStarParticleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &
 		  &TestStarParticleStarMass[0]);
     ret += sscanf(line, "TestStarParticleStarMass[1] = %"FSYM,
 		  &TestStarParticleStarMass[1]);
+    ret += sscanf(line, "TestStarParticleStarMetallicityFraction[0] = %"FSYM,
+      &TestStarParticleStarMetallicityFraction[0]);
+    ret += sscanf(line, "TestStarParticleStarMetallicityFraction[1] = %"FSYM,
+      &TestStarParticleStarMetallicityFraction[1]);
     ret += sscanf(line,"TestStarParticleStarVelocity[0] = %"PSYM" %"PSYM" %"PSYM, 
 		  &TestStarParticleStarVelocity[0][0],
 		  &TestStarParticleStarVelocity[0][1],
@@ -142,7 +151,8 @@ int TestDoubleStarParticleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &
       TestDoubleStarParticleInitializeGrid(TestStarParticleStarMass,
 				     Initialdt, 
 				     TestStarParticleStarVelocity,
-				     TestStarParticleStarPosition) == FAIL)
+				     TestStarParticleStarPosition,
+             TestStarParticleStarMetallicityFraction) == FAIL)
   ENZO_FAIL("Error in TestStarParticleInitializeGrid.\n");
 
   /* set up field names and units */
@@ -165,6 +175,13 @@ int TestDoubleStarParticleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &
   }
   if (TestProblemData.UseMetallicityField)
     DataLabel[count++] = MetalName;
+    if (StarMakerTypeIaSNe || StarFeedbackTrackMetalSources)
+      DataLabel[count++] = MetalIaName;
+    if (StarFeedbackTrackMetalSources) {
+      DataLabel[count++] = MetalIIName;
+      DataLabel[count++] = MetalAGBName;
+      DataLabel[count++] = MetalNSMName;
+    }
 
 
   int j;

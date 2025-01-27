@@ -2117,7 +2117,8 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
   int TestDoubleStarParticleInitializeGrid(FLOAT TestStarParticleStarMass[2], 
 				     float *Initialdt,
 				     FLOAT TestStarParticleStarVelocity[2][3],
-				     FLOAT TestStarParticleStarPosition[2][3]);
+				     FLOAT TestStarParticleStarPosition[2][3],
+                 FLOAT TestStarParticleMetallicity[2]);
 
 /* Gravity Test: initialize grid. */
 

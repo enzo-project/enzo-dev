@@ -15,7 +15,8 @@ c
      &               dunits, x1, vunits, t1, thermal, m_eject, yield,
      &               npart, xstart, ystart, zstart, ibuff,
      &               xp, yp, zp, up, vp, wp,
-     &               mp, tdp, tcp, metalf, type, justburn,
+     &               mp, tdp, tcp, metalf, type,
+     &               particleID, justburn,
      &               exptime_in, mom_mult,
      &               mom_canc, feedback_log,
      &               use_tabfbk, minit, ergSNII, ergSNIa,
@@ -68,6 +69,7 @@ c    thermal  - thermal energy to deposit in addition to momentum
 c    m_eject  - fraction of stellar mass ejected back to gas
 c    yield    - fraction of stellar mass that is converted to metals
 c    type     - particle type
+c    particleID - particle ID number given by ParticleNumber
 c    exptime  - delay time for discrete explosions (if set to -1,
 c               continuous energy injection used)
 c
@@ -113,7 +115,7 @@ c
       P_PREC xp(npart), yp(npart), zp(npart)
       R_PREC    up(npart), vp(npart), wp(npart)
       R_PREC    mp(npart), tdp(npart), tcp(npart), metalf(npart)
-      INTG_PREC type(npart)
+      INTG_PREC type(npart), particleID(npart)
       R_PREC 	 exptime_in,exptime
       R_PREC    thermal
       INTG_PREC mom_canc
@@ -609,8 +611,9 @@ c
                      enddo
                   enddo
                enddo
-               write(4,*) t, n, age, minitial*
-     &           (dunits*(x1*dx)**3._RKIND)/SolarMass, nsn,
+               write(4,*) t*t1/yr_s/1e6_RKIND, particleID(n),
+     &           age/1e6_RKIND,
+     &           minitial*(dunits*(x1*dx)**3._RKIND)/SolarMass, nsn,
      &           mass_per_cell*distcells*(dunits*(x1*dx)**3._RKIND)/
      &           SolarMass,
      &           mzeject*distcells*(dunits*(x1*dx)**3._RKIND)/
