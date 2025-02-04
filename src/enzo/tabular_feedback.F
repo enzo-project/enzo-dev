@@ -224,6 +224,8 @@ c            Convert erg per Msun to erg
      &             + num_Ia*erg_per_snIa) 
      &             * minit_msun
       energy_yield = energy_yield / (m1*v1**2 * (dx)**3)
+c      write(6,*) 'in sne_energy: num_II, num_Ia:',num_II*minit_msun,
+c     &           num_Ia*minit_msun
       end subroutine
 c ===============================================
 c 
@@ -455,30 +457,24 @@ c
       x2 = tabx(ix2)
       y1 = taby(iy1)
       y2 = taby(iy2)
-c       write(6,*) 'x, x1, x2',x,x1,x2
-c       write(6,*) 'y, y1, y2',y,y1,y2
 c 
       if (ix1 .eq. ix2 .and. iy1 .eq. iy2) then
 c         both x & y fall outside the table
-      !   write(6,*) 'case: no interpolation'
          interp = tabinterp(srcid, iy1, ix1)
       elseif (ix1 .eq. ix2) then
 c         only x falls outside the table; interpolate y
-      !    write(6,*) 'case: interpolate y'
          fx1y1 = tabinterp(srcid, iy1, ix1)
          fx1y2 = tabinterp(srcid, iy2, ix1)
          interp = fx1y1*(y2-y) + fx1y2*(y-y1)
          interp = interp / (y2-y1)
       elseif (iy1 .eq. iy2) then
 c         only y falls outside the table; interpolate x
-      !   write(6,*) 'case: interpolate x'
          fx1y1 = tabinterp(srcid, iy1, ix1)
          fx2y1 = tabinterp(srcid, iy1, ix2)
          interp = fx1y1*(x2-x) + fx2y1*(x-x1)
          interp = interp / (x2-x1)
       else
 c         everything is inside the table; interpolate x & y
-      !   write(6,*) 'case: interpolate both'
          fx1y1 = tabinterp(srcid, iy1, ix1)
          fx1y2 = tabinterp(srcid, iy2, ix1)
          fx2y1 = tabinterp(srcid, iy1, ix2)

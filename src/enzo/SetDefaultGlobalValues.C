@@ -607,6 +607,10 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   StarMassEjectionFraction         = 0.25;
   StarMetalYield                   = 0.02;
   StarEnergyToThermalFeedback      = 1.0e-5;
+  StarFeedbackAdditionalThermalEnergy = 0.0;
+  MomentumMultiplier               = 1.0;
+  MomentumCancellationToThermal    = 1;
+  WriteFeedbackLogFiles            = 0;
   StarEnergyToStellarUV            = 3.0e-6;
   StarEnergyToQuasarUV             = 5.0e-6;
   StarFeedbackKineticFraction      = 0.0;
@@ -749,6 +753,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MBHInsertLocationFilename        = (char*) "mbh_insert_location.in";
   OutputWhenJetsHaveNotEjected     = FALSE;
 
+  H2StarMakerH2FractionMethod = 0;
   H2StarMakerEfficiency = 0.01;
   H2StarMakerNumberDensityThreshold = 0.0;
   H2StarMakerMinimumMass = 0.0;
@@ -760,6 +765,9 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   H2StarMakerH2DissociationFlux_MW = 1.0;
   H2StarMakerH2FloorInColdGas = 0.0;
   H2StarMakerColdGasTemperature = 1e4;
+  H2StarMakerUseLocalDensityMax = 0; 
+  H2StarMakerWriteStarLogFiles = 0;
+
 
   StarMakerMinimumMassRamp = 0;
   StarMakerMinimumMassRampStartTime = FLOAT_UNDEFINED;

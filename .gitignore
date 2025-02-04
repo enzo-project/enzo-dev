@@ -2,13 +2,14 @@
 syntax: glob
 
 *.o
-*.f
 *.f90
+*.f
 *~
 *.pyc
 *.bin
 *.ipch
 .vscode
+.DS_Store
 
 bin/enzo
 bin/inits

@@ -2,19 +2,16 @@
 #include "error.def"
 #include "phys_const.def"
 
-!     set this if you want to log star particle info in a file (one per
-!     processor)
-#define NO_STAR_LOG
 
 c=======================================================================
 c////////////////////////  SUBROUTINE STAR_MAKER \\\\\\\\\\\\\\\\\\\\\\\
 c
       subroutine star_maker_h2reg(nx, ny, nz,
-     &     d, fHI, temp, u, v, w,
+     &     d, fHI, fH2, temp, u, v, w,
      &     dt, r, metal, dx, t, z, procnum, 
      &     d1, x1, v1, t1,
      &     nmax, xstart, ystart, zstart, ibuff, 
-     &     imetal, imethod, 
+     &     imetal, imethod, H2Method,
      &     StarFormationEfficiency,
      &     StarFormationNumberDensityThreshold, 
      &     StarFormationMinimumMass, 
@@ -23,6 +20,8 @@ c
      &     UseSobolevColumn,
      &     SigmaOverR,
      &     AssumeColdWarmPressureBalance,
+     &     UseLocalDensityMax, 
+     &     WriteStarLogFiles, 
      &     H2DissociationFlux_MW, 
      &     H2FloorInColdGas,
      &     ColdGasTemperature,
@@ -46,14 +45,7 @@ c
 c    d(M_*)/dt = eps * M_H2(>n) / t_ff(n)
 c
 c    The SF is proportional to the molecular hydrogen density, not the
-c    total gas density. The H_2 fraction is estimated using the
-c    prescription given by McKee & Krumholz (2010), which is based on 1D
-c    radiative transfer calculations and depends on the neutral hydrogen
-c    number density, the metallicity, and the H2 dissociating flux. If
-c    AssumeColdWarmPressureBalance==1, then the additional assumption of
-c    pressure balance between the Cold Neutral Medium and the Warm
-c    Neutral Medium removes the dependence on the H2 dissociating flux
-c    (Krumholz, McKee, & Tumlinson 2009).
+c    total gas density. 
 c
 c    Optionally, a proper number density threshold and/or an H2 fraction
 c    threshold is applied, below which no star formation occurs.
@@ -80,6 +72,18 @@ c    d1,x1,v1,t1 - factors to convert d,dx,v,t to physical units
 c    nx,ny,nz - dimensions of field arrays
 c    ibuff    - number of buffer zones at each end of grid
 c    imethod  - Hydro method (0/1 -- PPM DE/LR, 2 - ZEUS)
+c
+c     H2Method -
+c          Method for determining H_2 fraction.
+c           0 - The H_2 fraction is estimated using the
+c    prescription given by McKee & Krumholz (2010), which is based on 1D
+c    radiative transfer calculations and depends on the neutral hydrogen
+c    number density, the metallicity, and the H2 dissociating flux. If
+c    AssumeColdWarmPressureBalance==1, then the additional assumption of
+c    pressure balance between the Cold Neutral Medium and the Warm
+c    Neutral Medium removes the dependence on the H2 dissociating flux
+c    (Krumholz, McKee, & Tumlinson 2009).
+c           1 - The H_2 fraction is taken from Enzo's internal chemistry fields
 c
 c     StarFormationEfficiency -
 c          Specific star formation efficiency per free-fall time
@@ -155,12 +159,7 @@ c    tcp      - creation time of particle
 c    metalf   - metallicity fraction of particle
 c    nmax     - particle array size specified by calling routine
 c    minit    - initial mass of new particles
-c
-c
-c     ******* More details on this star formation recipe. *******
-c     
-
-c
+ 
 c-----------------------------------------------------------------------
        implicit none
 #include "fortran_types.def"
@@ -176,7 +175,8 @@ c
       INTG_PREC grid_id, iminit
       INTG_PREC procnum
       INTG_PREC ran1_init
-      R_PREC    d(nx,ny,nz), fHI(nx,ny,nz), temp(nx,ny,nz)
+      R_PREC    d(nx,ny,nz), fHI(nx,ny,nz), fH2(nx,ny,nz)
+      R_PREC    temp(nx,ny,nz)
       R_PREC    u(nx,ny,nz), v(nx,ny,nz), w(nx,ny,nz)
       R_PREC    r(nx,ny,nz), metal(nx,ny,nz)
       R_PREC    dt, dx, z
@@ -188,9 +188,13 @@ c
       R_PREC    mp(nmax), tdp(nmax), tcp(nmax), metalf(nmax)
       R_PREC minit(nmax)
 
+      INTG_PREC H2Method
       INTG_PREC StochasticStarFormation
       INTG_PREC UseSobolevColumn
       INTG_PREC AssumeColdWarmPressureBalance
+      INTG_PREC UseLocalDensityMax
+      INTG_PREC WriteStarLogFiles
+
       R_PREC StarFormationEfficiency
       R_PREC StarFormationNumberDensityThreshold
       R_PREC StarFormationMinimumMass
@@ -208,7 +212,7 @@ c
 c
 c  Locals:
 c
-      INTG_PREC  i, j, k, n, ii
+      INTG_PREC  i, j, k, n, ii, maxflag
       R_PREC   m1
       R_PREC   starmass, starmass_in_Msun
       R_PREC   densthresh, timeconstant, gasfrac
@@ -220,39 +224,24 @@ c
       R_PREC G0prime, t_avg, age
       R_PREC Sigma_cell
 
-      R_PREC U_MW, D_MW, Dstar, alpha, gg, Lambda, x
 
-      
-
-#ifdef STAR_LOG      
       character*32 starlog_filename
-
-#ifdef LARGE_TASK_COUNT
       character*8   post
-#else
-      character*4   post
-#endif
 
-! taken from mpi_error_file.F
-#ifdef LARGE_TASK_COUNT
-      write(post,'(i8)') procnum
-      do i=1,8
-      if(post(i:i).eq.' ') post(i:i)='0'
-      end do
-!     write(*,'(i8,4x,a8)') id,post
-#else
-      write(post,'(i4)') procnum
-      do i=1,4
-      if(post(i:i).eq.' ') post(i:i)='0'
-      end do
-!     write(*,'(i4,4x,a4)') id,post
-#endif
+      maxflag = 0 
 
-      starlog_filename = 'starlog_' // post // '.txt'
-c      print *,'starlog_filename = ',starlog_filename
-      open(unit=4,file=starlog_filename,status='unknown',
-     $     position='append')
-#endif
+      if (WriteStarLogFiles .eq. 1) then
+
+          write(post,'(i8)') procnum
+          do i=1,8
+              if(post(i:i).eq.' ') post(i:i)='0'
+          end do
+
+          starlog_filename = 'starlog_' // post // '.txt'
+          open(unit=4,file=starlog_filename,status='unknown',
+     $        position='append')
+
+      endif
 
 
       if (StochasticStarFormation .eq. 1) then 
@@ -280,10 +269,6 @@ c
       densthresh = StarFormationNumberDensityThreshold / 
      $     ( d1 / (MU * mass_h) )
       
-
-
-
-
 c     loop over all cells
       do k=1+ibuff,nz-ibuff
          do j=1+ibuff,ny-ibuff
@@ -302,7 +287,6 @@ c     Is this finest level of refinement?
 c     
                if (r(i,j,k) .ne. 0._RKIND) goto 10
 
-
 c     Some conditions for SF to occur.
 
 c     Is density greater than threshold?     
@@ -311,7 +295,6 @@ c     Is density greater than threshold?
 c               write(4,*) 'Found grid cell that is a star ', 
 c     $              'particle candidate: ', d(i,j,k), densthresh
                   
-
 c     Calculate the free fall time, which is the SF time scale
 
 c     t_ff = [ 3 * pi / (32 * G * rho) ]^(-1/2)
@@ -320,13 +303,13 @@ c          = 2.10e14 seconds * [ rho / 10^-22 g/cm^3 ]^(-1/2)
 
                timeconstant = 2.10e14_RKIND / t1 /
      $              sqrt( d(i,j,k)*dble(d1) / 1.0e-22_RKIND )
-
-c     Calculate molecular hydrogen frection (if H2StarFormation)
-               H2_fraction = 1.0
+               if (H2Method .eq. 0) then
+c     Calculate molecular hydrogen fraction (if H2StarFormation)
+                  H2_fraction = 1.0
 
 c     Metallicity normalized to Milky Way (solar neighborhood)
-               Z_MW = metal(i,j,k) / 0.0204_RKIND ! I got this value from yt (source?)
-
+c        CK (2/6/24): Zsun = 0.01295 is consistent with grackle & cloudy
+                  Z_MW = metal(i,j,k) / 0.0204_RKIND
 c     [Actually, 0.024 is the solar metallicity, which is not
 c     necessarily equal to the solar neighborhood metallicity. For
 c     example, the stellar metallicity in the solar neighborhood
@@ -337,26 +320,26 @@ c     2011). Thanks to Nick Gnedin & Andrey Kravtsov for clearing this
 c     up for me.]
 
 c     Hydrogen number density in proper cm^-3
-               nH = d(i,j,k) * fHI(i,j,k) * d1 / mass_h
+                  nH = d(i,j,k) * fHI(i,j,k) * d1 / mass_h
 
-               if (AssumeColdWarmPressureBalance .eq. 1) then
+                  if (AssumeColdWarmPressureBalance .eq. 1) then
 
 c     Eq.(7) Krumholz, McKee, & Tumlinson (2009)
-                  phi_CNM = 3._RKIND
-                  chi = 2.3_RKIND * SigmaOverR / phi_CNM * 
+                     phi_CNM = 3._RKIND
+                     chi = 2.3_RKIND * SigmaOverR / phi_CNM * 
      $                 ( 1._RKIND + 3.1_RKIND * Z_MW**0.365_RKIND )
-               else
+                  else
 
-                  G0prime = H2DissociationFlux_MW
+                     G0prime = H2DissociationFlux_MW
                      
 c     Eq.(9) McKee & Krumholz (2010)
-                  chi = 71._RKIND * SigmaOverR * G0prime / nH
+                     chi = 71._RKIND * SigmaOverR * G0prime / nH
                
-               endif
+                  endif
 
 c     Surface density of cell in Msun pc^-2 (1 g/cm^2 = 4788.03 Msun/pc^2)
 
-               if (UseSobolevColumn .ne. 1) then
+                  if (UseSobolevColumn .ne. 1) then
 c              *** Grid cell based ***
 c                  [ Sigma = rho * dx ]
 
@@ -364,78 +347,61 @@ c     total density column (Sigma_gas) [deprecated]
 ccc   Sigma = d(i,j,k) * d1 * (x1*dx) * 4788.03
 
 c     neutral hydrogen column (Sigma_HI)
-                  Sigma = d(i,j,k) * fHI(i,j,k) * 
+                     Sigma = d(i,j,k) * fHI(i,j,k) * 
      $                 d1 * (x1*dx) * 4788.03_RKIND
-               else
+                  else
 c              *** Sobolev-like approximation ***
 c                  [ Sigma ~ rho * ( rho / grad(rho) ) ]
                   
-                  Sigma = SobolevColumn(d, fHI, nx, ny, nz,
-     $                 i, j, k, dx, d1, x1)
+                     Sigma = SobolevColumn(d, fHI, nx, ny, nz,
+     $                 i, j, k, dx, d1, x1, maxflag)
+
+                     if (UseLocalDensityMax > 0) then 
+                        if (maxflag .lt. 1) goto 10
+                     endif 
                   
-                  Sigma_cell = d(i,j,k) * fHI(i,j,k) * 
+                     Sigma_cell = d(i,j,k) * fHI(i,j,k) * 
      $                 d1 * (x1*dx) * 4788.03_RKIND
-               endif
+                  endif
                      
 c     Eq.(22) Krumholz, McKee, & Tumlinson (2009)
-               tau_c = 0.067_RKIND * Z_MW * Sigma
+                  tau_c = 0.067_RKIND * Z_MW * Sigma
                
 c     Eq.(91) McKee & Krumholz (2010)
-               s = log( 1._RKIND + 0.6_RKIND * chi + 0.01_RKIND*chi*chi) 
+                  s = log(1._RKIND + 0.6_RKIND*chi + 0.01_RKIND*chi**2)
      $              / (0.6_RKIND * tau_c)
                
 c     Eq.(93) McKee & Krumholz (2010)
-               H2_fraction = 0._RKIND
-               if (s .lt. 2._RKIND) then
-                  H2_fraction = 1._RKIND - 0.75_RKIND * 
+                  H2_fraction = 0._RKIND
+                  if (s .lt. 2._RKIND) then
+                     H2_fraction = 1._RKIND - 0.75_RKIND * 
      $                 ( s / (1._RKIND + 0.25_RKIND*s) )
-               endif
+                  endif
                
-c               if (H2_fraction .eq. 0._RKIND) then
-c                  write(4,*) 'f_H2=0: ',s,chi,tau_c,Z_MW,Sigma,
-c     $                 Sigma_cell,nH,d(i,j,k), fHI(i,j,k)
-c               endif
-c               if (H2_fraction .eq. 1._RKIND) then
-c                  print *, 'f_H2=1: ',s,chi,tau_c,Z_MW,Sigma
-c               endif
-
-
 c     If H2FloorInColdGas is non-zero, then enforce a floor in f_H2, but
 c     only for cold gas (ColdGasTemperature).
-               if (H2FloorInColdGas .gt. 0._RKIND) then
+                  if (H2FloorInColdGas .gt. 0._RKIND) then
                   
-                  if(H2_fraction .lt. H2FloorInColdGas) then
+                     if(H2_fraction .lt. H2FloorInColdGas) then
                      
-c#ifdef STAR_LOG
-c                     write(4,*) 'Found cell with fH2 = ',
-c     $                    H2_fraction, ' < ',
-c     $                    H2FloorInColdGas, ' T = ',
-c     $                    temp(i,j,k)
-c#endif
-
-
-                     if(temp(i,j,k) .lt. ColdGasTemperature) then
-c#ifdef STAR_LOG
-c                        write(4,*) 'Enforced fH2 = 0.01 for cell ',
-c     $                       'with T = ',temp(i,j,k),
-c     $                       'and n = ',
-c     $                       d(i,j,k)*( d1 / (MU * mass_h))
-c#endif
-
-                        H2_fraction = H2FloorInColdGas
-                     endif
+                        if(temp(i,j,k) .lt. ColdGasTemperature) then
+                           H2_fraction = H2FloorInColdGas
+                        endif
                      
-                  endif  ! if(H2_fraction .lt. H2FloorInColdGas)
+                     endif  ! if(H2_fraction .lt. H2FloorInColdGas)
                   
-               endif  ! if (H2FloorInColdGas .gt. 0._RKIND)
+                  endif  ! if (H2FloorInColdGas .gt. 0._RKIND)
 
-               
+               else if (H2Method .eq. 1) then
+                  H2_fraction = fH2(i,j,k) ! read from chem field CK 
+               endif
+
 c     No star formation if H2_fraction < MinimumH2FractionForStarFormation.
                if (H2_fraction .lt.
      $              MinimumH2FractionForStarFormation) then
 c                  write(4,*) 'Star formation prevented because ',
-c     $                 'H2 fraction too low: f_H2 = ',
-c     $                 MinimumH2FractionForStarFormation
+c    $                 'H2 fraction too low: f_H2 = ',
+c    $                 MinimumH2FractionForStarFormation
                   goto 10
                endif
                
@@ -462,13 +428,6 @@ c     starmass_in_Msun/StarFormationMinimumMass.
                if(starmass_in_Msun .lt. 
      $              StarFormationMinimumMass) then
 
-#ifdef STAR_LOG
-                  write(4,*) 'Star particle does not meet minimum ',
-     $                 'mass threshold: ', starmass_in_Msun
-c     $                 dt, timeconstant, 
-c     $                 gasfrac, starmass, StarFormationMinimumMass
-#endif
-                     
                   if (StochasticStarFormation .eq. 1) then
                      call random_number(random)
                      critval = starmass_in_Msun / 
@@ -479,27 +438,21 @@ c     $                 gasfrac, starmass, StarFormationMinimumMass
                         
                      starmass_in_Msun = StarFormationMinimumMass
                      starmass = starmass_in_Msun / m1
-#ifdef STAR_LOG
-                     write(4,200) 'Star particle does not meet ',
-     $                    'minimum mass threshold: M =', 
-     $                    starmass_in_Msun,
-     $                    ', but stochastic creation occurred.',
-     $                    random, critval
+                     if (WriteStarLogFiles .eq. 1) then 
+                         write(4,300) 'Star particle does not meet ',
+     $                        'minimum mass threshold: M =', 
+     $                        starmass_in_Msun,
+     $                        ', but stochastic creation occurred.',
+     $                        random, critval
                      
- 200                 format(a,a,1pe10.3,a,2(1pe10.3))
-#endif
+ 300                     format(a,a,1pe10.3,a,2(1pe10.3))
+                     endif
                   endif
+c                 JT added goto here 112623
+                  goto 10 
                endif
 
-
-
-#ifdef STAR_LOG
-               write(4,*) 'Star particle formed with M/Msun = ',
-     $              starmass_in_Msun, starmass
-#endif
-
                ii = ii + 1
-
 
 c            fill in star particle attributes
 
@@ -517,6 +470,20 @@ c            fill in star particle attributes
                xp(ii) = xstart + (REAL(i,RKIND)-0.5_RKIND)*dx
                yp(ii) = ystart + (REAL(j,RKIND)-0.5_RKIND)*dx
                zp(ii) = zstart + (REAL(k,RKIND)-0.5_RKIND)*dx
+               if (WriteStarLogFiles .eq. 1) then 
+                   write(4,80) 'SMInputs', d(i,j,k),fHI(i,j,k),
+     $                 temp(i,j,k),t,dt,z,dx,metal(i,j,k), H2Method 
+80                 format(a,8(1pe10.3), i5)
+
+                   write(4,100) 'SMMath', nH, Sigma, phi_CNM, chi,tau_c,
+     $                     s,H2_fraction,densthresh,timeconstant,tau_ff,
+     $                     gasfrac, starmass, starmass_in_Msun, maxflag
+100               format(a,13(1pe12.3), i5)  
+
+                   write(4,250) 'SMOut', d(i,j,k)*d1, temp(i,j,k), 
+     $                    H2_fraction, mp(ii), tcp(ii), tdp(ii) 
+250                format(a,6(1pe10.3))
+               endif 
 
 #define AVERAGE_PARTICLE_VELOCITY
 #ifdef AVERAGE_PARTICLE_VELOCITY
@@ -633,15 +600,14 @@ c
       endif
       np = ii
 
-#ifdef STAR_LOG
-      close(4)
-#endif
-
+      if (WriteStarLogFiles .eq. 1) close(4)
+      
       return
       end
 
 
-      R_PREC function SobolevColumn(d,fHI,nx,ny,nz,i,j,k,dx,d1,x1)
+      R_PREC function SobolevColumn(d,fHI,nx,ny,nz,
+     &      i,j,k,dx,d1,x1,maxflag)
 c     
 c  CALCULATE SOBOLEV-LIKE APPROXIMATION OF THE HI SURFACE DENSITY
 c
@@ -686,7 +652,7 @@ c-----------------------------------------------------------------------
 c-----------------------------------------------------------------------
 c  Arguments
 c
-      INTG_PREC nx, ny, nz, i, j, k
+      INTG_PREC nx, ny, nz, i, j, k, maxflag
       R_PREC d(nx,ny,nz), fHI(nx,ny,nz)
       R_PREC dx, d1, x1
 c
@@ -712,6 +678,7 @@ c
 
       R_PREC unit_factor
 
+      maxflag = 1 
 
 c     HI density at grid cell of interest and six surrounding neighbor
 c     cells.
@@ -726,6 +693,12 @@ c     cells.
       dHI_zm1 = d(i,j,k-1) * fHI(i,j,k-1)
       dHI_zp1 = d(i,j,k+1) * fHI(i,j,k+1)
 
+      if( dHI_xm1 .ge. dHI ) maxflag = 0
+      if( dHI_xp1 .ge. dHI ) maxflag = 0
+      if( dHI_ym1 .ge. dHI ) maxflag = 0
+      if( dHI_yp1 .ge. dHI ) maxflag = 0
+      if( dHI_zm1 .ge. dHI ) maxflag = 0
+      if( dHI_zp1 .ge. dHI ) maxflag = 0
 
 c     Calculate "gradients"
       grad_xm = abs( dHI_xm1 - dHI ) / dx

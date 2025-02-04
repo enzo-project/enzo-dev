@@ -934,6 +934,14 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
           StarMetalYield);
   fprintf(fptr, "StarEnergyToThermalFeedback           = %"GSYM"\n",
           StarEnergyToThermalFeedback);
+  fprintf(fptr, "StarFeedbackAdditionalThermalEnergy   = %"GSYM"\n",
+          StarFeedbackAdditionalThermalEnergy);
+  fprintf(fptr, "MomentumMultiplier                    = %"GSYM"\n",
+          MomentumMultiplier);
+  fprintf(fptr, "MomentumCancellationToThermal         = %"ISYM"\n",
+          MomentumCancellationToThermal);
+  fprintf(fptr, "WriteFeedbackLogFiles                 = %"ISYM"\n",
+          WriteFeedbackLogFiles);
   fprintf(fptr, "StarEnergyToStellarUV                 = %"GSYM"\n",
           StarEnergyToStellarUV);
   fprintf(fptr, "StarEnergyToQuasarUV                  = %"GSYM"\n",
@@ -1117,6 +1125,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "StellarWindCenterPosition   = ");
   WriteListOfFloats(fptr, MetaData.TopGridRank, StellarWindCenterPosition);
 
+  fprintf(fptr, "H2StarMakerH2FractionMethod        = %"ISYM"\n", H2StarMakerH2FractionMethod);
   fprintf(fptr, "H2StarMakerEfficiency              = %"GSYM"\n", H2StarMakerEfficiency);
   fprintf(fptr, "H2StarMakerNumberDensityThreshold  = %"GSYM"\n", H2StarMakerNumberDensityThreshold);
   fprintf(fptr, "H2StarMakerMinimumMass             = %"GSYM"\n", H2StarMakerMinimumMass);
@@ -1128,6 +1137,8 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "H2StarMakerH2DissociationFlux_MW   = %"GSYM"\n", H2StarMakerH2DissociationFlux_MW);
   fprintf(fptr, "H2StarMakerH2FloorInColdGas        = %"GSYM"\n\n", H2StarMakerH2FloorInColdGas);
   fprintf(fptr, "H2StarMakerColdGasTemperature      = %"GSYM"\n\n", H2StarMakerColdGasTemperature);
+  fprintf(fptr, "H2StarMakerUseLocalDensityMax      = %"ISYM"\n\n", H2StarMakerUseLocalDensityMax);
+  fprintf(fptr, "H2StarMakerWriteStarLogFiles       = %"ISYM"\n\n", H2StarMakerWriteStarLogFiles);
 
   fprintf(fptr, "StarMakerMinimumMassRamp           = %"ISYM"\n", StarMakerMinimumMassRamp);
   fprintf(fptr, "StarMakerMinimumMassRampStartTime  = %"GSYM"\n", StarMakerMinimumMassRampStartTime);

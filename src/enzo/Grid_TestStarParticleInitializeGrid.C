@@ -86,14 +86,13 @@ int grid::TestStarParticleInitializeGrid(float TestStarParticleStarMass,
   if (StarMakerStoreInitialMass)
     ParticleInitialMass[0] = CentralMass;
   ParticleAttribute[0][0] = Time+1e-7;
+  ParticleAttribute[1][0] = 10.0 * Myr_s/TimeUnits;
 
   ParticleAttribute[1][0] = StarMakerMinimumDynamicalTime * yr_s/TimeUnits; // default
   if (STARFEED_METHOD(UNIGRID_STAR)) ParticleAttribute[1][0] = 10.0 * Myr_s/TimeUnits;
-  if (STARFEED_METHOD(MOM_STAR))
+  if (STARFEED_METHOD(MOM_STAR) || STARFEED_METHOD(MECH_STAR))
     if(StarMakerExplosionDelayTime >= 0.0)
       ParticleAttribute[1][0] = 1.0;
-    else
-      ParticleAttribute[1][0] = 10.0 * Myr_s/TimeUnits;
   
   ParticleAttribute[2][0] = TestStarParticleMetallicity;  // Metal fraction
   ParticleAttribute[3][0] = 0.0;  // metalfSNIa

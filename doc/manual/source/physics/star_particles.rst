@@ -444,10 +444,11 @@ applied, below which no star formation occurs.
 
 Typically this method is used with
 ``StarFormationOncePerRootGridTimeStep``, in which case SF occurs only
-at the beginning of the root grid step and only for grids on
-MaximumRefinementLevel, but with a star particle mass that is
+at the beginning of the root grid step and with a star particle mass that is
 proportial to the root grid time step (as opposed to the much smaller
-time step of the maximally refined grid). This results in fewer and
+time step of the maximally refined grid). Star particles will still only
+form on the most refined grid in a given region.
+This results in fewer and
 more massive star particles, which improves computational
 efficiency. Even so, it may be desirable to enforce a lower limit to
 the star particle mass in some cases. This can be done with the
@@ -458,6 +459,19 @@ particle of mass equal to H2StarMakerMinimumMass is formed
 stochastically with a probability of (stellar
 mass)/H2StarMakerMinimumMass.
 
+For some applications, it may be desireable to create stars only 
+at local density peaks. For this purpose, setting 
+``H2StarMakerUseLocalDensityMax`` = 1 will check if the cell being 
+considered for star formation has the highest density of any cell 
+in the +/- one cell in the x, y, and z directions. If does not 
+have the highest density among these six neighbors, it will not form 
+stars. This scheme can only be used if ``H2StarMakerUseSobolev =1 ``, because 
+that routine is needed to calculate the local density gradients.
+
+This star_maker routine can generate a large number of diagnostic 
+outputs in text files created at runtime. These files are not 
+created by default. 
+They can be turned on by setting ``H2StarMakerWriteLogFiles = 1``. 
 
 **Important Note**: There is no feedback scheme corresponding to this
 star maker, so don't set StarParticleFeedback = 2048. Instead the user

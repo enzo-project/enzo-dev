@@ -39,19 +39,19 @@ LOCAL_PACKAGES       = /usr/local
 
 # This will not work on OSX Lion or newer.  You may wany to try installing
 # openmpi via macports.  
-LOCAL_MPI_INSTALL    = /usr/local
-LOCAL_FC_INSTALL     = /usr/local
-LOCAL_HDF5_INSTALL   = $(YT_DEST)
+LOCAL_MPI_INSTALL    = /opt/homebrew/Cellar/open-mpi/5.0.0
+LOCAL_FC_INSTALL     = /opt/homebrew/Cellar/gcc/13.2.0
+LOCAL_HDF5_INSTALL   = /opt/homebrew/Cellar/hdf5/1.14.3
 LOCAL_SZIP_INSTALL   = $(LOCAL_PACKAGES)
 LOCAL_HYPRE_INSTALL  = $(HOME)
-LOCAL_PYTHON_INSTALL = $(YT_DEST)
-LOCAL_GRACKLE_INSTALL = /usr/local
+LOCAL_PYTHON_INSTALL = $(HOME)/anaconda3/bin
+LOCAL_GRACKLE_INSTALL = $(HOME)/grackle_install
 
 #-----------------------------------------------------------------------
 # Compiler settings
 #-----------------------------------------------------------------------
 
-MACH_CPP       = /usr/bin/cpp
+MACH_CPP       = /opt/homebrew/bin/cpp-13
 
 # With MPI
 
@@ -64,11 +64,11 @@ MACH_CUDACOMPILER = /usr/local/cuda/bin/nvcc
 
 # Without MPI
 
-MACH_CC_NOMPI  = gcc  # C compiler when not using MPI
-MACH_CXX_NOMPI = g++ # C++ compiler when not using MPI
+MACH_CC_NOMPI  = gcc-13  # C compiler when not using MPI
+MACH_CXX_NOMPI = g++-13 # C++ compiler when not using MPI
 MACH_FC_NOMPI  = gfortran # Fortran 77 compiler when not using MPI
 MACH_F90_NOMPI = gfortran # Fortran 90 compiler when not using MPI
-MACH_LD_NOMPI  = g++ # Linker when not using MPI
+MACH_LD_NOMPI  = g++-13 # Linker when not using MPI
 
 #-----------------------------------------------------------------------
 # Machine-dependent defines
@@ -87,8 +87,8 @@ MACH_DEFINES   = -DLINUX -DH5_USE_16_API
 MACH_CPPFLAGS = -P -traditional 
 MACH_CFLAGS   =
 MACH_CXXFLAGS =
-MACH_FFLAGS   = -fno-second-underscore -m64
-MACH_F90FLAGS = -fno-second-underscore -m64
+MACH_FFLAGS   = -fno-second-underscore -m64 -fallow-argument-mismatch
+MACH_F90FLAGS = -fno-second-underscore -m64 -fallow-argument-mismatch
 MACH_LDFLAGS  = 
 MACH_SHARED_FLAGS = -dynamiclib -Wl,-headerpad_max_install_names,-undefined,dynamic_lookup
 MACH_SHARED_EXT   = dylib

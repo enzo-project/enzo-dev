@@ -60,6 +60,19 @@ int ExternalBoundary::SetGalaxySimulationBoundary(FLOAT time)
     ENZO_FAIL("Error in IdentifyPhysicalQuantities.\n");
   }
 
+  int DeNum = FindField(ElectronDensity,BoundaryFieldType,NumberOfBaryonFields);
+  int HINum = FindField(HIDensity,BoundaryFieldType,NumberOfBaryonFields);
+  int HIINum = FindField(HIIDensity,BoundaryFieldType,NumberOfBaryonFields);
+  int HeINum = FindField(HeIDensity,BoundaryFieldType,NumberOfBaryonFields);
+  int HeIINum = FindField(HeIIDensity,BoundaryFieldType,NumberOfBaryonFields);
+  int HeIIINum = FindField(HeIIIDensity,BoundaryFieldType,NumberOfBaryonFields);
+  int HMNum = FindField(HMDensity,BoundaryFieldType,NumberOfBaryonFields);
+  int H2INum = FindField(H2IDensity,BoundaryFieldType,NumberOfBaryonFields);
+  int H2IINum = FindField(H2IIDensity,BoundaryFieldType,NumberOfBaryonFields);
+  int DINum = FindField(DIDensity,BoundaryFieldType,NumberOfBaryonFields);
+  int DIINum = FindField(DIIDensity,BoundaryFieldType,NumberOfBaryonFields);
+  int HDINum = FindField(HDIDensity,BoundaryFieldType,NumberOfBaryonFields);
+
 	/* Determine if we're using metallicity (as a color field) */
 	int MetalNum = FindField(Metallicity,BoundaryFieldType,NumberOfBaryonFields);
 	int UseMetallicityField = (MetalNum == -1) ? 0 : 1;
@@ -145,6 +158,16 @@ int ExternalBoundary::SetGalaxySimulationBoundary(FLOAT time)
 					BoundaryValue[Vel2Num][dim][0][index] = GalaxySimulationRPSWindVelocity[1];
 				if (BoundaryRank > 2)
 					BoundaryValue[Vel3Num][dim][0][index] = GalaxySimulationRPSWindVelocity[2];
+                                if (DualEnergyFormalism)
+                                  BoundaryValue[GENum][dim][0][index] = BoundaryValue[TENum][dim][0][index];
+                                if (HydroMethod != Zeus_Hydro) {
+                                  if (BoundaryRank == 1)
+                                    BoundaryValue[TENum][dim][0][index] += 0.5*POW(BoundaryValue[Vel1Num][dim][0][index],2);
+                                  if (BoundaryRank > 1)
+				    BoundaryValue[TENum][dim][0][index] += 0.5*POW(BoundaryValue[Vel2Num][dim][0][index],2);
+				  if (BoundaryRank > 2)
+				    BoundaryValue[TENum][dim][0][index] += 0.5*POW(BoundaryValue[Vel3Num][dim][0][index],2);
+				}
 			} else { // If not, set pre-shock values
 				BoundaryValue[DensNum][dim][0][index] = GalaxySimulationPreWindDensity;
 				BoundaryValue[TENum][dim][0]  [index] = GalaxySimulationPreWindTotalEnergy;
@@ -153,6 +176,16 @@ int ExternalBoundary::SetGalaxySimulationBoundary(FLOAT time)
 					BoundaryValue[Vel2Num][dim][0][index] = GalaxySimulationPreWindVelocity[1];
 				if (BoundaryRank > 2)
 					BoundaryValue[Vel3Num][dim][0][index] = GalaxySimulationPreWindVelocity[2];
+			        if (DualEnergyFormalism)
+                                  BoundaryValue[GENum][dim][0][index] = BoundaryValue[TENum][dim][0][index];
+                                if (HydroMethod != Zeus_Hydro) {
+                                  if (BoundaryRank == 1)
+                                    BoundaryValue[TENum][dim][0][index] += 0.5*POW(BoundaryValue[Vel1Num][dim][0][index],2);
+                                  if (BoundaryRank > 1)
+				    BoundaryValue[TENum][dim][0][index] += 0.5*POW(BoundaryValue[Vel2Num][dim][0][index],2);
+				  if (BoundaryRank > 2)
+				    BoundaryValue[TENum][dim][0][index] += 0.5*POW(BoundaryValue[Vel3Num][dim][0][index],2);
+				}
 			}
 
 		} else if( 2 == GalaxySimulationRPSWind ){
@@ -222,6 +255,16 @@ int ExternalBoundary::SetGalaxySimulationBoundary(FLOAT time)
 					BoundaryValue[Vel2Num][dim][0][index] = GalaxySimulationPreWindVelocity[1];
 				if (BoundaryRank > 2)
 					BoundaryValue[Vel3Num][dim][0][index] = GalaxySimulationPreWindVelocity[2];
+                                if (DualEnergyFormalism)
+                                  BoundaryValue[GENum][dim][0][index] = BoundaryValue[TENum][dim][0][index];
+                                if (HydroMethod != Zeus_Hydro) {
+                                  if (BoundaryRank == 1)
+                                    BoundaryValue[TENum][dim][0][index] += 0.5*POW(BoundaryValue[Vel1Num][dim][0][index],2);
+                                  if (BoundaryRank > 1)
+				    BoundaryValue[TENum][dim][0][index] += 0.5*POW(BoundaryValue[Vel2Num][dim][0][index],2);
+				  if (BoundaryRank > 2)
+				    BoundaryValue[TENum][dim][0][index] += 0.5*POW(BoundaryValue[Vel3Num][dim][0][index],2);
+				}
 
 			} else {
 
@@ -254,7 +297,16 @@ int ExternalBoundary::SetGalaxySimulationBoundary(FLOAT time)
 				if (BoundaryRank > 2)
 					BoundaryValue[Vel3Num][dim][0][index] = t_ratio*ICMVelocityZTable[i1]
 						                                      + (1.0-t_ratio)*ICMVelocityZTable[i2];
-
+                                if (DualEnergyFormalism)
+                                  BoundaryValue[GENum][dim][0][index] = BoundaryValue[TENum][dim][0][index];
+                                if (HydroMethod != Zeus_Hydro) {
+                                  if (BoundaryRank == 1)
+                                    BoundaryValue[TENum][dim][0][index] += 0.5*POW(BoundaryValue[Vel1Num][dim][0][index],2);
+                                  if (BoundaryRank > 1)
+				    BoundaryValue[TENum][dim][0][index] += 0.5*POW(BoundaryValue[Vel2Num][dim][0][index],2);
+				  if (BoundaryRank > 2)
+				    BoundaryValue[TENum][dim][0][index] += 0.5*POW(BoundaryValue[Vel3Num][dim][0][index],2);
+				}
 				// update RPS Wind Vector for time delay calc
 				if( index == 0.0 ){
 					GalaxySimulationRPSWindVelocity[0] = BoundaryValue[Vel1Num][dim][0][index];
@@ -268,9 +320,27 @@ int ExternalBoundary::SetGalaxySimulationBoundary(FLOAT time)
 			ENZO_FAIL("Error in ExternalBoundary_SetGalaxyBoundary: GalaxySimulationRPSWind choice invalid");
 		}
 
-		// update metallicity field
+		// update metallicity field (todo: we should eventually add parameters to allow these to be controlled directly, but for now just set to something vaguely sensible; in practice the ionization fractions in the wind should rapidly come into equilibrium)
+                if (MultiSpecies > 0)  {
+                  BoundaryValue[HIINum][dim][0][index] = 0.5 * CoolData.HydrogenFractionByMass * BoundaryValue[DensNum][dim][0][index];
+                  BoundaryValue[HeIINum][dim][0][index] = 0.2 * BoundaryValue[DensNum][dim][0][index] * (1.0 - CoolData.HydrogenFractionByMass); //get rid of factor of 4
+                  BoundaryValue[HeIIINum][dim][0][index] = 0.2 * BoundaryValue[DensNum][dim][0][index] * (1.0 - CoolData.HydrogenFractionByMass); //get rid of factor of 4
+                  BoundaryValue[HeINum][dim][0][index] = (1.0-CoolData.HydrogenFractionByMass)*BoundaryValue[DensNum][dim][0][index] - BoundaryValue[HeIINum][dim][0][index] - BoundaryValue[HeIIINum][dim][0][index];
+                  BoundaryValue[HINum][dim][0][index] = CoolData.HydrogenFractionByMass * BoundaryValue[DensNum][dim][0][index] - BoundaryValue[HIINum][dim][0][index];
+                  BoundaryValue[DeNum][dim][0][index] = BoundaryValue[HIINum][dim][0][index] + 0.25*BoundaryValue[HeIINum][dim][0][index] + 0.5*BoundaryValue[HeIIINum][dim][0][index];
+                  if (MultiSpecies > 1) {
+                    BoundaryValue[HMNum][dim][0][index] =1e-10;
+                    BoundaryValue[H2INum][dim][0][index] = 1e-10;
+                    BoundaryValue[H2IINum][dim][0][index] = 1e-10;
+		  }
+                  if (MultiSpecies > 2) {
+                    BoundaryValue[DINum][dim][0][index] = 1e-10;
+                    BoundaryValue[DIINum][dim][0][index] = 1e-10;
+                    BoundaryValue[HDINum][dim][0][index] = 1e-10;
+		  }
+		}
 		if( UseMetallicityField )
-			BoundaryValue[MetalNum][dim][0][index] = 1.0e-10;
+		  BoundaryValue[MetalNum][dim][0][index] = 0.1 * BoundaryValue[DensNum][dim][0][index] * CoolData.SolarMetalFractionByMass; // 0.1 solar metallicity
 
 		if( BoundaryValue[DensNum][dim][0][index] < 0.0 ) 
 			ENZO_FAIL("Error in ExternalBoundary_SetGalaxyBoundary: Negative Density");

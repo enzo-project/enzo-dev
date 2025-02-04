@@ -997,6 +997,14 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "StarMetalYield = %"FSYM, &StarMetalYield);
     ret += sscanf(line, "StarEnergyToThermalFeedback = %"FSYM,
 		  &StarEnergyToThermalFeedback);
+    ret += sscanf(line, "StarFeedbackAdditionalThermalEnergy = %"FSYM,
+		  &StarFeedbackAdditionalThermalEnergy);
+    ret += sscanf(line, "MomentumMultiplier = %"FSYM,
+		  &MomentumMultiplier);
+    ret += sscanf(line, "MomentumCancellationToThermal = %"ISYM,
+		  &MomentumCancellationToThermal);
+    ret += sscanf(line, "WriteFeedbackLogFiles = %"ISYM,
+		  &WriteFeedbackLogFiles);
     ret += sscanf(line, "StarEnergyToStellarUV = %"FSYM, &StarEnergyToStellarUV);
     ret += sscanf(line, "StarEnergyToQuasarUV = %"FSYM, &StarEnergyToQuasarUV);
     ret += sscanf(line, "StarFeedbackKineticFraction = %"FSYM,
@@ -1103,6 +1111,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     if (sscanf(line, "MBHInsertLocationFilename = %s", dummy) == 1)
       MBHInsertLocationFilename = dummy;
 
+    ret += sscanf(line, "H2StarMakerH2FractionMethod = %"ISYM,
+		  &H2StarMakerH2FractionMethod);
     ret += sscanf(line, "H2StarMakerEfficiency = %"FSYM,
 		  &H2StarMakerEfficiency);
     ret += sscanf(line, "H2StarMakerNumberDensityThreshold = %"FSYM,
@@ -1125,6 +1135,10 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  &H2StarMakerH2FloorInColdGas);
     ret += sscanf(line, "H2StarMakerColdGasTemperature = %"FSYM,
 		  &H2StarMakerColdGasTemperature);
+    ret += sscanf(line, "H2StarMakerUseLocalDensityMax = %"ISYM,
+		  &H2StarMakerUseLocalDensityMax);
+    ret += sscanf(line, "H2StarMakerWriteStarLogFiles = %"ISYM,
+		  &H2StarMakerWriteStarLogFiles);
 
     ret += sscanf(line, "StarMakerMinimumMassRamp = %"ISYM,
 		  &StarMakerMinimumMassRamp);

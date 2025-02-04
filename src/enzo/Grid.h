@@ -149,8 +149,8 @@ class grid
 
 // For once-per-rootgrid-timestep star formation, the following flag
 // determines whether SF is about to occur or not. It's currently
-//(April 2012) only implemented for H2REG_STAR and completely
-// ignored for all other star makers.
+// (September 2023) only implemented for H2REG_STAR and NORMAL_STAR
+// but completely ignored for all other star makers.
   int MakeStars;
 
 //
@@ -2112,6 +2112,13 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 				     FLOAT TestStarParticleStarVelocity[],
 				     FLOAT TestStarParticleStarPosition[],
                  float TestStarParticleMetallicity);
+
+/* Double Star Particle test: initialize particle */
+  int TestDoubleStarParticleInitializeGrid(FLOAT TestStarParticleStarMass[2], 
+				     float *Initialdt,
+				     FLOAT TestStarParticleStarVelocity[2][3],
+				     FLOAT TestStarParticleStarPosition[2][3],
+                 FLOAT TestStarParticleMetallicity[2]);
 
 /* Gravity Test: initialize grid. */
 
