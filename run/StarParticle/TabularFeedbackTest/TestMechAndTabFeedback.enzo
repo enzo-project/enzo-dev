@@ -1,0 +1,77 @@
+#
+# AMR PROBLEM DEFINITION FILE: TestStarParticle
+#
+#  define problem
+#
+ProblemType            = 90        // TestStarParaticle
+TopGridRank            = 3
+TopGridDimensions      = 64 64 64
+StarParticleFeedback   = 64 //Star feedback method 6, mechanical feedback
+StarFeedbackDistRadius = 1
+StarFeedbackDistCellStep = 3
+TestStarParticleDensity = 10
+TestStarParticleEnergy  = 6.55410093179e-06
+TestProblemUseMetallicityField = 1
+TestProblemInitialMetallicityFraction  =  2e-3      // 0.1 Solar
+TestStarParticleStarMass = 2000.0
+TestStarParticleStarMetallicityFraction = 0.005
+TestStarParticleStarPosition = 0.5 0.5 0.5
+TestStarParticleStarVelocity = 0 0 0
+OutputTemperature = 1
+OutputCoolingTime = 1
+Initialdt = 0.0010017410642
+#
+#  Units
+#
+LengthUnits            = 4.9376e22  // 16 kpc
+TimeUnits              = 3.15e13    // 1 Myr
+DensityUnits           = 1.67e-24    // 1 part/cc
+#
+#  set I/O and stop/start parameters
+#
+StopTime               = 50
+#CycleSkipDataDump       = 1
+#CycleLastDataDump       = 0
+dtDataDump             = 0.5
+#
+# Feedback parameters
+#
+StarMakerStoreInitialMass     = 1
+StarFeedbackUseTabularYields  = 1
+StarFeedbackTabularFilename   = sygma_feedback_table.h5
+StarFeedbackTabularSNIIEnergy = 1e51
+StarFeedbackTabularSNIaEnergy = 1e51
+StarFeedbackTrackMetalSources = 1
+MomentumMultiplier = 1.0
+WriteFeedbackLogFiles = 1
+MomentumCancellationToThermal = 1
+#
+#  set Hydro parameters
+#
+HydroMethod            = 0
+DualEnergyFormalism    = 1
+CourantSafetyNumber    = 0.4
+PPMDiffusionParameter  = 0       // diffusion off
+PPMFlatteningParameter = 0       // flattening on
+PPMSteepeningParameter = 0       // steepening on
+Gamma = 1.6666667
+#
+#  set grid refinement parameters
+#
+StaticHierarchy           = 1    // static hierarchy
+RefineBy                  = 2    // refinement factor
+MaximumRefinementLevel    = 0
+CellFlaggingMethod        = 0
+
+#
+# Cooling
+#
+#use_grackle                     = 1
+#with_radiative_cooling          = 1
+#MultiSpecies                    = 0  // set to one if using Cloudy 4D or 5D
+#MetalCooling                    = 1
+#grackle_data_file               = /Users/clochhaas/grackle/grackle_data_files/input/CloudyData_UVB=HM2012_shielded.h5
+#CMBTemperatureFloor             = 1
+#UVbackground                    = 1
+#RadiativeCooling                = 1
+
