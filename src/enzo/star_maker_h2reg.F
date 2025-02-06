@@ -384,7 +384,7 @@ c     only for cold gas (ColdGasTemperature).
                else if (H2Method .eq. 1) then
                   H2_fraction = fH2(i,j,k) ! read from chem field CK 
                   Sigma = SobolevColumn(d, fHI, nx, ny, nz,
-                  $                 i, j, k, dx, d1, x1, maxflag)
+     $              i, j, k, dx, d1, x1, maxflag)
 
                   if (UseLocalDensityMax > 0) then
                      if (maxflag .lt. 1) goto 10
