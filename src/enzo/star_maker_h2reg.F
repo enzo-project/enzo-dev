@@ -340,19 +340,11 @@ c     Eq.(9) McKee & Krumholz (2010)
 c     Surface density of cell in Msun pc^-2 (1 g/cm^2 = 4788.03 Msun/pc^2)
 
                   if (UseSobolevColumn .ne. 1) then
-c              *** Grid cell based ***
-c                  [ Sigma = rho * dx ]
-
-c     total density column (Sigma_gas) [deprecated]
-ccc   Sigma = d(i,j,k) * d1 * (x1*dx) * 4788.03
-
-c     neutral hydrogen column (Sigma_HI)
+c                    neutral hydrogen column (Sigma_HI)
                      Sigma = d(i,j,k) * fHI(i,j,k) * 
      $                 d1 * (x1*dx) * 4788.03_RKIND
                   else
-c              *** Sobolev-like approximation ***
-c                  [ Sigma ~ rho * ( rho / grad(rho) ) ]
-                  
+c                    Sobolev-like approx. [ Sigma ~ rho * ( rho / grad(rho) ) ]                  
                      Sigma = SobolevColumn(d, fHI, nx, ny, nz,
      $                 i, j, k, dx, d1, x1, maxflag)
 
@@ -394,7 +386,15 @@ c     only for cold gas (ColdGasTemperature).
 
                else if (H2Method .eq. 1) then
                   H2_fraction = fH2(i,j,k) ! read from chem field CK 
+                  Sigma = SobolevColumn(d, fHI, nx, ny, nz,
+     $              i, j, k, dx, d1, x1, maxflag)
+
+                  if (UseLocalDensityMax > 0) then
+                     if (maxflag .lt. 1) goto 10
+                  endif
+
                endif
+c              This endif closes the if statement on line 303
 
 c     No star formation if H2_fraction < MinimumH2FractionForStarFormation.
                if (H2_fraction .lt.
