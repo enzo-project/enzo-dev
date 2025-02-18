@@ -29,8 +29,8 @@ int grid::ReturnParticleEntry(ParticleEntry *List)
   for (int i = 0; i < NumberOfParticles; i++) {
     List->Number = ParticleNumber[i];
     List->Type = ParticleType[i];
-    List->Mass = ParticleMass[i]*pow(CellWidth[0][0],3);
-    if (StarMakerStoreInitialMass) List->InitialMass = ParticleInitialMass[i]*pow(CellWidth[0][0],3);
+    List->Mass = ParticleMass[i]*POW(CellWidth[0][0],3);
+    if (StarMakerStoreInitialMass) List->InitialMass = ParticleInitialMass[i]*POW(CellWidth[0][0],3);
     for (int dim = 0; dim < GridRank; dim++) {
       List->Position[dim] = ParticlePosition[dim][i];
       List->Velocity[dim] = ParticleVelocity[dim][i];

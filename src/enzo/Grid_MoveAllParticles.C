@@ -136,7 +136,7 @@ int grid::MoveAllParticles(int NumberOfGrids, grid* FromGrid[])
     for (i = 0; i < FromGrid[grid]->NumberOfParticles; i++) {
       Mass[Index+i] = FromGrid[grid]->ParticleMass[i] * MassDecrease;
       if (StarMakerStoreInitialMass)
-        InitialMass[Index+i] = FromGrid[grid]->ParticleInitialMass[i] * MassDecrease; // does this make sense?
+        InitialMass[Index+i] = FromGrid[grid]->ParticleInitialMass[i] * MassDecrease;
       Number[Index+i] = FromGrid[grid]->ParticleNumber[i];
       Type[Index+i] = FromGrid[grid]->ParticleType[i];
     }

@@ -59,7 +59,7 @@ int grid::TestStarParticleInitializeGrid(float TestStarParticleStarMass,
 
   /* Set Central Mass in simulation units */
 
-  CentralMass = TestStarParticleStarMass*SolarMass* pow(LengthUnits*CellWidth[0][0],-3.0)/DensityUnits;
+  CentralMass = TestStarParticleStarMass*SolarMass* POW(LengthUnits*CellWidth[0][0],-3.0)/DensityUnits;
 
   printf("Central Mass: %f \n",CentralMass);
 

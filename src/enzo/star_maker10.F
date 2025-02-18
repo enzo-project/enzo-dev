@@ -55,7 +55,7 @@ c        smthresh unless (random number) < starmass/smthresh )
 c    mintdyn  - minimum dynamical time, in years
 c    level - current level of refinement
 c    procnum - processor number (for output)
-c    iminit  - whehter to store initial mass separately
+c    iminit  - whether to store initial mass separately
 c
 c  OUTPUTS:
 c

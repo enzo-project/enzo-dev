@@ -619,8 +619,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   StarFeedbackDistCellStep         = 0;
   StarFeedbackDistTotalCells       = 1;
   StarFeedbackUseTabularYields     = FALSE;
-  StarFeedbackTabularSNIIEnergy    = 1e+51;
-  StarFeedbackTabularSNIaEnergy    = 1e+51;
+  StarFeedbackTabularSNIIEnergy    = 1.0e+51;
+  StarFeedbackTabularSNIaEnergy    = 1.0e+51;
   StarFeedbackTrackMetalSources    = FALSE;
   StarMakerUseJeansMass            = TRUE;
   MultiMetals                      = FALSE;

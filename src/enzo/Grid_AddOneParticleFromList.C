@@ -55,7 +55,7 @@ int grid::AddOneParticleFromList(ParticleEntry *List, const int place)
 
   /* copy old particles to their new home. */
   if (StarMakerStoreInitialMass) {
-    for (i = 0; i < NumberOfParticles - 1; i++) {
+    for (i = 0; i < NumberOfParticles; i++) {
 
         Mass[i]   = ParticleMass[i];
         InitialMass[i] = ParticleInitialMass[i];
@@ -87,8 +87,8 @@ int grid::AddOneParticleFromList(ParticleEntry *List, const int place)
   /* append new particles */
 
   i = NumberOfParticles - 1;
-  Mass[i]   = List[place].Mass/pow(CellWidth[0][0],3);
-  if (StarMakerStoreInitialMass) InitialMass[i] = List[place].InitialMass/pow(CellWidth[0][0],3);
+  Mass[i]   = List[place].Mass/POW(CellWidth[0][0],3);
+  if (StarMakerStoreInitialMass) InitialMass[i] = List[place].InitialMass/POW(CellWidth[0][0],3);
   Number[i] = List[place].Number;
   Type[i]   = List[place].Type;
   for (dim = 0; dim < GridRank; dim++) {

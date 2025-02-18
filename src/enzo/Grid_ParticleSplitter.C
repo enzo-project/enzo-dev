@@ -170,7 +170,7 @@ int grid::ParticleSplitter(int level, int iteration, int NumberOfIDs,
       } // ENDFOR i
     }
     
-    if(!tg->CreateChildParticles(CellWidthTemp, NumberOfParticles, ParticleMass,
+    if(!tg->CreateChildParticles(CellWidthTemp, NumberOfParticles, ParticleMass, ParticleInitialMass,
 				 ParticleType, ParticlePosition, ParticleVelocity,
 				 ParticleAttribute, CellLeftEdge, GridDimension, 
                                  MaximumNumberOfNewParticles, iteration, 

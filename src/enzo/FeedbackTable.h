@@ -16,16 +16,16 @@ struct FeedbackTableType {
 */
 int n_met;
 int n_age;
-double* ini_met;
-double* pop_age;
+double *ini_met;
+double *pop_age;
 
 /*
     Arrays of size n_met * n_age * n_sources.
     n_sources is 4 for mass & metal fraction tables
     but 2 for SNe event rate table.
 */
-double* mass_yield;
-double* metm_yield;
-double* event_rate;
+double *mass_yield;
+double *metm_yield;
+double *event_rate;
 
 };

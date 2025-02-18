@@ -15,20 +15,20 @@
 
 /**************************** Functions Prototypes ******************************/
 
-int ReadFeedbackTable(char* name)
+int ReadFeedbackTable(char *name)
 {
 
   hid_t  file_id, grp_id, dset_id, dspace_id, attr_id; 
   herr_t status;
   herr_t h5_error = -1;
 
-  long_int* type2_index = new long_int[1];
-  long_int* type1a_index = new long_int[1];
-  long_int* agb_index = new long_int[1];
-  long_int* nsm_index = new long_int[1];
+  long_int *type2_index = new long_int[1];
+  long_int *type1a_index = new long_int[1];
+  long_int *agb_index = new long_int[1];
+  long_int *nsm_index = new long_int[1];
 
-  long_int* num_met = new long_int[1];
-  long_int* num_age = new long_int[1];
+  long_int *num_met = new long_int[1];
+  long_int *num_age = new long_int[1];
 
   if (MyProcessorNumber == ROOT_PROCESSOR) {
     

@@ -176,7 +176,7 @@ int start;
       X_Type[start] = FromGrid->ParticleType[i];
       X_Mass[start] = (FromGrid->ParticleMass[i]) * MassIncrease;
       if (StarMakerStoreInitialMass)
-        X_InitialMass[start] = (FromGrid->ParticleInitialMass[i]) * MassIncrease; // does this make sense?
+        X_InitialMass[start] = (FromGrid->ParticleInitialMass[i]) * MassIncrease;
       for (dim = 0; dim < GridRank; dim++) {
         X_Position[dim][start] = FromGrid->ParticlePosition[dim][i];
         X_Velocity[dim][start] = FromGrid->ParticleVelocity[dim][i];

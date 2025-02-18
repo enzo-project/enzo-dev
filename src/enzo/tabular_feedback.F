@@ -263,7 +263,7 @@ c      Note that the initial mass is expressed as a mass density
       call integrate_yields(mass_yield, metal_frac, age, dt_yr,
      &            mass_table, metal_array, age_array,
      &            metal_size, age_size, 4_IKIND, iAGB)
- 
+c
       mass_yield = mass_yield * mass_init
       end subroutine
  
@@ -303,7 +303,6 @@ c      Note that the initial mass is expressed as a mass density
      &            metal_table, metal_array, age_array,
      &            metal_size, age_size, 4_IKIND, iAGB)
 c 
-c            Convert erg per Msun to erg
       fracAGB_yield = fracAGB_yield * mass_init
       end subroutine
 
@@ -382,7 +381,7 @@ c
      
 c 
 c      Case 2: age1 and age2 are in different table "cells"
-c      Therefore, integrate over all interveneing cells
+c      Therefore, integrate over all intervening cells
 c 
       else
          t1 = age1
