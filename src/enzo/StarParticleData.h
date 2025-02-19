@@ -30,7 +30,7 @@ struct ParticleEntry {
   float Attribute[MAX_NUMBER_OF_PARTICLE_ATTRIBUTES];
   PINT Number;
   int Type;
-  float InitialMass = 0;
+  float InitialMass = 0.0;
 };
 
 
