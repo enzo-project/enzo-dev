@@ -612,7 +612,8 @@ c
                   enddo
                enddo
                write(4,*) t*t1/yr_s/1e6_RKIND, particleID(n),
-     &           age/1e6_RKIND,
+     &           age/1e6_RKIND, 
+     &           mp(n)*(dunits*(x1*dx)**3._RKIND)/SolarMass,
      &           minitial*(dunits*(x1*dx)**3._RKIND)/SolarMass, nsn,
      &           mass_per_cell*distcells*(dunits*(x1*dx)**3._RKIND)/
      &           SolarMass,
