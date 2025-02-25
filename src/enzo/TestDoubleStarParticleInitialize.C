@@ -70,7 +70,7 @@ int TestDoubleStarParticleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &
   float TestStarParticleBField[3]   = {0.0, 0.0, 0.0};
   float TestStarParticleStarMass[2]    = {100.0, 100.0};
   int TestProblemUseMetallicityField = 1;
-  float TestProblemInitialMetallicityFraction = 2e-3; // 0.1 Zsun
+  float TestProblemInitialMetallicityFraction = 2.0e-3; // 0.1 Zsun
   float TestStarParticleStarMetallicityFraction[2] = {0.0, 0.0};
 
 

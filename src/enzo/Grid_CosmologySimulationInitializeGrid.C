@@ -523,9 +523,9 @@ int grid::CosmologySimulationInitializeGrid(
 
     if (StarFeedbackTrackMetalSources)
       for (i = 0; i < size; i++) {
+        BaryonField[MetalIINum][i]  = tiny_number;
         BaryonField[MetalAGBNum][i] = tiny_number;
         BaryonField[MetalNSMNum][i] = tiny_number;
-        BaryonField[MetalIINum][i]  = tiny_number;
     }
 
     if (MultiMetals) {

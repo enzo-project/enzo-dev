@@ -33,7 +33,7 @@ int grid::TestStarParticleInitializeGrid(float TestStarParticleStarMass,
 					 float *Initialdt,
 					 FLOAT TestStarParticleStarVelocity[],
 					 FLOAT TestStarParticleStarPosition[],
-           float TestStarParticleMetallicity)
+					 float TestStarParticleMetallicity)
 {
   /* declarations */
 
@@ -66,7 +66,7 @@ int grid::TestStarParticleInitializeGrid(float TestStarParticleStarMass,
   /* Set number of particles for this grid and allocate space. */
 
   NumberOfParticles = 1;
-  NumberOfParticleAttributes = 4; // this may be causing issues with my custom attributes & need updating
+  NumberOfParticleAttributes = 4;
   this->AllocateNewParticles(NumberOfParticles);
   printf("Allocated %d particles\n", NumberOfParticles);
 

@@ -28,8 +28,8 @@ int FindField(int f, int farray[], int n);
 
 int grid::IdentifyColourFields(int &SNColourNum, int &MetalNum, 
 			       int &MetalIaNum, int &MetalIINum, 
-             int &MetalAGBNum, int& MetalNSMNum,
-             int &MBHColourNum,
+			       int &MetalAGBNum, int& MetalNSMNum,
+			       int &MBHColourNum,
 			       int &Galaxy1ColourNum, int &Galaxy2ColourNum)
 {
  

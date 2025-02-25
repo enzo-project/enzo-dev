@@ -127,7 +127,7 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
   char *MetalIIName = "MetalSNII_Density";
   char *MetalIaName = "MetalSNIa_Density";
   char *MetalAGBName = "MetalAGB_Density";
-  char *MetalNSMName = "MetalMassive_Density";
+  char *MetalNSMName = "MetalNSM_Density";
   char *GPotName  = "Grav_Potential";
   char *ForbidName  = "ForbiddenRefinement";
   char *MachName   = "Mach";

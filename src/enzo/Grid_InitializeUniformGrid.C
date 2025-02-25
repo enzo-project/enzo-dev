@@ -297,9 +297,9 @@ int grid::InitializeUniformGrid(float UniformDensity,
         BaryonField[MetalIaNum][i] = TestProblemData.MetallicitySNIaField_Fraction*UniformDensity;
 
       if (StarFeedbackTrackMetalSources){
+        BaryonField[MetalIINum][i]  = tiny_number;
         BaryonField[MetalAGBNum][i] = tiny_number;
         BaryonField[MetalNSMNum][i] = tiny_number;
-        BaryonField[MetalIINum][i]  = tiny_number;
       }
 
       if(TestProblemData.MultiMetals){

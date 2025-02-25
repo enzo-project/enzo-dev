@@ -651,7 +651,7 @@ To use tabulated feedback, use the following parameters:
 Tabulated feedback yields can currently be used by the following
 feedback methods:
 
-* :ref:`method_0`
+* :ref:`method_0` (Type II and Ia SNe only)
 
 Source Tracking
 +++++++++++++++

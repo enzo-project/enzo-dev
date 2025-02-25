@@ -760,7 +760,6 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
   int MetallicityField;
 
   MetallicityField = (MetalNum != -1 || SNColourNum != -1);
-  // TODO: include my other metal types? though MetalNum should already reflect all contribs
   if (MetalNum != -1 && SNColourNum != -1) {
     TotalMetals = new float[size];
     for (i = 0; i < size; i++)

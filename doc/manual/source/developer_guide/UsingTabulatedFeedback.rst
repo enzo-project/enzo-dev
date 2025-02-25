@@ -8,14 +8,20 @@ for mass, metal, and energy yields. Tabular yields computed
 from stellar population synthesis models such as the
 `SYGMA <https://nugrid.github.io/NuPyCEE/overview.html>`_
 chemical evolution code can be used instead.
-These tables make it easy to track metals from specific feedback sources 
-such as different types of supernovae or even pre-supernova feedback.
-This feature is called "process tracking."
+
+These tables offer mass and metal yields for
+massive stars and Type II supernovae, Type Ia supernovae,
+AGB stellar winds, and neutron star mergers.
+This allows the metal contributions from specific feedback sources
+to be tracked individually with a feature called "process tracking."
+Additionally, the tables provide information on the rate of
+Type II and Ia supernova that can be used to calculate energy yields.
 
 A subset of methods support the use of tabulated yields. 
 See :doc:`../physics/star_particles`
 for a current list of feedback methods and problem types
 that support tabulated yields and source tracking respectively.
+Information on generating yield tables is also on that page.
 
 Feedback Table Structure
 ------------------------

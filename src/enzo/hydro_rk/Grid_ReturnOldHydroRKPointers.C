@@ -109,10 +109,10 @@ int grid::ReturnOldHydroRKPointers(float **Prim, bool ReturnMassFractions)
   /* Add the colours (treat them as species) */
 
   int SNColourNum, MetalNum, MetalIaNum, MetalIINum, MBHColourNum, Galaxy1ColourNum, 
-    Galaxy2ColourNum, MetalAGBNum, MetalMsvNum; 
+    Galaxy2ColourNum, MetalAGBNum, MetalNSMNum; 
 
   if (this->IdentifyColourFields(SNColourNum, MetalNum, MetalIaNum, MetalIINum, 
-         MetalAGBNum, MetalMsvNum, MBHColourNum, 
+         MetalAGBNum, MetalNSMNum, MBHColourNum, 
 				 Galaxy1ColourNum, Galaxy2ColourNum) == FAIL) {
     fprintf(stderr, "Error in grid->IdentifyColourFields.\n");
     return FAIL;

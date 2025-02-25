@@ -30,8 +30,6 @@ DensityUnits           = 1.67e-24    // 1 part/cc
 #  set I/O and stop/start parameters
 #
 StopTime               = 50
-#CycleSkipDataDump       = 1
-#CycleLastDataDump       = 0
 dtDataDump             = 0.5
 #
 # Feedback parameters
@@ -39,8 +37,8 @@ dtDataDump             = 0.5
 StarMakerStoreInitialMass     = 1
 StarFeedbackUseTabularYields  = 1
 StarFeedbackTabularFilename   = sygma_feedback_table.h5
-StarFeedbackTabularSNIIEnergy = 1e51
-StarFeedbackTabularSNIaEnergy = 1e51
+StarFeedbackTabularSNIIEnergy = 1.0e51
+StarFeedbackTabularSNIaEnergy = 1.0e51
 StarFeedbackTrackMetalSources = 1
 MomentumMultiplier = 1.0
 WriteFeedbackLogFiles = 1
@@ -62,16 +60,4 @@ StaticHierarchy           = 1    // static hierarchy
 RefineBy                  = 2    // refinement factor
 MaximumRefinementLevel    = 0
 CellFlaggingMethod        = 0
-
-#
-# Cooling
-#
-#use_grackle                     = 1
-#with_radiative_cooling          = 1
-#MultiSpecies                    = 0  // set to one if using Cloudy 4D or 5D
-#MetalCooling                    = 1
-#grackle_data_file               = /Users/clochhaas/grackle/grackle_data_files/input/CloudyData_UVB=HM2012_shielded.h5
-#CMBTemperatureFloor             = 1
-#UVbackground                    = 1
-#RadiativeCooling                = 1
 
