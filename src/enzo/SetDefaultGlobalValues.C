@@ -619,6 +619,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   StarFeedbackDistCellStep         = 0;
   StarFeedbackDistTotalCells       = 1;
   StarFeedbackUseTabularYields     = FALSE;
+  StarFeedbackTabularFilename      = "sygma_feedback_table.h5"
   StarFeedbackTabularSNIIEnergy    = 1.0e+51;
   StarFeedbackTabularSNIaEnergy    = 1.0e+51;
   StarFeedbackTrackMetalSources    = FALSE;

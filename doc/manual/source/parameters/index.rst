@@ -2165,8 +2165,9 @@ General Star Formation
     traced in a separate species field, ``MetalSNIa_Density``.  The
     metallicity of star particles that comes from this ejecta is
     stored in the particle attribute ``typeia_fraction``.  Can be used
-    with ``StarParticleCreation`` method = 0, 1, 2, 5, 7, 8, and 13.  Default:
-    0.
+    with ``StarParticleCreation`` method = 0, 1, 2, 5, 7, 8, and 13.
+    Mutually exclusive with ``StarFeedbackTrackMetalSources``.
+    Default: 0
 
 ``StarMakerPlanetaryNebulae`` (external) 
     This parameter turns on thermal and chemical feedback from
@@ -2193,20 +2194,21 @@ General Star Formation
 ``StarFeedbackTabularFilename`` (external)
     Filename of the HDF5 file that contains the feedback yields.
     Used with ``StarFeedbackUseTabularYields``.
+    Default: sygma_feedback_table.h5
 
 ``StarFeedbackTabularSNIIEnergy`` (external)
     The energy in ergs of Type II supernovae. 
     Used in conjunction with ``StarFeedbackUseTabularYields``
     as the yield tables specify the rate of Type II SNe 
     per year per solar mass of the initial stellar population mass.
-    Default: 1e+51
+    Default: 1.0e+51
 
 ``StarFeedbackTabularSNIaEnergy`` (external)
     The energy in ergs of Type Ia supernovae.
     Used in conjunction with ``StarFeedbackUseTabularYields``
     as the yield tables specify the rate of Type Ia SNe 
     per year per solar mass of the initial stellar population mass.
-    Default: 1e+51
+    Default: 1.0e+51
 
 ``StarFeedbackTrackMetalSources`` (external)
     This parameter must be used in conjunction with ``StarFeedbackUseTabularFields``.
@@ -2214,6 +2216,7 @@ General Star Formation
     AGB stars, and massive stars to be tracked by separate metal fields:
     ``MetalSNII_Density``, ``MetalSNIa_Density``, ``MetalAGB_Density``, ``MetalMassive_Density``.
     These metals will all contribute to the total metallicity (which is important for cooling.)
+    Mutually exclusive with ``StarMakerTypeIaSNe``.
     Default: 0 (OFF)
 
 .. _normal_star_formation_parameters:
