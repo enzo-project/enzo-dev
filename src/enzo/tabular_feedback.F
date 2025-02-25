@@ -227,10 +227,11 @@ c            Convert erg per Msun to erg
 c      write(6,*) 'in sne_energy: num_II, num_Ia:',num_II*minit_msun,
 c     &           num_Ia*minit_msun
       end subroutine
+c
 c ===============================================
 c 
 c     Return mass density in code units yielded by
-c     stellar winds
+c     AGB stellar winds
 c 
       subroutine agb_mass(mass_yield,
      &                   mass_init, metal_frac, age, 
@@ -266,10 +267,10 @@ c      Note that the initial mass is expressed as a mass density
 c
       mass_yield = mass_yield * mass_init
       end subroutine
- 
+c
 c  ===============================================
-  
-c      Return metal fraction yielded by Type II supernovae
+c
+c      Return metal fraction yielded by AGB stellar winds
  
       subroutine agb_metal(fracAGB_yield,
      &                    mass_init, metal_frac, age, 
@@ -305,9 +306,88 @@ c      Note that the initial mass is expressed as a mass density
 c 
       fracAGB_yield = fracAGB_yield * mass_init
       end subroutine
-
+c
+c ===============================================
+c 
+c     Return mass density in code units yielded by
+c     neutron star mergers
+c 
+      subroutine nsm_mass(mass_yield,
+     &                   mass_init, metal_frac, age, 
+     &                   dt, t1,
+     &                   mass_table, metal_array, age_array,
+     &                   metal_size, age_size)
+c 
+      implicit none
+#include "fortran_types.def"
+c 
+c     Arguments
+c 
+      R_PREC mass_yield
+      R_PREC mass_init, metal_frac, age
+      R_PREC dt, t1
+      INTG_PREC metal_size, age_size
+      R_PREC mass_table(4, age_size, metal_size)
+      R_PREC metal_array(metal_size), age_array(age_size)
+c 
+c      Locals
+c 
+      R_PREC dt_yr
+      INTG_PREC iNSM
+c 
+      iNSM = 4_IKIND
+      dt_yr = dt*t1/yr_s
+c 
+c      Mass yields are rates (per year) per initial population mass
+c      Note that the initial mass is expressed as a mass density
+      call integrate_yields(mass_yield, metal_frac, age, dt_yr,
+     &            mass_table, metal_array, age_array,
+     &            metal_size, age_size, 4_IKIND, iNSM)
+c
+      mass_yield = mass_yield * mass_init
+      end subroutine
+c
 c  ===============================================
-  
+c
+c      Return metal fraction yielded by neutron star mergers
+ 
+      subroutine nsm_metal(fracNSM_yield,
+     &                    mass_init, metal_frac, age, 
+     &                    dt, t1,
+     &                    metal_table, metal_array, age_array,
+     &                    metal_size, age_size)
+c 
+      implicit none
+#include "fortran_types.def"
+c 
+c      Arguments
+c 
+      R_PREC fracNSM_yield
+      R_PREC mass_init, metal_frac, age
+      R_PREC dt, t1
+      INTG_PREC metal_size, age_size
+      R_PREC metal_table(4, age_size, metal_size)
+      R_PREC metal_array(metal_size), age_array(age_size)
+c 
+c      Locals
+c 
+      R_PREC dt_yr
+      INTG_PREC iNSM
+c 
+      iNSM = 4_IKIND
+      dt_yr = dt*t1/yr_s
+c 
+c      SNe numbers are are rates (per year) per initial population mass
+c      Note that the initial mass is expressed as a mass density
+      call integrate_yields(fracNSM_yield, metal_frac, age, dt_yr,
+     &            metal_table, metal_array, age_array,
+     &            metal_size, age_size, 4_IKIND, iNSM)
+c 
+      fracNSM_yield = fracNSM_yield * mass_init
+      end subroutine
+c
+c  ===============================================
+c
 c      Time-integrate the yield from particular source type
 c      given a table of quantites and the stellar population
 c      initial metal fraction and age in years.

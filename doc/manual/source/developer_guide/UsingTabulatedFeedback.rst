@@ -11,11 +11,17 @@ chemical evolution code can be used instead.
 
 These tables offer mass and metal yields for
 massive stars and Type II supernovae, Type Ia supernovae,
-AGB stellar winds, and neutron star mergers.
+AGB stellar winds, and neutron star mergers (NSMs).
 This allows the metal contributions from specific feedback sources
 to be tracked individually with a feature called "process tracking."
 Additionally, the tables provide information on the rate of
-Type II and Ia supernova that can be used to calculate energy yields.
+Type II and Ia supernova events that can be used to calculate energy yields.
+The parameters ``StarFeedbackTabularSNIIEnergy`` and ``StarFeedbackTabularSNIaEnergy``
+are available for implementing conversions 
+between tabulated event rates and energy yeilds.
+No information on event rates or energy yields 
+is available from SYGMA for AGB winds and NSMs.
+Parameters for setting their energy yields have not (yet) been implemented.
 
 A subset of methods support the use of tabulated yields. 
 See :doc:`../physics/star_particles`
@@ -120,6 +126,8 @@ The subroutines available for use in your feedback routine are as follows:
 * ``sne_energy``: total energy yield for Type II and Ia supernovae
 * ``AGB_mass``: mass yield for AGB winds
 * ``AGB_metal``: metal yield for AGB winds
+* ``NSM_mass``: mass yield for neutron star mergers
+* ``NSM_metal``: metal yield for neutron star mergers
 
 The ``mass`` and ``metal`` subroutines share the same call signature::
 
