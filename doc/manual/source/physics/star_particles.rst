@@ -26,7 +26,7 @@ parameter link above for more information.
 * `Method 3: Population III Stars`_
 * `Method 4: Sink Particles`_
 * `Method 5: Radiative Stellar Clusters`_
-* `Method 6: Reserved for future use`_
+* `Method 6: Kimm & Cen Momentum Feedback`_
 * `Method 7: Cen & Ostriker with no delay in formation`_
 * `Method 8: Springel & Hernquist`_
 * `Method 9: Massive Black Holes`_
@@ -233,10 +233,167 @@ Ostriker prescription.
 
 .. _method_6:
 
-Method 6: Reserved for future use
----------------------------------
+Method 6: Kimm & Cen Momentum Feedback
+--------------------------------------
+Select this method by setting ``StarParticleFeedback = 64``.
 
-This method is reserved for future use.
+*Source: star_feedback6.F*
+
+This method follows the algorithm described in `Kimm & Cen (2014) <https://ui.adsabs.harvard.edu/abs/2014ApJ...788..121K/abstract>`_ 
+and `Kim et al. (2015) <https://ui.adsabs.harvard.edu/abs/2015MNRAS.451.2900K/abstract>`_. 
+This method is purely for star particle feedback and can be paired with 
+any star particle creation method. Currently, this method only provides 
+feedback from Type II and (optionally) Type Ia supernovae. Additional feedback sources 
+are a work in progress and will be added later.
+
+At each time step, a certain amount of mass, metals, momentum, and thermal 
+energy is deposited into a cube of 27 cells centered on the cell that hosts 
+the star particle. There are two options for determining the amounts that 
+are deposited:
+
+#. Use the slow feedback method of Cen & Ostriker, which determines the 
+   mass of the star particle that has formed in this time step, as in Method 0:
+
+   .. math::
+   
+      M_{\rm form} &= M_0 [ (1+x_1) \exp(-x_1) - (1+x_2) \exp(-x_2) ]\\
+      x_1 &= (t - t_0) / t_{\rm dyn}\\
+      x_2 &= (t + dt - t_0) / t_{\rm dyn}
+
+   where M\ :sub:`0` and t\ :sub:`0` are the initial
+   star particle mass and creation time, respectively. The deposited mass is 
+   M\ :sub:`ej` = M\ :sub:`form` * ``StarMassEjectionFraction``, and this 
+   mass is removed from the particle. The deposited metal mass is 
+   M\ :sub:`form` * ((1 - Z\ :sub:`star`) * ``StarMetalYield`` + 
+   ``StarMassEjectionFraction`` * Z\ :sub:`star`), where
+   Z\ :sub:`star` is the star particle metallicity.  This formulation
+   accounts for gas recycling back into the stars.
+
+   The ejected momentum and thermal energy are determined through the 
+   supernova rate (see below), which is simply calculated as
+   N\ :sub:`SN` = M\ :sub:`form`/(100 M\ :sub:`sun`), under the assumption 
+   that one Type II supernova occurs for each 100 solar masses of 
+   stars formed. This option only accounts for Type II supernovae.
+
+   This is the default option.
+
+#. Use the Tabular Feedback method to determine the Type II and Type Ia 
+   supernovae rates, ejected mass, and ejected metals. See :ref:`tabular_sources`. 
+   The supernova rates depend on the initial mass, age, and metallicity 
+   of the star particle. Select this option with ``StarFeedbackUseTabularYields = 1``.
+
+Once the number of supernovae, ejected mass, and ejected metals for this 
+time step have been determined through 
+either option, the total injected momentum depends on whether or not the Sedov 
+blast wave for the explosion(s) would be resolved, which is determined by 
+comparing the ejected mass to the swept-up mass in each cell surrounding 
+the star particle. 
+
+The ejected mass per cell is given by dM\ :sub:`ej` = M\ :sub:`ej`/N\ :sub:`cells`, 
+where M\ :sub:`ej` is the total ejected mass at this time step and N\ :sub:`cells` 
+is the number of cells among which the feedback is distributed. Currently, 
+N\ :sub:`cells` = 27 and allowing different values using the parameters 
+``StarFeedbackDistRadius`` and ``StarFeebackDistCellStep`` is NOT implemented.
+
+For each cell surrounding the host cell of the star particle, the swept-up 
+mass is given by:
+
+.. math::
+
+   {\rm d}M_{\rm swept} = \rho_{\rm cell} (\Delta x_{\rm cell}/2)^3 + 
+   \frac{(1-N_{\rm cells})\rho_{\rm host}\Delta x_{\rm host}^3}{N_{\rm cells}} + 
+   {\rm d}M_{\rm ej}
+
+where :math:`\rho_{\mathrm{cell}}` and :math:`\rho_{\mathrm{host}}` are 
+the densities of the cell of consideration and the host cell, and 
+:math:`\Delta x_{\mathrm{cell}}` and :math:`\Delta x_{\mathrm{host}}` are 
+the sizes of the cell of consideration and the host cell.
+
+For each cell surrounding the star particle, the ratio of the ejected mass 
+per cell to the swept-up mass per cell is :math:`\chi = {\rm d}M_{\rm swept}/{\rm d}M_{\rm ej}` 
+and :math:`\chi` is compared to a threshold value given by:
+
+.. math::
+
+   \chi_{\rm thr} = 69.58 N_{\rm SN}^{-2/17} n_{\rm avg}^{-4/17} Z_{\rm avg}^{-0.28}
+
+where n\ :sub:`avg` is the average hydrogen number density of all cells 
+surrounding the star particle (including the host cell) and Z\ :sub:`avg` is 
+the average metallicity of all cells surrounding the star particle (including 
+the host cell), with a minumum of 0.01 solar.
+
+For each cell surrounding the star particle, :math:`\chi` is checked against 
+:math:`\chi_{\rm thr}`:
+
+* If :math:`\chi < \chi_{\rm thr}`, the Sedov blast wave explosion is 
+  resolved in this cell. The amount of momentum injected into this cell is 
+
+  .. math::
+
+   {\rm d}p = \frac{\sqrt{2\chi M_{\rm ej} f_e N_{\rm SN} (10^{51}\ {\rm ergs})}}{N_{\rm cells}}
+
+  where :math:`f_e = \frac{\chi - 1}{3(\chi_{\rm thr}-1)}` is used to smoothly 
+  connect this regime and that where :math:`\chi \ge \chi_{\rm thr}`.
+
+* If :math:`\chi \ge \chi_{\rm thr}`, the Sedov blast wave is unresolved 
+  and thus the momentum injected is the expected momentum at the end of 
+  the snowplow phase:
+
+  .. math::
+
+   {\rm d}p = \frac{3 \times 10^5\ M_\odot\ \rm{km/s}\ N_{\rm SN}^{16/17} n_{\rm avg}^{-2/17} Z_{\rm avg}^{-0.14}}{N_{\rm cells}}
+
+Because this calculation is done for every cell surrounding the star particle, 
+it is not assumed that the supernovae explode in constant-density ISM.
+
+The momentum is added symmetrically outward from the host cell of the star 
+particle, in the frame of the particle, in order to account for the movement 
+of the particle. If any cell surrounding the particle would receive a momentum 
+kick that would change its velocity by 1000 km/s or greater, the amount of 
+momentum it receives is limited to that which produces a velocity change 
+of 1000 km/s.
+
+If the total amount of momentum injected through this method does not sum 
+to 10\ :sup:`51` ergs of kinetic energy per supernova, thermal energy is 
+added to the host cell such that the total kinetic + thermal energy is 
+10\ :sup:`51` ergs per supernova.
+
+There is an option in this method to approximate the thermalization of gas 
+flows colliding with each other when the momentum is injected. 
+If the momentum of any of the surrounding cells *decreases* when the feedback 
+momentum is injected, due to e.g. momentum deposited in the opposite direction 
+as the motion of the gas in the cell, then thermal energy is injected into 
+that cell. The amount of thermal energy injected is equal to the difference 
+between the change in the cell's momentum and the change in its momentum 
+it would have had if it was stationary, converted from momentum to kinetic 
+energy. By default this option is off, but it can be turned on with 
+``MomentumCancellationToThermal = 1``.
+
+While the amount of momentum to inject in this method is fully determined 
+by the supernova rate and ejection mass, there is an option to multiply 
+the injection momentum by a value to increase or decrease the amount of 
+momentum injected. Use ``MomentumMultiplier`` to set this value. By default, 
+``MomentumMultiplier = 1.0``.
+
+There is an option to write to file feedback logs that list, for each time 
+step, the following columns:
+
+* Simulation time in Myr
+* Particle ID number
+* Particle age in Myr
+* Current mass of the star particle in M\ :sub:`sun`
+* Initial mass of the star particle in M\ :sub:`sun`
+* Number of supernovae in this time step
+* M\ :sub:`ej` in M\ :sub:`sun`
+* The ejected metal mass, M\ :sub:`Z,ej` in M\ :sub:`sun`
+* The total momentum injected in M\ :sub:`sun` km/s 
+* The thermal energy injected in ergs 
+
+Each processor creates one log file, titled ``feedbacklog_XXXXXXX.txt`` 
+where ``XXXXXXX`` is the processor number. Because each file has one new 
+row per particle per time step, these files can get very large and it is 
+not recommended to use them except for debugging short runs. By default, 
+these logs are not created, but can be turned on with ``WriteFeedbackLogFiles = 1``.
 
 
 .. _method_7:
@@ -461,11 +618,11 @@ mass)/H2StarMakerMinimumMass.
 
 For some applications, it may be desireable to create stars only 
 at local density peaks. For this purpose, setting 
-``H2StarMakerUseLocalDensityMax`` = 1 will check if the cell being 
+``H2StarMakerUseLocalDensityMax = 1`` will check if the cell being 
 considered for star formation has the highest density of any cell 
 in the +/- one cell in the x, y, and z directions. If does not 
 have the highest density among these six neighbors, it will not form 
-stars. This scheme can only be used if ``H2StarMakerUseSobolev =1 ``, because 
+stars. This scheme can only be used if ``H2StarMakerUseSobolev =1``, because 
 that routine is needed to calculate the local density gradients.
 
 This star_maker routine can generate a large number of diagnostic 
@@ -474,7 +631,7 @@ created by default.
 They can be turned on by setting ``H2StarMakerWriteLogFiles = 1``. 
 
 **Important Note**: There is no feedback scheme corresponding to this
-star maker, so don't set StarParticleFeedback = 2048. Instead the user
+star maker, so do not set StarParticleFeedback = 2048. Instead the user
 should select one of the feedback schemes associated with the other
 star makers (StarParticleFeedback = 4 comes to mind).
 

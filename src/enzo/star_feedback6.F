@@ -28,12 +28,16 @@ c
 c  RELEASES "STAR" PARTICLE MOMENTUM, MASS AND METALS
 c
 c  written by: Cassi Lochhaas, Claire Kopenhafer
-c  date:      December 2023
+c  date:      February 2025
 c  	this is a copy of star_maker3mom.F that has been modifed to 
 c       calculate the amount of momentum to inject from properties
 c       of the host and surrounding cells, following Kimm & Cen (2014)
 c       and Kimm et al. (2015).
-c       The momentum is then injected with the CIC approach.
+c       The momentum is then injected into a cube of 27 cells centered
+c       on the host cell of the particle.
+c
+c       Currently, the only momentum injection is due to Type II and
+c       Type Ia SNe. Momentum injection from stellar winds is WIP.
 c
 c  INPUTS:
 c
