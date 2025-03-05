@@ -165,7 +165,7 @@ const field_type
   /* Number of ray segments for ray tracing load balancing */
   RaySegments     = 94,
 
-  /* Metals from Type Ia SNe */
+  /* Metals from SNe */
   MetalSNIaDensity = 95,
   MetalSNIIDensity = 96,
 

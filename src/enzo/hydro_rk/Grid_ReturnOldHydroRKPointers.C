@@ -122,11 +122,17 @@ int grid::ReturnOldHydroRKPointers(float **Prim, bool ReturnMassFractions)
     Prim[nfield++] = OldBaryonField[MetalNum];
     if (StarMakerTypeIaSNe)
       Prim[nfield++] = OldBaryonField[MetalIaNum];
+    else if (StarFeedbackTrackMetalSources) {// mutually exclusive with StarMakerTypeIaSNe
+      Prim[nfield++] = OldBaryonField[MetalIaNum];
+      Prim[nfield++] = OldBaryonField[MetalIINum];
+      Prim[nfield++] = OldBaryonField[MetalAGBNum];
+      Prim[nfield++] = OldBaryonField[MetalNSMNum];
+    }
     if (StarMakerTypeIISNeMetalField)
       Prim[nfield++] = OldBaryonField[MetalIINum];
     if (MultiMetals || TestProblemData.MultiMetals) {
-      Prim[nfield++] = OldBaryonField[MetalNum+1];
-      Prim[nfield++] = OldBaryonField[MetalNum+2];
+      Prim[nfield++] = OldBaryonField[MetalNum+1]; // ExtraType0
+      Prim[nfield++] = OldBaryonField[MetalNum+2]; // ExtraType1
     }
   }
 

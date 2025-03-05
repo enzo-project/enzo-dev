@@ -121,16 +121,22 @@ int grid::ReturnHydroRKPointers(float **Prim, bool ReturnMassFractions)
     fprintf(stderr, "Error in grid->IdentifyColourFields.\n");
     return FAIL;
   }
-  
+
   if (MetalNum != -1) {
     Prim[nfield++] = BaryonField[MetalNum];
     if (StarMakerTypeIaSNe)
       Prim[nfield++] = BaryonField[MetalIaNum];
+    else if (StarFeedbackTrackMetalSources) { // mutually exclusive with StarMakerTypeIaSNe
+        Prim[nfield++] = OldBaryonField[MetalIaNum];
+        Prim[nfield++] = OldBaryonField[MetalIINum];
+        Prim[nfield++] = OldBaryonField[MetalAGBNum];
+        Prim[nfield++] = OldBaryonField[MetalNSMNum];
+      }
     if (StarMakerTypeIISNeMetalField)
       Prim[nfield++] = BaryonField[MetalIINum];
     if (MultiMetals || TestProblemData.MultiMetals) {
-      Prim[nfield++] = BaryonField[MetalNum+1];
-      Prim[nfield++] = BaryonField[MetalNum+2];
+      Prim[nfield++] = BaryonField[MetalNum+1]; // ExtraType0
+      Prim[nfield++] = BaryonField[MetalNum+2]; // ExtraType1
     }
   }
 
