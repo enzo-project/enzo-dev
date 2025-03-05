@@ -2189,6 +2189,7 @@ General Star Formation
     Setting this parameter to 1 will enable a feedback routine to 
     calculate mass, metal, and energy yields from a table.
     Requires ``StarMakerStoreInitialMass`` to be enabled (i.e. set to 1).
+    See :ref:`tabular_sources` for a list of supported methods.
     Default: 0 (OFF)
 
 ``StarFeedbackTabularFilename`` (external)

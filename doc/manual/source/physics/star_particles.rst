@@ -809,6 +809,7 @@ Tabulated feedback yields can currently be used by the following
 feedback methods:
 
 * :ref:`method_0` (Type II and Ia SNe only)
+* :ref:`method_1` (Type II and Ia SNe only)
 
 Source Tracking
 +++++++++++++++
@@ -818,9 +819,8 @@ To use source tracking, set the following parameters:
 1. Enable tabulated feedback following the steps outlined above
 2. Set ``StarFeedbackTrackMetalSources = 1``
 
-**NOTE:** You should **not** use both ``StarMakerTypeIaSNe`` and ``StarFeedbackTrackMetalSources``
-at the same time, as both will inject metals from Type Ia supernovae into the simulation using
-different theoretical frameworks.
+**NOTE:** ``StarMakerTypeIaSNe`` and ``StarFeedbackTrackMetalSources``
+are mutually exclusive.
 
 The following problem types are currently set up to track 
 metals from specific feedback sources when using tabulated feedback:
