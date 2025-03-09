@@ -170,7 +170,7 @@ int grid::GalaxySimulationInitializeGrid(double DiskRadius,
            double GasHaloZeta,
            double GasHaloZeta2,
            double GasHaloCoreEntropy,
-	         double GasHaloRatio,
+	         double GasHaloRatio,           
            double GasHaloMetallicity,
            int   UseHaloRotation,
            double RotationScaleVelocity,
@@ -189,6 +189,7 @@ int grid::GalaxySimulationInitializeGrid(double DiskRadius,
   /* declarations */
 
   int dim, i, j, k, m, field, disk, size, MetalNum, MetalIaNum, vel;
+  int MetalIINum, MetalAGBNum, MetalNSMNum;
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum,
     H2IINum, DINum, DIINum, HDINum, B1Num, B2Num, B3Num, PhiNum;
   double DiskDensity, DiskVelocityMag;
@@ -276,8 +277,13 @@ int grid::GalaxySimulationInitializeGrid(double DiskRadius,
 
   if (UseMetallicityField)
     FieldType[MetalNum = NumberOfBaryonFields++] = Metallicity; /* fake it with metals */
-  if (StarMakerTypeIaSNe)
+  if (StarMakerTypeIaSNe || StarFeedbackTrackMetalSources)
     FieldType[MetalIaNum = NumberOfBaryonFields++] = MetalSNIaDensity;
+  if (StarFeedbackTrackMetalSources) {
+    FieldType[MetalIINum = NumberOfBaryonFields++] = MetalSNIIDensity;
+    FieldType[MetalAGBNum = NumberOfBaryonFields++] = MetalAGBDensity;
+    FieldType[MetalNSMNum = NumberOfBaryonFields++] = MetalNSMDensity;
+  }
 
   /* Return if this doesn't concern us. */
 
@@ -607,8 +613,14 @@ int grid::GalaxySimulationInitializeGrid(double DiskRadius,
 
 	/* This should probably be scaled with density in some way to be
 	   a proper metallicity -- DWS (loop redundancy addressed by CEK) */
-	if (StarMakerTypeIaSNe)
-	  BaryonField[MetalIaNum][n] = 1.0e-10;
+	if (StarMakerTypeIaSNe || StarFeedbackTrackMetalSources)
+	  BaryonField[MetalIaNum][n] = tiny_number;
+
+  if (StarFeedbackTrackMetalSources){
+    BaryonField[MetalIINum][n] = tiny_number;
+    BaryonField[MetalAGBNum][n] = tiny_number;
+    BaryonField[MetalNSMNum][n] = tiny_number;
+  }
    
 	for (dim = 0; dim < GridRank; dim++)
 	  BaryonField[vel+dim][n] = Velocity[dim] + UniformVelocity[dim];

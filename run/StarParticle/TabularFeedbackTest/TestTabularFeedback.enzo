@@ -1,0 +1,67 @@
+#
+# AMR PROBLEM DEFINITION FILE: TestStarParticle
+#
+#  define problem
+#
+ProblemType            = 90        // TestStarParticle
+TopGridRank            = 3
+TopGridDimensions      = 50 50 50
+LeftFaceBoundaryCondition  = 3 3 3      // periodic
+RightFaceBoundaryCondition = 3 3 3
+OutputTemperature   = 1
+OutputCoolingTime   = 1
+DualEnergyFormalism = 1
+#
+#  set I/O and stop/start parameters
+#
+StopTime               = 13
+dtDataDump             = 1
+#
+#  Units
+#
+LengthUnits            = 1.2344e+21
+TimeUnits              = 3.154e16  // 1 Gyr
+DensityUnits           = 1.0e-24   // 1 part/cc
+#
+#  test problem parameters
+#
+#TestStarParticleDensity = 100.0      // code units
+#TestStarParticleTemperature = 1000. // K
+TestStarParticleDensity = 1.0      // code units
+TestStarParticleEnergy  = 6.55410093179e-06
+TestProblemUseMetallicityField = 1
+TestProblemInitialMetallicityFraction = 2e-3 # ~0.145 Zsun
+TestStarParticleStarMass = 20.0
+TestStarParticleStarMetallicityFraction = 0.005
+#
+#  star particle parameters
+#
+StarParticleFeedback          = 1
+StarMakerStoreInitialMass     = 1
+StarFeedbackUseTabularYields  = 1
+StarFeedbackTabularFilename   = sygma_feedback_table.h5
+StarFeedbackTabularSNIIEnergy = 1.0e51
+StarFeedbackTabularSNIaEnergy = 1.0e51
+StarFeedbackTrackMetalSources = 1
+StarFeedbackDistRadius        = 1      # At most, fb in a 3^3 cube around star
+StarFeedbackDistCellStep      = 3      # include all cells in a 3^3 cube
+#
+#  set Hydro parameters
+#
+HydroMethod            = 0
+DualEnergyFormalism    = 1
+CourantSafetyNumber    = 0.4
+PPMDiffusionParameter  = 0       // diffusion off
+PPMFlatteningParameter = 0       // flattening on
+PPMSteepeningParameter = 0       // steepening on
+Gamma = 1.6666667
+#
+#  set grid refinement parameters
+#
+Unigrid                   = 1
+StaticHierarchy           = 1    // static hierarchy
+#
+# Cooling
+#
+RadiativeCooling  =  0
+

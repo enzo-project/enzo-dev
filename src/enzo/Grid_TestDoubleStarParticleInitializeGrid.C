@@ -32,7 +32,8 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 int grid::TestDoubleStarParticleInitializeGrid(FLOAT TestStarParticleStarMass[2], 
 					 float *Initialdt,
 					 FLOAT TestStarParticleStarVelocity[2][3],
-					 FLOAT TestStarParticleStarPosition[2][3])
+					 FLOAT TestStarParticleStarPosition[2][3],
+					 FLOAT TestStarParticleMetallicity[2])
 {
   /* declarations */
 
@@ -77,16 +78,18 @@ int grid::TestDoubleStarParticleInitializeGrid(FLOAT TestStarParticleStarMass[2]
         ParticlePosition[dim][i] = TestStarParticleStarPosition[i][dim];
         ParticleVelocity[dim][i] = TestStarParticleStarVelocity[i][dim]*1e5*TimeUnits/LengthUnits;
     }
-    ParticleMass[i] = TestStarParticleStarMass[i]*1.99e33* pow(LengthUnits*CellWidth[0][0],-3.0)/DensityUnits;
+    ParticleMass[i] = TestStarParticleStarMass[i]*1.99e33* POW(LengthUnits*CellWidth[0][0],-3.0)/DensityUnits;
+    if (StarMakerStoreInitialMass)
+      ParticleInitialMass[i] = TestStarParticleStarMass[i]*1.99e33* POW(LengthUnits*CellWidth[0][0],-3.0)/DensityUnits;
     ParticleAttribute[0][i] = Time+1e-7;
-    ParticleAttribute[1][i] = 10.0 * Myr_s/TimeUnits;
 
+    ParticleAttribute[1][i] = StarMakerMinimumDynamicalTime * yr_s/TimeUnits;
     if (STARFEED_METHOD(UNIGRID_STAR)) ParticleAttribute[1][i] = 10.0 * Myr_s/TimeUnits;
     if (STARFEED_METHOD(MOM_STAR) || STARFEED_METHOD(MECH_STAR))
         if(StarMakerExplosionDelayTime >= 0.0)
         ParticleAttribute[1][i] = 1.0;
     
-    ParticleAttribute[2][i] = 0.0;  // Metal fraction
+    ParticleAttribute[2][i] = TestStarParticleMetallicity[i];  // Metal fraction
     ParticleAttribute[3][i] = 0.0;  // metalfSNIa
   }
 

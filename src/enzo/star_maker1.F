@@ -13,7 +13,7 @@ c
      &                      imetal, imethod, mintdyn,
      &                      odthresh, masseff, smthresh, level, np,
      &                      xp, yp, zp, up, vp, wp,
-     &                      mp, tdp, tcp, metalf)
+     &                      mp, tdp, tcp, metalf, iminit, minit)
 c
 c  CREATES GALAXY PARTICLES
 c
@@ -53,6 +53,7 @@ c        smthresh unless (random number) < starmass/smthresh )
 c    mintdyn  - minimum dynamical time, in years
 c    level - current level of refinement
 c    procnum - processor number (for output)
+c    iminit  - whether to store initial mass separately
 c
 c
 c  OUTPUTS:
@@ -66,6 +67,7 @@ c    tdp      - dynamical time of zone in which particle created
 c    tcp      - creation time of particle
 c    metalf   - metallicity fraction of particle
 c    nmax     - particle array size specified by calling routine
+c    minit    - initial mass of new particles
 c
 c
 c-----------------------------------------------------------------------
@@ -76,7 +78,7 @@ c
 c  Arguments
 c
       INTG_PREC nx, ny, nz, ibuff, nmax, np, level, imetal, imethod
-      INTG_PREC procnum
+      INTG_PREC procnum, iminit
       R_PREC   d(nx,ny,nz), dm(nx,ny,nz), temp(nx,ny,nz)
       R_PREC   u(nx,ny,nz), v(nx,ny,nz), w(nx,ny,nz)
       R_PREC   r(nx,ny,nz), cooltime(nx,ny,nz), metal(nx,ny,nz)
@@ -86,6 +88,7 @@ c
       R_PREC   xp(nmax), yp(nmax), zp(nmax)
       R_PREC   up(nmax), vp(nmax), wp(nmax)
       R_PREC   mp(nmax), tdp(nmax), tcp(nmax), metalf(nmax)
+      R_PREC   minit(nmax)
       R_PREC   odthresh, masseff, smthresh, mintdyn
 c
       R_PREC   sformsum
@@ -191,6 +194,9 @@ c              Create a star particle
 c
                ii = ii + 1
                mp(ii)  = starfraction * d(i,j,k)
+               if (iminit .eq. 1) then
+                  minit(ii) = mp(ii)
+               endif
                tcp(ii) = t
                tdp(ii) = tdyn
                xp(ii) = xstart + (REAL(i,RKIND)-0.5_RKIND)*dx

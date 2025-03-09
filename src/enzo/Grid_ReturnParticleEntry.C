@@ -29,7 +29,8 @@ int grid::ReturnParticleEntry(ParticleEntry *List)
   for (int i = 0; i < NumberOfParticles; i++) {
     List->Number = ParticleNumber[i];
     List->Type = ParticleType[i];
-    List->Mass = ParticleMass[i]*pow(CellWidth[0][0],3);
+    List->Mass = ParticleMass[i]*POW(CellWidth[0][0],3);
+    if (StarMakerStoreInitialMass) List->InitialMass = ParticleInitialMass[i]*POW(CellWidth[0][0],3);
     for (int dim = 0; dim < GridRank; dim++) {
       List->Position[dim] = ParticlePosition[dim][i];
       List->Velocity[dim] = ParticleVelocity[dim][i];
@@ -53,13 +54,13 @@ void grid::RemoveMergedParticles(ParticleEntry *List, const int &Size, int *Flag
     int id = ParticleNumber[i];
     for (int j = 0; j < Size; j++) {
       if (id == List[j].Number) {
-	if (Flag[j] >= 0) {
-	  if (ParticleType[i] ==  PARTICLE_TYPE_MUST_REFINE) 
-	    ParticleMass[i] = FLOAT_UNDEFINED;
-	  else 
-	    ParticleMass[i] = tiny_number;	  
-	  ParticleType[i] = PARTICLE_TYPE_DARK_MATTER;
-	}
+        if (Flag[j] >= 0) {
+          if (ParticleType[i] ==  PARTICLE_TYPE_MUST_REFINE) 
+            ParticleMass[i] = FLOAT_UNDEFINED;
+          else 
+            ParticleMass[i] = tiny_number;	  
+          ParticleType[i] = PARTICLE_TYPE_DARK_MATTER;
+        }
       }
       
     }

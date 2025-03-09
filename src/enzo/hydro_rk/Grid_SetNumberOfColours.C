@@ -39,9 +39,10 @@ int grid::SetNumberOfColours(void)
   /* Count colours */  
 
   int SNColourNum, MetalNum, MetalIaNum, MetalIINum, MBHColourNum, Galaxy1ColourNum, 
-    Galaxy2ColourNum; 
+    Galaxy2ColourNum, MetalAGBNum, MetalNSMNum; 
 
-  if (this->IdentifyColourFields(SNColourNum, MetalNum, MetalIaNum, MetalIINum, MBHColourNum, 
+  if (this->IdentifyColourFields(SNColourNum, MetalNum, MetalIaNum, MetalIINum, 
+         MetalAGBNum, MetalNSMNum, MBHColourNum, 
 				 Galaxy1ColourNum, Galaxy2ColourNum) == FAIL) {
     fprintf(stderr, "Error in grid->IdentifyColourFields.\n");
     return FAIL;
@@ -55,9 +56,12 @@ int grid::SetNumberOfColours(void)
   if (MetalNum != -1) {
     _nc++;
     if (StarMakerTypeIaSNe) _nc++;
-    if (StarMakerTypeIISNeMetalField) _nc++;
+    if (StarMakerTypeIISNeMetalField) _nc++; // Problem Type Agora Restart & single SN
     if (MultiMetals || TestProblemData.MultiMetals) {
       _nc += 2;
+    }
+    if (StarFeedbackTrackMetalSources) {
+      _nc += 4;
     }
   }
 

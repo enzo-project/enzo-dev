@@ -61,6 +61,7 @@ DiskGravityStellarDiskScaleHeightR = 1.7E-3        // Mpc
 DiskGravityStellarDiskScaleHeightz = .34E-3        // Mpc
 DiskGravityStellarBulgeMass        = 0.0           // Msun
 DiskGravityStellarBulgeR           = 0.0           // Mpc
+DiskGravityDarkMatterUseB95        = 1
 DiskGravityDarkMatterR             = 2.5E-3        // Mpc
 DiskGravityDarkMatterDensity       = 7.7E-24   // CGS
 

@@ -119,7 +119,7 @@ int grid::NestedCosmologySimulationInitializeGrid(
  
   int idim, ndim, dim, i, j, vel, OneComponentPerFile, level;
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
-    DINum, DIINum, HDINum, MetalNum, MetalIaNum;
+    DINum, DIINum, HDINum, MetalNum, MetalIaNum, MetalIINum, MetalAGBNum, MetalNSMNum;
  
   int iTE = ietot;
   int ExtraField[2];
@@ -393,8 +393,13 @@ int grid::NestedCosmologySimulationInitializeGrid(
     }
     if (UseMetallicityField) {
       FieldType[MetalNum = NumberOfBaryonFields++] = Metallicity;
-      if (StarMakerTypeIaSNe)
-	FieldType[MetalIaNum = NumberOfBaryonFields++] = MetalSNIaDensity;
+      if (StarMakerTypeIaSNe || StarFeedbackTrackMetalSources)
+        FieldType[MetalIaNum = NumberOfBaryonFields++] = MetalSNIaDensity;
+      if (StarFeedbackTrackMetalSources) {
+        FieldType[MetalIINum = NumberOfBaryonFields++] = MetalSNIIDensity;
+        FieldType[MetalAGBNum = NumberOfBaryonFields++] = MetalAGBDensity;
+        FieldType[MetalNSMNum = NumberOfBaryonFields++] = MetalNSMDensity;
+      }
       if(MultiMetals){
 	FieldType[ExtraField[0] = NumberOfBaryonFields++] = ExtraType0;
 	FieldType[ExtraField[1] = NumberOfBaryonFields++] = ExtraType1;
@@ -618,10 +623,17 @@ int grid::NestedCosmologySimulationInitializeGrid(
 	  BaryonField[MetalNum][i] = CosmologySimulationInitialFractionMetal
 	    * BaryonField[0][i];
 
-	if (StarMakerTypeIaSNe)
+	if (StarMakerTypeIaSNe || StarFeedbackTrackMetalSources)
 	  for (i = 0; i < size; i++)
 	    BaryonField[MetalIaNum][i] = CosmologySimulationInitialFractionMetalIa
 	      * BaryonField[0][i];
+
+	if (StarFeedbackTrackMetalSources)
+		for (i=0; i<size; i++){
+			BaryonField[MetalIINum][i]  = tiny_number;
+			BaryonField[MetalAGBNum][i] = tiny_number;
+			BaryonField[MetalNSMNum][i] = tiny_number;
+	}
 	
 	if (MultiMetals) {
 	  for (i = 0; i < size; i++) {

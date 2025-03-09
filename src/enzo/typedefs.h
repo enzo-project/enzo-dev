@@ -14,6 +14,7 @@
 
 #include "CloudyCoolingData.h"
 #include "EquilibriumTable.h"
+#include "FeedbackTable.h"
 #include "CoolData.h"
 #include "RateData.h"
 #include "RadiationFieldData.h"
@@ -164,7 +165,7 @@ const field_type
   /* Number of ray segments for ray tracing load balancing */
   RaySegments     = 94,
 
-  /* Metals from Type Ia SNe */
+  /* Metals from SNe */
   MetalSNIaDensity = 95,
   MetalSNIIDensity = 96,
 
@@ -180,7 +181,11 @@ const field_type
   ImPsi = 102,
   FDMDensity = 103,
 
-  FieldUndefined  = 104;
+  /* Metals from AGB winds & neutron star mergers */
+  MetalAGBDensity = 104,
+  MetalNSMDensity = 105,
+
+  FieldUndefined  = 106;
 
 /*
 enum field_type {Density, TotalEnergy, InternalEnergy, Pressure,
@@ -316,6 +321,13 @@ const star_type
   CenOstriker = PARTICLE_TYPE_STAR,
   AccretingParticle = PARTICLE_TYPE_MUST_REFINE;
 
+/* Feedback table sources (3rd dim of tables) */
+const enum_type
+  TabSN2 = 0,
+  TabSN1a = 1,
+  TabAGB = 2,
+  TabNSM = 3;
+
 /* Define a float/int union. */
 
 union float_int {
@@ -336,6 +348,7 @@ struct particle_data {
   FLOAT pos[MAX_DIMENSION];
   float vel[MAX_DIMENSION];
   float mass;
+  float initial_mass = 0.0;
   float attribute[MAX_NUMBER_OF_PARTICLE_ATTRIBUTES];
   PINT  id;
   int   type;

@@ -162,6 +162,7 @@ int grid::CommunicationTransferParticles(grid* Grids[], int NumberOfGrids,
 	    List[n1].vel[dim] = ParticleVelocity[dim][i];
 	  }
 	  List[n1].mass = ParticleMass[i];
+    if (StarMakerStoreInitialMass) List[n1].initial_mass = ParticleInitialMass[i];
 	  List[n1].id = ParticleNumber[i];
 	  List[n1].type = ParticleType[i];
 	  for (j = 0; j < NumberOfParticleAttributes; j++)
@@ -217,7 +218,7 @@ int grid::CommunicationTransferParticles(grid* Grids[], int NumberOfGrids,
 #endif
  
     FLOAT *Position[MAX_DIMENSION];
-    float *Velocity[MAX_DIMENSION], *Mass,
+    float *Velocity[MAX_DIMENSION], *Mass, *InitialMass,
       *Attribute[MAX_NUMBER_OF_PARTICLE_ATTRIBUTES];
     PINT *Number;
     int *Type = NULL;
@@ -225,6 +226,7 @@ int grid::CommunicationTransferParticles(grid* Grids[], int NumberOfGrids,
     if (TotalNumberOfParticles > 0) {
  
       Mass = new float[TotalNumberOfParticles];
+      InitialMass = (StarMakerStoreInitialMass) ? new float[TotalNumberOfParticles] : NULL;
       Number = new PINT[TotalNumberOfParticles];
       Type = new int[TotalNumberOfParticles];
       for (dim = 0; dim < GridRank; dim++) {
@@ -246,31 +248,42 @@ int grid::CommunicationTransferParticles(grid* Grids[], int NumberOfGrids,
 
       int n = 0;
 
-      for (i = 0; i < NumberOfParticles; i++)
-	if (ParticleMass[i] >= 0) {
-	  Mass[n] = ParticleMass[i];
-	  Number[n] = ParticleNumber[i];
-	  Type[n] = ParticleType[i];
-	  n++;
-	}
+      if (StarMakerStoreInitialMass) {
+        for (i = 0; i < NumberOfParticles; i++)
+          if (ParticleMass[i] >= 0) {
+            Mass[n] = ParticleMass[i];
+            InitialMass[n] = ParticleInitialMass[i];
+            Number[n] = ParticleNumber[i];
+            Type[n] = ParticleType[i];
+            n++;
+          }
+      } else {
+        for (i = 0; i < NumberOfParticles; i++)
+          if (ParticleMass[i] >= 0) {
+            Mass[n] = ParticleMass[i];
+            Number[n] = ParticleNumber[i];
+            Type[n] = ParticleType[i];
+            n++;
+          }
+      }
 
       for (dim = 0; dim < GridRank; dim++) {
-	n = 0;
-	for (i = 0; i < NumberOfParticles; i++)
-	  if (ParticleMass[i] >= 0) {
-	    Position[dim][n] = ParticlePosition[dim][i];
-	    Velocity[dim][n] = ParticleVelocity[dim][i];
-	    n++;
-	  }
+        n = 0;
+        for (i = 0; i < NumberOfParticles; i++)
+          if (ParticleMass[i] >= 0) {
+            Position[dim][n] = ParticlePosition[dim][i];
+            Velocity[dim][n] = ParticleVelocity[dim][i];
+            n++;
+          }
       }
 	
       for (j = 0; j < NumberOfParticleAttributes; j++) {
-	n = 0;
-	for (i = 0; i < NumberOfParticles; i++)
-	  if (ParticleMass[i] >= 0) {
-	    Attribute[j][n] = ParticleAttribute[j][i];
-	    n++;
-	  }
+        n = 0;
+        for (i = 0; i < NumberOfParticles; i++)
+          if (ParticleMass[i] >= 0) {
+            Attribute[j][n] = ParticleAttribute[j][i];
+            n++;
+          }
       }
 
 #ifdef USE_MPI
@@ -278,24 +291,42 @@ int grid::CommunicationTransferParticles(grid* Grids[], int NumberOfGrids,
 #endif
  
       /* Copy new particles. Periodic wrap is now done in the COPY_OUT. */
+      if (StarMakerStoreInitialMass) {
+        for (i = StartIndex; i < EndIndex; i++) {
 
-      for (i = StartIndex; i < EndIndex; i++) {
+          for (dim = 0; dim < GridRank; dim++) {
+            Position[dim][n] = List[i].pos[dim];
+            Velocity[dim][n] = List[i].vel[dim];
+          } // ENDFOR dim
+              
+          Mass[n] = List[i].mass;
+          InitialMass[n] = List[i].initial_mass;
+          Number[n] = List[i].id;
+          Type[n] = List[i].type;
+          for (j = 0; j < NumberOfParticleAttributes; j++)
+            Attribute[j][n] = List[i].attribute[j];
+              
+          n++;
 
-	for (dim = 0; dim < GridRank; dim++) {
-	  Position[dim][n] = List[i].pos[dim];
-	  Velocity[dim][n] = List[i].vel[dim];
-	} // ENDFOR dim
-      
-	Mass[n] = List[i].mass;
-	Number[n] = List[i].id;
-	Type[n] = List[i].type;
-	for (j = 0; j < NumberOfParticleAttributes; j++)
-	  Attribute[j][n] = List[i].attribute[j];
-      
-	n++;
+        } // ENDFOR particles
+      } else {
+        for (i = StartIndex; i < EndIndex; i++) {
 
-      } // ENDFOR particles
+          for (dim = 0; dim < GridRank; dim++) {
+            Position[dim][n] = List[i].pos[dim];
+            Velocity[dim][n] = List[i].vel[dim];
+          } // ENDFOR dim
+              
+          Mass[n] = List[i].mass;
+          Number[n] = List[i].id;
+          Type[n] = List[i].type;
+          for (j = 0; j < NumberOfParticleAttributes; j++)
+            Attribute[j][n] = List[i].attribute[j];
+              
+          n++;
 
+        } // ENDFOR particles
+      }
 #ifdef USE_MPI
       T4 = MPI_Wtime();
 #endif
@@ -311,7 +342,7 @@ int grid::CommunicationTransferParticles(grid* Grids[], int NumberOfGrids,
     this->DeleteParticles();
     if (NumberOfParticles > 0)
       this->SetParticlePointers(Mass, Number, Type, Position, Velocity,
-				Attribute);
+				Attribute, InitialMass);
  
 #ifdef USE_MPI
     t01 = MPI_Wtime();

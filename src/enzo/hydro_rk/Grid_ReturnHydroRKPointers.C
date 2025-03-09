@@ -113,23 +113,30 @@ int grid::ReturnHydroRKPointers(float **Prim, bool ReturnMassFractions)
   /* Add the colours (NColor is determined in EvolveLevel) */  
 
   int SNColourNum, MetalNum, MetalIaNum, MetalIINum, MBHColourNum, Galaxy1ColourNum, 
-    Galaxy2ColourNum; 
+    Galaxy2ColourNum, MetalAGBNum, MetalNSMNum; 
 
-  if (this->IdentifyColourFields(SNColourNum, MetalNum, MetalIaNum, MetalIINum, MBHColourNum, 
+  if (this->IdentifyColourFields(SNColourNum, MetalNum, MetalIaNum, MetalIINum, 
+         MetalAGBNum, MetalNSMNum, MBHColourNum, 
 				 Galaxy1ColourNum, Galaxy2ColourNum) == FAIL) {
     fprintf(stderr, "Error in grid->IdentifyColourFields.\n");
     return FAIL;
   }
-  
+
   if (MetalNum != -1) {
     Prim[nfield++] = BaryonField[MetalNum];
     if (StarMakerTypeIaSNe)
       Prim[nfield++] = BaryonField[MetalIaNum];
+    else if (StarFeedbackTrackMetalSources) { // mutually exclusive with StarMakerTypeIaSNe
+        Prim[nfield++] = OldBaryonField[MetalIaNum];
+        Prim[nfield++] = OldBaryonField[MetalIINum];
+        Prim[nfield++] = OldBaryonField[MetalAGBNum];
+        Prim[nfield++] = OldBaryonField[MetalNSMNum];
+      }
     if (StarMakerTypeIISNeMetalField)
       Prim[nfield++] = BaryonField[MetalIINum];
     if (MultiMetals || TestProblemData.MultiMetals) {
-      Prim[nfield++] = BaryonField[MetalNum+1];
-      Prim[nfield++] = BaryonField[MetalNum+2];
+      Prim[nfield++] = BaryonField[MetalNum+1]; // ExtraType0
+      Prim[nfield++] = BaryonField[MetalNum+2]; // ExtraType1
     }
   }
 

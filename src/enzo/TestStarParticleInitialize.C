@@ -30,6 +30,10 @@
 #include "Hierarchy.h"
 #include "TopGridData.h"
 
+int GetUnits(float *DensityUnits, float *LengthUnits,
+             float *TemperatureUnits, float *TimeUnits,
+             float *VelocityUnits, FLOAT Time);
+
 int TestStarParticleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 			       TopGridData &MetaData,float *Initialdt)
 {
@@ -40,6 +44,10 @@ int TestStarParticleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGri
   char *Vel2Name = "y-velocity";
   char *Vel3Name = "z-velocity";
   char *MetalName = "Metal_Density";
+  char *MetalIIName = "MetalSNII_Density";
+  char *MetalIaName = "MetalSNIa_Density";
+  char *MetalAGBName = "MetalAGB_Density";
+  char *MetalNSMName = "MetalNSM_Density";
   char *ElectronName = "Electron_Density";
   char *HIName    = "HI_Density";
   char *HIIName   = "HII_Density";
@@ -59,7 +67,8 @@ int TestStarParticleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGri
   /* set default parameters */
 
   float TestStarParticleDensity     = 1.0;
-  float TestStarParticleEnergy      = 1.0;
+  float TestStarParticleEnergy      = -1.0;
+  float TestStarParticleTemperature = -1.0;
   float TestStarParticleVelocity[3] = {0.0, 0.0, 0.0};
   FLOAT TestStarParticleStarVelocity[3] = {0.0, 0.0, 0.0};
   FLOAT TestStarParticleStarPosition[3] = {0.5, 0.5, 0.5};
@@ -67,9 +76,7 @@ int TestStarParticleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGri
   float TestStarParticleStarMass    = 100.0;
   int TestProblemUseMetallicityField = 1;
   float TestProblemInitialMetallicityFraction = 2e-3; // 0.1 Zsun
-
-
-
+  float TestStarParticleStarMetallicityFraction = 0.0;
 
   TestProblemData.MultiSpecies = MultiSpecies;
   TestProblemData.UseMetallicityField = TestProblemUseMetallicityField;
@@ -88,8 +95,12 @@ int TestStarParticleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGri
 		  &TestStarParticleDensity);
     ret += sscanf(line, "TestStarParticleEnergy = %"FSYM,
 		  &TestStarParticleEnergy);
+    ret += sscanf(line, "TestStarParticleTemperature = %"FSYM,
+		  &TestStarParticleTemperature);
     ret += sscanf(line, "TestStarParticleStarMass = %"FSYM,
 		  &TestStarParticleStarMass);
+    ret += sscanf(line, "TestStarParticleStarMetallicityFraction = %"FSYM,
+      &TestStarParticleStarMetallicityFraction);
     ret += sscanf(line,"TestStarParticleStarVelocity = %"PSYM" %"PSYM" %"PSYM, 
 		  &TestStarParticleStarVelocity[0],
 		  &TestStarParticleStarVelocity[1],
@@ -119,10 +130,36 @@ int TestStarParticleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGri
 
   } // end input from parameter file
 
+  /* use either the internal energy or the temperature parameters */
+
+  if ((TestStarParticleEnergy > 0) && (TestStarParticleTemperature > 0))
+    ENZO_FAIL("Error in TestStarParticleInitialize: please specify only one of TestStarParticleEnergy and TestStarParticleTemperature");
+
+  if ((TestStarParticleEnergy < 0) && (TestStarParticleTemperature < 0))
+    ENZO_FAIL("Error in TestStarParticleInitialize: please specify either TestStarParticleEnergy or TestStarParticleTemperature");
+
+  if (TestStarParticleTemperature > 0){
+    double DensityUnits, LengthUnits, TemperatureUnits, TimeUnits, VelocityUnits;
+    if (GetUnits(&DensityUnits, &LengthUnits,&TemperatureUnits, &TimeUnits,
+              &VelocityUnits, MetaData.Time) == FAIL){
+      fprintf(stderr, "Error in GetUnits.\n");
+      return FAIL;
+    }
+
+    TestStarParticleEnergy = TestStarParticleTemperature/TemperatureUnits/((Gamma-1.0)*0.6);
+  }
+
+  /* add gas velocity to internal energy to find total energy */
+
+  double TotalEnergy = TestStarParticleEnergy;
+  for (dim = 0; dim < MetaData.TopGridRank; dim++)
+    TotalEnergy += 0.5*POW(TestStarParticleVelocity[dim], 2);
+  
+
   /* set up uniform grid as of before explosion */
 
   if (TopGrid.GridData->InitializeUniformGrid(TestStarParticleDensity, 
-					      TestStarParticleEnergy,
+					      TotalEnergy,
 					      TestStarParticleEnergy,
 					      TestStarParticleVelocity,
 					      TestStarParticleBField) == FAIL)
@@ -132,7 +169,8 @@ int TestStarParticleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGri
       TestStarParticleInitializeGrid(TestStarParticleStarMass,
 				     Initialdt, 
 				     TestStarParticleStarVelocity,
-				     TestStarParticleStarPosition) == FAIL)
+				     TestStarParticleStarPosition,
+             TestStarParticleStarMetallicityFraction) == FAIL)
   ENZO_FAIL("Error in TestStarParticleInitializeGrid.\n");
 
   /* set up field names and units */
@@ -155,6 +193,13 @@ int TestStarParticleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGri
   }
   if (TestProblemData.UseMetallicityField)
     DataLabel[count++] = MetalName;
+    if (StarMakerTypeIaSNe || StarFeedbackTrackMetalSources)
+      DataLabel[count++] = MetalIaName;
+    if (StarFeedbackTrackMetalSources) {
+      DataLabel[count++] = MetalIIName;
+      DataLabel[count++] = MetalAGBName;
+      DataLabel[count++] = MetalNSMName;
+    }
 
 
   int j;

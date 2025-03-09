@@ -124,7 +124,10 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
   char *DIIName   = "DII_Density";
   char *HDIName   = "HDI_Density";
   char *MetalName = "Metal_Density";
+  char *MetalIIName = "MetalSNII_Density";
   char *MetalIaName = "MetalSNIa_Density";
+  char *MetalAGBName = "MetalAGB_Density";
+  char *MetalNSMName = "MetalNSM_Density";
   char *GPotName  = "Grav_Potential";
   char *ForbidName  = "ForbiddenRefinement";
   char *MachName   = "Mach";
@@ -789,8 +792,13 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
   }
   if (CosmologySimulationUseMetallicityField) {
     DataLabel[i++] = MetalName;
-    if (StarMakerTypeIaSNe)
+    if (StarMakerTypeIaSNe || StarFeedbackTrackMetalSources)
       DataLabel[i++] = MetalIaName;
+    if (StarFeedbackTrackMetalSources) {
+      DataLabel[i++] = MetalIIName;
+      DataLabel[i++] = MetalAGBName;
+      DataLabel[i++] = MetalNSMName;
+    }
     if(MultiMetals){
       DataLabel[i++] = ExtraNames[0];
       DataLabel[i++] = ExtraNames[1];

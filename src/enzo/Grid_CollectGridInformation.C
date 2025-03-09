@@ -45,14 +45,12 @@ int grid::CollectGridInformation(int &GridMemory, float &GridVolume,
 
   Particles = NumberOfParticles;
  
-  // JT additions will be here. 
-
- // here is a second comment 
-
-// here is a third interesting comment 
+  int n_part_fields = GridRank+2+NumberOfParticleAttributes;
+  if (StarMakerStoreInitialMass)
+    n_part_fields += 1;
 
   GridMemory = GridMemory + NumberOfParticles*
-               (sizeof(float)*(GridRank+2+NumberOfParticleAttributes) +
+               (sizeof(float)*n_part_fields +
                 sizeof(FLOAT)*GridRank);
  
   AxialRatio = float(MaxDim)/float(MinDim);

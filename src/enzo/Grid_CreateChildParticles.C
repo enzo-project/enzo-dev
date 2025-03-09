@@ -41,6 +41,7 @@ void mt_init(unsigned_int seed);
 unsigned_long_int mt_random();
 
 int grid::CreateChildParticles(float dx, int NumberOfParticles, float *ParticleMass,
+			       float *ParticleInitialMass,
 			       int *ParticleType, FLOAT *ParticlePosition[],
 			       float *ParticleVelocity[], float *ParticleAttribute[],
 			       FLOAT *CellLeftEdge[], int *GridDimension, 
@@ -348,6 +349,8 @@ int grid::CreateChildParticles(float dx, int NumberOfParticles, float *ParticleM
 		}
 	 
 	      this->ParticleMass[child] = ParticleMass[partnum];
+	      if (StarMakerStoreInitialMass)
+		this->ParticleInitialMass[child] = ParticleInitialMass[partnum];
 	      for(i = 0; i < 3; i++)
 		this->ParticleVelocity[i][child] = ParticleVelocity[i][partnum];
 	      this->ParticleType[child] = ParticleType[partnum];

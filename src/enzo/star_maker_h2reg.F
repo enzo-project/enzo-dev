@@ -28,7 +28,7 @@ c
      &     ran1_init, 
      &     level, grid_id,
      &     np, xp, yp, zp, up, vp, wp,
-     &     mp, tdp, tcp, metalf)
+     &     mp, tdp, tcp, metalf, iminit, minit)
 c     
 c  CREATES STAR PARTICLES
 c
@@ -145,6 +145,7 @@ c          for H2FloorInColdGas (see above).
 c
 c    level - current level of refinement
 c    procnum - processor number (for output)
+c    iminit - bool; store initial mass separately?
 c
 c  OUTPUTS:
 c
@@ -157,6 +158,7 @@ c    tdp      - dynamical time of zone in which particle created
 c    tcp      - creation time of particle
 c    metalf   - metallicity fraction of particle
 c    nmax     - particle array size specified by calling routine
+c    minit    - initial mass of new particles
  
 c-----------------------------------------------------------------------
        implicit none
@@ -170,7 +172,7 @@ c
 c  Arguments
 c
       INTG_PREC nx, ny, nz, ibuff, nmax, np, level, imetal, imethod
-      INTG_PREC grid_id
+      INTG_PREC grid_id, iminit
       INTG_PREC procnum
       INTG_PREC ran1_init
       R_PREC    d(nx,ny,nz), fHI(nx,ny,nz), fH2(nx,ny,nz)
@@ -184,6 +186,7 @@ c
       P_PREC xp(nmax), yp(nmax), zp(nmax)
       R_PREC    up(nmax), vp(nmax), wp(nmax)
       R_PREC    mp(nmax), tdp(nmax), tcp(nmax), metalf(nmax)
+      R_PREC minit(nmax)
 
       INTG_PREC H2Method
       INTG_PREC StochasticStarFormation
@@ -459,6 +462,9 @@ c            fill in star particle attributes
                endif
                
                mp(ii)  = starmass
+               if (iminit .eq. 1) then
+                  minit(ii) = mp(ii)
+               endif
                tcp(ii) = t
                tdp(ii) = timeconstant
                xp(ii) = xstart + (REAL(i,RKIND)-0.5_RKIND)*dx

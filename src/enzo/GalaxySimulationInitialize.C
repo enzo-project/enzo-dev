@@ -73,7 +73,10 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
   char *DIIName   = "DII_Density";
   char *HDIName   = "HDI_Density";
   char *MetalName   = "Metal_Density";
+  char *MetalIIName = "MetalSNII_Density";
   char *MetalIaName = "MetalSNIa_Density";
+  char *MetalAGBName = "MetalAGB_Density";
+  char *MetalNSMName = "MetalNSM_Density";
   char *BxName      = "Bx";
   char *ByName      = "By";
   char *BzName      = "Bz";
@@ -569,10 +572,16 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
      DataLabel[count++] = HDIName;
    }
  }
- if (GalaxySimulationUseMetallicityField)
+ if (GalaxySimulationUseMetallicityField) {
    DataLabel[count++] = MetalName;
- if (StarMakerTypeIaSNe)
-   DataLabel[count++] = MetalIaName;
+   if (StarMakerTypeIaSNe || StarFeedbackTrackMetalSources)
+      DataLabel[count++] = MetalIaName;
+   if (StarFeedbackTrackMetalSources) {
+      DataLabel[count++] = MetalIIName;
+      DataLabel[count++] = MetalAGBName;
+      DataLabel[count++] = MetalNSMName;
+   }
+ }
 
  for (i = 0; i < count; i++)
    DataUnits[i] = NULL;

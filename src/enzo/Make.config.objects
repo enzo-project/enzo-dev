@@ -835,6 +835,7 @@ OBJS_CONFIG_LIB = \
         read_bv.o \
         ReadDataHierarchy.o \
         ReadEquilibriumTable.o \
+        ReadFeedbackTable.o \
         ReadFile.o \
         ReadGridFile.o \
         ReadIntFile.o \
@@ -924,7 +925,9 @@ OBJS_CONFIG_LIB = \
         Star_SetFeedbackFlag.o \
 	Star_SphereContained.o \
 	Star_SubtractAccretedMassFromCell.o \
+        tabular_feedback.o \
 	star_feedback_pn_snia.o \
+        star_feedback2_tab.o \
         star_feedback6.o \
         star_maker1.o \
         star_maker2.o \
@@ -937,7 +940,7 @@ OBJS_CONFIG_LIB = \
 	star_maker9.o \
 	star_maker10.o \
 	star_maker_h2reg.o \
-    star_maker_ssn.o \
+        star_maker_ssn.o \
 	StratifiedMediumExplosionInitialize.o \
         SupernovaRestartInitialize.o \
         SysMkdir.o \

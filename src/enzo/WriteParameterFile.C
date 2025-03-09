@@ -17,6 +17,7 @@
 //   based on it.
 
 #include "preincludes.h" 
+#include <cstdio>
 #include <time.h>
 #include "macros_and_parameters.h"
 #include "typedefs.h"
@@ -953,6 +954,17 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
           StarFeedbackDistRadius);
   fprintf(fptr, "StarFeedbackDistCellStep              = %"ISYM"\n",
           StarFeedbackDistCellStep);
+  fprintf(fptr, "StarFeedbackUseTabularYields          = %"ISYM"\n",
+          StarFeedbackUseTabularYields);
+  fprintf(fptr, "StarFeedbackTabularFilename           = %s\n",
+          StarFeedbackTabularFilename);
+  fprintf(fptr, "StarFeedbackTabularSNIIEnergy         = %"GSYM"\n",
+          StarFeedbackTabularSNIIEnergy);
+  fprintf(fptr, "StarFeedbackTabularSNIaEnergy         = %"GSYM"\n",
+          StarFeedbackTabularSNIaEnergy);
+  fprintf(fptr, "StarFeedbackTrackMetalSources         = %"ISYM"\n",
+          StarFeedbackTrackMetalSources);
+
   fprintf(fptr, "StarMakerUseJeansMass                 = %"ISYM"\n",
 	  StarMakerUseJeansMass);
   fprintf(fptr, "StarMakerVelDivCrit                   = %"ISYM"\n",
@@ -971,6 +983,8 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
 	  StarMakerTypeIISNeMetalField);
   fprintf(fptr, "StarMakerPlanetaryNebulae             = %"ISYM"\n",
 	  StarMakerPlanetaryNebulae);
+  fprintf(fptr, "StarMakerStoreInitialMass             = %"ISYM"\n",
+	  StarMakerStoreInitialMass);
   fprintf(fptr, "MultiMetals                           = %"ISYM"\n\n",
           MultiMetals);
   fprintf(fptr, "IsotropicConduction                   = %"ISYM"\n", IsotropicConduction);

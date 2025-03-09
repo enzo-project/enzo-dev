@@ -263,11 +263,12 @@ void ExtractSection(HierarchyEntry &TopGrid, TopGridData &MetaData,
   FLOAT *Position[MAX_DIMENSION];
   float *Velocity[MAX_DIMENSION];
   float *Attribute[MAX_NUMBER_OF_PARTICLE_ATTRIBUTES];
-  float *Mass;
+  float *Mass, *InitialMass;
   PINT  *Number;
   int   *Type;
  
   Mass = new float[RHC];
+  InitialMass = (StarMakerStoreInitialMass) ? new float[RHC] : NULL;
   Number = new PINT[RHC];
   Type = new int[RHC];
  
@@ -297,7 +298,8 @@ void ExtractSection(HierarchyEntry &TopGrid, TopGridData &MetaData,
                                                   Mass,
                                                   Position,
                                                   Velocity,
-                                                  Attribute) == FAIL)
+                                                  Attribute,
+                                                  InitialMass) == FAIL)
     {
       fprintf(stderr, "Error in grid->MoveSubgridParticles.\n");
       my_exit(EXIT_FAILURE);
@@ -307,7 +309,7 @@ void ExtractSection(HierarchyEntry &TopGrid, TopGridData &MetaData,
   }
  
 //  RHP = RHP - 1;
-  Grids[ExtractLevel]->SetParticlePointers(Mass, Number, Type, Position, Velocity, Attribute);
+  Grids[ExtractLevel]->SetParticlePointers(Mass, Number, Type, Position, Velocity, Attribute, InitialMass);
   Grids[ExtractLevel]->SetNumberOfParticles(RHP);
  
 /*

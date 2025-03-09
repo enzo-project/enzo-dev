@@ -589,6 +589,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   StarMakerTypeIaSNe               = FALSE;
   StarMakerTypeIISNeMetalField     = FALSE;
   StarMakerPlanetaryNebulae        = FALSE;
+  StarMakerStoreInitialMass        = FALSE;
   StarMakerUseOverDensityThreshold = TRUE;
   StarMakerMaximumFractionCell     = 0.5;
   StarMakerOverDensityThreshold    = 100;          // times mean total density
@@ -617,6 +618,11 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   StarFeedbackDistRadius           = 0;
   StarFeedbackDistCellStep         = 0;
   StarFeedbackDistTotalCells       = 1;
+  StarFeedbackUseTabularYields     = FALSE;
+  StarFeedbackTabularFilename      = "sygma_feedback_table.h5";
+  StarFeedbackTabularSNIIEnergy    = 1.0e+51;
+  StarFeedbackTabularSNIaEnergy    = 1.0e+51;
+  StarFeedbackTrackMetalSources    = FALSE;
   StarMakerUseJeansMass            = TRUE;
   MultiMetals                      = FALSE;
   NumberOfParticleAttributes       = INT_UNDEFINED;

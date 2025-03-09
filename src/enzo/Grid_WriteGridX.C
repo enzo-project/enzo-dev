@@ -659,6 +659,47 @@ if ( 0 == 1 )
       if (io_log) fprintf(log_fptr, "H5Fclose: %"ISYM"\n", h5_status);
       if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
  
+     /* Copy initial mass to temp and write it. */
+ 
+    if (StarMakerStoreInitialMass) {
+
+      for (i = 0; i < NumberOfParticles; i++)
+        temp[i] = float32(ParticleInitialMass[i]);
+  
+  
+      file_dsp_id = H5Screate_simple((Eint32) 1, TempIntArray, NULL);
+        if (io_log) fprintf(log_fptr, "H5Screate file_dsp_id: %"ISYM"\n", file_dsp_id);
+        if( file_dsp_id == h5_error ){my_exit(EXIT_FAILURE);}
+  
+      if (io_log) fprintf(log_fptr, "H5Fcreate with Name = particle_initial_mass\n");
+  
+      file_id = H5Fcreate("particle_initial_mass", H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
+        if (io_log) fprintf(log_fptr, "H5Fcreate id: %"ISYM"\n", file_id);
+        if( file_id == h5_error ){my_exit(EXIT_FAILURE);}
+  
+      if (io_log) fprintf(log_fptr, "H5Dcreate with Name = particle_initial_mass\n");
+  
+      dset_id = H5Dcreate(file_id, "particle_initial_mass", file_type_id, file_dsp_id, H5P_DEFAULT);
+        if (io_log) fprintf(log_fptr, "H5Dcreate id: %"ISYM"\n", dset_id);
+        if( dset_id == h5_error ){my_exit(EXIT_FAILURE);}
+  
+      h5_status = H5Dwrite(dset_id, float_type_id, H5S_ALL, H5S_ALL, H5P_DEFAULT, (VOIDP) temp);
+        if (io_log) fprintf(log_fptr, "H5Dwrite: %"ISYM"\n", h5_status);
+        if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+  
+      h5_status = H5Sclose(file_dsp_id);
+        if (io_log) fprintf(log_fptr, "H5Sclose: %"ISYM"\n", h5_status);
+        if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+  
+      h5_status = H5Dclose(dset_id);
+        if (io_log) fprintf(log_fptr, "H5Dclose: %"ISYM"\n", h5_status);
+        if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+  
+      h5_status = H5Fclose(file_id);
+        if (io_log) fprintf(log_fptr, "H5Fclose: %"ISYM"\n", h5_status);
+        if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+    }
+
     /* Copy number (ID) to temp and write it. */
  
     PINT *tempPINT = new PINT[NumberOfParticles];

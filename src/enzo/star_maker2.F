@@ -17,7 +17,8 @@ c
      &                      level, np, 
      &                      xp, yp, zp, up, vp, wp,
      &                      mp, tdp, tcp, metalf,
-     &                      imetalSNIa, metalSNIa, metalfSNIa)
+     &                      imetalSNIa, metalSNIa, metalfSNIa,
+     &                      iminit, minit)
 
 c
 c  CREATES GALAXY PARTICLES
@@ -72,6 +73,7 @@ c    mintdyn  - minimum dynamical time, in years
 c    level - current level of refinement
 c    procnum - processor number (for output)
 c    imetalSNIa - SN Ia metallicity flag (0 - none, 1 - yes)
+c    iminit - whether to store initial mass separately
 c
 c  OUTPUTS:
 c
@@ -85,6 +87,7 @@ c    tcp      - creation time of particle
 c    metalf   - metallicity fraction of particle
 c    metalfSNIa - metallicity fraction of particle (from SN Ia)
 c    nmax     - particle array size specified by calling routine
+c    minit    - initial mass of new particles
 c
 c
 c-----------------------------------------------------------------------
@@ -95,7 +98,7 @@ c
 c  Arguments
 c
       INTG_PREC nx, ny, nz, ibuff, nmax, np, level, imetal, imethod
-      INTG_PREC imetalSNIa, procnum, tindsf
+      INTG_PREC imetalSNIa, procnum, tindsf, iminit
       INTG_PREC usejeans, veldivcrit, selfboundcrit, thermalcrit, h2crit
       R_PREC    d(nx,ny,nz), dm(nx,ny,nz), temp(nx,ny,nz)
       R_PREC    u(nx,ny,nz), v(nx,ny,nz), w(nx,ny,nz), h2(nx,ny,nz)
@@ -107,7 +110,7 @@ c
       P_PREC xp(nmax), yp(nmax), zp(nmax)
       R_PREC    up(nmax), vp(nmax), wp(nmax)
       R_PREC    mp(nmax), tdp(nmax), tcp(nmax), metalf(nmax),
-     &     metalfSNIa(nmax)
+     &     metalfSNIa(nmax), minit(nmax)
       R_PREC    odthresh, masseff, smthresh, mintdyn, tempthresh
 c
       R_PREC   sformsum
@@ -221,10 +224,10 @@ c
 
                if (tindsf .eq. 1) then
                   starfraction = masseff
-                  tdyn = mintdyn*3.15d7/t1
+                  tdyn = mintdyn*yr_s/t1
                else
                   starfraction = min(masseff*dt/tdyn, 0.9_RKIND)
-                  tdyn = max(tdyn, mintdyn*3.15e7_RKIND/t1)
+                  tdyn = max(tdyn, mintdyn*yr_s/t1)
                endif
 
 c
@@ -259,6 +262,9 @@ c              Create a star particle
 c
                ii = ii + 1
                mp(ii)  = starfraction * thish2frac * d(i,j,k)
+               if (iminit .eq. 1) then
+                  minit(ii) = mp(ii)
+               endif
                tcp(ii) = t
                tdp(ii) = tdyn
                xp(ii) = xstart + (REAL(i,RKIND)-0.5_RKIND)*dx
@@ -331,7 +337,8 @@ c
      &                      distrad, diststep, distcells,
      &                      npart, xstart, ystart, zstart, ibuff,
      &                      xp, yp, zp, up, vp, wp,
-     &                      mp, tdp, tcp, metalf, type, justburn, 
+     &                      mp, tdp, tcp, metalf, type, justburn,
+     &                      iminit, minit, 
      &                      crmodel, crfeedback, cr)
 
 c
@@ -399,7 +406,7 @@ c
 c  Arguments
 c
       INTG_PREC nx, ny, nz, ibuff, npart, idual, imetal, imethod,
-     &      distrad, diststep, distcells
+     &      distrad, diststep, distcells, iminit
       R_PREC    d(nx,ny,nz), dm(nx,ny,nz), te(nx,ny,nz)
       R_PREC    u(nx,ny,nz), v(nx,ny,nz), w(nx,ny,nz)
       R_PREC    r(nx,ny,nz), metal(nx,ny,nz), ge(nx,ny,nz)
@@ -411,7 +418,7 @@ c
       R_PREC    mp(npart), tdp(npart), tcp(npart), metalf(npart)
       INTG_PREC type(npart)
       INTG_PREC crmodel
-      R_PREC cr(nx,ny,nz)
+      R_PREC cr(nx,ny,nz), minit(npart)
       R_PREC crfeedback
 c
 c  Locals
@@ -451,9 +458,13 @@ c          form of the Cen & Ostriker formula.
 
 c        First calculate the initial mass of the star particle 
 c          in question.
-            minitial = mp(n) / 
+            if (iminit .eq. 1) then
+               minitial = minit(n)
+            else
+               minitial = mp(n) / 
      &           (1._RKIND - m_eject*(1._RKIND - (1._RKIND + xv1)
      &           *exp(-xv1)))
+            endif
 c
 c       Then, calculate the amount of mass that would have formed in
 c         this timestep.

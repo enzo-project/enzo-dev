@@ -14,7 +14,8 @@ c
      &                      odthresh, smthresh, level, np,
      &                      xp, yp, zp, up, vp, wp,
      &                      mp, tdp, tcp, metalf,
-     &                      imetalSNIa, metalSNIa, metalfSNIa)
+     &                      imetalSNIa, metalSNIa, metalfSNIa,
+     &                      iminit, minit)
 
 c
 c  CREATES STAR PARTICLES
@@ -48,6 +49,7 @@ c        smthresh unless (random number) < starmass/smthresh )
 c    mintdyn  - minimum dynamical time, in years
 c    level - current level of refinement
 c    imetalSNIa - SN Ia metallicity flag (0 - none, 1 - yes)
+c    iminit - whether to store initial mass separately
 c
 c  OUTPUTS:
 c
@@ -61,6 +63,7 @@ c    tcp      - creation time of particle
 c    metalf   - metallicity fraction of particle
 c    nmax     - particle array size specified by calling routine
 c    metalfSNIa - metallicity fraction of particle (from SN Ia) ! MKRJ
+c    minit    - initial mass of new particles
 c
 c-----------------------------------------------------------------------
        implicit none
@@ -70,7 +73,7 @@ c
 c  Arguments
 c
       INTG_PREC nx, ny, nz, ibuff, nmax, np, level, imetal, imethod
-      INTG_PREC imetalSNIa
+      INTG_PREC imetalSNIa, iminit
       R_PREC    d(nx,ny,nz), dm(nx,ny,nz), temp(nx,ny,nz)
       R_PREC    u(nx,ny,nz), v(nx,ny,nz), w(nx,ny,nz)
       R_PREC    r(nx,ny,nz), metal(nx,ny,nz)
@@ -80,7 +83,7 @@ c
       P_PREC xp(nmax), yp(nmax), zp(nmax)
       R_PREC    up(nmax), vp(nmax), wp(nmax)
       R_PREC    mp(nmax), tdp(nmax), tcp(nmax), metalf(nmax)
-      R_PREC    metalSNIa(nx,ny,nz), metalfSNIa(nmax)
+      R_PREC    metalSNIa(nx,ny,nz), metalfSNIa(nmax), minit(nmax)
       R_PREC    odthresh, smthresh, mintdyn
 c
       R_PREC   sformsum
@@ -153,6 +156,9 @@ c
 c            fill in star particle attributes
 
                mp(ii)  = gasfrac * d(i,j,k)
+               if (iminit .eq. 1) then
+                  minit(ii) = mp(ii)
+               endif
                tcp(ii) = t
                tdp(ii) = timeconstant
                xp(ii) = xstart + (REAL(i,RKIND)-0.5_RKIND)*dx
