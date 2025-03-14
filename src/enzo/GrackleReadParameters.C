@@ -243,6 +243,13 @@ int GrackleReadParameters(FILE *fptr, FLOAT InitTime)
     ENZO_FAIL("Error in Grackle initialize_chemistry_data.\n");
   }
 
+  /*
+    Return this value to Enzo's storage as Grackle will change this value during
+    initialization (see Grackle PR #200
+    https://github.com/grackle-project/grackle/pull/200).
+  */
+  CoolData.HydrogenFractionByMass = (float) grackle_data->HydrogenFractionByMass;
+
   // Need to set these after initialize_chemistry_data since
   // that function sets them automatically based on the tables.
   if (FinalRedshift < grackle_data->UVbackground_redshift_off) {
