@@ -163,6 +163,17 @@ int grid::GrackleWrapper()
     else if (SNColourNum != -1)
       MetalPointer = BaryonField[SNColourNum];
   } // ENDELSE both metal types
+
+  /*
+    Cap the metal density at 90% of the gas density.
+    This was historically in Enzo, then Grackle and was removed in
+    Grackle PR #121 (https://github.com/grackle-project/grackle/pull/121)
+  */
+  if (MetalPointer != NULL) {
+    for (i = 0; i < size; i++) {
+      MetalPointer[i] = min(MetalPointer[i], 0.9 * BaryonField[DensNum][i]);
+    }
+  }
  
   int temp_thermal = FALSE;
   float *thermal_energy;
