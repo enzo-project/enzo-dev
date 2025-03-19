@@ -24,6 +24,10 @@
 #    CONFIG_PACKED_MEM
 #    CONFIG_LCAPERF
 #    CONFIG_PYTHON
+#    CONFIG_LIBYT
+#    CONFIG_LIBYT_INTERACTIVE
+#    CONFIG_LIBYT_RELOAD
+#    CONFIG_LIBYT_JUPYTER
 #    CONFIG_NEW_PROBLEM_TYPES
 #    CONFIG_PAPI
 #    CONFIG_OOC_BOUNDARY
@@ -168,6 +172,42 @@
 #-----------------------------------------------------------------------
 
      CONFIG_PYTHON = no
+
+#=======================================================================
+# CONFIG_LIBYT
+#=======================================================================
+#    yes           link against libyt for in situ analysis
+#    no            don't use libyt
+#-----------------------------------------------------------------------
+
+     CONFIG_LIBYT = no
+
+#=======================================================================
+# CONFIG_LIBYT_INTERACTIVE
+#=======================================================================
+#    yes           use libyt interactive prompt
+#    no            don't use libyt interactive prompt
+#-----------------------------------------------------------------------
+
+     CONFIG_LIBYT_INTERACTIVE = no
+
+#=======================================================================
+# CONFIG_LIBYT_RELOAD
+#=======================================================================
+#    yes           use libyt reloading script feature
+#    no            don't use libyt reloading script feature
+#-----------------------------------------------------------------------
+
+     CONFIG_LIBYT_RELOAD = no
+
+#=======================================================================
+# CONFIG_LIBYT_JUPYTER
+#=======================================================================
+#    yes           use libyt Jupyter Notebook feature
+#    no            don't use libyt Jupyter Notebook feature
+#-----------------------------------------------------------------------
+
+     CONFIG_LIBYT_JUPYTER = no
 
 #=======================================================================
 # CONFIG_NEW_PROBLEM_TYPES

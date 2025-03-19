@@ -55,6 +55,7 @@ inquiries and comments should be directed to the `Enzo Users' List
    Progress.rst
    RunTestProblem.rst
    AnalyzingWithYT.rst
+   InSituPythonAnalysis.rst
    CosmologicalInitialConditions.rst
    RunningLargeSimulations.rst
    EnzoOutputFormat.rst
