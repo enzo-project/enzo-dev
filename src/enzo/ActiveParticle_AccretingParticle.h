@@ -49,7 +49,7 @@ public:
       );
   };
   static int EvaluateFormation(
-      grid *thisgrid_orig, ActiveParticleFormationData &data);
+      grid *thisgrid_orig, TopGridData *MetaData, ActiveParticleFormationData &data);
   static void DescribeSupplementalData(ActiveParticleFormationDataFlags &flags);
   static int EvaluateFeedback(
       grid *thisgrid_orig, ActiveParticleFormationData &data);
