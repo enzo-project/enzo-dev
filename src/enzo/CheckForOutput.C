@@ -159,7 +159,7 @@ int CheckForOutput(HierarchyEntry *TopGrid, TopGridData &MetaData,
     MetaData.TimeLastDataDump += MetaData.dtDataDump;
 
     //#ifdef USE_HDF5_GROUPS
-    Group_WriteAllData(MetaData.DataDumpName, MetaData.DataDumpNumber++,
+    Group_WriteAllData(MetaData.TimeDumpName, MetaData.TimeDumpNumber++,
 		       TopGrid, MetaData, Exterior
 #ifdef TRANSFER
 		       , ImplicitSolver

@@ -208,12 +208,14 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
  
   fprintf(fptr, "RestartDumpNumber   = %"ISYM"\n", MetaData.RestartDumpNumber);
   fprintf(fptr, "DataDumpNumber      = %"ISYM"\n", MetaData.DataDumpNumber);
+  fprintf(fptr, "TimeDumpNumber      = %"ISYM"\n", MetaData.TimeDumpNumber);
   fprintf(fptr, "HistoryDumpNumber   = %"ISYM"\n", MetaData.HistoryDumpNumber);
   fprintf(fptr, "TracerParticleDumpNumber = %"ISYM"\n",
           MetaData.TracerParticleDumpNumber);
  
   fprintf(fptr, "RestartDumpName     = %s\n", MetaData.RestartDumpName);
   fprintf(fptr, "DataDumpName        = %s\n", MetaData.DataDumpName);
+  fprintf(fptr, "TimeDumpName        = %s\n", MetaData.TimeDumpName);
   fprintf(fptr, "HistoryDumpName     = %s\n", MetaData.HistoryDumpName);
   fprintf(fptr, "TracerParticleDumpName = %s\n",
           MetaData.TracerParticleDumpName);
@@ -223,6 +225,8 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
     fprintf(fptr, "RestartDumpDir        = %s\n", MetaData.RestartDumpDir);
   if (MetaData.DataDumpDir != NULL)
     fprintf(fptr, "DataDumpDir           = %s\n", MetaData.DataDumpDir);
+  if (MetaData.TimeDumpDir != NULL)
+    fprintf(fptr, "TimeDumpDir           = %s\n", MetaData.TimeDumpDir);
   if (MetaData.HistoryDumpDir != NULL)
     fprintf(fptr, "HistoryDumpDir        = %s\n", MetaData.HistoryDumpDir);
   if (MetaData.TracerParticleDumpDir != NULL)
