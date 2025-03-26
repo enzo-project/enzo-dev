@@ -85,6 +85,7 @@ public:
   void  IncreaseLevel(void) { level++; };
   void  SetLevel(int i) { level = i; };
   void  SetGridID(int i) { GridID = i; };
+  int   ReturnGridID() {return GridID;};
   int   ReturnFeedbackFlag(void) { return FeedbackFlag; };
   grid *ReturnCurrentGrid(void) { return CurrentGrid; };
   void  AssignCurrentGrid(grid *a) { this->CurrentGrid = a; };

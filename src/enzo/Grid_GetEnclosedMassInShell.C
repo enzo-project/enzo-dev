@@ -29,10 +29,11 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, FLOAT Time);
 
-int grid::GetEnclosedMassInShell(Star *star, float radius0, float radius1, 
+int grid::GetEnclosedMassInShell(FLOAT *pos, float radius0, float radius1, 
 				 float &mass, float &metallicity2, 
 				 float &metallicity3,
-				 float &coldgas_mass, float AvgVelocity[])
+				 float &coldgas_mass, float AvgVelocity[],
+				 int feedback_flag)
 {
 
   if (MyProcessorNumber != ProcessorNumber)
@@ -46,10 +47,10 @@ int grid::GetEnclosedMassInShell(Star *star, float radius0, float radius1,
   bool inside_outer = true, contained_inner = true;
 
   for (dim = 0; dim < GridRank; dim++) {
-    contained_inner &= (GridLeftEdge[dim]  >= star->pos[dim] - radius0 &&
-			GridRightEdge[dim] <= star->pos[dim] + radius0);
-    inside_outer &= !(star->pos[dim] - radius1 > GridRightEdge[dim] ||
-		      star->pos[dim] + radius1 < GridLeftEdge[dim]);
+    contained_inner &= (GridLeftEdge[dim]  >= pos[dim] - radius0 &&
+			GridRightEdge[dim] <= pos[dim] + radius0);
+    inside_outer &= !(pos[dim] - radius1 > GridRightEdge[dim] ||
+		      pos[dim] + radius1 < GridLeftEdge[dim]);
   }
 
   if (!inside_outer || contained_inner)
@@ -83,7 +84,7 @@ int grid::GetEnclosedMassInShell(Star *star, float radius0, float radius1,
   int Vel1Num = FindField(Velocity1, FieldType, NumberOfBaryonFields);
   int GENum = FindField(InternalEnergy, FieldType, NumberOfBaryonFields);
   int ColorField = FindField(ForbiddenRefinement, FieldType, NumberOfBaryonFields); 
-  if ((ColorField < 0) && (star->ReturnFeedbackFlag() == COLOR_FIELD))
+  if ((ColorField < 0) && (feedback_flag == COLOR_FIELD))
       ENZO_FAIL("Couldn't Find Color Field!");
 
   /* Find metallicity field and set flag. */
@@ -132,10 +133,10 @@ int grid::GetEnclosedMassInShell(Star *star, float radius0, float radius1,
   radius1_2 = radius1 * radius1;
 
   for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
-    delz = CellLeftEdge[2][k] + 0.5*CellWidth[2][k] - star->pos[2];
+    delz = CellLeftEdge[2][k] + 0.5*CellWidth[2][k] - pos[2];
     delz = min(delz, DomainWidth[2]-delz);
     for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
-      dely = CellLeftEdge[1][j] + 0.5*CellWidth[1][j] - star->pos[1];
+      dely = CellLeftEdge[1][j] + 0.5*CellWidth[1][j] - pos[1];
       dely = min(dely, DomainWidth[1]-dely);
       index = (k*GridDimension[1] + j)*GridDimension[0] + GridStartIndex[0];
       for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, index++) { 
@@ -143,7 +144,7 @@ int grid::GetEnclosedMassInShell(Star *star, float radius0, float radius1,
 	if (BaryonField[NumberOfBaryonFields][index] != 0.0)
 	  continue;
 
-	delx = CellLeftEdge[0][i] + 0.5*CellWidth[0][i] - star->pos[0];
+	delx = CellLeftEdge[0][i] + 0.5*CellWidth[0][i] - pos[0];
 	delx = min(delx, DomainWidth[0]-delx);
 
 	dr2 = delx*delx + dely*dely + delz*delz;
@@ -151,7 +152,7 @@ int grid::GetEnclosedMassInShell(Star *star, float radius0, float radius1,
 	if (dr2 >= radius0_2 && dr2 < radius1_2) {
 	  gasmass = BaryonField[DensNum][index] * MassConversion;
 	  mass += gasmass;
-	  if (star->ReturnFeedbackFlag() == COLOR_FIELD)
+	  if (feedback_flag == COLOR_FIELD)
 	    BaryonField[ColorField][index] = BaryonField[DensNum][index];
 	  for (dim = 0; dim < GridRank; dim++)
 	    AvgVelocity[dim] += BaryonField[Vel1Num+dim][index] * gasmass;

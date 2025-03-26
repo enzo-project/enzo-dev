@@ -159,8 +159,7 @@ int grid::CollapseTestInitializeGrid(int NumberOfSpheres,
   /* Set various units. */
 
   float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits, 
-    VelocityUnits, CriticalDensity = 1, BoxLength = 1, mu = 0.6;
-
+    VelocityUnits, CriticalDensity = 1, BoxLength = 1, mu = Mu;
   FLOAT a, dadt, ExpansionFactor = 1;
   GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits, &TimeUnits, 
 	   &VelocityUnits, Time);
@@ -324,6 +323,14 @@ int grid::CollapseTestInitializeGrid(int NumberOfSpheres,
 	       SphereRadius[sphere]);
 	break;
 
+      case 2:
+	SphereMass = 4*pi*pow((SphereRadius[sphere]*LengthUnits), 3) *
+	  (SphereDensity[sphere]*DensityUnits);
+	printf("mass = %"GSYM", lunit = %"GSYM", dunit = %"GSYM", rho = %"GSYM", r = %"GSYM"\n",
+	       SphereMass, LengthUnits, DensityUnits, SphereDensity[sphere],
+	       SphereRadius[sphere]);
+	break;
+	
       case 3:
 	SphereMass = m200*SolarMass;
 	break;
@@ -420,13 +427,32 @@ int grid::CollapseTestInitializeGrid(int NumberOfSpheres,
 	       ThickenTransitionRadius, InnerScaleHeight);
 	break;
 
-      } // ENDSWITCH SphereType
-      
-      printf("\nSphere Mass (M_sun): %"FSYM"\n", SphereMass/SolarMass);
-      VelocityKep = sqrt(GravConst*SphereMass/(SphereRadius[sphere]*(LengthUnits)));
 
+      case 11:
+	printf("%s: Do BurkertBodenheimer setup\n", __FUNCTION__);
+	mu = Mu;
+	SphereMass = (4.0*M_PI/3.0)*pow((SphereRadius[sphere]*LengthUnits), 3) *
+	  (SphereDensity[sphere]*DensityUnits);
+	//SphereAng1[sphere] = 0.0;
+	//SphereAng2[sphere] = 0.0;
+	printf("mass = %"GSYM", lunit = %"GSYM", dunit = %"GSYM", rho = %"GSYM", r = %"GSYM"\n",
+	       SphereMass, LengthUnits, DensityUnits, SphereDensity[sphere],
+	       SphereRadius[sphere]);
+	break;
+      } // ENDSWITCH SphereType
+
+      printf("\nSphere Radius = %e cm\n", SphereRadius[sphere]*(LengthUnits));
+      printf("\nSphere Mass (M_sun): %"FSYM"\n", SphereMass/SolarMass);
+      printf("\nSphere Mass (M_sun): %1.20e g\n", SphereMass);
+      printf("\nSphere Density (R = %g) = %"GSYM" g cm^-3\n", SphereRadius[sphere]*(LengthUnits),
+	     SphereDensity[sphere]*DensityUnits);
+      printf("G = %e\n", GravConst);
+      VelocityKep = sqrt(GravConst*SphereMass/(SphereRadius[sphere]*(LengthUnits)));
+      printf("\nVelocityKep = %e\n", VelocityKep);
+      
+      printf("\nSphereFracKeplerianRot[%d] = %e\n", sphere, SphereFracKeplerianRot[sphere]);
       if (SphereFracKeplerianRot[sphere] > 0) {
-	SphereRotationalPeriod[sphere] = 2*pi*SphereRadius[sphere]*(LengthUnits)/
+	SphereRotationalPeriod[sphere] = 2*M_PI*SphereRadius[sphere]*(LengthUnits)/
 	  (SphereFracKeplerianRot[sphere]*VelocityKep);
 	SphereRotationalPeriod[sphere] /= TimeUnits;
       } else
@@ -436,15 +462,20 @@ int grid::CollapseTestInitializeGrid(int NumberOfSpheres,
 	     * SphereFracKeplerianRot[sphere]*TimeUnits);
       printf("\nSphere Rotation Period (s): %"GSYM"\n", SphereRotationalPeriod[sphere]
 	     * TimeUnits);
-
+      printf("\nSphere Angular Velocity (rads/s): %e\n", 2*M_PI/(SphereRotationalPeriod[sphere]
+								      * TimeUnits));
+      printf("Temperature = %f K\n", SphereTemperature[sphere]);
+      printf("Mu = %f\n", mu);
+      printf("Initial cell width (Domain Width) = %e cm (%e cm)\n", CellWidth[0][0]*LengthUnits,
+	     CellWidth[0][0]*LengthUnits*128.0);
       // Calculate speed of sound for this sphere
       VelocitySound[sphere] = sqrt((SphereTemperature[sphere] * Gamma * kboltz) / 
 				   (mu * mh)) / VelocityUnits;
-      printf("\nVelocitySound (cm s^-1): %"GSYM"\n", VelocitySound[sphere] * 
-	     VelocityUnits);
-
+      printf("\nVelocitySound (km s^-1): %e\n", VelocitySound[sphere] * 
+	     VelocityUnits/1e5);
+     
     } // ENDFOR sphere
-
+    //exit(-99);
     for (k = 0; k < GridDimension[2]; k++)
       for (j = 0; j < GridDimension[1]; j++)
 	for (i = 0; i < GridDimension[0]; i++, n++) {
@@ -536,6 +567,22 @@ int grid::CollapseTestInitializeGrid(int NumberOfSpheres,
 	      } else {
 		RotVelocity[0] = RotVelocity[1] = RotVelocity[2] = 0;
 	      }
+	      //double AV = 2*M_PI/SphereRotationalPeriod[sphere];
+	      //printf("AV = %e\n", AV);
+	      //printf("xpos, ypos, zpos = %e %e %e\n", xpos*LengthUnits, ypos*LengthUnits, zpos*LengthUnits);
+	      //printf("r = %e cm\n", sqrt(xpos*xpos + ypos*ypos + zpos*zpos)*LengthUnits);
+	      //printf("a = %f\n", a);
+	      //printf("cos(a) = %f\t sin(a) = %f\n", cos(a), sin(a));
+
+	      //printf("Velocity [cm/s] = %e %e %e\n", RotVelocity[0]*VelocityUnits, RotVelocity[1]*VelocityUnits, RotVelocity[2]*VelocityUnits);
+	     
+	      //RotVelocity[0] = -AV*ypos;
+	      //RotVelocity[1] = AV*xpos;
+	      //printf("EE: Velocity [cm/s] = %e %e %e\n\n", RotVelocity[0]*VelocityUnits, RotVelocity[1]*VelocityUnits, RotVelocity[2]*VelocityUnits);
+	      
+	      //getchar();
+	      
+	      
 	      Velocity[0] += SphereTurbulence[sphere] * 
 		Maxwellian(VelocitySound[sphere], VelocityUnits, mu, Gamma);
 	      Velocity[1] += SphereTurbulence[sphere] * 
@@ -747,15 +794,41 @@ int grid::CollapseTestInitializeGrid(int NumberOfSpheres,
 
 	      } // end: disk
 
-               /* 11) stellar wind, with r^-2 POWer law density*/
-              if (SphereType[sphere] == 11) {
-                radial_velocity = StellarWindSpeed/VelocityUnits;
-                dens1 = StellarWindDensity*POW(r/StellarWindRadius, -2);
-                Velocity[0] += radial_velocity * xpos / r;
-                Velocity[1] += radial_velocity * ypos / r;
-                Velocity[2] += radial_velocity * zpos / r;
-              } // end stellar wind
-	    
+	      /* 11) Burkert-Bodenheimer Sphere */
+
+	      if (SphereType[sphere] == 11) {
+		dens1 = SphereDensity[sphere];
+
+		//density = dens1;
+		// compute the azimuthal angle
+		FLOAT cosphi = xpos/sqrt(xpos*xpos+ypos*ypos);
+		FLOAT sinphi = ypos/sqrt(xpos*xpos+ypos*ypos);
+		FLOAT phi    = acos(xpos/sqrt(xpos*xpos+ypos*ypos));
+		FLOAT cos2phi = cosphi*cosphi -sinphi*sinphi;
+		// Burkert & Bodenheimer (1993) m=2 perturbation: 	      
+		float m2mode = 1.0 + 0.1*cos(2.*phi);
+		float p, cs, h, dpdrho, dpde, gamma=Gamma;
+		/* Perturb density field */
+		dens1 *= m2mode;
+		// BUT keep the pressure constant everywhere
+		// to avoid discontinuities at the sphere boundaries
+#ifdef EOS
+		if(density <= 0.25*1e-15/DensityUnits)
+		  gamma = 1.000001;
+		else if(density <= 5.0*1e-15/DensityUnits)
+		  gamma = 1.1;
+		else
+		  gamma = 4.0/3.0;
+
+		eint = pow(VelocitySound[sphere], 2)/(gamma-1.0)/m2mode;
+		//printf("BB: eint = %g\n", eint);
+		p = pow(VelocitySound[sphere], 2)*density/gamma;
+
+		//EOS(p, density, eint, h, cs, dpdrho, dpde, EOSType, 1);
+		//printf("BB (after EOS): eint = %g\n", eint);
+#endif		
+		
+	      }
 	      /* If the density is larger than the background (or the previous
 		 sphere), then set the velocity. */
 
@@ -763,9 +836,11 @@ int grid::CollapseTestInitializeGrid(int NumberOfSpheres,
 		if (density <= InitialDensity) {
 		  old_density = 0;
 		  density = dens1;
+		  //printf("1. set density = %e\n", dens1*DensityUnits);
 		} else {
 		  old_density = density;
 		  density += dens1;
+		  //printf("2. add %e to density", dens1*DensityUnits);
 		}
 		weight = dens1/density;
 
@@ -791,7 +866,10 @@ int grid::CollapseTestInitializeGrid(int NumberOfSpheres,
 		sigma = sigma1;
 		if (SphereType[sphere] != 10)
 		  for (dim = 0; dim < GridRank; dim++)
-		    Velocity[dim] = Velocity[dim] + SphereVelocity[sphere][dim];
+		    {
+		      Velocity[dim] = Velocity[dim] + SphereVelocity[sphere][dim];
+		      
+		    }
 		//		  Velocity[dim] = (1-weight)*Velocity[dim] + 
 		//		    weight*SphereVelocity[sphere][dim];
 		else
@@ -816,7 +894,8 @@ int grid::CollapseTestInitializeGrid(int NumberOfSpheres,
 
 	      //metallicity += SphereMetallicity[sphere];
 	      metallicity = SphereMetallicity[sphere];
-
+	      if(temperature != 10.0)
+		printf("temperature = %f\n", temperature);
 	    } // end: if (r < SphereRadius)
 	    else {
 
@@ -959,7 +1038,6 @@ int grid::CollapseTestInitializeGrid(int NumberOfSpheres,
 	    BaryonField[ivel+dim][n] = Velocity[dim] + UniformVelocity[dim];
 
 	  /* Set energy (thermal and then total if necessary). */
-
 	  BaryonField[1][n] = temperature/TemperatureUnits/ ((Gamma-1.0)*mu);
 
 	  if (DualEnergyFormalism)

@@ -45,6 +45,8 @@ int RadiativeTransferWriteParameters(FILE *fptr)
 	  RadiativeTransferOpticallyThinH2);
   fprintf(fptr, "RadiativeTransferOpticallyThinH2CharLength = %"GOUTSYM"\n", 
 	  RadiativeTransferOpticallyThinH2CharLength);
+  fprintf(fptr, "RadiativeTransferNoIonisingRadiation      = %"ISYM"\n",
+          RadiativeTransferNoIonisingRadiation);
   fprintf(fptr, "RadiativeTransferFLDCallOnLevel           = %"ISYM"\n", 
 	  RadiativeTransferFLDCallOnLevel);
   fprintf(fptr, "RadiativeTransferPeriodicBoundary         = %"ISYM"\n", 
