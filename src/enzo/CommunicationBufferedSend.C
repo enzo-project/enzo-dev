@@ -35,7 +35,7 @@ static int CallCount = 0;
  
 /* The MPI Handle and buffer storage area. */
  
-#define MAX_NUMBER_OF_MPI_BUFFERS 40000
+#define MAX_NUMBER_OF_MPI_BUFFERS 200000
  
 static MPI_Request  RequestHandle[MAX_NUMBER_OF_MPI_BUFFERS];
 static char        *RequestBuffer[MAX_NUMBER_OF_MPI_BUFFERS];

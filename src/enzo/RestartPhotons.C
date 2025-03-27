@@ -34,6 +34,8 @@
 
 #define CONVERGE 0.001
 
+int GenerateGridArray(LevelHierarchyEntry *LevelArray[], int level,
+		      HierarchyEntry **Grids[]);
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, FLOAT Time);
@@ -53,6 +55,14 @@ int RestartPhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
   if (!RadiativeTransfer)
     return SUCCESS;
+
+  HierarchyEntry **Grids[MAX_DEPTH_OF_HIERARCHY];
+  int nGrids[MAX_DEPTH_OF_HIERARCHY];
+  for (level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++)
+    if (LevelArray[level] != NULL)
+      nGrids[level] = GenerateGridArray(LevelArray, level, &Grids[level]);
+    else
+      nGrids[level] = 0;
 
   /* Get units. */
 
@@ -145,7 +155,22 @@ int RestartPhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   RadiativeTransferCoupledRateSolver = savedCoupledChemistrySolver;
   dtPhoton = SavedPhotonTimestep;
 
-  /* Optically thin Lyman-Werner (H2) radiation field */
+  /* Optically thin Lyman-Werner (H2) and X-ray radiation field */
+
+  int NumberOfSources = 0;
+  if (AllStars != NULL) {
+    Star *cstar = AllStars->NextStar;
+    while (cstar != NULL) {
+      cstar = cstar->NextStar;
+      NumberOfSources++;
+    }
+  } else if (ProblemType == 50) {
+    RadiationSourceEntry *RS = GlobalRadiationSources->NextSource;
+    while (RS != NULL) {
+      RS = RS->NextSource;
+      NumberOfSources++;
+    }
+  }
 
   if (AllStars == NULL)
     return SUCCESS;

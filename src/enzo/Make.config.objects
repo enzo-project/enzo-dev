@@ -26,6 +26,7 @@ OBJS_CONFIG_LIB = \
         ActiveParticleResetAccelerations.o \
         ActiveParticleRoutines.o \
         ActiveParticle_AccretingParticle.o \
+        ActiveParticle_AGNParticle.o \
         ActiveParticle_CenOstriker.o \
         ActiveParticle_DisableParticle.o \
         ActiveParticle_GalaxyParticle.o \
@@ -40,6 +41,8 @@ OBJS_CONFIG_LIB = \
         AdiabaticExpansionInitialize.o \
         AdjustRefineRegion.o \
         AdjustMustRefineParticlesRefineToLevel.o \
+        AGN_Volume_Grid.o \
+        AGN_Volume_Cylinder.o \
         AMRH5writer.o \
         AnalysisBaseClass.o \
         AnalysisBaseClass_HDF5Utils.o \
@@ -353,6 +356,9 @@ OBJS_CONFIG_LIB = \
 	Grid_AddParticlesFromList.o \
 	Grid_AddRandomForcing.o \
 	Grid_AddToBoundaryFluxes.o \
+        Grid_DoAGNFeedback.o \
+        Grid_AGNParticleGetColdMassRate.o \
+        Grid_AGNParticleCylinderFeedback.o \
 	Grid_AllocateGrids.o \
 	Grid_AnalyzeTrackPeaks.o \
     	Grid_AppendActiveParticlesToList.o \
@@ -392,6 +398,8 @@ OBJS_CONFIG_LIB = \
         Grid_CollectParticleMassFlaggingField.o \
         Grid_CollectStars.o \
 	Grid_CommunicationMoveGrid.o \
+	Grid_CommunicationMoveGrid1.o \
+	Grid_CommunicationMoveGrid2.o \
 	Grid_CommunicationReceiveRegion.o \
     	Grid_CommunicationSendActiveParticles.o \
 	Grid_CommunicationSendParticles.o \
@@ -543,6 +551,7 @@ OBJS_CONFIG_LIB = \
 	Grid_InitializeGravitatingMassField.o \
 	Grid_InitializeGravitatingMassFieldParticles.o \
 	Grid_InitializeUniformGrid.o \
+	Grid_inteuler.o \
 	Grid_InterpolateAccelerations.o \
 	Grid_InterpolateBoundaryFromParent.o \
 	Grid_InterpolateFieldValues.o \
@@ -729,6 +738,7 @@ OBJS_CONFIG_LIB = \
 	intpos.o \
 	intprim.o \
         intvar.o \
+        intvarC.o \
         Isdigit.o \
         KHInitialize.o \
         LevelHierarchy_AddLevel.o \
@@ -827,6 +837,7 @@ OBJS_CONFIG_LIB = \
         RadiationFieldCalculateRates.o \
         RadiationFieldLymanWernerTable.o \
         RadiationFieldUpdate.o \
+	rate_cool_routines.o \
         ReadAllData.o \
         ReadAttr.o \
         ReadEvolveRefineFile.o \
@@ -1072,6 +1083,8 @@ POBJS_CONFIG_LIB = \
 	Grid_AddH2DissociationFromTree.o \
 	Grid_AddRadiationImpulse.o \
 	Grid_AddRadiationPressureAcceleration.o \
+	Grid_AddXraysFromSources.o \
+	Grid_AddXraysFromTree.o \
 	Grid_AllocateInterpolatedRadiation.o \
 	Grid_CheckSubgridMarker.o \
 	Grid_CommunicationSendPhotonPackages.o \
@@ -1106,6 +1119,7 @@ POBJS_CONFIG_LIB = \
         Grid_SetSubgridMarkerFromParent.o \
         Grid_SetSubgridMarkerFromSibling.o \
         Grid_SetSubgridMarkerFromSubgrid.o \
+	Grid_SetSubgridMarkerIsolatedBoundaries.o \
         Grid_SubgridMarkerPostParallel.o \
         Grid_Shine.o \
         Grid_TestRadiatingStarParticleInitializeGrid.o \

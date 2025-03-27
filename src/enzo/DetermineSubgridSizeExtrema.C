@@ -32,7 +32,7 @@
 #include "CommunicationUtilities.h"
 
 #define MINIMUM_EDGE 4
-#define MINIMUM_SIZE 2000
+#define MINIMUM_SIZE 512
 
 int DetermineSubgridSizeExtrema(long_int NumberOfCells, int level, int MaximumStaticSubgridLevel)
 {
@@ -45,10 +45,12 @@ int DetermineSubgridSizeExtrema(long_int NumberOfCells, int level, int MaximumSt
   int grids_per_proc = (level > MaximumStaticSubgridLevel) ?
     OptimalSubgridsPerProcessor : 8;
 
-  MaximumSubgridSize = NumberOfCells / 
-    (NumberOfProcessors * grids_per_proc);
+  MaximumSubgridSize = NumberOfCells / (NumberOfCores * grids_per_proc);
   MaximumSubgridSize = max(MaximumSubgridSize, MINIMUM_SIZE);
-  MinimumSubgridEdge = nint(pow(MaximumSubgridSize, 0.33333) * 0.25);
+  if (level > MaximumStaticSubgridLevel)
+    MinimumSubgridEdge = nint(pow(MaximumSubgridSize, 0.33333) * 0.25);
+  else
+    MinimumSubgridEdge = nint(pow(MaximumSubgridSize, 0.33333) * 0.1);
   MinimumSubgridEdge += MinimumSubgridEdge % 2;
   MinimumSubgridEdge = max(MinimumSubgridEdge, MINIMUM_EDGE);
 

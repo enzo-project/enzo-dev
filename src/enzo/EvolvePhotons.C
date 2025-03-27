@@ -210,6 +210,12 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
   } // ENDFOR RS
 
+  /* Clear ray tracing timers */
+
+  for (lvl = 0; lvl < MAX_DEPTH_OF_HIERARCHY; lvl++)
+    for (i = 0; i < nGrids[lvl]; i++)
+      Grids[lvl][i]->GridData->ResetCost(2);
+
   /**********************************************************************
                        MAIN RADIATION TRANSPORT LOOP
    **********************************************************************/
@@ -289,8 +295,9 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     START_PERF();
     for (lvl = MAX_DEPTH_OF_HIERARCHY-1; lvl >= 0 ; lvl--)
-      for (Temp = LevelArray[lvl]; Temp; Temp = Temp->NextGridThisLevel) 
-	if (Temp->GridData->InitializeRadiativeTransferFields() == FAIL) {
+#pragma omp parallel for schedule(static)
+      for (i = 0; i < nGrids[lvl]; i++)
+	if (Grids[lvl][i]->GridData->InitializeRadiativeTransferFields() == FAIL) {
 	  ENZO_FAIL("Error in InitializeRadiativeTransferFields.\n");
 	}
     END_PERF(0);
@@ -299,8 +306,9 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     if (RadiationXRayComptonHeating)  
       for (lvl = MAX_DEPTH_OF_HIERARCHY-1; lvl >= 0 ; lvl--)
-	for (Temp = LevelArray[lvl]; Temp; Temp = Temp->NextGridThisLevel) 
-	  if (Temp->GridData->InitializeTemperatureFieldForComptonHeating() == FAIL) {  
+#pragma omp parallel for schedule(static)
+      for (i = 0; i < nGrids[lvl]; i++)
+	  if (Grids[lvl][i]->GridData->InitializeTemperatureFieldForComptonHeating() == FAIL) {  
 	    ENZO_FAIL("Error in InitializeTemperatureFieldForComptonHeating.\n");
 	  }	
     /* Initialize Temperature Field for H2 shielding approximation */
@@ -595,9 +603,10 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     // number of particles (rho * dx^3)
     START_PERF();
     for (lvl = 0; lvl < MAX_DEPTH_OF_HIERARCHY-1; lvl++)
-      for (Temp = LevelArray[lvl]; Temp; Temp = Temp->NextGridThisLevel)
-	if (Temp->GridData->RadiationPresent() == TRUE)
-	  Temp->GridData->FinalizeRadiationFields();
+#pragma omp parallel for schedule(static)
+      for (i = 0; i < nGrids[lvl]; i++)
+	if (Grids[lvl][i]->GridData->RadiationPresent() == TRUE)
+	  Grids[lvl][i]->GridData->FinalizeRadiationFields();
     END_PERF(8);
 
     /* Set the optically-thin H2 dissociation rates */
@@ -636,8 +645,9 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     if (RadiationXRayComptonHeating)
       for (lvl = 0; lvl < MAX_DEPTH_OF_HIERARCHY-1; lvl++)
-	for (Temp = LevelArray[lvl]; Temp; Temp = Temp->NextGridThisLevel)
-	  if (Temp->GridData->FinalizeTemperatureFieldForComptonHeating() == FAIL) {  
+#pragma omp parallel for schedule(static)
+	for (i = 0; i < nGrids[lvl]; i++)
+	  if (Grids[lvl][i]->GridData->FinalizeTemperatureFieldForComptonHeating() == FAIL) {  
 	    ENZO_FAIL("Error in FinalizeTemperatureFieldForComptonHeating.\n");
 	  }	
     if (RadiativeTransferH2ShieldType == 1 || ProblemType == 50)
@@ -682,6 +692,21 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       break;
     
     FirstTime = false;
+
+#ifdef UNUSED//REPORT_PERF
+  if (!FirstTime) {
+    if (debug) printf("EvolvePhotons: total time = %g\n", ReturnWallTime()-ep0);
+    for (int i = 0; i < 1; i++) {  // Only report on ROOT, not all
+      CommunicationBarrier();
+      if (MyProcessorNumber == i) {
+
+	printf("P%d:", MyProcessorNumber);
+	fpcol(PerfCounter, 14, 14, stdout);
+	fflush(stdout);
+      }
+    }
+  }
+#endif
 
   } // ENDWHILE GridTime >= PhotonTime
 

@@ -67,6 +67,11 @@ int CommunicationTransferSubgridParticles(LevelHierarchyEntry *LevelArray[],
   ChainingMeshStructure ChainingMesh;
   SiblingGridList SiblingList;
 
+  int *jstart = NULL;
+  int *jend = NULL;
+  int *kstart = NULL;
+  int *kend = NULL;
+
   /* Star and particle lists for communication */
 
   particle_data *SendList = NULL;
@@ -116,6 +121,11 @@ int CommunicationTransferSubgridParticles(LevelHierarchyEntry *LevelArray[],
      sibling grids.  In the next step, we will allocate the memory and
      transfer them. */
 
+  int ParticleCounter1 = 0;
+  int ParticleCounter2 = 0;
+#pragma omp parallel
+{
+#pragma omp for reduction(+:NumberToMove[:NumberOfProcessors], StarsToMove[:NumberOfProcessors]) private(ID, grid2, SiblingList)
   for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
 
     /* Get a list of possible siblings from the chaining mesh */
@@ -166,7 +176,7 @@ int CommunicationTransferSubgridParticles(LevelHierarchyEntry *LevelArray[],
        APSendList, KeepLocal, ParticlesAreLocal, COPY_OUT, TRUE, TRUE);
 
     Grids[grid1]->GridData->TransferSubgridParticles
-      (GridPointers, NumberOfGrids, NumberToMove, Zero, Zero, 
+      (GridPointers, NumberOfGrids, NumberToMove, ParticleCounter1, Zero, Zero, 
        SendList, KeepLocal, ParticlesAreLocal, COPY_OUT, TRUE, TRUE);
 
     delete [] SiblingList.GridList;
@@ -175,6 +185,8 @@ int CommunicationTransferSubgridParticles(LevelHierarchyEntry *LevelArray[],
 
   /* Allocate the memory for the move list and transfer the particles */
 
+#pragma omp single
+{
   TotalNumber = 0;
   TotalStars  = 0;
   APTotalNumber = 0;
@@ -189,6 +201,9 @@ int CommunicationTransferSubgridParticles(LevelHierarchyEntry *LevelArray[],
   SendList = new particle_data[TotalNumber];
   StarSendList = new star_data[TotalStars];
 
+}// end omp single
+ 
+#pragma omp for reduction(+:NumberToMove[:NumberOfProcessors])
   for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
 
     Grids[grid1]->GridData->TransferSubgridStars
@@ -200,10 +215,12 @@ int CommunicationTransferSubgridParticles(LevelHierarchyEntry *LevelArray[],
        APSendList, KeepLocal, ParticlesAreLocal, COPY_OUT, TRUE, FALSE);
 
     Grids[grid1]->GridData->TransferSubgridParticles
-      (GridPointers, NumberOfGrids, NumberToMove, Zero, Zero, 
+      (GridPointers, NumberOfGrids, NumberToMove, ParticleCounter2, Zero, Zero, 
        SendList, KeepLocal, ParticlesAreLocal, COPY_OUT, TRUE, FALSE);
 
   } // ENDFOR grid1
+
+}// end omp parallel section
 
   FastSiblingLocatorFinalize(&ChainingMesh);
 
@@ -234,53 +251,88 @@ int CommunicationTransferSubgridParticles(LevelHierarchyEntry *LevelArray[],
   /****************** Copy particles back to grids. ******************/
   /*******************************************************************/
 
-  jstart = 0;
-  jend = 0;
+  jstart = new int[NumberOfGrids+1];
+  jend = new int[NumberOfGrids+1];
 
+  memset(jstart, 0, sizeof(int)*(NumberOfGrids+1));
+  memset(jend, 0, sizeof(int)*(NumberOfGrids+1));
+  jstart[0] = 0;
+  jend[0] = 0;
+  int ParticleIterations = 0;
   // Copy shared particles to grids, if any
+  if (NumberOfReceives > 0) {
+	for (j = 0; j < NumberOfGrids && jend[j] < NumberOfReceives; j++) {
+		while (SharedList[jend[j]].grid <= j) {
+			jend[j]++;
+			if (jend[j] == NumberOfReceives) break;
+      	}
+      	ParticleIterations++;
+	  	jstart[j+1] = jend[j];
+	}
+  }
 
-  if (NumberOfReceives > 0)
-    for (j = 0; j < NumberOfGrids && jend < NumberOfReceives; j++) {
-      while (SharedList[jend].grid <= j) {
-	jend++;
-	if (jend == NumberOfReceives) break;
+  kstart = new int[NumberOfGrids+1];
+  kend = new int[NumberOfGrids+1];
+  memset(kstart, 0, sizeof(int)*(NumberOfGrids+1));
+  memset(kend, 0, sizeof(int)*(NumberOfGrids+1));
+  kstart[0] = 0;
+  kend[0] = 0;
+  int StarParticleIterations = 0;
+  // Copy shared particles to grids, if any
+  if (StarNumberOfReceives > 0) {
+    for (k = 0; k < NumberOfGrids && kend[k] < StarNumberOfReceives; k++) {
+      while (StarSharedList[kend[k]].grid <= k) {
+		kend[k]++;
+		if (kend[k] == StarNumberOfReceives) break;
       }
+      StarParticleIterations++;
+	  kstart[k+1] = kend[k];
+    }
+ }
 
-      /*
-      printf("j =%d, jstart =%d, jend =%d, NumberOfGrids =%d, " 
+  for(j = 0; j<ParticleIterations; j++)
+  	printf("---->jstart[%d]= %d | jend[%d] = %d\n", j,jstart[j], j, jend[j]);
+
+  ParticleCounter1 = 0;
+  ParticleCounter2 = 0;
+#pragma omp parallel
+{
+#pragma omp for reduction(+:NumberToMove[:NumberOfProcessors])
+    for (j = 0; j < ParticleIterations; j++) {
+
+      
+/*      printf("--> j =%d, ParticleIterations= %d, jstart =%d, jend =%d, NumberOfGrids =%d, " 
              "NumberToMove[] =%d/%d, NumberOfReceives =%d\n", 
-	     j, jstart, jend, NumberOfGrids, 
-	     NumberToMove[0], NumberToMove[1], NumberOfReceives); 
-      */
+	     j, ParticleIterations, jstart[j], jend[j], NumberOfGrids, 
+	     NumberToMove[0], NumberToMove[1], NumberOfReceives); */
+      
 
       GridPointers[j]->TransferSubgridParticles
-	(GridPointers, NumberOfGrids, NumberToMove, jstart, jend, 
+	(GridPointers, NumberOfGrids, NumberToMove, ParticleCounter1, jstart[j], jend[j], 
 	 SharedList, KeepLocal, ParticlesAreLocal, COPY_IN, TRUE);
       
-      jstart = jend;
+      //jstart = jend;
     } // ENDFOR grids
-
+  
   /*******************************************************************/
   /******************** Copy stars back to grids. ********************/
   /*******************************************************************/
 
-  jstart = 0;
-  jend = 0;
-
   // Copy shared stars to grids, if any
+#pragma omp for reduction(+:StarsToMove[:NumberOfProcessors])
+    for (k = 0; k < StarParticleIterations; k++) {
 
-  if (StarNumberOfReceives > 0)
-    for (j = 0; j < NumberOfGrids && jend < StarNumberOfReceives; j++) {
-      while (StarSharedList[jend].grid <= j) {
-	jend++;
-	if (jend == StarNumberOfReceives) break;
-      }
+/*      printf("--> k =%d, StarParticleIterations= %d, kstart =%d, kend =%d, NumberOfGrids =%d, " 
+             "NumberToMove[] =%d/%d, NumberOfReceives =%d\n", 
+	     k, StarParticleIterations, kstart[k], kend[k], NumberOfGrids, 
+	     StarsToMove[0], StarsToMove[1], StarNumberOfReceives);  */
       
-      GridPointers[j]->TransferSubgridStars
-	(GridPointers, NumberOfGrids, StarsToMove, jstart, jend, 
+      
+      GridPointers[k]->TransferSubgridStars
+	(GridPointers, NumberOfGrids, StarsToMove, kstart[k], kend[k], 
 	 StarSharedList, KeepLocal, ParticlesAreLocal, COPY_IN, TRUE);
       
-      jstart = jend;
+      //jstart = jend;
     } // ENDFOR grids
 
   /*******************************************************************/
@@ -307,6 +359,7 @@ int CommunicationTransferSubgridParticles(LevelHierarchyEntry *LevelArray[],
     } // ENDFOR grids
   
 
+} // end omp parallel
   /************************************************************************
      Since the particles and stars are only on the grid's host
      processor, set number of particles so everybody agrees.

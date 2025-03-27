@@ -103,7 +103,7 @@ int CreateSourceClusteringTree(int nShine, SuperSourceData *SourceList,
     OldSourceClusteringTree = SourceClusteringTree;
     SourceClusteringTree = NULL;
 
-  } // ENDIF SourceList == NULL (first time)  
+  } // ENDIF SourceList == NULL (first time)
 
   /* Calculate "center of light" first and assign it to the tree. */
 
@@ -213,8 +213,9 @@ int CreateSourceClusteringTree(int nShine, SuperSourceData *SourceList,
     nleft = (nShine+1)/2;
     nright = nShine-nleft;
   }
+
   /* Divide into children if there are more than one source */
-  
+
   if (nShine > 2) {
 
     // Left leaf (copy to temp, make tree, copy back)
@@ -271,6 +272,37 @@ int CreateSourceClusteringTree(int nShine, SuperSourceData *SourceList,
       new_leaf->LWLuminosity = SourceList[i].LWLuminosity;
       new_leaf->ParentSource = SourceClusteringTree;
       SourceClusteringTree->ChildSource[LR_leaf_flag[i]] = new_leaf;
+    } // ENDFOR i
+
+  }
+
+  else {
+
+    sort_dim = SourceClusteringTree->LeafID % MAX_DIMENSION;
+    if (nShine > 1) {
+      if (SourceList[0].Position[sort_dim] <
+	  SourceList[1].Position[sort_dim]) {
+	num[0] = 0;
+	num[1] = 1;
+      } else {
+	num[0] = 1;
+	num[1] = 0;
+      }
+    } else {
+      num[0] = 0;
+    }
+    for (i = 0; i < nShine; i++) {
+      new_leaf = new SuperSourceEntry;
+      new_leaf->ParentSource = NULL;
+      for (j = 0; j < MAX_LEAF; j++)
+	new_leaf->ChildSource[j] = NULL;
+      for (dim = 0; dim < MAX_DIMENSION; dim++)
+	new_leaf->Position[dim] = SourceList[i].Position[dim];
+      new_leaf->ClusteringRadius = 0;
+      new_leaf->LeafID = INT_UNDEFINED;
+      new_leaf->LWLuminosity = SourceList[i].LWLuminosity;
+      new_leaf->ParentSource = SourceClusteringTree;
+      SourceClusteringTree->ChildSource[num[i]] = new_leaf;
     } // ENDFOR i
 
   }
