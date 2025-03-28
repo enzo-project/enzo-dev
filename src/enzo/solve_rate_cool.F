@@ -1198,7 +1198,7 @@ c     Exclude directions with (drho/ds > 0)
                   endif
                enddo
 c     (rho / divrho) is the Sobolev-like length in cell widths
-               l_sobolev = min(dx_cgs * d(i,j,k) / abs(divrho), xbase1)
+               l_sobolev = min(dx_cgs * d(i,j,k) / (2.0_RKIND*abs(divrho)), xbase1)
                N_H2 = dom*H2I(i,j,k) * l_sobolev
 c               if (N_H2.gt.1e14 .and. divrho.gt.100*tiny) then
 c                  write(6,*) "test"
@@ -1206,7 +1206,7 @@ c               endif
                x = 2e-15_RKIND * N_H2
                b_doppler = 1e-5_RKIND * 
      &              sqrt(2.0_RKIND * kboltz * 
-     &              tgas1d(i) / mass_h)
+     &              tgas1d(i) / (2.0_RKIND * mass_h))
                if (iradshield == 2) then
                    alpha = 1.1
                end if
