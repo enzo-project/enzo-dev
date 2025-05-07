@@ -18,6 +18,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <math.h>
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
@@ -42,6 +43,20 @@ int ExposeHierarchyToLibyt(TopGridData *MetaData, HierarchyEntry *Grid, int
 void ExposeGridHierarchy(int NumberOfGrids);
 void ExportParameterFile(TopGridData *MetaData, FLOAT CurrentTime, FLOAT OldTime, float dtFixed);
 void CommunicationBarrier();
+
+static yt_dtype MapHDF5TypeToYTType(hid_t hdf5type) {
+    if (hdf5type == HDF5_INT) {
+        return EYT_INT;
+    } else if (hdf5type == HDF5_REAL) {
+        return EYT_BFLOAT;
+    } else if (hdf5type == HDF5_R8) {
+        return YT_DOUBLE;
+    } else if (hdf5type == HDF5_PREC) {
+        return EYT_PFLOAT;
+    } else {
+        return YT_DTYPE_UNKNOWN;
+    }
+}
 
 #endif
 
@@ -149,10 +164,11 @@ int CallInSitulibyt(LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
     params->length_unit = LengthUnits;
     params->mass_unit = DensityUnits * LengthUnits * LengthUnits * LengthUnits; /* this right? */
     params->time_unit = TimeUnits;
-    params->magnetic_unit = 0.0; /* Not right */
-    params->periodicity[0] = 1; /* also not right */
-    params->periodicity[1] = 1;
-    params->periodicity[2] = 1;
+    params->velocity_unit = VelocityUnits;
+    params->magnetic_unit = sqrt(4.0 * 3.141592653589793238462643383279502884L * DensityUnits) * VelocityUnits;
+    params->periodicity[0] = (MetaData->LeftFaceBoundaryCondition[0] == periodic);
+    params->periodicity[1] = (MetaData->LeftFaceBoundaryCondition[1] == periodic);
+    params->periodicity[2] = (MetaData->LeftFaceBoundaryCondition[2] == periodic);
     params->dimensionality = MetaData->TopGridRank;
     params->domain_dimensions[0] = MetaData->TopGridDims[0];
     params->domain_dimensions[1] = MetaData->TopGridDims[1];
@@ -170,10 +186,30 @@ int CallInSitulibyt(LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
         }
     }
 
-    params->num_par_types = 1;
-    yt_par_type par_type_list[1];
-    par_type_list[0].par_type = "io";
+    // Add fields for Temperature/Cooling_Time derived field from enzo
+    params->num_fields += 2;
+
+    // Add active particle ptypes
+    params->num_par_types = 1 + EnabledActiveParticlesCount; // DarkMatter and Other ActiveParticle (ex: SmartStar)
+    yt_par_type *par_type_list = new yt_par_type [params->num_par_types];
+
+    par_type_list[0].par_type = "DarkMatter";
     par_type_list[0].num_attr = 3 + 3 + 1 + 1 + 1 + NumberOfParticleAttributes;
+
+    // the attributes name should be alive within the entire libyt in situ analysis,
+    // because libyt does not make a copy of the names.
+    std::vector<std::vector<std::string>> active_particles_attributes;
+    std::vector<std::vector<hid_t>> active_particles_attributes_hdf5type;
+
+    for (int i = 0; i < EnabledActiveParticlesCount; i++) {
+        ActiveParticleType_info *ActiveParticleTypeToEvaluate = EnabledActiveParticles[i];
+        active_particles_attributes.emplace_back(ActiveParticleTypeToEvaluate->GetParticleAttributeNames());
+        active_particles_attributes_hdf5type.emplace_back(ActiveParticleTypeToEvaluate->GetParticleAttributesHDF5DataType());
+
+        par_type_list[1 + i].par_type = ActiveParticleTypeToEvaluate->particle_name.c_str();
+        par_type_list[1 + i].num_attr = active_particles_attributes[i].size();
+    }
+
     params->par_type_list = par_type_list;
 
     if (yt_set_Parameters(params) != YT_SUCCESS){
@@ -181,12 +217,13 @@ int CallInSitulibyt(LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
         return FAIL;
     }
 
+    delete [] par_type_list;
+
     yt_particle *particle_list;
     yt_get_ParticlesPtr(&particle_list);
 
-    // Particle type "io", each particle has position in the center of the grid it belongs to with value grid level.
-    // par_type and num_attr will be assigned by libyt with the same value we passed in par_type_list at yt_set_Parameters.
-    particle_list[0].par_type = "io";
+    // TODO: make sure enzo's particle is always DarkMatter
+    particle_list[0].par_type = "DarkMatter";
 
     // We have the attributes: 3 positions, 3 velocities, "mass", ID and Type
     // and extras.
@@ -225,6 +262,19 @@ int CallInSitulibyt(LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
     particle_list[0].coor_x = attr_name[0];
     particle_list[0].coor_y = attr_name[1];
     particle_list[0].coor_z = attr_name[2];
+
+    // we need to map hdf5type to yt datatype,
+    // since we want to avoid storing yt data type in ParticleAttributeHandler class and causing
+    for (int i = 0; i < EnabledActiveParticlesCount; i++) {
+        for (int v = 0; v < active_particles_attributes[i].size(); v++) {
+            particle_list[1 + i].attr_list[v].attr_name = active_particles_attributes[i][v].c_str();
+            particle_list[1 + i].attr_list[v].attr_dtype = MapHDF5TypeToYTType(active_particles_attributes_hdf5type[i][v]);
+        }
+
+        particle_list[1 + i].coor_x = "particle_position_x";
+        particle_list[1 + i].coor_y = "particle_position_y";
+        particle_list[1 + i].coor_z = "particle_position_z";
+    }
 
     /* Set code-specific parameter */
     char tempname[256];
@@ -277,13 +327,29 @@ int CallInSitulibyt(LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
     /* Now we add on the following fields, as per grid::WriteGrid:
      *
      *  - Temperature
-     *  - Dust_Temperature
+     *  - Dust_Temperature (ignore for now)
      *  - Cooling_Time
      *
      *  Each of these is predicated on the global parameter associated with
      *  them.
      *
      * */
+
+    field_list[libyt_field_i].field_name = "Temperature";
+    field_list[libyt_field_i].field_type = "cell-centered";
+    field_list[libyt_field_i].field_dtype = EYT_BFLOAT;
+    for (j = 0; j < 6; j++) {
+        field_list[libyt_field_i].field_ghost_cell[j] = NumberOfGhostZones;
+    }
+    libyt_field_i = libyt_field_i + 1;
+
+    field_list[libyt_field_i].field_name = "Cooling_Time";
+    field_list[libyt_field_i].field_type = "cell-centered";
+    field_list[libyt_field_i].field_unit = "code_time";
+    field_list[libyt_field_i].field_dtype = EYT_BFLOAT;
+    for (j = 0; j < 6; j++) {
+        field_list[libyt_field_i].field_ghost_cell[j] = NumberOfGhostZones;
+    }
 
     /* We now have to do everything we do in CallPython.C, which amounts to
      *
@@ -370,6 +436,11 @@ int CallInSitulibyt(LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
         fprintf(stderr, "Error in libyt API yt_free\n");
         return FAIL;
     }
+
+    for (std::size_t i = 0; i < libyt_generated_data.size(); i++) {
+        delete [] libyt_generated_data[i];
+    }
+    libyt_generated_data.clear();
 
     CommunicationBarrier();
     return SUCCESS;

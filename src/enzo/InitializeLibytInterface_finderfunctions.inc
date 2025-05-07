@@ -33,7 +33,7 @@ YT_SET_USERPARAM_INTEGER("ProblemType", 1, &ProblemType);
 YT_SET_USERPARAM_INTEGER("HydroMethod", 1, &HydroMethod);
 YT_SET_USERPARAM_NONINTEGER("huge_number", 1, &huge_number);
 YT_SET_USERPARAM_NONINTEGER("tiny_number", 1, &tiny_number);
-YT_SET_USERPARAM_NONINTEGER("Gamma", 1, &Gamma);
+YT_SET_USERPARAM_NONINTEGER("gamma", 1, &Gamma);
 YT_SET_USERPARAM_INTEGER("PressureFree", 1, &PressureFree);
 YT_SET_USERPARAM_INTEGER("QuantumPressure", 1, &QuantumPressure);
 YT_SET_USERPARAM_NONINTEGER("FDMMass", 1, &FDMMass);

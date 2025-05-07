@@ -980,9 +980,11 @@ EXTERN PyObject *my_processor;
 #endif
 
 #ifdef USE_LIBYT
+#include <vector>
 EXTERN char libyt_script_name[512];
 EXTERN void *param_libyt;
 EXTERN void *param_yt;
+EXTERN std::vector<void*> libyt_generated_data;
 EXTERN int libyt_field_lookup[FieldUndefined];
 EXTERN int NumberOfLibytCalls;
 EXTERN int NumberOfLibytTopGridCalls;

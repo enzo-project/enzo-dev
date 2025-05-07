@@ -17,6 +17,7 @@
 #include <map>
 #include <stdlib.h>
 #include <stdio.h>
+#include <math.h>
 #include <unistd.h>
 #include "libyt.h"
 #include "ErrorExceptions.h"
@@ -28,6 +29,8 @@
 #include "ExternalBoundary.h"
 #include "Grid.h"
 #include "CosmologyParameters.h"
+
+int GetUnits(float *DensityUnits, float *LengthUnits, float *TemperatureUnits, float *TimeUnits, float *VelocityUnits, FLOAT Time);
 
 /* Note that previously we allowed WriteTime to be supplied and we do not now */
 void grid::ConvertToLibyt(int LocalGridID, int GlobalGridID, int ParentID, int level, yt_grid &GridInfo)
@@ -78,8 +81,28 @@ void grid::ConvertToLibyt(int LocalGridID, int GlobalGridID, int ParentID, int l
          *
          * */
         int libyt_field = libyt_field_lookup[field];
-        if (libyt_field == -1) continue;
+        if (libyt_field == -1) continue; // TODO: will this ever be -1?
         GridInfo.field_data[libyt_field].data_ptr = BaryonField[field];
+    }
+
+    long grid_size = GridDimension[0] * GridDimension[1] * GridDimension[2];
+    float *temp_field = new float[grid_size];
+    float *cooling_time_field = new float[grid_size];
+
+    float TemperatureUnits = 1, DensityUnits = 1, LengthUnits = 1, VelocityUnits = 1, TimeUnits = 1, aUnits = 1;
+    GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits, &TimeUnits, &VelocityUnits, this->Time);
+
+    if (this->ComputeTemperatureField(temp_field) == SUCCESS) {
+        libyt_generated_data.push_back(temp_field);
+        int temp_field_i = ((yt_param_yt*)param_yt)->num_fields - 2;
+        GridInfo.field_data[temp_field_i].data_ptr = temp_field;
+    }
+
+    if (this->ComputeCoolingTime(cooling_time_field) == SUCCESS) {
+        for (long i = 0; i < grid_size; i++) { cooling_time_field[i] = fabs(cooling_time_field[i]) * TimeUnits; }
+        libyt_generated_data.push_back(cooling_time_field);
+        int cooling_time_field_i = ((yt_param_yt*)param_yt)->num_fields - 1;
+        GridInfo.field_data[cooling_time_field_i].data_ptr = cooling_time_field;
     }
 
     /* par_count_list can take multiple particle types */
@@ -99,6 +122,36 @@ void grid::ConvertToLibyt(int LocalGridID, int GlobalGridID, int ParentID, int l
     }
     else {
         GridInfo.par_count_list[0] = 0;
+    }
+
+    /* fill in active particle count */
+    std::vector<int> active_particle_count(EnabledActiveParticlesCount, 0);
+    for (int i = 0; i < NumberOfActiveParticles; i++) {
+        active_particle_count[(this->ActiveParticles)[i]->GetEnabledParticleID()]++;
+    }
+    for (int i = 0; i < EnabledActiveParticlesCount; i++) {
+        GridInfo.par_count_list[1 + i] = active_particle_count[i];
+    }
+
+    /* fill in buffer only if there is active particle, which is sum of active particle count > 0
+     * ignore AccretionRate/AccretionRateTime/Accreted_angmom for now since they are not one dimensional */
+    if (NumberOfActiveParticles > 0) {
+        for (int i = 0; i < EnabledActiveParticlesCount; i++) {
+            ActiveParticleType_info *ActiveParticleTypeToEvaluate = EnabledActiveParticles[i];
+
+            // the returned buffer ignores multi-dimensional array for now, it set them as nullptr.
+            std::vector<void*> par_attr_buffer = ActiveParticleTypeToEvaluate->GetParticleAttributes(
+                    this->ActiveParticles, i, NumberOfActiveParticles, active_particle_count[i],
+                    ActiveParticleTypeToEvaluate->particle_name
+                    );
+
+            for (int a = 0; a < par_attr_buffer.size(); a++) {
+                GridInfo.particle_data[1 + i][a].data_ptr = par_attr_buffer[a];
+            }
+
+            // free these pre-allocated buffer after libyt in situ analysis is done.
+            libyt_generated_data.insert(libyt_generated_data.end(), par_attr_buffer.begin(), par_attr_buffer.end());
+        }
     }
 }
 #endif

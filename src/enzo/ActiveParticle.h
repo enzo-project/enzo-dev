@@ -462,6 +462,70 @@ namespace ActiveParticleHelpers {
 
   }
 
+  template <class APClass> std::vector<hid_t> GetParticleAttributesHDF5DataType() {
+      std::vector<hid_t> attribute_datatype;
+
+      AttributeVector &handlers = APClass::AttributeHandlers;
+      for (AttributeVector::iterator it = handlers.begin(); it != handlers.end(); ++it) {
+          attribute_datatype.push_back((*it)->hdf5type);
+      }
+
+      return attribute_datatype;
+  }
+
+  template <class APClass> std::vector<void*> GetParticleAttributes(ActiveParticleList<ActiveParticleType>& InList,
+          int ParticleTypeID, int TotalParticles, int Count, const std::string& particle_name) {
+
+      // This function allocates and returns the new buffer for particle attributes,
+      // and it is the caller's responsibility to free the buffer when it doesn't need it at all.
+      // It also ignores multi-dimensional arrays.
+      // Currently, this function is solely used in libyt.
+
+      std::vector<void*> attribute_values;
+
+      AttributeVector &handlers = APClass::AttributeHandlers;
+      for (AttributeVector::iterator it = handlers.begin(); it != handlers.end(); ++it) {
+          const char *attr_name = (*it)->name.c_str();
+
+          // Ignore multi-dimensional array (attribute that contains multiple values) for now
+          // If it is ArrayHandler class and attribute name != "particle_*", then element_size = sizeof(Type) * N.
+          // This is when a particle attribute contains multiple values and is stored in an array.
+          // (See how element_size is set in ParticleAttributeHandler.h)
+          if ((*it)->element_size / H5Tget_size((*it)->hdf5type) > 1) {
+              attribute_values.push_back(nullptr);
+          }
+          // allocates memory and get a copy of the attribute's value
+          else {
+              int size = Count * (*it)->element_size;
+              char *buffer = new char [size];
+              char *_buffer = buffer; // This is because GetAttribute _shifts_ the pointer after returning
+
+              for (int i = 0; i < TotalParticles; i++) {
+                  if (InList[i]->GetEnabledParticleID() != ParticleTypeID) {
+                      continue;
+                  }
+                  (*it)->GetAttribute(&buffer, InList[i]);
+              }
+
+              attribute_values.push_back((void*) _buffer);
+          }
+      }
+
+      return attribute_values;
+  }
+
+  template <class APClass> std::vector<std::string> GetParticleAttributeNames() {
+
+      std::vector<std::string> attributes;
+
+      AttributeVector &handlers = APClass::AttributeHandlers;
+      for (AttributeVector::iterator it = handlers.begin(); it != handlers.end(); ++it) {
+          attributes.push_back((*it)->name);
+      }
+
+      return attributes;
+  }
+
   template <class APClass> void WriteParticles(
           ActiveParticleList<ActiveParticleType>& InList, int ParticleTypeID,
           int TotalParticles,
@@ -687,6 +751,10 @@ public:
    void (*unpack_buffer)(char *buffer, int offset, ActiveParticleList<ActiveParticleType> &Outlist,
                        int OutCount),
    int (*element_size)(void),
+   std::vector<hid_t> (*get_particle_attributes_hdf5_datatype)(void),
+   std::vector<void*> (*get_particle_attributes)(ActiveParticleList<ActiveParticleType> &particles,
+                                                 int type_id, int total_particles, int count, const std::string& particle_name),
+   std::vector<std::string> (*get_particle_attribute_names)(void),
    void (*write_particles)(ActiveParticleList<ActiveParticleType> &particles,
                          int type_id, int total_particles,
                          const std::string name, hid_t node),
@@ -709,6 +777,9 @@ public:
     this->AllocateBuffer = allocate_buffer;
     this->UnpackBuffer = unpack_buffer;
     this->ReturnElementSize = element_size;
+    this->GetParticleAttributesHDF5DataType = get_particle_attributes_hdf5_datatype;
+    this->GetParticleAttributes = get_particle_attributes;
+    this->GetParticleAttributeNames = get_particle_attribute_names;
     this->WriteParticles = write_particles;
     this->ReadParticles = read_particles;
     this->ResetAcceleration = reset_acceleration;
@@ -754,6 +825,11 @@ public:
                        int OutCount);
   int (*FillBuffer)(ActiveParticleList<ActiveParticleType> &InList, int InCount, char *buffer);
   int (*ReturnElementSize)(void);
+  std::vector<hid_t> (*GetParticleAttributesHDF5DataType)(void);
+  std::vector<void*> (*GetParticleAttributes)(ActiveParticleList<ActiveParticleType> &InList,
+                                              int ParticleTypeID, int TotalParticles, int Count,
+                                              const std::string& particle_name);
+  std::vector<std::string> (*GetParticleAttributeNames)(void);
   void (*WriteParticles)(ActiveParticleList<ActiveParticleType> &InList,
                        int ParticleTypeID, int TotalParticles,
                        const std::string name, hid_t node);
@@ -793,6 +869,9 @@ ActiveParticleType_info *register_ptype(std::string name)
      (&ActiveParticleHelpers::FillBuffer<APClass>),
      (&ActiveParticleHelpers::Unpack<APClass>),
      (&ActiveParticleHelpers::CalculateElementSize<APClass>),
+     (&ActiveParticleHelpers::GetParticleAttributesHDF5DataType<APClass>),
+     (&ActiveParticleHelpers::GetParticleAttributes<APClass>),
+     (&ActiveParticleHelpers::GetParticleAttributeNames<APClass>),
      (&ActiveParticleHelpers::WriteParticles<APClass>),
      (&ActiveParticleHelpers::ReadParticles<APClass>),
      (&APClass::ResetAcceleration),
