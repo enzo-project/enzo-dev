@@ -418,6 +418,49 @@
 	$(error Illegal value '$(CONFIG_PYTHON)' for $$(CONFIG_PYTHON))
     endif
 
+#--------------------------------------------------------------------------
+# DETERMINE LIBYT SETTINGS
+# DETERMINE LIBYT SUBSETTINGS (Interactive Prompt, Reload, Jupyter Kernel)
+#--------------------------------------------------------------------------
+
+    ERROR_LIBYT = 1
+
+    # Settings to turn LIBYT ON,
+    # and to turn on other subsettings (interactive prompt, reload script, jupyter kernel)
+
+    ifeq ($(CONFIG_LIBYT),yes)
+        ERROR_LIBYT = 0
+        ASSEMBLE_LIBYT_DEFINES = -DUSE_LIBYT
+        ASSEMBLE_LIBYT_INCLUDES = $(MACH_INCLUDES_LIBYT)
+        ASSEMBLE_LIBYT_LIBS     = $(MACH_LIBS_LIBYT)
+
+        ifeq ($(CONFIG_LIBYT_INTERACTIVE), yes)
+            ASSEMBLE_LIBYT_DEFINES += -DUSE_LIBYT_INTERACTIVE
+        endif
+
+        ifeq ($(CONFIG_LIBYT_RELOAD), yes)
+            ASSEMBLE_LIBYT_DEFINES += -DUSE_LIBYT_RELOAD
+        endif
+
+        ifeq ($(CONFIG_LIBYT_JUPYTER), yes)
+            ASSEMBLE_LIBYT_DEFINES += -DUSE_LIBYT_JUPYTER
+        endif
+    endif
+
+    # Settings to turn LIBYT OFF
+
+    ifeq ($(CONFIG_LIBYT),no)
+        ERROR_LIBYT = 0
+    endif
+
+    # error if CONFIG_LIBYT is incorrect
+
+    ifeq ($(ERROR_LIBYT),1)
+        .PHONY: error_LIBYT
+        error_LIBYT:
+	$(error Illegal value '$(CONFIG_LIBYT)' for $$(CONFIG_LIBYT))
+    endif
+
 #-----------------------------------------------------------------------
 # DETERMINE NEW_PROBLEM_TYPES SETTINGS
 #-----------------------------------------------------------------------
@@ -1039,6 +1082,7 @@
               $(ASSEMBLE_IO_DEFINES) \
               $(ASSEMBLE_LCAPERF_DEFINES) \
               $(ASSEMBLE_PYTHON_DEFINES) \
+              $(ASSEMBLE_LIBYT_DEFINES) \
               $(ASSEMBLE_NEW_PROBLEM_TYPES_DEFINES) \
               $(ASSEMBLE_MPI_DEFINES) \
               $(ASSEMBLE_OOC_BOUNDARY_DEFINES) \
@@ -1071,6 +1115,7 @@
                $(ASSEMBLE_HYPRE_INCLUDES) \
                $(ASSEMBLE_LCAPERF_INCLUDES) \
                $(ASSEMBLE_PYTHON_INCLUDES) \
+               $(ASSEMBLE_LIBYT_INCLUDES) \
                $(ASSEMBLE_NEW_PROBLEM_TYPES_INCLUDES) \
                $(ASSEMBLE_PAPI_INCLUDES) \
                $(ASSEMBLE_GRACKLE_INCLUDES) \
@@ -1090,6 +1135,7 @@
            $(ASSEMBLE_LCAPERF_LIBS) \
            $(ASSEMBLE_PAPI_LIBS) \
            $(ASSEMBLE_PYTHON_LIBS) \
+           $(ASSEMBLE_LIBYT_LIBS) \
            $(ASSEMBLE_NEW_PROBLEM_TYPES_LIBS) \
            $(ASSEMBLE_CUDA_LIBS) \
            $(ASSEMBLE_GRACKLE_LIBS)

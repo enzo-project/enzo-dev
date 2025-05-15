@@ -68,6 +68,8 @@ OBJS_CONFIG_LIB = \
         CalculateSubtractionParameters.o \
         CallProblemSpecificRoutines.o \
         CallPython.o \
+        CallInSitulibyt.o \
+        CallEmptyInteractivePython.o \
         CheckEnergyConservation.o \
         CheckForOutput.o \
         CheckForResubmit.o \
@@ -187,6 +189,7 @@ OBJS_CONFIG_LIB = \
         ExternalBoundary_AddField.o \
         ExposeDataHierarchy.o \
         ExposeGridHierarchy.o \
+        ExposeHierarchyToLibyt.o \
         ExternalBoundary_AppendForcingToBaryonFields.o \
         ExternalBoundary_constructor.o \
         ExternalBoundary_DetachForcingFromBaryonFields.o \
@@ -438,6 +441,7 @@ OBJS_CONFIG_LIB = \
 	Grid_constructor.o \
     	Grid_ConvertColorFieldsToFractions.o \
 	Grid_ConvertTotalEnergyToGasEnergy.o \
+	Grid_ConvertToLibyt.o \
 	Grid_ConvertToNumpy.o \
 	Grid_CoolingTestResetEnergies.o \
 	Grid_CoolingTestInitializeGrid.o \
@@ -711,6 +715,7 @@ OBJS_CONFIG_LIB = \
         InitializeMovieFile.o \
         InitializeNew.o \
         InitializePythonInterface.o \
+        InitializeLibytInterface.o \
         InitializeRadiationFieldData.o \
         InitializeRadiativeTransferSpectrumTable.o \
         InitializeRateData.o \

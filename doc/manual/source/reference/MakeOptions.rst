@@ -211,17 +211,21 @@ Algorithmic settings
 External libraries
 ~~~~~~~~~~~~~~~~~~
 
-===========================   =====================================
-**use-mpi-[yes\|no]**         Set whether to use MPI.
-**isolated-bcs-[yes\|no]**    Set whether to compile in isolated boundary conditions code
-**tpvel-[yes\|no]**           Set whether to compile in tracer particle velocity information
-**lcaperf-[yes\|no]**         Set whether to call the optional lcaperf performance tool
-**papi-[yes\|no]**            Set whether to link in the PAPI library if required by lcaperf
-**hypre-[no\|yes]**           Include HYPRE libraries (implicit RT solvers)
-**cuda-[no\|yes]**            Set whether to use CUDA (GPU-computing)
-**python-[no\|yes]**          Set whether to use inline python
-**use-hdf4-[no\|yes]**        Set whether to use HDF4
-===========================   =====================================
+===============================  =====================================
+**use-mpi-[yes\|no]**            Set whether to use MPI.
+**isolated-bcs-[yes\|no]**       Set whether to compile in isolated boundary conditions code
+**tpvel-[yes\|no]**              Set whether to compile in tracer particle velocity information
+**lcaperf-[yes\|no]**            Set whether to call the optional lcaperf performance tool
+**papi-[yes\|no]**               Set whether to link in the PAPI library if required by lcaperf
+**hypre-[no\|yes]**              Include HYPRE libraries (implicit RT solvers)
+**cuda-[no\|yes]**               Set whether to use CUDA (GPU-computing)
+**python-[no\|yes]**             Set whether to use inline python
+**libyt-[no\|yes]**              Set whether to use libyt in situ analysis (Do not use python-yes and libyt-yes at the same time)
+**libyt-interactive-[no\|yes]**  Set whether to use libyt interactive prompt (Must have libyt-yes)
+**libyt-reload-[no\|yes]**       Set whether to use libyt reloading script feature (Must have libyt-yes)
+**libyt-jupyter-[no\|yes]**      Set whether to use libyt Jupyter Notebook feature (Must have libyt-yes)
+**use-hdf4-[no\|yes]**           Set whether to use HDF4
+===============================  =====================================
 
 Performance settings
 ~~~~~~~~~~~~~~~~~~~~
