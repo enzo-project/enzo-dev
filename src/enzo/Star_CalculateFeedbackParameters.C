@@ -85,7 +85,6 @@ void Star::CalculateFeedbackParameters(float &Radius,
     Radius = max(Radius, 3.5*StarLevelCellWidth);
     EjectaVolume = 4.0/3.0 * pi * pow(Radius*LengthUnits, 3);
     EjectaDensity = Mass * SolarMass / EjectaVolume / DensityUnits;
-
     // pair-instability SNe
     if (this->Mass >= PISNLowerMass && this->Mass <= PISNUpperMass) {
       HeliumCoreMass = (13./24.) * (Mass - 20);

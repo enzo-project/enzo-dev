@@ -60,7 +60,8 @@ ______________________________
 
 The ``SmartStar`` particle is built on top of the ``AccretingParticle`` type with additional feedback and accretion protocols attached.
 The ``SmartStar`` particle was designed to be a single particle type that could adjust to the environment
-in which it finds itself. Currently it can represent a PopIII star,
+in which it finds itself. ``SmartStar`` is designed to model resolved star formation.
+Currently it can represent a PopII star, PopIII star,
 a super-massive star or a black hole. However, there is no inherent limit to the physical object it can represent. In that sense
 it may be suitable to augment the ``SmartStar`` particle with your required feature rather than implmenting a new feature. You
 will also be able to build on ``SmartStar`` tests and documentation too rather than starting from scratch. 

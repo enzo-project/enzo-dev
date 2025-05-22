@@ -345,7 +345,6 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "SmartStarFeedbackJetsThresholdMass    = %"GSYM"\n", SmartStarFeedbackJetsThresholdMass);
   fprintf(fptr, "SmartStarJetVelocity                  = %"GSYM"\n", SmartStarJetVelocity);
   fprintf(fptr, "SmartStarSuperEddingtonAdjustment     = %"ISYM"\n", SmartStarSuperEddingtonAdjustment);
-  fprintf(fptr, "SmartStarSMSLifetime                  = %"GSYM"\n", SmartStarSMSLifetime);
   fprintf(fptr, "FluxCorrection                 = %"ISYM"\n", FluxCorrection);
   fprintf(fptr, "UseCoolingTimestep             = %"ISYM"\n", UseCoolingTimestep);
   fprintf(fptr, "CoolingTimestepSafetyFactor    = %"GSYM"\n", CoolingTimestepSafetyFactor);
@@ -681,6 +680,8 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
 	  ParticleSplitterMustRefine);
   fprintf(fptr, "ParticleSplitterMustRefineIDFile = %s\n",
 	  ParticleSplitterMustRefineIDFile);
+  fprintf(fptr, "ParticleSplitterMustRefineOnly   = %"ISYM"\n",
+	  ParticleSplitterMustRefineOnly);
   fprintf(fptr, "ResetMagneticField               = %"ISYM"\n",
 	  ResetMagneticField);
   fprintf(fptr, "ResetMagneticFieldAmplitude      = %"GSYM" %"GSYM" %"GSYM"\n", 
@@ -1034,7 +1035,6 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
           PopIIISupernovaMustRefine);
   fprintf(fptr, "PopIIISupernovaMustRefineResolution   = %"ISYM"\n",
           PopIIISupernovaMustRefineResolution);
-
   fprintf(fptr, "PopIIIColorDensityThreshold           = %"GSYM"\n",
           PopIIIColorDensityThreshold);
   fprintf(fptr, "PopIIIColorMass                       = %"GSYM"\n",
@@ -1126,8 +1126,6 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "StarFeedbackThermalEfficiencyRampStartValue  = %"GSYM"\n", StarFeedbackThermalEfficiencyRampStartValue);
   fprintf(fptr, "StarFeedbackThermalEfficiencyRampEndTime    = %"GSYM"\n", StarFeedbackThermalEfficiencyRampEndTime);
   fprintf(fptr, "StarFeedbackThermalEfficiencyRampEndValue   = %"GSYM"\n", StarFeedbackThermalEfficiencyRampEndValue);
-
-  /* Most Stanford additions: */
 
   fprintf(fptr, "UseHydro                   = %"ISYM"\n", UseHydro);
   fprintf(fptr, "Theta_Limiter              = %f\n", Theta_Limiter);

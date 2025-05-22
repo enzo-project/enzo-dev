@@ -360,6 +360,7 @@ OBJS_CONFIG_LIB = \
     	Grid_ApplyGalaxyParticleFeedback.o \
     	Grid_ApplyGalaxyParticleGravity.o \
     	Grid_ApplySmartStarParticleFeedback.o \
+	Grid_ApplySphericalFeedbackToGrid.o \
 	Grid_ApplyTimeAction.o \
     	Grid_AveragedVelocityAtCell.o \
 	Grid_CalculateAngularMomentum.o \

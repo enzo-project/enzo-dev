@@ -29,12 +29,14 @@
 #include "FofLib.h"
 #define DEBUG 0
 /* Every how many times will the accretion rate be updated */
-#define FREQUENCY 100
-#define MAXACCRETIONRADIUS  128 /* Times the minimum cell width */
+//#define FREQUENCY 100
+#define MAXACCRETIONRADIUS  128 /* Times the minimum cell width (currently not used) */
 #define ACCRETIONRADIUS  4
 #define NUMRADIATIONBINS 5
-#define CRITICAL_ACCRETION_RATE 0.04 //Msolar/yr
-#define TIMEGAP            900   //yrs
+#define CRITICAL_ACCRETION_RATE 0.005 //Msolar/yr (Haemerlee et al (2018))
+#define TIMEGAP            1000   // * timestep
+#define POPIII_RESOLUTION  0.001 //pc
+#define SMS_RESOLUTION     1.0   //pc
 /* Prototypes */
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
@@ -43,9 +45,12 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 static FLOAT Dist(FLOAT *tempPos, FLOAT *tempPos1);
 static float R_ISCO(float a);
 //Particle Classes
+
 #define POPIII 0
 #define SMS    1
 #define BH     2
+#define POPII  3
+
 
 //Accretion Modes
 #define SPHERICAL_BONDI_HOYLE_FORMALISM 1
@@ -61,6 +66,8 @@ public:
   // Constructors
   ActiveParticleType_SmartStar(void) : ActiveParticleType() {
     AccretionRadius = -1;
+    RadiationLifetime = 0.0;
+    StellarAge = 0.0;
     ParticleClass = 0;
     NotEjectedMass = 0;
     MassToBeEjected = 0;
@@ -68,6 +75,7 @@ public:
     mass_in_accretion_sphere = 0;
     epsilon_deltat = 1.0;
     beta_jet = 0.0;
+    InfluenceRadius = 0.0;
     for(int i = 0; i < 3; i++)
       {
 	Accreted_angmom[i] = 0.0;
@@ -83,12 +91,14 @@ public:
   ActiveParticleType_SmartStar(ActiveParticleType_SmartStar* part) :
     ActiveParticleType(static_cast<ActiveParticleType*>(part)) {   
     AccretionRadius = part->AccretionRadius;
+    RadiationLifetime = part->RadiationLifetime;
+    StellarAge = part->StellarAge;
     ParticleClass = part->ParticleClass;
     for(int i = 0; i < 3; i++) {
       Accreted_angmom[i] = 0.0;
     }
-   
     TimeIndex = part->TimeIndex;
+    
     oldmass = part->oldmass;
     for(int i = 0; i < NTIMES; i++) {
       AccretionRateTime[i] = part->AccretionRateTime[i];
@@ -100,6 +110,7 @@ public:
     epsilon_deltat = part->epsilon_deltat;
     beta_jet = part->beta_jet;
     mass_in_accretion_sphere = part->mass_in_accretion_sphere;
+    InfluenceRadius = part->InfluenceRadius;
     };
   ActiveParticleType* clone() {
     return static_cast<ActiveParticleType*>(
@@ -132,6 +143,8 @@ public:
       int TopGridDims[], 
       int ActiveParticleID);
 
+  
+  
   static int SmartStarParticleFeedback(
              int nParticles, 
              ActiveParticleList<ActiveParticleType>& ParticleList,
@@ -142,9 +155,12 @@ public:
   static int CreateParticle(grid *thisgrid_orig, ActiveParticleFormationData &supp_data,
 			    int particle_index);
   static int InitializeParticleType();
-  void   SmartMerge(ActiveParticleType_SmartStar *a);
+
+  void SmartMerge(ActiveParticleType_SmartStar *a);
+  void AssignMassFromIMF();
   int CalculateAccretedAngularMomentum();
   int SmartStarAddFeedbackSphere();
+  int DetermineSEDParameters(FLOAT Time, FLOAT dx);
   ENABLED_PARTICLE_ID_ACCESSOR
   bool IsARadiationSource(FLOAT Time);
   
@@ -167,27 +183,34 @@ public:
 				      FLOAT dx, 
 				      LevelHierarchyEntry *LevelArray[], int ThisLevel);
 
- 
+  static int UpdateRadiationLifetimes(int nParticles,
+				      ActiveParticleList<ActiveParticleType>& ParticleList,
+				      FLOAT dx,
+				      LevelHierarchyEntry *LevelArray[], int ThisLevel);
+
+  static int  RemoveMassFromGridAfterFormation(int nParticles, 
+					       ActiveParticleList<ActiveParticleType>& ParticleList,
+					       LevelHierarchyEntry *LevelArray[], int ThisLevel);
   static float EjectedMassThreshold;
   FLOAT AccretionRadius;   // in units of CellWidth on the maximum refinement level
-  static int RadiationParticle;
+ 
   static double LuminosityPerSolarMass;
   static int RadiationSEDNumberOfBins;
   static float* RadiationEnergyBins;
   static float* RadiationSED;
-  static float RadiationLifetime;
+  double RadiationLifetime, StellarAge;
   //float acc[3];
   int ParticleClass;
-
+  
   float AccretionRate[NTIMES];
   float AccretionRateTime[NTIMES];
   int TimeIndex;
   float oldmass; //To calculate accmass do accmass = mass - oldmass; oldmass = mass;
-
   static int FeedbackDistTotalCells, FeedbackDistRadius, FeedbackDistCellStep;
   float NotEjectedMass, eta_disk, mass_in_accretion_sphere, MassToBeEjected;
   float beta_jet, epsilon_deltat;
   float Accreted_angmom[MAX_DIMENSION];
+  float InfluenceRadius;
   static std::vector<ParticleAttributeHandler *> AttributeHandlers;
 };
 
@@ -195,6 +218,9 @@ int GenerateGridArray(LevelHierarchyEntry *LevelArray[], int level,
 		      HierarchyEntry **Grids[]);
 
 int CalculateAccretedAngularMomentum();
+
+
+
 template <class active_particle_class>
 void ActiveParticleType_SmartStar::MergeSmartStars(
     int *nParticles, ActiveParticleList<ActiveParticleType>& ParticleList, 
@@ -218,15 +244,10 @@ void ActiveParticleType_SmartStar::MergeSmartStars(
 	   &TimeUnits, &VelocityUnits, Time);
   /* Construct list of sink particle positions to pass to Foflist */
   FLOAT ParticleCoordinates[3*(*nParticles)];
+  /* Particles merge once they come within 1 accretion radii of one another */
 
-  fflush(stdout);
-  /* Particles merge once they come within 4 cells of one another */
-  /* This is OK since we only want to merge particles when they come really
-   * close to one another. Their accretion zones overlapping does 
-   * not necessarily constitute a merger. 
-   */
-  FLOAT MergingRadius = LevelArray[ThisLevel]->GridData->GetCellWidth(0,0)*ACCRETIONRADIUS; 
-  MergingRadius = MergingRadius*3.0;
+  FLOAT MergingRadius = 1.5*(LevelArray[ThisLevel]->GridData->GetCellWidth(0,0))*ACCRETIONRADIUS; 
+
   for (i=0; i<(*nParticles); i++) {
     tempPos = ParticleList[i]->ReturnPosition();
     for (dim=0; dim<3; dim++)
@@ -253,7 +274,7 @@ void ActiveParticleType_SmartStar::MergeSmartStars(
                 MergedParticles[i]->ReturnCurrentGrid()->ReturnProcessorNumber()
               ) == FAIL)
         {
-          ENZO_FAIL("MergeSmartStars: DisableParticle failed!\n");
+          ENZO_FAIL("MergeSmartStars: DisableAParticle failed!\n");
         }
       }
     }
@@ -273,11 +294,10 @@ void ActiveParticleType_SmartStar::MergeSmartStars(
      it to the new grid*/
 
   int NewGrid = -1;
-
   for (i = 0; i < *ngroups; i++) {
     if (MergedParticles[i]->ReturnCurrentGrid()->PointInGrid(
             MergedParticles[i]->ReturnPosition()) == false) {
-      // Find the grid to transfer to 
+      // Find the grid to transfer to
       for (j = 0; j < NumberOfGrids; j++) {
         if (LevelGrids[j]->GridData->PointInGrid(
                 MergedParticles[i]->ReturnPosition())) {
@@ -327,10 +347,10 @@ int ActiveParticleType_SmartStar::AfterEvolveLevel(
 {
 
   /* SmartStar particles live on the maximum refinement level.  If we are on a lower level, this does not concern us */
-
+  
   if (ThisLevel == MaximumRefinementLevel)
     {
-
+      
       /* Generate a list of all sink particles in the simulation box */
       int i = 0, nParticles = 0, NumberOfMergedParticles = 0;
       ActiveParticleList<ActiveParticleType> ParticleList;
@@ -343,15 +363,36 @@ int ActiveParticleType_SmartStar::AfterEvolveLevel(
       
       if (nParticles == 0)
         return SUCCESS;
-
+      
       /* Calculate CellWidth on maximum refinement level */
-
-      // This assumes a cubic box and may not work for simulations with MinimumMassForRefinementLevelExponent
       FLOAT dx = (DomainRightEdge[0] - DomainLeftEdge[0]) /
         (MetaData->TopGridDims[0]*POW(FLOAT(RefineBy),FLOAT(MaximumRefinementLevel)));
 
-      /* Do Merging   */
+      /* Remove mass from grid from newly formed particles */
+      RemoveMassFromGridAfterFormation(nParticles, ParticleList, 
+				       LevelArray, ThisLevel);
+      /* Clean any particles marked for deletion */
+      for (i = 0; i<nParticles; i++) {
+	if(ParticleList[i]->ShouldDelete() == true) {
+	  printf("%s: Delete SS %d following RemoveMassFromGridAfterFormation\n", __FUNCTION__,
+		 static_cast<ActiveParticleType_SmartStar*>(ParticleList[i])->ReturnID());
+	  fflush(stdout);
+	  ParticleList.erase(i);
+	  i = -1;
+	  nParticles--;
+	}
+      }
 
+       /* Regenerate the global list following deletions. */
+      ActiveParticleFindAll(LevelArray, &nParticles, SmartStarID,
+      			    ParticleList);
+      if (AssignActiveParticlesToGrids(ParticleList, nParticles, 
+      				       LevelArray) == FAIL)
+	return FAIL;
+
+      if (debug)
+	printf("Number of particles before merging: %"ISYM"\n",nParticles);
+      /* Do Merging   */
       ActiveParticleList<active_particle_class> MergedParticles;
       
       /* Generate new merged list of sink particles */
@@ -383,7 +424,8 @@ int ActiveParticleType_SmartStar::AfterEvolveLevel(
         printf("Number of particles after merging: %"ISYM"\n",NumberOfMergedParticles);
       
       /* Assign local particles to grids */
-      
+      /* Do Merging   */
+     
       ParticleList.reserve(NumberOfMergedParticles);
       
       // need to use a bit of redirection because C++ pointer arrays have
@@ -397,17 +439,17 @@ int ActiveParticleType_SmartStar::AfterEvolveLevel(
       if (AssignActiveParticlesToGrids(ParticleList, NumberOfMergedParticles, 
               LevelArray) == FAIL)
         return FAIL;
-      
+
       ParticleList.clear();
       MergedParticles.clear();
-      
+    
       /* Regenerate the global active particle list */
       
       ActiveParticleFindAll(LevelArray, &nParticles, SmartStarID, 
         ParticleList);
 
       /* Do accretion */
-     
+      
       if (Accrete(nParticles, ParticleList, accradius, dx, LevelArray, 
               ThisLevel) == FAIL)
         ENZO_FAIL("SmartStar Particle accretion failed. \n");
@@ -415,17 +457,35 @@ int ActiveParticleType_SmartStar::AfterEvolveLevel(
       if(UpdateAccretionRateStats(nParticles, ParticleList, dx, LevelArray, ThisLevel) == FAIL)
 	ENZO_FAIL("Failed to update accretion rate stats. \n");
 
+      if(UpdateRadiationLifetimes(nParticles, ParticleList, dx, LevelArray, ThisLevel) == FAIL)
+	ENZO_FAIL("Failed to update radiation lifetimes. \n");
+
       /* Apply feedback */
       if (SmartStarParticleFeedback(nParticles, ParticleList,
         dx, LevelArray, ThisLevel) == FAIL)
 	ENZO_FAIL("SmartStar Particle Feedback failed. \n");
+
+      /* Clean any particles marked for deletion. 
+       * After each deletion I need to reloop and check it again. 
+       */
+      for (i = 0; i<nParticles; i++) {
+	if(ParticleList[i]->ShouldDelete() == true) { 
+	  printf("%s: Delete SS %d\n", __FUNCTION__,
+		 static_cast<ActiveParticleType_SmartStar*>(ParticleList[i])->ReturnID());
+	  fflush(stdout);
+	  ParticleList.erase(i);
+	  i = -1; //reset counter
+	  nParticles--;
+	}
+      }
+      ActiveParticleFindAll(LevelArray, &nParticles, SmartStarID, 
+       ParticleList);
+
       /* This applies all of the updates made above */
-      if (AssignActiveParticlesToGrids(ParticleList, NumberOfMergedParticles, 
+      if (AssignActiveParticlesToGrids(ParticleList, nParticles, 
               LevelArray) == FAIL)
         return FAIL;      
-
       ParticleList.clear();
-
     }
 
   return SUCCESS;

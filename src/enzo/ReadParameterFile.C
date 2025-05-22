@@ -1054,7 +1054,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  &PopIIISupernovaMustRefine);
     ret += sscanf(line, "PopIIISupernovaMustRefineResolution = %"ISYM,
 		  &PopIIISupernovaMustRefineResolution);
-    ret += sscanf(line, "PopIIIHeliumIonization = %"ISYM,
+    ret += sscanf(line, "PopIIIHeliumIonization = %"ISYM, 
 		  &PopIIIHeliumIonization);
 
     ret += sscanf(line, "PopIIIColorDensityThreshold = %"FSYM,
@@ -1126,7 +1126,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  &StarMakerMinimumMassRampEndTime);
     ret += sscanf(line, "StarMakerMinimumMassRampEndMass = %"FSYM,
 		  &StarMakerMinimumMassRampEndMass);
-
     ret += sscanf(line, "StarFeedbackThermalEfficiencyRamp = %"ISYM,
 		  &StarFeedbackThermalEfficiencyRamp);
     ret += sscanf(line, "StarFeedbackThermalEfficiencyRampStartTime = %"FSYM,
@@ -1353,6 +1352,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  &ParticleSplitterMustRefine);
     if (sscanf(line, "ParticleSplitterMustRefineIDFile = %s", dummy) == 1)
       ParticleSplitterMustRefineIDFile = dummy;
+    ret += sscanf(line, "ParticleSplitterMustRefineOnly = %"ISYM,
+		  &ParticleSplitterMustRefineOnly);
     ret += sscanf(line, "ParticleSplitterFraction    = %"FSYM" %"FSYM" %"FSYM" %"FSYM"",
                   ParticleSplitterFraction+0, ParticleSplitterFraction+1, ParticleSplitterFraction+2,
                   ParticleSplitterFraction+3);
@@ -1386,7 +1387,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
     ret += sscanf(line, "SmartStarFeedbackEnergyCoupling       = %"FSYM, &SmartStarFeedbackEnergyCoupling);
     ret += sscanf(line, "SmartStarFeedbackJetsThresholdMass    = %"FSYM, &SmartStarFeedbackJetsThresholdMass);
-    ret += sscanf(line, "SmartStarSMSLifetime                  = %"FSYM, &SmartStarSMSLifetime);
     ret += sscanf(line, "SmartStarSuperEddingtonAdjustment  = %"ISYM, &SmartStarSuperEddingtonAdjustment);
     ret += sscanf(line, "SmartStarJetVelocity                  = %"FSYM, &SmartStarJetVelocity);
     ret += sscanf(line, "UseGasDrag = %"ISYM, &UseGasDrag);
@@ -1487,6 +1487,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     if (MyProcessorNumber == ROOT_PROCESSOR) {
       fprintf(stdout, "Enabling particle type %s\n", active_particle_types[i]);
     }
+    ActiveParticlesIMFSeed = MetaData.CycleNumber;
     EnableActiveParticleType(active_particle_types[i]);
     delete [] active_particle_types[i];
   }
@@ -1753,8 +1754,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
   if( ((RefineRegionTimeType==1) || (MustRefineRegionTimeType==1) || (CoolingRefineRegionTimeType==1)) && (ComovingCoordinates==0)){
     ENZO_FAIL("You cannot have ComovingCoordinates turned off if your RegionTimeType is set to 1!");
   }
-
-
 
   // Check if Grackle is being used, and read in parameters if so
   if (GrackleReadParameters(fptr, MetaData.Time) == FAIL){

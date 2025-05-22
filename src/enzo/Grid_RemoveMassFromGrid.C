@@ -27,7 +27,7 @@
 #include "ActiveParticle_SmartStar.h"
 #define TINY_NUMBER         1e-20
 #define SMALL_NUMBER         1e-6
-#define ACCRETION_LIMIT     9e-1
+#define ACCRETION_LIMIT     1e-1
 #define N 8
 #define ANGULAR_MOMENTUM_ACCRETION 0
 #define DEBUG_AP 0
@@ -467,3 +467,4 @@ int grid::RemoveMassFromGrid(ActiveParticleType* ThisParticle,
 
   return SUCCESS;
 }
+

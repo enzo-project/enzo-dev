@@ -73,6 +73,10 @@ EXTERN float RadiationPressureScale;
 
 EXTERN int RadiativeTransferOpticallyThinH2;
 
+/* Flag to constrain radiation to less than 13.6 eV*/
+
+EXTERN int RadiativeTransferNoIonisingRadiation;
+
 /* Sets the characteristic length for the self-shielding of Lyman-Werner Radiation */
 
 EXTERN float RadiativeTransferOpticallyThinH2CharLength;
