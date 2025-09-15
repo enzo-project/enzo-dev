@@ -204,6 +204,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
     ret += sscanf(line, "RestartDumpNumber = %"ISYM, &MetaData.RestartDumpNumber);
     ret += sscanf(line, "DataDumpNumber    = %"ISYM, &MetaData.DataDumpNumber);
+    ret += sscanf(line, "TimeDumpNumber    = %"ISYM, &MetaData.TimeDumpNumber);
     ret += sscanf(line, "HistoryDumpNumber = %"ISYM, &MetaData.HistoryDumpNumber);
     ret += sscanf(line, "TracerParticleDumpNumber = %"ISYM, &MetaData.TracerParticleDumpNumber);
 
@@ -211,6 +212,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
       MetaData.RestartDumpName = dummy;
     if (sscanf(line, "DataDumpName         = %s", dummy) == 1)
       MetaData.DataDumpName = dummy;
+    if (sscanf(line, "TimeDumpName         = %s", dummy) == 1)
+      MetaData.TimeDumpName = dummy;
     if (sscanf(line, "HistoryDumpName      = %s", dummy) == 1)
       MetaData.HistoryDumpName = dummy;
     if (sscanf(line, "TracerParticleDumpName = %s", dummy) == 1)
@@ -222,6 +225,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
       MetaData.RestartDumpDir = dummy;
     if (sscanf(line, "DataDumpDir         = %s", dummy) == 1)
       MetaData.DataDumpDir = dummy;
+    if (sscanf(line, "TimeDumpDir         = %s", dummy) == 1)
+      MetaData.TimeDumpDir = dummy;
     if (sscanf(line, "HistoryDumpDir      = %s", dummy) == 1)
       MetaData.HistoryDumpDir = dummy;
     if (sscanf(line, "TracerParticleDumpDir = %s", dummy) == 1)

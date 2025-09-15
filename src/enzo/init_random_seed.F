@@ -18,8 +18,8 @@ c=======================================================================
 
       INTG_PREC in_seed
 
-      integer*4 i, n
-      integer*4, allocatable :: seed(:)
+      integer i, n
+      integer, allocatable :: seed(:)
 
       call random_seed(size=n)
       allocate(seed(n))

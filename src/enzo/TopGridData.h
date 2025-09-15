@@ -89,12 +89,14 @@ struct TopGridData
 
   int RestartDumpNumber;        // number appended to end of restart dump name
   int DataDumpNumber;           // number appended to end of data dump name
+  int TimeDumpNumber;           // number appended to end of data dump name
   int HistoryDumpNumber;        // number appended to end of history dump
   int MovieDumpNumber;          // number appended to end of movie dump name
   int TracerParticleDumpNumber; // number of dump
 
   char *RestartDumpName;         // restart dump base name
   char *DataDumpName;            // data dump base name
+  char *TimeDumpName;            // data dump base name
   char *HistoryDumpName;         // history dump base name
   char *MovieDumpName;           // movie dump base name
   char *TracerParticleDumpName;  // movie dump name
@@ -102,6 +104,7 @@ struct TopGridData
 
   char *RestartDumpDir;         // restart dump directory name
   char *DataDumpDir;            // data dump directory name
+  char *TimeDumpDir;            // data dump directory name
   char *HistoryDumpDir;         // history dump directory name
   char *MovieDumpDir;           // movie dump directory name
   char *TracerParticleDumpDir;  // tracer particle dump directory name

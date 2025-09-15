@@ -31,6 +31,7 @@ char *DefaultDimLabel[] = {"x", "y", "z"};
  
 char DefaultRestartName[] = "restart";
 char DefaultDataName[] = "data";
+char DefaultTimeName[] = "time";
 char DefaultHistoryName[] = "history";
 char DefaultRedshiftName[] = "RedshiftOutput";
 char DefaultNewMovieName[] = "MoviePack";
@@ -38,6 +39,7 @@ char DefaultTracerParticleName[] = "TracerOutput";
  
 char DefaultRestartDir[] = "RS";
 char DefaultDataDir[] = "DD";
+char DefaultTimeDir[] = "TT";
 char DefaultHistoryDir[] = "HD";
 char DefaultRedshiftDir[] = "RD";
 char DefaultTracerParticleDir[] = "TD";
@@ -106,6 +108,9 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MetaData.DataDumpNumber      = 0;
   MetaData.DataDumpName        = DefaultDataName;
   MetaData.DataDumpDir         = DefaultDataDir;
+  MetaData.TimeDumpNumber      = 0;
+  MetaData.TimeDumpName        = DefaultTimeName;
+  MetaData.TimeDumpDir         = DefaultTimeDir;
   MetaData.HistoryDumpNumber   = 0;
   MetaData.HistoryDumpName     = DefaultHistoryName;
   MetaData.HistoryDumpDir      = DefaultHistoryDir;
