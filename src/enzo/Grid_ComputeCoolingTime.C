@@ -191,10 +191,11 @@ int grid::ComputeCoolingTime(float *cooling_time, int CoolingTimeOnly)
   float *MetalPointer = NULL;
   float *TotalMetals = NULL;
 
-  if (MetalNum != -1 && SNColourNum != -1) {
+  if (MetalNum != -1 && SNColourNum != -1 ) {
     TotalMetals = new float[size];
     for (i = 0; i < size; i++)
-      TotalMetals[i] = BaryonField[MetalNum][i] + BaryonField[SNColourNum][i];
+      TotalMetals[i] = BaryonField[MetalNum][i]+BaryonField[SNColourNum][i];
+
     MetalPointer = TotalMetals;
   } // ENDIF both metal types
   else {

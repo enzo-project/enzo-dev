@@ -333,7 +333,23 @@ int grid::InterpolateFieldValues(grid *ParentGrid
 		 this->GridLeftEdge[0], this->GridLeftEdge[1], 
 		 this->GridLeftEdge[2], this->GridRightEdge[0], 
 	     this->GridRightEdge[1], this->GridRightEdge[2]);
-      ENZO_FAIL("interpolation error");
+      /* Give interpolation a second chance */
+      if(InterpolationMethod == SecondOrderA) {
+	printf("%s: Falling back to first order interpolation\n", __FUNCTION__); fflush(stdout);
+	int FallBackInterpolationMethod = FirstOrderA;
+	interp_error = FALSE;
+	FORTRAN_NAME(interpolate)(&GridRank,
+				  ParentTemp[densfield], ParentTempDim,
+				  ParentTempStartIndex, ParentTempEndIndex,
+				  Refinement,
+				  TemporaryDensityField, TempDim, ZeroVector, Work,
+				  &FallBackInterpolationMethod,
+				  &SecondOrderBFlag[densfield], &interp_error);
+	if (interp_error) 
+	  ENZO_FAIL("interpolation error");
+      }
+      else
+	ENZO_FAIL("interpolation error");
     }
 
  
@@ -383,7 +399,24 @@ int grid::InterpolateFieldValues(grid *ParentGrid
 		     this->GridLeftEdge[0], this->GridLeftEdge[1], 
 		 this->GridLeftEdge[2], this->GridRightEdge[0],
 		 this->GridRightEdge[1], this->GridRightEdge[2]);
-	  ENZO_FAIL("interpolation error");
+	  /* Give interpolation a second chance */
+	  if(FieldInterpolationMethod == SecondOrderA) {
+	    printf("%s: Falling back to first order interpolation for field %s\n", 
+		   __FUNCTION__, DataLabel[field]); fflush(stdout);
+	    int FallBackInterpolationMethod = FirstOrderA;
+	    interp_error = FALSE;
+	    FORTRAN_NAME(interpolate)(&GridRank,
+				      ParentTemp[densfield], ParentTempDim,
+				      ParentTempStartIndex, ParentTempEndIndex,
+				      Refinement,
+				      TemporaryField, TempDim, ZeroVector, Work,
+				      &FallBackInterpolationMethod,
+				      &SecondOrderBFlag[densfield], &interp_error);
+	    if (interp_error)
+	      ENZO_FAIL("interpolation error");
+	  }
+	  else
+	    ENZO_FAIL("interpolation error");
 	}
       }
  

@@ -148,6 +148,7 @@ SPEXTERN double AccretingParticleLuminosity;
 SPEXTERN float minStarLifetime;
 SPEXTERN FLOAT LastSupernovaTime;
 SPEXTERN float *IMFData;
+SPEXTERN int   ActiveParticlesIMFSeed;
 
 /* for star particle minimum mass ramp */
 SPEXTERN int StarMakerMinimumMassRamp;
@@ -161,5 +162,6 @@ SPEXTERN float StarFeedbackThermalEfficiencyRampStartTime;
 SPEXTERN float StarFeedbackThermalEfficiencyRampStartValue;
 SPEXTERN float StarFeedbackThermalEfficiencyRampEndTime;
 SPEXTERN float StarFeedbackThermalEfficiencyRampEndValue;
+
 
 #endif

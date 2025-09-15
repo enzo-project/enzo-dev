@@ -71,3 +71,60 @@ float* grid::AveragedVelocityAtCell(int index, int DensNum, int Vel1Num)
   return vel;
 
 }
+#define LEFT -2
+#define RIGHT 2
+#define NUM_NEIGHBOURS 125
+float* grid::AveragedVelocityAtCell3D(int index, int DensNum, int Vel1Num)
+{
+
+  const int offset[] = {1, GridDimension[0], GridDimension[0]*GridDimension[1]};
+
+  int i, dim, indices[NUM_NEIGHBOURS];
+  float weight;
+  float *vel = new float[MAX_DIMENSION];
+  float *rho = BaryonField[DensNum];
+  float *allv[] = {BaryonField[Vel1Num], 
+		   BaryonField[Vel1Num+1], 
+		   BaryonField[Vel1Num+2]};
+
+  
+  int count = 0;
+  for (int x = LEFT; x <= RIGHT; x++) {
+    for(int y = LEFT; y <= RIGHT; y++) {
+      for(int z = LEFT; z <= RIGHT; z++) {
+	int celloffset =  GRIDINDEX_NOGHOST(x,y,z);
+	indices[count] = index + celloffset;
+	count = count + 1;
+      }
+    }
+  }
+    
+  if (HydroMethod == Zeus_Hydro) {
+
+    for (dim = 0; dim < GridRank; dim++) {
+      weight = 0;
+      vel[dim] = 0;
+      for (i = 0; i < NUM_NEIGHBOURS; i++) {
+	weight += rho[indices[i]];
+	vel[dim] += 0.5 * (allv[dim][indices[i]] + allv[dim][indices[i]+offset[dim]]);
+      }
+      vel[dim] /= weight;
+    } // ENDFOR dim
+      
+  } else {
+
+    for (dim = 0; dim < GridRank; dim++) {
+      weight = 0;
+      vel[dim] = 0;
+      for (i = 0; i < NUM_NEIGHBOURS; i++) {
+	weight += rho[indices[i]];
+	vel[dim] += allv[dim][indices[i]] * rho[indices[i]];
+      }
+      vel[dim] /= weight;
+    } // ENDFOR dim
+
+  } // ENDELSE !Zeus
+
+  return vel;
+
+}

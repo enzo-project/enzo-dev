@@ -71,10 +71,12 @@ int grid::RadiativeTransferComptonHeating(PhotonPackageEntry **PP, FLOAT *dPXray
   // nonrelativistic Klein-Nishina cross-section in Rybicki & Lightman (1979)
   xE = (*PP)->Energy/5.11e5;  // h*nu/(m_e*c^2)
   xray_sigma = sigma_thompson * (1 - 2.*xE + 26./5.*xE*xE) * LengthUnits; //Equation 7.6a
-  
+  float T = 10000;
+  if(BaryonField[TemperatureField])
+    T = BaryonField[TemperatureField][cellindex];
   // also, nonrelativistic energy transfer in Ciotti & Ostriker (2001)
-  excess_heating = photonrate * 4 * kboltz * BaryonField[TemperatureField][cellindex] * xE;
-  ratioE = 4 * kboltz * BaryonField[TemperatureField][cellindex] * xE / (*PP)->Energy; 
+  excess_heating = photonrate * 4 * kboltz * T * xE;
+  ratioE = 4 * kboltz * T * xE / (*PP)->Energy; 
   
   tau = dN*xray_sigma;
   

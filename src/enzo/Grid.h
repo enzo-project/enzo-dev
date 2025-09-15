@@ -408,6 +408,8 @@ public:
    FLOAT ReturnTime() {return Time;};
    FLOAT ReturnOldTime() {return OldTime;};
    float ReturnTimeStep() {return dtFixed;};
+   // Get the volume of one cell on this grid
+   float GetVCell() {return CellWidth[0][0]*CellWidth[1][0]*CellWidth[2][0];};
 
   /* Return, set grid ID */
 
@@ -993,6 +995,7 @@ gradient force to gravitational force for one-zone collapse test. */
 /* Flag all cells which have more than a specified metal mass */
 
    int FlagCellsToBeRefinedByMetalMass(int level);
+
 
 /* Flagging all cell adjacent to a previous flagged cell.  Also, remove all
    Flagged cells in the boundary zones and within one zone of the boundary. */
@@ -2677,6 +2680,10 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 
   float* AveragedVelocityAtCell(int index, int DensNum, int Vel1Num);
 
+  /* Returns averaged velocity from the 26 neighbor cells and itself */
+
+  float* AveragedVelocityAtCell3D(int index, int DensNum, int Vel1Num);
+
   /* Find the minumum of the angular momentum in a given region */
   float FindAngularMomentumMinimum(FLOAT *cellpos, FLOAT radius, int DensNum, int Vel1Num,
 				   int Vel2Num, int Vel3Num);
@@ -2864,10 +2871,11 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
   int GetEnclosedMass(FLOAT star_pos[], float radius, float &mass,
 		      float &metallicity, float &coldgas_mass, 
 		      float AvgVelocity[], float &OneOverRSquaredSum);
-  int GetEnclosedMassInShell(Star *star, float radius0, float radius1, 
+  int GetEnclosedMassInShell(FLOAT *pos, float radius0, float radius1, 
 			     float &mass, float &metallicity2, 
 			     float &metallicity3,
-			     float &coldgas_mass, float AvgVelocity[]);
+			     float &coldgas_mass, float AvgVelocity[],
+			     int feedback_flag);
 
   int RemoveParticle(int ID, bool disable=false);
 
@@ -2927,6 +2935,13 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 			 float *AccretedMass, float *DeltaV,
 			 FLOAT KernelRadius, FLOAT SumOfWeights, float MaxAccretionRate);
 
+  int RemoveMassFromGridAfterFormation(FLOAT* starpos, int ParticleClass,
+				       FLOAT AccretionRadius,
+				       float particle_mass,
+				       int cellindex,
+				       float newcelldensity,
+				       float original_pmass);
+  
   int GetVorticityComponent(FLOAT *pos, FLOAT *vorticity);
   float CenAccretionRate(float density, FLOAT AccretionRadius,
 			 FLOAT *pos, float *vel, float mparticle);
@@ -2945,6 +2960,12 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
   int ApplyGalaxyParticleGravity(ActiveParticleType** ThisParticle);
 
   int ApplySmartStarParticleFeedback(ActiveParticleType** ThisParticle);
+  
+  int ApplySphericalFeedbackToGrid(ActiveParticleType** ThisParticle,
+				   float EjectaDenity, 
+				   float EjectaThermalEnergy,
+				   float EjectaMetalDensity);
+
 
 //------------------------------------------------------------------------
 // Radiative transfer methods that don't fit in the TRANSFER define

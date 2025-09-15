@@ -1,0 +1,104 @@
+#
+#  AMR PROBLEM DEFINITION FILE: Non-cosmological Collapse test
+#  Description: a sphere collapses until becoming pressure supported.
+#
+#  define problem
+#
+ProblemType                = 27         // Collapse test
+TopGridRank                = 3
+TopGridDimensions          = 64 64 64
+SelfGravity                = 1          // gravity on
+TopGridGravityBoundary     = 0          // periodic
+LeftFaceBoundaryCondition  = 3 3 3      // periodic
+RightFaceBoundaryCondition = 3 3 3
+
+#
+# problem parameters
+#
+
+CollapseTestRefineAtStart   = 1         // check refinement before running
+CollapseTestNumberOfSpheres = 1
+CollapseTestUseParticles    = 0
+CollapseTestInitialTemperature = 1e3    // temperature of the background gas
+CollapseTestSpherePosition[0]   = 0.5 0.5 0.5
+CollapseTestSphereVelocity[0]   = 0.0 0.0 0.0
+CollapseTestSphereRadius[0]     = 0.15625
+CollapseTestSphereCoreRadius[0] = 0.05  // only used with sphere type 5
+CollapseTestSphereDensity[0]    = 1e2   //100   // sphere density, the background density is 1
+CollapseTestSphereTemperature[0] = 10    // put sphere in pressure equilibrium (rho * T is constant)
+CollapseTestSphereRotationPeriod[0] = 8.72734
+CollapseTestFracKeplerianRot[0] = 0.7
+CollapseTestSphereType[0]       = 11     // constant density
+                                        // 1: uniform
+					// 2: r^-2 power-law
+					// 3: NFW
+					// 4: Gaussian
+					// 5: r^-2 power-law with a core
+					// 11: Burkert & Bodenheimer setup
+#EOSType = 
+#  no cosmology for this run
+#
+ComovingCoordinates   = 0              // Expansion OFF
+#
+#  units
+#
+DensityUnits          = 3.82e-20      // 10^4 cm^-3
+LengthUnits           = 3.2e17        #5e17          // 1 pc in cm
+TimeUnits             = 1.0e12        // 10^4 yrs
+GravitationalConstant = 0.0320327594   // 4*pi*G_{cgs}*DensityUnits*TimeUnits^2
+#
+#  set I/O and stop/start parameters
+#
+StopTime          = 1.45
+dtDataDump        = 0.01
+#CycleSkipDataDump = 1
+DataDumpDir       = DD
+DataDumpName      = DD
+OutputTemperature = 1                  // Output temperature field.
+#
+#  set hydro parameters
+#
+Gamma                       = 1.001
+PPMDiffusionParameter       = 0        // diffusion off
+DualEnergyFormalism         = 1        // use total & internal energy
+InterpolationMethod         = 1        // SecondOrderA
+CourantSafetyNumber         = 0.3
+FluxCorrection              = 1
+ConservativeInterpolation   = 0
+RiemannSolver = 4
+HydroMethod                 = 0        // PPM
+SmallRho                    = 1e-8
+SmallE			    = 1e-8
+#
+#  chemistry/cooling
+#
+MultiSpecies                = 0        // chemistry off
+RadiativeCooling            = 0        // cooling off
+Mu  			    = 3.0
+#
+#  set grid refinement parameters
+#
+StaticHierarchy           = 0          // dynamic hierarchy
+MaximumRefinementLevel    = 4         // use up to 4 levels
+RefineBy                  = 2          // refinement factor
+CellFlaggingMethod        = 2 6         // refine on baryon mass and Jeans Length
+MinimumEfficiency         = 0.3
+#OutputFirstTimeAtLevel    = 4         // output when level 4, 5, 6, etc reached (commented out for now)
+#StopFirstTimeAtLevel      = 10         // stop if/when level 10 reached
+RefineByJeansLengthSafetyFactor = 16    // resolve Jeans length by 16 cells (used with CellFlaggingMethod 6)
+
+
+#
+#  set some global parameters
+#
+GreensFunctionMaxNumber   = 10         // # of greens function at any one time
+PotentialIterations	  = 100
+ComputePotential          = 1
+WritePotential            = 0
+#
+#  active particle parameters
+#
+AppendActiveParticleType = SmartStar
+ActiveParticleDensityThreshold = 1e+30   //Jeans density criteria + others
+SmartStarFeedback              = 0
+

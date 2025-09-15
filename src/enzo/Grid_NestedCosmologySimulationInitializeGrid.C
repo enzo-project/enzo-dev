@@ -622,7 +622,7 @@ int grid::NestedCosmologySimulationInitializeGrid(
 	  for (i = 0; i < size; i++)
 	    BaryonField[MetalIaNum][i] = CosmologySimulationInitialFractionMetalIa
 	      * BaryonField[0][i];
-	
+
 	if (MultiMetals) {
 	  for (i = 0; i < size; i++) {
 	    BaryonField[ExtraField[0]][i] = CosmologySimulationInitialFractionMetal

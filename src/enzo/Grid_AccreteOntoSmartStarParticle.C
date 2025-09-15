@@ -24,7 +24,7 @@
 #include "Hierarchy.h"
 #include "ActiveParticle.h"
 #include "ActiveParticle_SmartStar.h"
-#define UPDATE_SS_VELOCITY 1
+
 #define NO_DEBUG_AP
 #define ACCRETE_DEBUG 0
 #define NO_ACCRETION 0
@@ -42,6 +42,7 @@ int grid::AccreteOntoSmartStarParticle(
     return SUCCESS;
   ActiveParticleType_SmartStar* SS;
   SS = static_cast<ActiveParticleType_SmartStar*>(ThisParticle);
+
   /* Check whether the cube that circumscribes the accretion zone intersects
    * with this grid */
   FLOAT xsink = ThisParticle->ReturnPosition()[0];
@@ -83,19 +84,10 @@ int grid::AccreteOntoSmartStarParticle(
   FLOAT KernelRadius = 0.0, SumOfWeights = 0.0; /*Required for weighting cells for accretion */
   *AccretionRate = CalculateSmartStarAccretionRate(ThisParticle, AccretionRadius,
 						   &KernelRadius, &SumOfWeights);
-
 #if NO_ACCRETION
   *AccretionRate = 0.0;
 #endif
-  /*
-   * 1. Calculate the accretion rate
-   * 2a. Calculate how much goes into the black hole: Mdot_BH = AccRate*(1 - eta_disk) ~ 0.9*AccRate
-   * 2b. Calculate how much goes into the Jet: Mdot_Jet = Mdot_BH*beta_jet ~ 90*AccRate (for Beta_Jet = 100)
-   * 3. Remove the MDot_BH from the grid and also take opportunity to calculate total mass available
-   *    within the accretion sphere. 
-   * 4. The Thermal energy (or radiation) is composed of eta_disk*AccRate ~ 0.1*AccRate  
-   */
-
+ 
    float MaxAccretionRate = huge_number;
    /* 
     * If we want to cap the accretion rate at the Eddington rate the most sensible thing
@@ -133,90 +125,103 @@ int grid::AccreteOntoSmartStarParticle(
   printf("%s: AccretedMass = %e\n", __FUNCTION__, AccretedMass);
 #endif
   float *Vel = SS->vel;
-  /* 
-   * I don't think we should update the velocity of the particle
-   * This breaks conservation of momentum but the momentum is in the subgrid. The
-   * velocity of the accreted gas is placed in the accretion disk and 
-   * radiated back. The black hole itself probably doesn't move in nature. It
-   * should not move here either
+
+  /* Smooth velocities over the cells in the accretion zone
+   * otherwise we treat the particle as a point mass which 
+   * is undesirable
    */
-#if UPDATE_SS_VELOCITY
+  float smoothingzone = pow(ACCRETIONRADIUS + 1, 3.0);
   float NewVelocity[3] =
     {
-    (Vel[0]+delta_vpart[0]),
-    (Vel[1]+delta_vpart[1]),
-    (Vel[2]+delta_vpart[2])
+    (Vel[0]+delta_vpart[0]/smoothingzone),
+    (Vel[1]+delta_vpart[1]/smoothingzone),
+    (Vel[2]+delta_vpart[2]/smoothingzone)
     };
 
   ThisParticle->SetVelocity(NewVelocity);
-#endif
+
   /* 
    * This value is the actual accretion rate onto the SmartStar. It was initially
    * calculated according to some prescription (e.g. Bondi-Hoyle) and then
    * a kernel weighting applied to extract gas from the grid.
    */
   *AccretionRate = AccretedMass/this->dtFixed; //in units of density/time
- 
+
+
+   /*
+    * The next bit applies to BHs only. 
+    * 1. Calculate the accretion rate (done above)
+    * 2a. Calculate how much goes into the black hole: Mdot_BH = AccRate*(1 - eta_disk) ~ 0.9*AccRate
+    * 2b. Calculate how much goes into the Jet: Mdot_Jet = Mdot_BH*beta_jet ~ 90*AccRate (for Beta_Jet = 100)
+    * 3. Remove the MDot_BH from the grid and also take opportunity to calculate total mass available
+    *    within the accretion sphere. 
+    * 4. The Thermal energy (or radiation) is composed of eta_disk*AccRate ~ 0.1*AccRate  
+    *    which can be found by computing eta_disk/(1 - eta_disk)*Mdot_BH
+    */
+  
   /*
    * Using the actual accretion rate we can update how much of the gas makes it onto the
    * smart star and of the mass that is available for feedback how much, if any, ends 
    * up in Jets. 
    */
-  if(BH == SS->ParticleClass && SmartStarBHJetFeedback) {
+  if((BH == SS->ParticleClass) && SmartStarBHFeedback) {
     *AccretionRate *= (1.0 - SS->eta_disk);
-    /* 
-     * Now this is the complicated/clever bit. 
-     * The MassEjected will not be a fraction of the accreted mass but a fraction of the available mass
-     * from the surrounding cells. The mass in the surrounding cells is mass_in_accretion_sphere
-     * beta_jet = Jet Mass Loading
-     * eta_jet = Jet efficiency (comes from GRMHD simulations)
-     * epsilon_deltat = subgrids the timestep and effectively restricts jet emission
-     * to some small part of the timestep which we do not resolve.
-     * Mdot_Jet = beta_jet * (1 - eta_disk) * mdot * epsilon_deltat
-     * MassEjected = Mdot_Jet * dt 
-     */
-    float BHMass =  SS->ReturnMass()*MassConversion/SolarMass; //In solar masses
-    float eddrate = 4*M_PI*GravConst*BHMass*SolarMass*mh/(SS->eta_disk*clight*sigma_thompson); // g/s
-    eddrate = eddrate*3.154e7/SolarMass; //in Msolar/yr
-    float accrate_msolar = (*AccretionRate)*3.154e7*MassConversion/(SolarMass*TimeUnits); //Msolar/yr
-    /* eta_jet comes from the fit given in Sadowski et al. (2016) */
-    float eta_jet = 1.3*POW(SmartStarSpin, 2.0);
-    SS->beta_jet = (1.0/SmartStarJetVelocity)*(1.0/SmartStarJetVelocity)*2.0*eta_jet;
-    float mdot_total = SS->mass_in_accretion_sphere/this->dtFixed; //This is the total mass available for accretion inside accretion sphere
-    float accretion_ratio = mdot_total/(*AccretionRate);
-    SS->epsilon_deltat = min(1.0, accretion_ratio*(1.0/(1.0 - SS->eta_disk))*(1.0/(1.0 + SS->beta_jet)));
-    SS->MassToBeEjected = 0.0;
+
+    if(SmartStarBHJetFeedback) {
+      /* 
+       * Now this is the complicated/clever bit. 
+       * The MassEjected will not be a fraction of the accreted mass but a fraction of the available mass
+       * from the surrounding cells. The mass in the surrounding cells is mass_in_accretion_sphere
+       * beta_jet = Jet Mass Loading
+       * eta_jet = Jet efficiency (comes from GRMHD simulations)
+       * epsilon_deltat = subgrids the timestep and effectively restricts jet emission
+       * to some small part of the timestep which we do not resolve.
+       * Mdot_Jet = beta_jet * (1 - eta_disk) * mdot * epsilon_deltat
+       * MassEjected = Mdot_Jet * dt 
+       */
+      float BHMass =  SS->ReturnMass()*MassConversion/SolarMass; //In solar masses
+      float eddrate = 4*M_PI*GravConst*BHMass*SolarMass*mh/(SS->eta_disk*clight*sigma_thompson); // g/s
+      eddrate = eddrate*3.154e7/SolarMass; //in Msolar/yr
+      float accrate_msolar = (*AccretionRate)*3.154e7*MassConversion/(SolarMass*TimeUnits); //Msolar/yr
+      /* eta_jet comes from the fit given in Sadowski et al. (2016) */
+      float eta_jet = 1.3*POW(SmartStarSpin, 2.0);
+      SS->beta_jet = (1.0/SmartStarJetVelocity)*(1.0/SmartStarJetVelocity)*2.0*eta_jet;
+      float mdot_total = SS->mass_in_accretion_sphere/this->dtFixed; //This is the total mass available for accretion inside accretion sphere
+      float accretion_ratio = mdot_total/(*AccretionRate);
+      SS->epsilon_deltat = min(1.0, accretion_ratio*(1.0/(1.0 - SS->eta_disk))*(1.0/(1.0 + SS->beta_jet)));
+      SS->MassToBeEjected = 0.0;
 #if  ACCRETE_DEBUG
-    printf("%s: Eddrate = %e Msolar/yr AccRate = %e Msolar/yr\t Ratio = %f\n", __FUNCTION__,
-	   eddrate, accrate_msolar, accrate_msolar/eddrate);
+      printf("%s: Eddrate = %e Msolar/yr AccRate = %e Msolar/yr\t Ratio = %f\n", __FUNCTION__,
+	     eddrate, accrate_msolar, accrate_msolar/eddrate);
 #endif
-    if(accrate_msolar > eddrate) {
-      
-      *AccretionRate *= SS->epsilon_deltat;
-      SS->MassToBeEjected = SS->beta_jet*(*AccretionRate)*this->dtFixed*dx*dx*dx; //Code Mass
-      *AccretionRate *= (1 - eta_jet);
+      if(accrate_msolar > eddrate) {
+	
+	*AccretionRate *= SS->epsilon_deltat;
+	SS->MassToBeEjected = SS->beta_jet*(*AccretionRate)*this->dtFixed*dx*dx*dx; //Code Mass
+	*AccretionRate *= (1 - eta_jet);
 #if  ACCRETE_DEBUG
-      printf("%s: eta_disk = %f\n", __FUNCTION__, SS->eta_disk);
-      printf("%s: eta_jet = %f\t beta_jet = %f\t ParticleClass = %d\n", __FUNCTION__, eta_jet,  SS->beta_jet,SS->ParticleClass );
-      printf("%s: Mass in surrounding sphere = %e Msolar\n", __FUNCTION__, SS->mass_in_accretion_sphere*MassConversion/SolarMass);
-      printf("%s: Macc = %e Msolar\t Mjet = %e Msolar\n", __FUNCTION__,
-	     (*AccretionRate)*this->dtFixed*MassConversion/SolarMass,
-	     SS->MassToBeEjected*MassUnits/SolarMass);
-      printf("%s: accretion_ratio = %f\n", __FUNCTION__, accretion_ratio);
-      printf("%s: epsilon_deltat = %e\n", __FUNCTION__, SS->epsilon_deltat);
-      printf("%s: Mass to be ejected = %f Msolar (%e code)\n",  __FUNCTION__, SS->MassToBeEjected*MassUnits/SolarMass, SS->MassToBeEjected);
-      printf("%s: Updated Accretion rate = %e Msolar/yr\n", __FUNCTION__,
-	     (*AccretionRate)*3.154e7*MassConversion/(SolarMass*TimeUnits));
-      printf("%s: No update would be = %e Msolar/yr\n", __FUNCTION__,
-	     (*AccretionRate/SS->epsilon_deltat)*3.154e7*MassConversion/(SolarMass*TimeUnits));
+	printf("%s: eta_disk = %f\n", __FUNCTION__, SS->eta_disk);
+	printf("%s: eta_jet = %f\t beta_jet = %f\t ParticleClass = %d\n", __FUNCTION__, eta_jet,  SS->beta_jet,SS->ParticleClass );
+	printf("%s: Mass in surrounding sphere = %e Msolar\n", __FUNCTION__, SS->mass_in_accretion_sphere*MassConversion/SolarMass);
+	printf("%s: Macc = %e Msolar\t Mjet = %e Msolar\n", __FUNCTION__,
+	       (*AccretionRate)*this->dtFixed*MassConversion/SolarMass,
+	       SS->MassToBeEjected*MassUnits/SolarMass);
+	printf("%s: accretion_ratio = %f\n", __FUNCTION__, accretion_ratio);
+	printf("%s: epsilon_deltat = %e\n", __FUNCTION__, SS->epsilon_deltat);
+	printf("%s: Mass to be ejected = %f Msolar (%e code)\n",  __FUNCTION__, SS->MassToBeEjected*MassUnits/SolarMass, SS->MassToBeEjected);
+	printf("%s: Updated Accretion rate = %e Msolar/yr\n", __FUNCTION__,
+	       (*AccretionRate)*3.154e7*MassConversion/(SolarMass*TimeUnits));
+	printf("%s: No update would be = %e Msolar/yr\n", __FUNCTION__,
+	       (*AccretionRate/SS->epsilon_deltat)*3.154e7*MassConversion/(SolarMass*TimeUnits));
 #endif
-    }
-    else {
+      }
+      else {
 #if  ACCRETE_DEBUG
-      printf("%s: AccrateionRateRatio = %f. No jets this time\n", __FUNCTION__,
-	     accrate_msolar/eddrate);
+	printf("%s: AccrateionRateRatio = %f. No jets this time\n", __FUNCTION__,
+	       accrate_msolar/eddrate);
 #endif
-      ;
+	;
+      }
     }
   }
   

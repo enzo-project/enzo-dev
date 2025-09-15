@@ -64,7 +64,7 @@
 
 /* Gravitational constant [cm3g-1s-2]*/
 
-#define GravConst                       6.67428e-8
+#define GravConst                       6.6740831e-8      //6.67428e-8
 
 /* Solar mass [g] */
 
