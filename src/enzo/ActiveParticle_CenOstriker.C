@@ -94,7 +94,7 @@ int ActiveParticleType_CenOstriker::CreateParticle(grid *thisgrid_orig,
 
   return SUCCESS;
 }
-int ActiveParticleType_CenOstriker::EvaluateFormation(grid *thisgrid_orig, ActiveParticleFormationData &data)
+int ActiveParticleType_CenOstriker::EvaluateFormation(grid *thisgrid_orig, TopGridData *MetaData, ActiveParticleFormationData &data)
 {
   CenOstrikerGrid *thisGrid =
     static_cast<CenOstrikerGrid *>(thisgrid_orig);

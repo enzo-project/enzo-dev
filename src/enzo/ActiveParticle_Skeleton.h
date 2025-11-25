@@ -64,7 +64,7 @@ public:
    * This is called inside the grid::ActiveParticleHandler function, which is in
    *   turn called just after the grids take a hydro timestep in EvolveLevel.
    */
-  static int EvaluateFormation(grid *thisgrid_orig, ActiveParticleFormationData &data);
+  static int EvaluateFormation(grid *thisgrid_orig, TopGridData *MetaData, ActiveParticleFormationData &data);
 
 
   /*

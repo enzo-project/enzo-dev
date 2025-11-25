@@ -198,7 +198,7 @@ int ActiveParticleType_RadiationParticle::BeforeEvolveLevel
 }
 
 
-int ActiveParticleType_RadiationParticle::EvaluateFormation(grid *thisgrid_orig, 
+int ActiveParticleType_RadiationParticle::EvaluateFormation(grid *thisgrid_orig, TopGridData *MetaData, 
 							    ActiveParticleFormationData &data)
 {
   if (CheckForParticleAction(Root) == false)  

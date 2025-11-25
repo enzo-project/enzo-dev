@@ -66,8 +66,8 @@ int CommunicationUpdateActiveParticleCount(HierarchyEntry *Grids[],
     else {
       PartialNewActiveParticleCount[grid] = 0;
     }
-}
- 
+  }
+  
 #ifdef USE_MPI
  
   /* Get counts from each processor to get total list of new particles. */
@@ -96,9 +96,8 @@ int CommunicationUpdateActiveParticleCount(HierarchyEntry *Grids[],
   /* Set new particle count for each grid. */
  
   for (grid = 0; grid < NumberOfGrids; grid++) {
-
     NumberOfActiveParticles += TotalNewActiveParticleCount[grid];
-    
+
     if (Grids[grid]->GridData->ReturnProcessorNumber() == MyProcessorNumber) 
       /* If this grid is on this processor, then call routine to set the
 	 particle index numbers.  */
@@ -113,7 +112,7 @@ int CommunicationUpdateActiveParticleCount(HierarchyEntry *Grids[],
     }
 
   }
-
+  
   // Update ActiveParticleType counts as well
 
   int i, j, idx, nap;

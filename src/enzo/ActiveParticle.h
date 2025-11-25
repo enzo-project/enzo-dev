@@ -10,6 +10,8 @@
 /  modified2:  John Wise, Greg Bryan, Britton Smith, Cameron Hummels,
 /              Matt Turk
 /  date:       May, 2011 (converting from Star to ActiveParticle)
+/  modified3:  Deovrat Prasad (Added section for AGN Particle)
+/  date:       Oct, 2019
 /
 /  PURPOSE:
 /
@@ -46,7 +48,7 @@ public:
 
   void OutputPositionInformation(void);
 
-  /* This should return the number of new star particles created, and should
+  /* This should return the number of new active particles created, and should
    * create them. */
 
   ActiveParticleType(void);
@@ -412,6 +414,8 @@ struct ActiveParticleFormationDataFlags {
   bool CoolingRate;
   bool Temperature;
   bool MetalField;
+  bool UnitConversions;
+  bool DataFieldNumbers;
 };
 
 const struct ActiveParticleFormationDataFlags flags_default = {
@@ -420,7 +424,9 @@ const struct ActiveParticleFormationDataFlags flags_default = {
   false,    // CoolingTime
   false,    // CoolingRate
   false,    // Temperature
-  false     // MetalField
+  false,    // MetalField
+  false,
+  false
 };
 
 namespace ActiveParticleHelpers {
@@ -548,17 +554,38 @@ namespace ActiveParticleHelpers {
         H5Gclose(node);
         return;
       }
-
-      int ndims = 1;
-      hsize_t dims[2] = {1, 1};
-      //const int NormCount = Count;
+      // For AGN Particle - modified by Deovrat Prasad 
+      int ndims;
+      hsize_t dims[3] = {Count, 0, 0};
       APClass *In;
 
       for (AttributeVector::iterator it = handlers.begin();
           it != handlers.end(); ++it) {
-	  const char *_name = (*it)->name.c_str();
+          dims[1] = (*it)->dim1;
+          dims[2] = (*it)->dim2;
+          ndims = (*it)->data_dims + 1;
+          size = Count * (*it)->element_size;
+
+          _buffer = buffer = new char[size];
+          for (i = 0; i < TotalParticles; i++) {
+            if (InList[i]->GetEnabledParticleID() != ParticleTypeID)
+              continue;
+            (*it)->GetAttribute(&_buffer, InList[i]);
+          }
+          /* Now write it to disk */
+          _ap_name = (*it)->name.c_str();
+          APClass::WriteDataset(ndims, dims, _ap_name, node,
+                                (*it)->hdf5type, buffer);
+      //int ndims = 1;
+      //hsize_t dims[2] = {1, 1};
+      //const int NormCount = Count;
+      //APClass *In;
+
+      //for (AttributeVector::iterator it = handlers.begin();
+      //    it != handlers.end(); ++it) {
+	//  const char *_name = (*it)->name.c_str();
 	  /* HACK - there must be a better way to do this...*/
-	  if( (strcmp(_name, "AccretionRate") == 0 ||
+	  /*if( (strcmp(_name, "AccretionRate") == 0 ||
 	       strcmp(_name, "AccretionRateTime") == 0 ||
 	       strcmp(_name, "Accreted_angmom") == 0)
 	      && strcmp(_ap_name, "SmartStar") == 0)
@@ -583,10 +610,10 @@ namespace ActiveParticleHelpers {
             if (InList[i]->GetEnabledParticleID() != ParticleTypeID)
               continue;
             (*it)->GetAttribute(&_buffer, InList[i]);
-          }
+          }*/
           /* Now write it to disk */
-          APClass::WriteDataset(ndims, dims, _name, node,
-                                (*it)->hdf5type, buffer);
+          /*APClass::WriteDataset(ndims, dims, _name, node,
+                                (*it)->hdf5type, buffer);*/
           delete [] buffer;
       }
 
@@ -612,7 +639,7 @@ namespace ActiveParticleHelpers {
         H5Gclose(node);
         return offset;
       }
-      char *buffer, *_buffer;
+      /*char *buffer, *_buffer;
       int ndims = 1;
       hsize_t dims[1] = {Count};
       for (i = 0; i < Count; i++) {
@@ -636,6 +663,29 @@ namespace ActiveParticleHelpers {
           for (i = 0; i < Count; i++) {
             (*it)->SetAttribute(&_buffer, OutList[i+offset]);
           }
+          delete [] buffer;*/
+      char *buffer, *_buffer;
+      int ndims;
+      hsize_t dims[3] = {Count,0,0};
+      for (i = 0; i < Count; i++) {
+        OutList.insert(*(new APClass()));
+      }
+
+      for (AttributeVector::iterator it = handlers.begin();
+          it != handlers.end(); ++it) {
+          dims[1] = (*it)->dim1;
+          dims[2] = (*it)->dim2;
+          size = Count * (*it)->element_size;
+          ndims = (*it)->data_dims + 1;
+          _buffer = buffer = new char[size];
+          _ap_name = (*it)->name.c_str();
+
+          APClass::ReadDataset(ndims, dims, _ap_name, node,
+                                 (*it)->hdf5type, buffer);
+
+          for (i = 0; i < Count; i++) {
+            (*it)->SetAttribute(&_buffer, OutList[i+offset]);
+          }
           delete [] buffer;
       }
 
@@ -644,8 +694,6 @@ namespace ActiveParticleHelpers {
       return Count;
 
   }
-
-
 
   template <class APClass> int FillBuffer(
           ActiveParticleList<ActiveParticleType> &InList, int InCount, char *buffer_) {
@@ -729,7 +777,7 @@ public:
   ActiveParticleType_info
   (std::string this_name,
    /* These functions hang off the ActiveParticle subclass */
-   int (*evaluate_formation)(grid *thisgrid_orig, ActiveParticleFormationData &data),
+   int (*evaluate_formation)(grid *thisgrid_orig, TopGridData *MetaData, ActiveParticleFormationData &data),
    void (*describe_data)(ActiveParticleFormationDataFlags &flags),
    int (*initialize)(),
    int (*feedback)(grid *thisgrid_orig, ActiveParticleFormationData &data),
@@ -801,7 +849,7 @@ public:
   }
 
   int (*InitializeParticleType)(void);
-  int (*EvaluateFormation)(grid *thisgrid_orig, ActiveParticleFormationData &data);
+  int (*EvaluateFormation)(grid *thisgrid_orig, TopGridData *MetaData, ActiveParticleFormationData &data); //TopGridData added by DP.
   int (*EvaluateFeedback)(grid *thisgrid_orig, ActiveParticleFormationData &data);
   int (*BeforeEvolveLevel)(HierarchyEntry *Grids[], TopGridData *MetaData,
 			   int NumberOfGrids, LevelHierarchyEntry *LevelArray[],

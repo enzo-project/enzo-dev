@@ -29,7 +29,7 @@ public:
       );
   }
   // Static members
-  static int EvaluateFormation(grid *thisgrid_orig, ActiveParticleFormationData &supp_data);
+  static int EvaluateFormation(grid *thisgrid_orig, TopGridData *MetaData, ActiveParticleFormationData &supp_data);
   static void DescribeSupplementalData(ActiveParticleFormationDataFlags &flags);
   static int EvaluateFeedback(grid *thisgrid_orig, ActiveParticleFormationData &data);
   template <class active_particle_class>

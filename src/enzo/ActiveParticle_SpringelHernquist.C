@@ -54,7 +54,7 @@ int ActiveParticleType_SpringelHernquist::InitializeParticleType() {
 }
 
 int ActiveParticleType_SpringelHernquist::EvaluateFormation
-(grid *thisgrid_orig, ActiveParticleFormationData &supp_data)
+(grid *thisgrid_orig, TopGridData *MetaData, ActiveParticleFormationData &supp_data)
 {
   SpringelHernquistGrid *tg =
     static_cast<SpringelHernquistGrid *>(thisgrid_orig);

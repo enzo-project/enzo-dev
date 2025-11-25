@@ -143,7 +143,11 @@ int grid::UpdateParticleVelocity(float TimeStep)
           float* apvel = ActiveParticles[i]->ReturnVelocity();
           
           for (dim = 0; dim < GridRank; dim++) {
-            
+              /* Error check. */
+
+              if (ActiveParticleAcceleration[dim] == NULL) {
+                  ENZO_FAIL("No ActiveParticleAcceleration present.");
+              }  
 #ifdef VELOCITY_METHOD1
 
       /* i) partially time-centered. */

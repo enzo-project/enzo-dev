@@ -1,0 +1,119 @@
+#=======================================================================
+#
+# FILE:        Make.mach.hpcc_msu
+#
+# DESCRIPTION: Makefile settings for a machine running Ubuntu 8.04
+#
+# AUTHOR:      
+# modified by : DEOVRAT PRASAD (10/15/2018)
+#
+# DATE:        2008-09-16
+#
+# This configuration assumes that build-essentials, gfortran, 
+# OpenMPI and HDF5 have been installed using apt-get.
+#
+#=======================================================================
+
+MACH_TEXT  = MSU_HPCC
+MACH_VALID = 1
+MACH_FILE  = Make.mach.hpcc_msu
+
+#-----------------------------------------------------------------------
+# Install paths (local variables)
+#-----------------------------------------------------------------------
+#LOCAL_LIBS_MACH   = -L$(LOCAL_COMPILER)/intel64 -lcilkrts -lifport -lifcore
+#LOCAL_COMPILER = /opt/software/ifort/2019.3.199-GCC-8.3.0-2.32/compilers_and_libraries_2019.3.199/linux/bin
+LOCAL_HDF5_INSTALL = /opt/software/HDF5/1.8.20-foss-2018a
+LOCAL_GRACKLE_INSTALL = /mnt/home/llorente/grackle/local
+
+#-----------------------------------------------------------------------
+# Compiler settings
+#-----------------------------------------------------------------------
+
+MACH_CPP       = /usr/bin/cpp
+
+# With MPI
+
+MACH_CC_MPI    = mpicc
+MACH_CXX_MPI   = mpiCC
+MACH_FC_MPI    = mpif90
+MACH_F90_MPI   = mpif90
+MACH_LD_MPI    = mpiCC
+
+# Without MPI
+
+MACH_CC_NOMPI  = gcc
+MACH_CXX_NOMPI = g++
+MACH_FC_NOMPI  = gfortran
+MACH_F90_NOMPI = gfortran
+MACH_LD_NOMPI  = g++
+
+#-----------------------------------------------------------------------
+# Machine-dependent defines
+#-----------------------------------------------------------------------
+
+MACH_DEFINES   = -DLINUX -DH5_USE_16_API 
+
+#-----------------------------------------------------------------------
+# Compiler flag settings
+#-----------------------------------------------------------------------
+
+MACH_CPPFLAGS = -P -traditional -H
+MACH_CFLAGS   = -H
+MACH_CXXFLAGS = -H
+MACH_FFLAGS   = -extend-source
+MACH_F90FLAGS = -extend-source
+#MACH_LDFLAGS  = -Wl,-noinhibit-exec -lifcore -lifport -lpthread -ldl
+MACH_LDFLAGS = -lgfortran
+
+#-----------------------------------------------------------------------
+# Precision-related flags
+#-----------------------------------------------------------------------
+
+MACH_FFLAGS_INTEGER_32 = -i4
+MACH_FFLAGS_INTEGER_64 = -i8
+MACH_FFLAGS_REAL_32    = -r4
+MACH_FFLAGS_REAL_64    = -r8
+
+#-----------------------------------------------------------------------
+# Optimization flags
+#-----------------------------------------------------------------------
+
+MACH_OPT_WARN        = -w2 -g
+MACH_OPT_DEBUG       = -O0 -g
+MACH_OPT_HIGH        = -O2
+MACH_OPT_AGGRESSIVE  = -O3 
+
+#-----------------------------------------------------------------------
+# Includes
+#-----------------------------------------------------------------------
+
+LOCAL_INCLUDES_MPI    = # MPI includes
+LOCAL_INCLUDES_HDF5   = -I$(LOCAL_HDF5_INSTALL)/include # HDF5 includes
+LOCAL_INCLUDES_HYPRE  = # hypre includes
+LOCAL_INCLUDES_PAPI   = # PAPI includes
+LOCAL_INCLUDES_GRACKLE = -I$(LOCAL_GRACKLE_INSTALL)/include
+
+MACH_INCLUDES         = $(LOCAL_INCLUDES_HDF5)
+MACH_INCLUDES_MPI     = $(LOCAL_INCLUDES_MPI)
+MACH_INCLUDES_HYPRE   = $(LOCAL_INCLUDES_HYPRE)
+MACH_INCLUDES_PAPI    = $(LOCAL_INCLUDES_PAPI)
+MACH_INCLUDES_GRACKLE  = $(LOCAL_INCLUDES_GRACKLE)
+
+#-----------------------------------------------------------------------
+# Libraries
+#-----------------------------------------------------------------------
+
+LOCAL_LIBS_MPI    = # MPI libraries
+LOCAL_LIBS_HDF5   = -L$(LOCAL_HDF5_INSTALL)/lib -lhdf5 -lz # HDF5 libraries
+LOCAL_LIBS_HYPRE  = # hypre libraries
+LOCAL_LIBS_PAPI   = # PAPI libraries
+#LOCAL_LIBS_MACH   = -lcilkrts -lifcore -lifport -lgfortran
+LOCAL_LIBS_MACH   = -lgfortran
+LOCAL_LIBS_GRACKLE = -L$(LOCAL_GRACKLE_INSTALL)/lib -lgrackle
+
+MACH_LIBS         = $(LOCAL_LIBS_HDF5) $(LOCAL_LIBS_MACH)
+MACH_LIBS_MPI     = $(LOCAL_LIBS_MPI)
+MACH_LIBS_HYPRE   = $(LOCAL_LIBS_HYPRE)
+MACH_LIBS_PAPI    = $(LOCAL_LIBS_PAPI)
+MACH_LIBS_GRACKLE = $(LOCAL_LIBS_GRACKLE)
