@@ -410,6 +410,23 @@ int grid::InterpolateFieldValues(grid *ParentGrid
       /* Copy needed portion of temp field to current grid. */
  
       if (BaryonField[field] == NULL)
+
+//	std::cerr << "\n[ALLOC WARNING] Attempting allocation in InterpolateFieldValues()\n";
+//	std::cerr << "  GridDimensions: " 
+//		<< GridDimension[0] << " x "
+//		<< GridDimension[1] << " x "
+//		<< GridDimension[2] << std::endl;
+
+//	std::cerr << "  GridSize: " << GridSize 
+//		<< " → Memory per field: " 
+//		<< (GridSize * sizeof(float)) / 1e6 << " MB" << std::endl;
+
+//	std::cerr << "  NumberOfBaryonFields: " << NumberOfBaryonFields 
+//		<< " → Total memory: " 
+//		<< (GridSize * NumberOfBaryonFields * sizeof(float)) / 1e9 << " GB" << std::endl;
+
+//	std::cerr << "  Field index currently allocating: " << field << std::endl;
+
 	BaryonField[field] = new float[GridSize];
       if (BaryonField[field] == NULL) {
 	ENZO_FAIL("malloc error (out of memory?)\n");
