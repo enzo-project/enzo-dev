@@ -157,9 +157,8 @@ int grid::SolveRateEquations()
   float *temperature = new float[size];
   if (this->ComputeTemperatureField(temperature) == FAIL) {
     ENZO_FAIL("Error in grid->ComputeTemperatureField.\n");
-
   }
- 
+
   /* Call the fortran routine to solve cooling equations. */
   int addRT = (RadiativeTransfer) || (RadiativeTransferFLD);
  

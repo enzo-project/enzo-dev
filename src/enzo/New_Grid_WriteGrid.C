@@ -357,6 +357,14 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
         }
     }
 
+    /* Write observed cost */
+
+    if (this->ObservedCost[0] > 0) {
+      hsize_t cost_size = MAX_COMPUTE_TIMERS;
+      writeArrayAttribute(group_id, HDF5_REAL, cost_size, "ObservedCost", 
+			  this->ObservedCost);
+    }
+
     if (VelAnyl==1){
 
       float *curl_x, *curl_y, *curl_z, *div;

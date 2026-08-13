@@ -293,5 +293,34 @@ what caused the problem.  A common problem is that you forgot to include the
 current location of the HDF5 libraries in your machine-specific
 makefile.
 
+
+Compiling with OpenMP
++++++++++++++++++++++
+
+Enzo supports multi-threading via OpenMP. To compile Enzo with OpenMP enabled:
+
+1. Enable OpenMP in the build configuration:
+
+   .. code-block:: none
+
+       ~/enzo/src/enzo $ make openmp-yes
+
+2. Ensure that your machine configuration file (``Make.mach.<machinename>``) includes the appropriate OpenMP compiler flags (typically ``-fopenmp`` for GCC/Clang, or ``-mp`` or ``-qopenmp`` for Intel/PGI compilers) in ``MACH_FFLAGS``, ``MACH_CCFLAGS``, ``MACH_CXXFLAGS``, and ``MACH_LDFLAGS``.
+
+3. Compile as usual with ``make``.
+
+You can check whether OpenMP is enabled by running ``make show-config``; you should see:
+
+.. code-block:: none
+
+    CONFIG_OPENMP  [openmp-{yes,no}]                          : yes
+
+To disable OpenMP, run:
+
+.. code-block:: none
+
+    ~/enzo/src/enzo $ make openmp-no
+
+
 Congratulations!  You now have a working executable and continue
 on the next step of running a test calculation.

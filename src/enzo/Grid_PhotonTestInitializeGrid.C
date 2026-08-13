@@ -853,8 +853,8 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
 	    BaryonField[HINum][n]   + BaryonField[HIINum][n]  +
 	    BaryonField[DeNum][n];
 	  if (MultiSpecies > 1)
-	    mu_data += BaryonField[HMNum][i]   +
-	      0.5*(BaryonField[H2INum][i]  + BaryonField[H2IINum][i]);
+	    mu_data += BaryonField[HMNum][n]   +
+	      0.5*(BaryonField[H2INum][n]  + BaryonField[H2IINum][n]);
 	  mu_data = BaryonField[0][n] / mu_data;
 	} else
 	  mu_data = mu;

@@ -20,6 +20,8 @@
 #ifdef USE_MPI
 #include "mpi.h"
 #endif /* USE_MPI */
+
+#include "omp.h"
  
 #include <stdio.h>
 #include <string.h>
@@ -171,15 +173,15 @@ int CommunicationCollectParticles(LevelHierarchyEntry *LevelArray[],
     int ZeroOnAllProcs = (ParticlesAreLocal) ? FALSE : TRUE;
 
     /* Count number of particles to move first to allocate memory */
-
+#pragma omp parallel for default(shared) private(Subgrid, ThisID) reduction(+:NumberToMove[:NumberOfProcessors], StarsToMove[:NumberOfProcessors], APNumberToMove[:NumberOfProcessors])
     for (j = 0; j < NumberOfGrids; j++)
       if (GridHierarchyPointer[j]->NextGridNextLevel != NULL) {
-
+ 
         if (GridHierarchyPointer[j]->GridData->ReturnNumberOfParticles() == 0 &&
             GridHierarchyPointer[j]->GridData->ReturnNumberOfStars() == 0 &&
             GridHierarchyPointer[j]->GridData->ReturnNumberOfActiveParticles() == 0)
           continue;
-
+ 
         GridHierarchyPointer[j]->GridData->
           ZeroSolutionUnderSubgrid(NULL, ZERO_UNDER_SUBGRID_FIELD, 1.0, 
                                    ZeroOnAllProcs);
@@ -188,8 +190,8 @@ int CommunicationCollectParticles(LevelHierarchyEntry *LevelArray[],
              Subgrid; Subgrid = Subgrid->NextGridThisLevel) {
           ThisID = Subgrid->GridData->GetGridID();
           GridHierarchyPointer[j]->GridData->ZeroSolutionUnderSubgrid
-            (Subgrid->GridData, ZERO_UNDER_SUBGRID_FIELD, float(ThisID+1),
-             ZeroOnAllProcs);
+             (Subgrid->GridData, ZERO_UNDER_SUBGRID_FIELD, float(ThisID+1),
+              ZeroOnAllProcs);
         }
         
         if (MoveStars)
@@ -210,9 +212,10 @@ int CommunicationCollectParticles(LevelHierarchyEntry *LevelArray[],
            SendList, KeepLocal, ParticlesAreLocal, COPY_OUT, FALSE, TRUE);
         
       } // ENDIF subgrids exist
-    
+//end omp parallel for
+ 
     /* Now allocate the memory once and store the particles to move */
-
+ 
     TotalNumber = 0;
     TotalStars  = 0;
     for (j = 0; j < NumberOfProcessors; j++) {
@@ -225,7 +228,12 @@ int CommunicationCollectParticles(LevelHierarchyEntry *LevelArray[],
     }
     SendList = new particle_data[TotalNumber];
     StarSendList = new star_data[TotalStars];
-
+ 
+int ParticleCounter = 0;
+int StarCounter = 0;
+int APCounter = 0;
+//printf("Particle Counter reset 1\n");
+#pragma omp parallel for default(shared) reduction(+:NumberToMove[:NumberOfProcessors], StarsToMove[:NumberOfProcessors], APNumberToMove[:NumberOfProcessors])
     for (j = 0; j < NumberOfGrids; j++)
       if (GridHierarchyPointer[j]->NextGridNextLevel != NULL) {
 
@@ -236,18 +244,18 @@ int CommunicationCollectParticles(LevelHierarchyEntry *LevelArray[],
 
 
         GridHierarchyPointer[j]->GridData->TransferSubgridStars
-            (SubgridPointers, NumberOfSubgrids, StarsToMove, Zero, Zero,
+            (SubgridPointers, NumberOfSubgrids, StarsToMove, StarCounter, Zero,
              StarSendList, KeepLocal, ParticlesAreLocal, COPY_OUT, FALSE, FALSE);
 
     GridHierarchyPointer[j]->GridData->TransferSubgridActiveParticles
-        (SubgridPointers, NumberOfSubgrids, APNumberToMove, Zero, Zero,
+        (SubgridPointers, NumberOfSubgrids, APNumberToMove, APCounter, Zero,
          APSendList, KeepLocal, ParticlesAreLocal, COPY_OUT, FALSE, FALSE);
     
 	GridHierarchyPointer[j]->GridData->TransferSubgridParticles
-	    (SubgridPointers, NumberOfSubgrids, NumberToMove, Zero, Zero, 
+	    (SubgridPointers, NumberOfSubgrids, NumberToMove, ParticleCounter, Zero, Zero, 
 	     SendList, KeepLocal, ParticlesAreLocal, COPY_OUT, FALSE, FALSE);
- 
       } // ENDIF subgrids exist
+//end omp parallel for
 
     /* Now we have a list of particles to move to subgrids.  If
        specified, we communicate them with all processors.  If not,

@@ -26,18 +26,18 @@
  
 /* function prototypes */
  
-static int GridEnds[MAX_NUMBER_OF_SUBGRIDS][2];
- 
 int IdentifyNewSubgridsBySignature(ProtoSubgrid *SubgridList[],
 				   int &NumberOfSubgrids)
 {
  
   int dim, i, j, NumberOfNewGrids;
   ProtoSubgrid *NewSubgrid, *Subgrid;
+  int (*GridEnds)[2] = new int[MAX_NUMBER_OF_SUBGRIDS][2];
  
   /* Loop over all the grids in the queue SubgridList. */
-
+ 
   if ( NumberOfSubgrids > MAX_NUMBER_OF_SUBGRIDS ) {
+    delete [] GridEnds;
     ENZO_VFAIL("PE %"ISYM" NumberOfSubgrids > MAX_NUMBER_OF_SUBGRIDS in IdentifyNewSubgridsBySignature\n", MyProcessorNumber)
   }
  
@@ -198,11 +198,10 @@ int IdentifyNewSubgridsBySignature(ProtoSubgrid *SubgridList[],
  
     Subgrid->CleanUp();
  
-    /* Go to the next grid in the queue. */
- 
     index++;
  
   } // end: while (index < NumberOfSubgrids)
  
+  delete [] GridEnds;
   return SUCCESS;
 }

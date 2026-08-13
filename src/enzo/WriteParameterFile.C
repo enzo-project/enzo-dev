@@ -344,7 +344,6 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
      // There's probably a better way to do this.
   fprintf(fptr, "ActiveParticleDensityThreshold = %"GSYM"\n",
 	  ActiveParticleDensityThreshold);
-  fprintf(fptr, "SmartStarAccretion             = %"ISYM"\n", SmartStarAccretion);
   fprintf(fptr, "SmartStarFeedback              = %"ISYM"\n", SmartStarFeedback);
   fprintf(fptr, "SmartStarEddingtonCap          = %"ISYM"\n", SmartStarEddingtonCap);
   fprintf(fptr, "SmartStarBHFeedback              = %"ISYM"\n", SmartStarBHFeedback);
@@ -382,6 +381,8 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
 	  MetallicityRefinementMinMetallicity);
   fprintf(fptr, "MetallicityRefinementMinDensity     = %"GSYM"\n", 
 	  MetallicityRefinementMinDensity);
+  fprintf(fptr, "MetallicityForRefinement            = %"GSYM"\n", 
+	  MetallicityForRefinement);
  
   fprintf(fptr, "DomainLeftEdge         = ");
   WriteListOfFloats(fptr, MetaData.TopGridRank, DomainLeftEdge);
@@ -770,6 +771,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "UnigridTranspose                = %"ISYM"\n", UnigridTranspose);
   fprintf(fptr, "NumberOfRootGridTilesPerDimensionPerProcessor = %"ISYM"\n", 
 	  NumberOfRootGridTilesPerDimensionPerProcessor);
+  fprintf(fptr, "HybridParallelRootGridSplit     = %"ISYM"\n", HybridParallelRootGridSplit);
   fprintf(fptr, "PartitionNestedGrids            = %"ISYM"\n", PartitionNestedGrids);
   fprintf(fptr, "ExtractFieldsOnly               = %"ISYM"\n", ExtractFieldsOnly);
   fprintf(fptr, "CubeDumpEnabled                 = %"ISYM"\n", CubeDumpEnabled);
@@ -906,8 +908,11 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
 	  StarParticleFeedback);
   fprintf(fptr, "StarParticleRadiativeFeedback         = %"ISYM"\n",
 	  StarParticleRadiativeFeedback);
+  fprintf(fptr, "StarMakerUsePhysicalDensityThreshold  = %"ISYM"\n",
+	  StarMakerUsePhysicalDensityThreshold);
   fprintf(fptr, "NumberOfParticleAttributes            = %"ISYM"\n",
 	  NumberOfParticleAttributes);
+
 
     /* Sink particles (for present day star formation) & winds */
   fprintf(fptr, "SinkMergeDistance                     = %"FSYM"\n", 

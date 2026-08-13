@@ -87,15 +87,19 @@ int grid::SolvePPM_DE(int CycleNumber, int NumberOfSubgrids,
 
     // Update in x-direction
     if ((n % GridRank == 0) && nxz > 1) {
-      if (UseCUDA == 0) 
-	for (k = 0; k < GridDimension[2]; k++) {
-	  if (this->xEulerSweep(k, NumberOfSubgrids, SubgridFluxes, 
-				GridGlobalStart, CellWidthTemp, GravityOn, 
-				NumberOfColours, colnum, Pressure) == FAIL) {
-	    ENZO_VFAIL("Error in xEulerSweep.  k = %d\n", k)
-	      }
-	} // ENDFOR k
-      else {
+      if (UseCUDA == 0) {
+#pragma omp parallel for shared(NumberOfSubgrids, SubgridFluxes, GridGlobalStart, \
+				CellWidthTemp, GravityOn, NumberOfColours, \
+ 				colnum, Pressure) default(none) schedule(static) \
+                private(current_error)
+      for (k = 0; k < GridDimension[2]; k++) {
+	if (this->xEulerSweep(k, NumberOfSubgrids, SubgridFluxes, 
+			      GridGlobalStart, CellWidthTemp, GravityOn, 
+			      NumberOfColours, colnum, Pressure) == FAIL) {
+	  ENZO_VFAIL("Error in xEulerSweep.  k = %d\n", k)
+	}
+      } // ENDFOR k
+      } else {
 #ifdef ECUDA
         cuPPMSweep(PPMData, PPMPara, dtFixed, 0);
         cuPPMSaveSubgridFluxes(SubgridFluxes, NumberOfSubgrids, 
@@ -106,15 +110,20 @@ int grid::SolvePPM_DE(int CycleNumber, int NumberOfSubgrids,
 
     // Update in y-direction
     if ((n % GridRank == 1) && nyz > 1) {
-      if (UseCUDA == 0) 
-	for (i = 0; i < GridDimension[0]; i++) {
-	  if (this->yEulerSweep(i, NumberOfSubgrids, SubgridFluxes, 
-				GridGlobalStart, CellWidthTemp, GravityOn, 
-				NumberOfColours, colnum, Pressure) == FAIL) {
-	    ENZO_VFAIL("Error in yEulerSweep.  i = %d\n", i)
-	      }
-	} // ENDFOR i
-      else {
+      if (UseCUDA == 0) {
+#pragma omp parallel for shared(NumberOfSubgrids, SubgridFluxes, GridGlobalStart, \
+				CellWidthTemp, GravityOn, NumberOfColours, \
+				colnum, Pressure) default(none) \
+                private(current_error)
+
+      for (i = 0; i < GridDimension[0]; i++) {
+	if (this->yEulerSweep(i, NumberOfSubgrids, SubgridFluxes, 
+			      GridGlobalStart, CellWidthTemp, GravityOn, 
+			      NumberOfColours, colnum, Pressure) == FAIL) {
+	  ENZO_VFAIL("Error in yEulerSweep.  i = %d\n", i)
+	}
+      } // ENDFOR i
+      } else {
 #ifdef ECUDA
         cuPPMSweep(PPMData, PPMPara, dtFixed, 1);
         cuPPMSaveSubgridFluxes(SubgridFluxes, NumberOfSubgrids, 
@@ -123,17 +132,21 @@ int grid::SolvePPM_DE(int CycleNumber, int NumberOfSubgrids,
       }
     } // ENDIF y-direction
       
-      // Update in z-direction
+    // Update in z-direction
     if ((n % GridRank == 2) && nzz > 1) {
       if (UseCUDA == 0) 
-	for (j = 0; j < GridDimension[1]; j++) {
-	  if (this->zEulerSweep(j, NumberOfSubgrids, SubgridFluxes, 
-				GridGlobalStart, CellWidthTemp, GravityOn, 
-				NumberOfColours, colnum, Pressure) == FAIL) {
-	    ENZO_VFAIL("Error in zEulerSweep.  j = %d\n", j)
+#pragma omp parallel for shared(NumberOfSubgrids, SubgridFluxes, GridGlobalStart, \
+				CellWidthTemp, GravityOn, NumberOfColours, \
+				colnum, Pressure) default(none) \
+                private(current_error)
 
-	      }
-	} // ENDFOR j
+      for (j = 0; j < GridDimension[1]; j++) {
+	if (this->zEulerSweep(j, NumberOfSubgrids, SubgridFluxes, 
+			      GridGlobalStart, CellWidthTemp, GravityOn, 
+			      NumberOfColours, colnum, Pressure) == FAIL) {
+	  ENZO_VFAIL("Error in zEulerSweep.  j = %d\n", j);
+	}
+      } // ENDFOR j
       else {
 #ifdef ECUDA
 	cuPPMSweep(PPMData, PPMPara, dtFixed, 2);

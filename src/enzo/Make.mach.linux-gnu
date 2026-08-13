@@ -63,6 +63,9 @@ MACH_FC_NOMPI  = gfortran # Fortran 77 compiler when not using MPI
 MACH_F90_NOMPI = gfortran # Fortran 90 compiler when not using MPI
 MACH_LD_NOMPI  = g++ # Linker when not using MPI
 
+# OpenMP compiler flag
+MACH_OPENMP    = -fopenmp
+
 #-----------------------------------------------------------------------
 # Machine-dependent defines
 #-----------------------------------------------------------------------

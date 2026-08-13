@@ -16,7 +16,8 @@
  
 #include <stdio.h>
 #include <string.h>
- 
+
+#include "EnzoTiming.h"
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
@@ -38,8 +39,8 @@
   GlobalCommunication += endtime-starttime;	\
   CommunicationTime += endtime-starttime;
 #else
-#define START_TIMING ;
-#define END_TIMING ;
+#define START_TIMING TIMER_START("Communication");
+#define END_TIMING TIMER_STOP("Communication");
 #endif
 
  

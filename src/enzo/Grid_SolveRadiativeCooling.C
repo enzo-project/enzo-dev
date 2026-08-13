@@ -119,8 +119,9 @@ int grid::SolveRadiativeCooling()
   /* Compute size (in floats) of the current grid. */
  
   int i, dim, size = 1;
-  for (dim = 0; dim < GridRank; dim++)
+  for (dim = 0; dim < GridRank; dim++) {
     size *= GridDimension[dim];
+  }
  
   /* Find fields: density, total energy, velocity1-3. */
  

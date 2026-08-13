@@ -207,7 +207,7 @@ int grid::InterpolateFieldValues(grid *ParentGrid
       if (ParentStartIndex[dim] < 0 ||
           ParentStartIndex[dim]+ParentTempDim[dim] >
           ParentGrid->GridDimension[dim]) {
-        ENZO_VFAIL("Parent grid not big enough for interpolation!  ParentStartIndex[%"ISYM"] = %"ISYM"  ParentTempDim = %"ISYM"\n", dim, ParentStartIndex[dim], ParentTempDim[dim])
+        ENZO_VFAIL("Parent grid not big enough for interpolation!  ParentStartIndex[%"ISYM"] = %"ISYM"  ParentTempDim = %"ISYM"\n"  "GridDimension[%"ISYM"] = %"ISYM"", dim, ParentStartIndex[dim], ParentTempDim[dim], dim, ParentGrid->GridDimension[dim])
       }
  
       /* Compute the dimensions of the current grid temporary field. */

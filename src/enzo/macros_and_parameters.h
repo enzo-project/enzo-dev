@@ -102,6 +102,8 @@
 
 #define MAX_CROSS_SECTIONS                  4
 
+#define MAX_COMPUTE_TIMERS                  5
+
 #define ROOT_PROCESSOR                      0
 
 #define VERSION                             2.6  /* current version number */
@@ -648,5 +650,17 @@ typedef long long int   HDF5_hid_t;
 #define TIME_MSG(A) ;
 #endif
 
+/* Timing macros for load balancing */
+#ifdef USE_MPI
+#define START_GRID_TIMER double _mpi_time = MPI_Wtime();
+#define END_GRID_TIMER(A) this->ObservedCost[A] += MPI_Wtime() - _mpi_time;
+#define START_LOAD_TIMER double _mpi_time = MPI_Wtime();
+#define END_LOAD_TIMER(A,B) A->AddToCost(B,MPI_Wtime() - _mpi_time);
+#else
+#define START_GRID_TIMER ;
+#define END_GRID_TIMER(A) ;
+#define START_LOAD_TIMER ;
+#define END_LOAD_TIMER(A,B) ;
+#endif  
 
 #endif

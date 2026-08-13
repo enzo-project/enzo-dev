@@ -17,7 +17,6 @@
 #include <stdio.h>
 #include <math.h>
 #include "ErrorExceptions.h"
-#include "phys_constants.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -28,6 +27,7 @@
 #include "Hierarchy.h"
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
+#include "phys_constants.h"
 
 float ReturnValuesFromSpectrumTable(float ColumnDensity, float dColumnDensity, int mode);
 float CalculateRotationalPhotonRates(float Mass, float age, int species);

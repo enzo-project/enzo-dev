@@ -67,9 +67,10 @@ MACH_DEFINES   = -DNO_IO_LOG -DSYSCALL -DH5_USE_16_API -DLINUX
 MACH_CPPFLAGS = -P -traditional
 MACH_CFLAGS   = 
 MACH_CXXFLAGS = 
-MACH_FFLAGS   = -fno-second-underscore -m64
+MACH_FFLAGS   = -fno-second-underscore -m64 -ffixed-line-length-132
 MACH_F90FLAGS = -fno-second-underscore -m64
 MACH_LDFLAGS  = -Bstatic
+MACH_OPENMP    = -fopenmp
 
 #-----------------------------------------------------------------------
 # Optimization flags

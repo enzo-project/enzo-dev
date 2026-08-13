@@ -116,9 +116,9 @@ int StarParticleFindAll(LevelHierarchyEntry *LevelArray[], Star *&AllStars)
   /*                                             */
   /***********************************************/
 
+#ifdef USE_MPI
   if (NumberOfProcessors > 1) {
 
-#ifdef USE_MPI
     if (FirstTimeCalled) {
       MPI_Type_contiguous(sizeof(StarBuffer), MPI_BYTE, &MPI_STAR);
       MPI_Type_commit(&MPI_STAR);
@@ -226,9 +226,10 @@ int StarParticleFindAll(LevelHierarchyEntry *LevelArray[], Star *&AllStars)
 
     delete [] nCount;
     delete [] displace;
-#endif /* USE_MPI */
   }  /* ENDIF NumberOfProcessors > 1 */
-  else {
+  else
+#endif /* USE_MPI */
+  {
     TotalNumberOfStars = LocalNumberOfStars;
     AllStars = LocalStars;
   }

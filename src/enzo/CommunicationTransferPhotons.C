@@ -72,11 +72,6 @@ int CommunicationTransferPhotons(LevelHierarchyEntry *LevelArray[],
     Mover = (*AllPhotons)->NextPackageToMove;
     while (Mover != NULL) {  // insert PhotonPackage in the correct grid
 
-      ToGridNumber = Mover->ToGrid->ReturnNumberOfPhotonPackages();
-      FromGridNumber = Mover->FromGrid->ReturnNumberOfPhotonPackages();
-      Mover->ToGrid->SetNumberOfPhotonPackages(ToGridNumber+1);
-      Mover->FromGrid->SetNumberOfPhotonPackages(FromGridNumber-1);
-
       if (Mover->PausedPhoton == FALSE)
 	ToGridPackages = Mover->ToGrid->ReturnPhotonPackagePointer();
       else
@@ -182,11 +177,6 @@ int CommunicationTransferPhotons(LevelHierarchyEntry *LevelArray[],
 
     if (ToProc == MyProcessorNumber) {
 
-      ToGridNumber = Mover->ToGrid->ReturnNumberOfPhotonPackages();
-      FromGridNumber = Mover->FromGrid->ReturnNumberOfPhotonPackages();
-      Mover->ToGrid->SetNumberOfPhotonPackages(ToGridNumber+1);
-      Mover->FromGrid->SetNumberOfPhotonPackages(FromGridNumber-1);
-
       if (Mover->PausedPhoton == FALSE)
 	ToGridPackages = Mover->ToGrid->ReturnPhotonPackagePointer();
       else
@@ -242,11 +232,6 @@ int CommunicationTransferPhotons(LevelHierarchyEntry *LevelArray[],
 	SendList[ToProc][ToCount].buffer.SuperSourceID = -1;
 
       PhotonCounter[ToProc]++;
-
-      /* Update photon count */
-
-      FromNumber = Mover->FromGrid->ReturnNumberOfPhotonPackages();
-      Mover->FromGrid->SetNumberOfPhotonPackages(FromNumber-1);
 
 //      printf("CTPh(P%"ISYM"): Photon %"ISYM" (=>P%"ISYM") :: lvl %"ISYM", grid %"ISYM", srcid=%"ISYM", L = %"GSYM"\n",
 //	     MyProcessorNumber, ToCount, ToProc, TempLevel, TempGridNum,

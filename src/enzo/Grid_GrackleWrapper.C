@@ -171,6 +171,10 @@ int grid::GrackleWrapper()
   */
   if (MetalPointer != NULL) {
     for (i = 0; i < size; i++) {
+      if (MetalPointer[i] > BaryonField[DensNum][i]) {
+        ENZO_VFAIL("Metal density (%e) exceeds total density (%e) at cell %d!\n",
+                   MetalPointer[i], BaryonField[DensNum][i], i);
+      }
       MetalPointer[i] = min(MetalPointer[i], 0.9 * BaryonField[DensNum][i]);
     }
   }
@@ -285,6 +289,14 @@ int grid::GrackleWrapper()
   if (solve_chemistry(&grackle_units, &my_fields, (double) dt_cool) == FAIL){
     fprintf(stderr, "Error in Grackle solve_chemistry.\n");
     return FAIL;
+  }
+
+  /* Check for NaN in fields returned by Grackle */
+  for (i = 0; i < size; i++) {
+    if (BaryonField[DensNum][i] != BaryonField[DensNum][i] ||
+        thermal_energy[i] != thermal_energy[i]) {
+      ENZO_FAIL("NaN detected in baryon fields (density or energy) after Grackle solve_chemistry!");
+    }
   }
 
   if (HydroMethod != Zeus_Hydro) {

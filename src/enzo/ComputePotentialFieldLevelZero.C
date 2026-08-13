@@ -289,7 +289,9 @@ int ComputePotentialFieldLevelZeroPer(TopGridData *MetaData,
       /* In periodic case, the Greens function is purely real. */
 
       if (MetaData->GravityBoundary == TopGridPeriodic) {
-	for (n = 0, j = 0; j < size; j += 2, n++) {
+#pragma omp parallel for
+	for (j = 0; j < size; j += 2) {
+	  int n = j / 2;
 	  OutRegion[i].Data[j  ] *= coef*GreensRegion[i].Data[n];
 	  OutRegion[i].Data[j+1] *= coef*GreensRegion[i].Data[n];
 	}
@@ -301,6 +303,7 @@ int ComputePotentialFieldLevelZeroPer(TopGridData *MetaData,
 
       if (MetaData->GravityBoundary == TopGridIsolated) {
 	float real_part, imag_part;
+#pragma omp parallel for private(real_part, imag_part)
 	for (j = 0; j < size; j += 2) {
 	  real_part = OutRegion[i].Data[j  ]*GreensRegion[i].Data[j  ] -
 	              OutRegion[i].Data[j+1]*GreensRegion[i].Data[j+1];

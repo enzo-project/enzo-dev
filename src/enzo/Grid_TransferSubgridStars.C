@@ -31,7 +31,7 @@ Star* StarBufferToList(StarBuffer buffer);
 void InsertStarAfter(Star * &Node, Star * &NewNode);
  
 int grid::TransferSubgridStars(grid* Subgrids[], int NumberOfSubgrids, 
-			       int* &NumberToMove, int StartIndex, 
+			       int* &NumberToMove, int &Counter, 
 			       int EndIndex, star_data* &List, 
 			       bool KeepLocal, bool ParticlesAreLocal,
 			       int CopyDirection, int IncludeGhostZones,
@@ -135,7 +135,9 @@ int grid::TransferSubgridStars(grid* Subgrids[], int NumberOfSubgrids,
 
       /* Move stars */
 
-      n1 = PreviousTotalToMove;
+#pragma omp critical
+{
+      n1 = Counter;
       NumberOfStars = 0;
       cstar = Stars;
       Stars = NULL;
@@ -163,6 +165,8 @@ int grid::TransferSubgridStars(grid* Subgrids[], int NumberOfSubgrids,
 	i++;
 
       } // ENDWHILE stars
+      Counter = n1;
+} // END omp critical
 
     } // ENDIF stars to move
 
@@ -178,14 +182,14 @@ int grid::TransferSubgridStars(grid* Subgrids[], int NumberOfSubgrids,
     /* Count up total number. */
  
     int TotalNumberOfStars;
-    int NumberOfNewStars = EndIndex - StartIndex;
+    int NumberOfNewStars = EndIndex - Counter;
 
     TotalNumberOfStars = NumberOfStars + NumberOfNewStars;
  
     /* Copy stars from buffer into linked list */
     
     if (NumberOfNewStars > 0)
-      for (i = StartIndex; i < EndIndex; i++) {
+      for (i = Counter; i < EndIndex; i++) {
 	MoveStar = StarBufferToList(List[i].data);
 	MoveStar->GridID = List[i].grid;
 	MoveStar->CurrentGrid = this;

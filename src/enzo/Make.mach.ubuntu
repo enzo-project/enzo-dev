@@ -63,6 +63,7 @@ MACH_CXXFLAGS =
 MACH_FFLAGS   = -std=legacy -fno-second-underscore -ffixed-line-length-132
 MACH_F90FLAGS = -std=legacy -fno-second-underscore
 MACH_LDFLAGS  = 
+MACH_OPENMP   = -fopenmp 
 
 #-----------------------------------------------------------------------
 # Optimization flags

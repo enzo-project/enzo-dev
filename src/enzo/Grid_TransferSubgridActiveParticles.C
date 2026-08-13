@@ -28,7 +28,7 @@
 #include "ActiveParticle.h"
 
 int grid::TransferSubgridActiveParticles
-(grid* Subgrids[], int NumberOfSubgrids, int* &NumberToMove, int StartIndex, 
+(grid* Subgrids[], int NumberOfSubgrids, int* &NumberToMove, int &Counter, 
  int EndIndex, ActiveParticleList<ActiveParticleType> &List, bool KeepLocal, 
  bool ParticlesAreLocal, int CopyDirection, int IncludeGhostZones, 
  int CountOnly)
@@ -145,7 +145,9 @@ int grid::TransferSubgridActiveParticles
 
       /* Move particles from grid array to a separate list. */
 
-      n1 = PreviousTotalToMove;
+#pragma omp critical
+{
+      n1 = Counter;
       
       for (i = 0; i < NumberOfActiveParticles; i++) {
         if (subgrid[i] >= 0) {
@@ -166,6 +168,8 @@ int grid::TransferSubgridActiveParticles
       ActiveParticles.delete_marked_particles();
 
       NumberOfActiveParticles = ParticlesLeft;
+      Counter = n1;
+} // END omp critical
 
     } // ENDIF stars to move
 
@@ -180,7 +184,7 @@ int grid::TransferSubgridActiveParticles
 
     /* Count up total number. */
  
-    int NumberOfNewActiveParticles = EndIndex - StartIndex;
+    int NumberOfNewActiveParticles = EndIndex - Counter;
 
     /* Copy stars from buffer into linked list */
     
@@ -188,10 +192,10 @@ int grid::TransferSubgridActiveParticles
 
       // Increase the level if moving to a subgrid
 //      if (IncludeGhostZones == FALSE)
-//	for (i = StartIndex; i < EndIndex; i++) {
+//	for (i = Counter; i < EndIndex; i++) {
 //	}
       
-      this->AddActiveParticles(List, StartIndex, EndIndex);
+      this->AddActiveParticles(List, Counter, EndIndex);
 
     } // ENDIF new particles
 

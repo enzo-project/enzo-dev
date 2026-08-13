@@ -103,7 +103,7 @@ int CreateSourceClusteringTree(int nShine, SuperSourceData *SourceList,
     OldSourceClusteringTree = SourceClusteringTree;
     SourceClusteringTree = NULL;
 
-  } // ENDIF SourceList == NULL (first time)  
+  } // ENDIF SourceList == NULL (first time)
 
   /* Calculate "center of light" first and assign it to the tree. */
 
@@ -213,8 +213,9 @@ int CreateSourceClusteringTree(int nShine, SuperSourceData *SourceList,
     nleft = (nShine+1)/2;
     nright = nShine-nleft;
   }
+
   /* Divide into children if there are more than one source */
-  
+
   if (nShine > 2) {
 
     // Left leaf (copy to temp, make tree, copy back)

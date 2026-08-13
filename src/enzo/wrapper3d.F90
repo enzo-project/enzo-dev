@@ -31,22 +31,35 @@
       n(2) = 1
       n(3) = 1
 
+!$omp parallel do &
+!$omp  collapse(2) &
+!$omp  private(j, k) &
+!$omp  shared(n2,n3, x, n, dir) &
+!$omp  default(none)
       do k=1,n3
       do j=1,n2
       call fftwrap3d( x(1,j,k), n, dir, method )
       end do
       end do
+!$omp end parallel do
 
       allocate( y(n2,n3,n1) )
 
       call rotate3d(x,n1,n2,n3,y)
 
       n(1) = n2
+
+!$omp parallel do &
+!$omp  collapse(2) &
+!$omp  private(i, k) &
+!$omp  shared(n1,n3, y, n, dir) &
+!$omp  default(none)
       do i=1,n1
       do k=1,n3
       call fftwrap3d( y(1,k,i), n, dir, method )
       end do
       end do
+!$omp end parallel do
 
       allocate( z(n3,n1,n2) )
 
@@ -55,11 +68,18 @@
       deallocate( y)
 
       n(1) = n3
+
+!$omp parallel do &
+!$omp  collapse(2) &
+!$omp  private(i, k) &
+!$omp  shared(n1,n2, z, n, dir) &
+!$omp  default(none)
       do j=1,n2
       do i=1,n1
       call fftwrap3d( z(1,i,j), n, dir, method )
       end do
       end do
+!$omp end parallel do
 
       call rotate3d(z,n3,n1,n2,x)
 

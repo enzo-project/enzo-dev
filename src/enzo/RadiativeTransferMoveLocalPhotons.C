@@ -45,11 +45,6 @@ int RadiativeTransferMoveLocalPhotons(ListOfPhotonsToMove **AllPhotons,
   Mover = (*AllPhotons)->NextPackageToMove;
   while (Mover != NULL) {  
     if (MyProcessorNumber == Mover->ToGrid->ReturnProcessorNumber()) {
-      ToGridNumber = Mover->ToGrid->ReturnNumberOfPhotonPackages();
-      FromGridNumber = Mover->FromGrid->ReturnNumberOfPhotonPackages();
-      Mover->ToGrid->SetNumberOfPhotonPackages(ToGridNumber+1);
-      Mover->FromGrid->SetNumberOfPhotonPackages(FromGridNumber-1);
-
       if (Mover->PausedPhoton)
 	ToGridPackages = Mover->ToGrid->ReturnPausedPackagePointer();
       else

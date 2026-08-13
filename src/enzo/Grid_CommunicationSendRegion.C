@@ -64,7 +64,7 @@ int grid::CommunicationSendRegion(grid *ToGrid, int ToProcessor,int SendField,
 //      MyProcessorNumber != ToProcessor)
 //    return SUCCESS;
  
-  int index, field, dim, Zero[] = {0, 0, 0};
+  int i, index, field, dim, Zero[] = {0, 0, 0};
  
   // Compute size of region to transfer
  
@@ -76,6 +76,10 @@ int grid::CommunicationSendRegion(grid *ToGrid, int ToProcessor,int SendField,
  
   int RegionSize = RegionDim[0]*RegionDim[1]*RegionDim[2];
   int TransferSize = RegionSize * NumberOfFields;
+
+  // add for the observed performance cost
+  if (SendField == ALL_FIELDS, NewOrOld == NEW_ONLY)
+    TransferSize += 2*MAX_COMPUTE_TIMERS;
  
   /* MHD Dimension stuff */
 
@@ -118,7 +122,7 @@ int grid::CommunicationSendRegion(grid *ToGrid, int ToProcessor,int SendField,
  
     index = 0;
  
-    if (NewOrOld == NEW_AND_OLD || NewOrOld == NEW_ONLY)
+    if (NewOrOld == NEW_AND_OLD || NewOrOld == NEW_ONLY) {
       for (field = 0; field < max(NumberOfBaryonFields, SendField+1); field++)
 	if (field == SendField || SendField == ALL_FIELDS) {
 	  FORTRAN_NAME(copy3d)(BaryonField[field], &buffer[index],
@@ -128,6 +132,15 @@ int grid::CommunicationSendRegion(grid *ToGrid, int ToProcessor,int SendField,
 			       RegionStart, RegionStart+1, RegionStart+2);
 	  index += RegionSize;
 	}
+
+      // Send the observed cost for load balancing
+      if (NewOrOld == NEW_ONLY && SendField == ALL_FIELDS) {
+	for (i = 0; i < MAX_COMPUTE_TIMERS; i++) {
+	  buffer[index++] = this->ObservedCost[i];
+	  buffer[index++] = this->EstimatedCost[i];
+	}
+      }
+    }
  
     if (NewOrOld == NEW_AND_OLD || NewOrOld == OLD_ONLY)
       for (field = 0; field < max(NumberOfBaryonFields, SendField+1); field++)
@@ -298,10 +311,10 @@ int grid::CommunicationSendRegion(grid *ToGrid, int ToProcessor,int SendField,
 
     index = 0;
  
-    if (NewOrOld == NEW_AND_OLD || NewOrOld == NEW_ONLY)
+    if (NewOrOld == NEW_AND_OLD || NewOrOld == NEW_ONLY) {
       for (field = 0; field < max(NumberOfBaryonFields, SendField+1); field++)
 	if (field == SendField || SendField == ALL_FIELDS) {
-	  delete ToGrid->BaryonField[field];
+	  delete[] ToGrid->BaryonField[field];
 	  ToGrid->BaryonField[field] = new float[RegionSize];
 	  FORTRAN_NAME(copy3d)(&buffer[index], ToGrid->BaryonField[field],
 			       RegionDim, RegionDim+1, RegionDim+2,
@@ -310,11 +323,19 @@ int grid::CommunicationSendRegion(grid *ToGrid, int ToProcessor,int SendField,
 			       Zero, Zero+1, Zero+2);
 	  index += RegionSize;
 	}
+
+      if (NewOrOld == NEW_ONLY && SendField == ALL_FIELDS) {
+	for (i = 0; i < MAX_COMPUTE_TIMERS; i++) {
+	  this->ObservedCost[i] = buffer[index++];
+	  this->EstimatedCost[i] = buffer[index++];
+	}
+      }
+    }
  
     if (NewOrOld == NEW_AND_OLD || NewOrOld == OLD_ONLY)
       for (field = 0; field < max(NumberOfBaryonFields, SendField+1); field++)
 	if (field == SendField || SendField == ALL_FIELDS) {
-	  delete ToGrid->OldBaryonField[field];
+	  delete[] ToGrid->OldBaryonField[field];
 	  ToGrid->OldBaryonField[field] = new float[RegionSize];
 	  FORTRAN_NAME(copy3d)(&buffer[index], ToGrid->OldBaryonField[field],
 			       RegionDim, RegionDim+1, RegionDim+2,
@@ -365,7 +386,7 @@ int grid::CommunicationSendRegion(grid *ToGrid, int ToProcessor,int SendField,
     } // if( UseMHDCT && SendField == ALL_FIELDS )
 
     if (SendField == GRAVITATING_MASS_FIELD_PARTICLES) {
-      delete ToGrid->GravitatingMassFieldParticles;
+      delete[] ToGrid->GravitatingMassFieldParticles;
       ToGrid->GravitatingMassFieldParticles = new float[RegionSize];
       FORTRAN_NAME(copy3d)(buffer, ToGrid->GravitatingMassFieldParticles,
 			   RegionDim, RegionDim+1, RegionDim+2,
@@ -375,7 +396,7 @@ int grid::CommunicationSendRegion(grid *ToGrid, int ToProcessor,int SendField,
     }
  
     if (SendField == GRAVITATING_MASS_FIELD) {
-      delete ToGrid->GravitatingMassField;
+      delete[] ToGrid->GravitatingMassField;
       ToGrid->GravitatingMassField = new float[RegionSize];
       FORTRAN_NAME(copy3d)(buffer, ToGrid->GravitatingMassField,
     			   RegionDim, RegionDim+1, RegionDim+2,
@@ -385,7 +406,7 @@ int grid::CommunicationSendRegion(grid *ToGrid, int ToProcessor,int SendField,
     }
  
     if (SendField == POTENTIAL_FIELD) {
-      delete ToGrid->PotentialField;
+      delete[] ToGrid->PotentialField;
       ToGrid->PotentialField = new float[RegionSize];
       FORTRAN_NAME(copy3d)(buffer, ToGrid->PotentialField,
 			   RegionDim, RegionDim+1, RegionDim+2,
@@ -396,7 +417,7 @@ int grid::CommunicationSendRegion(grid *ToGrid, int ToProcessor,int SendField,
  
     if (SendField == ACCELERATION_FIELDS)
       for (dim = 0; dim < GridRank; dim++) {
-	delete ToGrid->AccelerationField[dim];
+	delete[] ToGrid->AccelerationField[dim];
 	ToGrid->AccelerationField[dim] = new float[RegionSize];
 	FORTRAN_NAME(copy3d)(&buffer[index], ToGrid->AccelerationField[dim],
 			     RegionDim, RegionDim+1, RegionDim+2,

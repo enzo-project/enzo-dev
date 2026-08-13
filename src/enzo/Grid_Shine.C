@@ -48,14 +48,17 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
   double vec[3];
   long long BasePackages = 0, NumberOfNewPhotonPackages = 0;
   int dim = 0;
+  int ipix, base_ipix, mod_ipix;
   int64_t ray = 0;
   int count = 0;
   int min_level = RadiativeTransferInitialHEALPixLevel;
+  int NumberOfThreads = NumberOfCores / NumberOfProcessors;
 
   /* base number of rays to star with: for min_level=2 this is 192
      photon packages per source */
 
   BasePackages = 12*(int)pow(4,min_level);
+  int PackagesPerThread = nint(ceil(float(BasePackages) / NumberOfThreads));
 
   /* If using a beamed source, calculate the minimum z-component of
      the ray normal (always beamed in the polar coordinate). */
@@ -106,7 +109,7 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
   if (RS->Type == Episodic) {
     const float sigma_inv = 4.0;
     float t = PhotonTime - RS->CreationTime + dtPhoton;
-    float frac = 2.0 * fabs(t - round(t/RS->RampTime) * RS->RampTime) /
+    float frac = 2.0 * fabs(t - nint(t/RS->RampTime) * RS->RampTime) /
       RS->RampTime;
     RampPercent = exp((frac-1)*sigma_inv);
   } // ENDIF episodic
@@ -194,6 +197,13 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
 
     /* Loop over each Ray */
     for (ray=0; ray<BasePackages; ray++) {
+
+      // Distribute pixel numbers by number of threads for better
+      // OpenMP load balancing
+      // e.g. 0, 4, 8, 1, 5, 9, 2, 6, 10, 3, 7, 11
+      base_ipix = (ray % PackagesPerThread) * NumberOfThreads;
+      mod_ipix = ray / PackagesPerThread;
+      ipix = base_ipix + mod_ipix;
 
       if (RS->Type == Beamed) {
 	pix2vec_nest64((int64_t) (1 << min_level), (int64_t) ray, vec);

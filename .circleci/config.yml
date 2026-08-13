@@ -34,14 +34,7 @@ commands:
             pip install --upgrade pip
             pip install --upgrade wheel
             pip install --upgrade setuptools
-            pip install Cython numpy h5py fastcache flake8 nose3 girder-client matplotlib pytest gitpython # yt
-            # Temporary workaround to use updated answer testing from the yt dev repository
-            # instead of pip until next yt point release
-            git clone https://github.com/yt-project/yt
-            cd yt
-            git checkout main
-            pip install -e .
-            cd ..
+            pip install Cython numpy h5py fastcache flake8 nose3 girder-client matplotlib pytest gitpython yt
             pip install yt_astro_analysis
             # Install hypre
             mkdir -p $HOME/local
@@ -200,13 +193,13 @@ jobs:
 
       - restore_cache:
           name: "Restore dependencies cache."
-          key: dependencies-v5
+          key: dependencies-v6
 
       - install-dependencies
 
       - save_cache:
           name: "Save dependencies cache"
-          key: dependencies-v5
+          key: dependencies-v6
           paths:
             - ~/.cache/pip
             - ~/venv
@@ -217,16 +210,16 @@ jobs:
 
       - restore_cache:
           name: "Restore test answers."
-          key: test-answers-v17
+          key: test-answers-v18
 
       - build-and-test:
-          tag: gold-standard-v17
+          tag: gold-standard-v18
           skipfile: ~/enzo_test/push_suite
           flags: --answer-store
 
       - save_cache:
           name: "Save test answers cache."
-          key: test-answers-v17
+          key: test-answers-v18
           paths:
             - ~/enzo_test/push_suite
 
@@ -251,13 +244,13 @@ jobs:
 
       - restore_cache:
           name: "Restore dependencies cache."
-          key: dependencies-v5
+          key: dependencies-v6
 
       - install-dependencies
 
       - save_cache:
           name: "Save dependencies cache"
-          key: dependencies-v5
+          key: dependencies-v6
           paths:
             - ~/.cache/pip
             - ~/venv

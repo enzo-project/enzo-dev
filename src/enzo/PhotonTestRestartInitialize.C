@@ -71,16 +71,16 @@ int PhotonTestRestartInitialize(FILE *fptr, FILE *Outfptr,
 
   char *PhotonTestRestartName = NULL;
 
-  int   PhotonTestNumberOfSources=1;
-  int   PhotonTestSourceType[MAX_SOURCES];
-  int   PhotonTestSourceEnergyBins[MAX_SOURCES];
-  double PhotonTestSourceLuminosity[MAX_SOURCES];
-  FLOAT PhotonTestSourcePosition[MAX_SOURCES][MAX_DIMENSION];
-  float PhotonTestSourceLifeTime[MAX_SOURCES];
-  float PhotonTestSourceCreationTime[MAX_SOURCES];
-  float PhotonTestSourceRampTime[MAX_SOURCES];
-  float *PhotonTestSourceSED[MAX_SOURCES];
-  float *PhotonTestSourceEnergy[MAX_SOURCES];
+  int*   PhotonTestSourceType = new int[MAX_SOURCES];
+  int*   PhotonTestSourceEnergyBins = new int[MAX_SOURCES];
+  double* PhotonTestSourceLuminosity = new double[MAX_SOURCES];
+  typedef FLOAT PosDim[MAX_DIMENSION];
+  PosDim* PhotonTestSourcePosition = new PosDim[MAX_SOURCES];
+  float* PhotonTestSourceLifeTime = new float[MAX_SOURCES];
+  float* PhotonTestSourceCreationTime = new float[MAX_SOURCES];
+  float* PhotonTestSourceRampTime = new float[MAX_SOURCES];
+  float** PhotonTestSourceSED = new float*[MAX_SOURCES];
+  float** PhotonTestSourceEnergy = new float*[MAX_SOURCES];
 
   // Set defaults
 
@@ -253,7 +253,16 @@ int PhotonTestRestartInitialize(FILE *fptr, FILE *Outfptr,
  
   /* Clean up. */
  
-  delete dummy;
+  delete [] PhotonTestSourceType;
+  delete [] PhotonTestSourceEnergyBins;
+  delete [] PhotonTestSourceLuminosity;
+  delete [] PhotonTestSourcePosition;
+  delete [] PhotonTestSourceLifeTime;
+  delete [] PhotonTestSourceCreationTime;
+  delete [] PhotonTestSourceRampTime;
+  delete [] PhotonTestSourceSED;
+  delete [] PhotonTestSourceEnergy;
+  delete [] dummy;
  
   return SUCCESS;
 }

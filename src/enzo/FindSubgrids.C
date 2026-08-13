@@ -12,6 +12,7 @@
  
 #include <stdio.h>
 #include <string.h>
+#include <vector>
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
@@ -29,11 +30,8 @@
 int IdentifyNewSubgridsBySignature(ProtoSubgrid *SubgridList[],
 				   int &NumberOfSubgrids);
  
-static ProtoSubgrid *SubgridList[MAX_NUMBER_OF_SUBGRIDS];
- 
- 
-int FindSubgrids(HierarchyEntry *Grid, int level, int &TotalFlaggedCells,
-		 int &FlaggedGrids)
+int FindSubgrids(HierarchyEntry *Grid,
+		 int level, int &TotalFlaggedCells, int &FlaggedGrids)
 {
  
   /* declarations */
@@ -111,6 +109,7 @@ int FindSubgrids(HierarchyEntry *Grid, int level, int &TotalFlaggedCells,
  
     /* Create the base ProtoSubgrid which contains the whole grid. */
  
+    std::vector<ProtoSubgrid*> SubgridList(MAX_NUMBER_OF_SUBGRIDS);
     int NumberOfSubgrids = 1;
     SubgridList[0] = new ProtoSubgrid;
     
@@ -125,9 +124,7 @@ int FindSubgrids(HierarchyEntry *Grid, int level, int &TotalFlaggedCells,
     /* Recursively break up this ProtoSubgrid and add new ones based on the
        flagged cells. */
  
-    if (IdentifyNewSubgridsBySignature(SubgridList, NumberOfSubgrids) == FAIL){
-      ENZO_FAIL("Error in IdentifyNewSubgridsBySignature.");
-    }
+    IdentifyNewSubgridsBySignature(SubgridList.data(), NumberOfSubgrids);
  
     /* For each subgrid, create a new grid based on the current grid (i.e.
        same parameters, etc.) */

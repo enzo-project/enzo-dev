@@ -80,3 +80,34 @@ int CommunicationSyncNumberOfParticles(HierarchyEntry *GridHierarchyPointer[],
   return SUCCESS;
 }
 
+/************************************************************************/
+
+int CommunicationSyncNumberOfParticles(grid *GridPointer[], int NumberOfGrids)
+{
+
+  int i, idx;
+  int *buffer = new int[2*NumberOfGrids];
+
+  for (i = 0, idx = 0; i < NumberOfGrids; i++, idx += 2)
+    if (GridPointer[i]->ReturnProcessorNumber() == MyProcessorNumber) {
+      buffer[idx] = GridPointer[i]->ReturnNumberOfParticles();
+      buffer[idx+1] = GridPointer[i]->ReturnNumberOfStars();
+    } else {
+      buffer[idx] = 0;
+      buffer[idx+1] = 0;
+    }
+
+#ifdef USE_MPI
+  CommunicationAllReduceValues(buffer, 2*NumberOfGrids, MPI_SUM);
+#endif
+
+  for (i = 0, idx = 0; i < NumberOfGrids; i++, idx += 2) {
+    GridPointer[i]->SetNumberOfParticles(buffer[idx]);
+    GridPointer[i]->SetNumberOfStars(buffer[idx+1]);
+  }
+
+  delete [] buffer;
+
+  return SUCCESS;
+}
+

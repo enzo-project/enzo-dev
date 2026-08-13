@@ -109,6 +109,8 @@ hub_url = 'https://girder.hub.yt/api/v1'
 # Files to be included when gathering results.
 results_gather = ['results', version_filename]
 
+options = None
+
 # If we are able to, let's grab the ~/.enzo/machine_config.py file.
 # try:
 #     f, filename, desc = imp.find_module("machine_config",
@@ -355,8 +357,9 @@ class EnzoTestCollection(object):
         test_spec['fullpath'] = fn
         test_spec['fulldir'] = os.path.dirname(fn)
         test_spec['run_par_file'] = os.path.basename(test_spec['fulldir']) + ".enzo"
+        time_mult = getattr(options, 'time_multiplier', 1.0)
         test_spec['run_walltime'] = _to_walltime(60 * test_spec['max_time_minutes'] * 
-                                                 options.time_multiplier)
+                                                 time_mult)
         for var, val in local_vars.items():
             if var in known_variables:
                 caster = known_variables[var]
@@ -445,7 +448,7 @@ class EnzoTestRun(object):
     def _copy_test_files(self):
         # Check for existence
         if os.path.exists(self.run_dir):
-            if options.clobber:
+            if getattr(options, 'clobber', False):
                 print("%s exists, but clobber == True, so overwriting it." % self.test_data['name'])
                 shutil.rmtree(self.run_dir)
                 shutil.copytree(self.test_data['fulldir'], self.run_dir)
@@ -506,14 +509,15 @@ class EnzoTestRun(object):
         # Run the command.
         proc = subprocess.Popen(command, shell=True, close_fds=True, 
                                 preexec_fn=os.setsid)
+        time_mult = getattr(options, 'time_multiplier', 1.0)
         print("Simulation started on %s with maximum run time of %d seconds." % \
             (time.ctime(), (self.test_data['max_time_minutes'] * 60 *
-                            options.time_multiplier)) )
+                            time_mult)) )
         running = 0
         # Kill the script if the max run time exceeded.
         while proc.poll() is None:
             if running > (self.test_data['max_time_minutes'] * 60 *
-                          options.time_multiplier):
+                          time_mult):
                 print("Simulation exceeded maximum run time.")
                 os.killpg(proc.pid, signal.SIGUSR1)
                 self.finished = False

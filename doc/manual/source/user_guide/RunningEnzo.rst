@@ -189,3 +189,57 @@ add more answer tests, especially for large production-type
 simulations, e.g. a 512\ :sup:`3` cosmology simulation.
 
 
+Running with OpenMP and Hybrid Parallelism
+------------------------------------------
+
+Enzo can be run with OpenMP multi-threading enabled to take advantage of multi-core processors. This can be done as a single-process threaded run (1 MPI process with multiple threads) or as a hybrid OpenMP+MPI run (multiple MPI processes with multiple threads per process).
+
+1. Running a Threaded Simulation (1 MPI Process)
+++++++++++++++++++++++++++++++++++++++++++++++++
+
+To run a threaded simulation with 1 MPI process, set the ``OMP_NUM_THREADS`` environment variable to the desired number of threads before launching Enzo. For example, to run with 4 threads:
+
+.. code-block:: none
+
+    ~ $ export OMP_NUM_THREADS=4
+    ~ $ ./enzo.exe parameter_file
+
+Alternatively, you can run it via ``mpirun`` with a single rank:
+
+.. code-block:: none
+
+    ~ $ export OMP_NUM_THREADS=4
+    ~ $ mpirun -np 1 ./enzo.exe parameter_file
+
+2. Running a Hybrid OpenMP+MPI Simulation
++++++++++++++++++++++++++++++++++++++++++
+
+To run Enzo in hybrid OpenMP+MPI mode, you combine MPI process launching (e.g., using ``mpirun`` or ``srun``) with the ``OMP_NUM_THREADS`` variable. 
+
+.. important::
+   Because command options and environment variable settings for CPU binding/affinity differ significantly between cluster schedulers (SLURM, PBS, LSF) and MPI implementations (OpenMPI, MPICH, Intel MPI), **users should consult their HPC machine's user guide/documentation** for specific guidance on running hybrid MPI+OpenMP jobs.
+
+As a general example, to run a simulation with 2 MPI processes and 6 threads per MPI process (using OpenMPI):
+
+.. code-block:: none
+
+    ~ $ export OMP_NUM_THREADS=6
+    ~ $ mpirun -np 2 --bind-to none ./enzo.exe parameter_file
+
+The flag ``--bind-to none`` (or equivalent for your MPI implementation) is critical to prevent the MPI launcher from binding each MPI process to a single CPU core, which would otherwise force all 6 threads of that process to compete for the same physical core.
+
+How and Where the Code Has Been Threaded
+++++++++++++++++++++++++++++++++++++++++
+
+OpenMP parallelization in Enzo is primarily implemented at the **grid level** inside the hierarchy solver (specifically, within the level evolution loop in ``EvolveLevel.C``). 
+
+Key threaded areas of the code include:
+- **Hydrodynamics / Gravity Solver:** Evolving independent grids in parallel on each refinement level.
+- **Chemistry and Cooling:** Computing species/cooling rates (both native and Grackle-based) in parallel over grids.
+- **Particle Mass Deposition & Particle Deletion:** Standard gravity routines operating on grids.
+- **Adaptive Ray Tracing (Radiative Transfer):** Parallelized ray propagation and photon package transport on grids.
+- **Fourier-Space Gravity Solver:** Element-wise complex multiplications in the root-grid FFT solver.
+
+Because parallelization is done by distributing grids across threads, simulations with many grids on refined levels will scale most efficiently. When running on a hybrid MPI+OpenMP system, grid loops containing MPI-based communications (such as boundary synchronization and gravity deposits in ``PrepareDensityField.C``) dynamically revert to sequential execution to ensure thread-safe access to the underlying MPI buffers and request queues.
+
+
