@@ -4,8 +4,9 @@
 	-lf2c -lm   (in that order)
 */
 
-#include "f2c.h"
 #include <stdio.h>
+#include <stdlib.h>
+#include "f2c.h"
 #include <math.h>
 
 #define ENZO_CMODE

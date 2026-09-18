@@ -78,9 +78,9 @@ int CommunicationSumValues(FLOAT *values, int number);
 int CommunicationAllSumValues(FLOAT *values, int number);
 void FindVirialRadius(LevelHierarchyEntry *LevelArray[], float &rvir, float &r500,
 		      float critical_density, float BoxSize,
-		      FLOAT *Center, FLOAT OuterEdge, float MeanVelocity[MAX_DIMENSION][3], 
-		      int NumberOfPoints, float *ProfileRadius, float ProfileValue[][MAX_PROFILES],
-		      float ProfileWeight[][MAX_PROFILES], char *ProfileName[MAX_PROFILES],
+		      FLOAT *Center, FLOAT OuterEdge, FLOAT MeanVelocity[MAX_DIMENSION][3], 
+		      int NumberOfPoints, FLOAT *ProfileRadius, FLOAT ProfileValue[][MAX_PROFILES],
+		      FLOAT ProfileWeight[][MAX_PROFILES], char *ProfileName[MAX_PROFILES],
 		      AnalyzeClusterParameters *parameters);
 void my_exit(int status);
 int FastSiblingLocatorInitialize(ChainingMeshStructure *Mesh, int Rank,
@@ -1276,9 +1276,9 @@ void my_exit(int status)
 
 void FindVirialRadius(LevelHierarchyEntry *LevelArray[], float &rvir, float &r500,
 		      float critical_density, float BoxSize,
-		      FLOAT *Center, FLOAT OuterEdge, float MeanVelocity[MAX_DIMENSION][3], 
-		      int NumberOfPoints, float *ProfileRadius, float ProfileValue[][MAX_PROFILES],
-		      float ProfileWeight[][MAX_PROFILES], char *ProfileName[MAX_PROFILES],
+		      FLOAT *Center, FLOAT OuterEdge, FLOAT MeanVelocity[MAX_DIMENSION][3], 
+		      int NumberOfPoints, FLOAT *ProfileRadius, FLOAT ProfileValue[][MAX_PROFILES],
+		      FLOAT ProfileWeight[][MAX_PROFILES], char *ProfileName[MAX_PROFILES],
 		      AnalyzeClusterParameters *parameters)
 {
   int i, j, level;

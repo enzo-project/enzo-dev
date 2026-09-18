@@ -6,6 +6,7 @@
 
 #include "allvars.h"
 #include "forcetree.h"
+#include "proto.h"
 
 
 

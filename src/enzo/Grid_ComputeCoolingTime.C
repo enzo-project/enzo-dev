@@ -271,32 +271,41 @@ int grid::ComputeCoolingTime(float *cooling_time, int CoolingTimeOnly)
     my_fields.grid_end       = g_grid_end;
     my_fields.grid_dx        = this->CellWidth[0][0];
 
+    GrackleFieldBuffer buf_dens, buf_te, buf_v1, buf_v2, buf_v3;
+    GrackleFieldBuffer buf_HI, buf_HII, buf_HeI, buf_HeII, buf_HeIII, buf_e;
+    GrackleFieldBuffer buf_HM, buf_H2I, buf_H2II, buf_DI, buf_DII, buf_HDI;
+    GrackleFieldBuffer buf_metal, buf_vol_heat, buf_spec_heat;
+    GrackleFieldBuffer buf_cool_time;
+#ifdef TRANSFER
+    GrackleFieldBuffer buf_rt_hi, buf_rt_hei, buf_rt_heii, buf_rt_h2, buf_rt_heat;
+#endif
+
     /* now add in the baryon fields */
-    my_fields.density         = density;
-    my_fields.internal_energy = thermal_energy;
-    my_fields.x_velocity      = velocity1;
-    my_fields.y_velocity      = velocity2;
-    my_fields.z_velocity      = velocity3;
+    my_fields.density         = buf_dens.prepare(density, size);
+    my_fields.internal_energy = buf_te.prepare(thermal_energy, size);
+    my_fields.x_velocity      = buf_v1.prepare(velocity1, size);
+    my_fields.y_velocity      = buf_v2.prepare(velocity2, size);
+    my_fields.z_velocity      = buf_v3.prepare(velocity3, size);
 
-    my_fields.HI_density      = BaryonField[HINum];
-    my_fields.HII_density     = BaryonField[HIINum];
-    my_fields.HeI_density     = BaryonField[HeINum];
-    my_fields.HeII_density    = BaryonField[HeIINum];
-    my_fields.HeIII_density   = BaryonField[HeIIINum];
-    my_fields.e_density       = BaryonField[DeNum];
+    my_fields.HI_density      = buf_HI.prepare(BaryonField[HINum], size);
+    my_fields.HII_density     = buf_HII.prepare(BaryonField[HIINum], size);
+    my_fields.HeI_density     = buf_HeI.prepare(BaryonField[HeINum], size);
+    my_fields.HeII_density    = buf_HeII.prepare(BaryonField[HeIINum], size);
+    my_fields.HeIII_density   = buf_HeIII.prepare(BaryonField[HeIIINum], size);
+    my_fields.e_density       = buf_e.prepare(BaryonField[DeNum], size);
 
-    my_fields.HM_density      = BaryonField[HMNum];
-    my_fields.H2I_density     = BaryonField[H2INum];
-    my_fields.H2II_density    = BaryonField[H2IINum];
+    my_fields.HM_density      = buf_HM.prepare(BaryonField[HMNum], size);
+    my_fields.H2I_density     = buf_H2I.prepare(BaryonField[H2INum], size);
+    my_fields.H2II_density    = buf_H2II.prepare(BaryonField[H2IINum], size);
 
-    my_fields.DI_density      = BaryonField[DINum];
-    my_fields.DII_density     = BaryonField[DIINum];
-    my_fields.HDI_density     = BaryonField[HDINum];
+    my_fields.DI_density      = buf_DI.prepare(BaryonField[DINum], size);
+    my_fields.DII_density     = buf_DII.prepare(BaryonField[DIINum], size);
+    my_fields.HDI_density     = buf_HDI.prepare(BaryonField[HDINum], size);
 
-    my_fields.metal_density   = MetalPointer;
+    my_fields.metal_density   = buf_metal.prepare(MetalPointer, size);
 
-    my_fields.volumetric_heating_rate  = volumetric_heating_rate;
-    my_fields.specific_heating_rate    = specific_heating_rate;
+    my_fields.volumetric_heating_rate  = buf_vol_heat.prepare(volumetric_heating_rate, size);
+    my_fields.specific_heating_rate    = buf_spec_heat.prepare(specific_heating_rate, size);
 
 #ifdef TRANSFER
 
@@ -304,27 +313,30 @@ int grid::ComputeCoolingTime(float *cooling_time, int CoolingTimeOnly)
     float rtunits = erg_eV / TimeUnits;
 
     if ( RadiativeTransfer ){
-      my_fields.RT_HI_ionization_rate = BaryonField[kphHINum];
+      my_fields.RT_HI_ionization_rate = buf_rt_hi.prepare(BaryonField[kphHINum], size);
 
       if (RadiativeTransferHydrogenOnly == FALSE){
-        my_fields.RT_HeI_ionization_rate  = BaryonField[kphHeINum];
-        my_fields.RT_HeII_ionization_rate = BaryonField[kphHeIINum];
+        my_fields.RT_HeI_ionization_rate  = buf_rt_hei.prepare(BaryonField[kphHeINum], size);
+        my_fields.RT_HeII_ionization_rate = buf_rt_heii.prepare(BaryonField[kphHeIINum], size);
       }
 
       if (MultiSpecies > 1)
-        my_fields.RT_H2_dissociation_rate = BaryonField[kdissH2INum];
+        my_fields.RT_H2_dissociation_rate = buf_rt_h2.prepare(BaryonField[kdissH2INum], size);
 
       /* need to convert to CGS units */
       for( i = 0; i < size; i++) BaryonField[gammaNum][i] *= rtunits;
 
-      my_fields.RT_heating_rate = BaryonField[gammaNum];
+      my_fields.RT_heating_rate = buf_rt_heat.prepare(BaryonField[gammaNum], size);
 
     }
 #endif // TRANSFER
 
-    if (calculate_cooling_time(&grackle_units, &my_fields, cooling_time) == FAIL) {
+    gr_float *cool_time_ptr = buf_cool_time.prepare(cooling_time, size, false);
+
+    if (calculate_cooling_time(&grackle_units, &my_fields, cool_time_ptr) == FAIL) {
       ENZO_FAIL("Error in Grackle calculate_cooling_time.\n");
     }
+    buf_cool_time.copy_back();
 
     for (i = 0; i < size; i++) {
       cooling_time[i] = fabs(cooling_time[i]);

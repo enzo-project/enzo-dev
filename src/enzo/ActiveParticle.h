@@ -614,7 +614,7 @@ namespace ActiveParticleHelpers {
       }
       char *buffer, *_buffer;
       int ndims = 1;
-      hsize_t dims[1] = {Count};
+      hsize_t dims[1] = {static_cast<hsize_t>(Count)};
       for (i = 0; i < Count; i++) {
         OutList.insert(*(new APClass()));
       }

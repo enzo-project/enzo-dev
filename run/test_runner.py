@@ -704,7 +704,9 @@ if __name__ == "__main__":
     f.close()
 
     # the path to the executable we're testing
-    exe_path = os.path.join(options.repository, "src/enzo/enzo.exe")
+    exe_path = os.path.join(options.repository, "bin/enzo")
+    if not os.path.exists(exe_path):
+        exe_path = os.path.join(options.repository, "src/enzo/enzo.exe")
 
     # If strict is set, then use it to set tolerance and bitwise 
     # values for later use when the nosetests get called in 

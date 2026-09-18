@@ -1,0 +1,27 @@
+# src/P-GroupFinder/sources.cmake
+set(P_GROUPFINDER_SOURCES
+    main.c
+    io_input.c
+    io_enzo.c
+    io_hdf.c
+    io_hdf5.c
+    h5utilities.c
+    cmpfunc.c
+    allvars.c
+    allocate.c
+    ngbtree.c
+    forcetree.c
+    subfind.c
+    density.c
+    unbind.c
+    find_subgroups.c
+    order_by_potential.c
+    properties.c
+    nrsrc/nrutil.c
+    nrsrc/sort2_int.c
+    nrsrc/sort_int.c
+    nrsrc/iindexx.c
+    nrsrc/selectb.c
+    nrsrc/indexx.c
+    nrsrc/sort2_flt_int.c
+)
