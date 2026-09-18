@@ -76,7 +76,7 @@ int grid::SaveSubgridFluxes(fluxes *SubgridFluxes[], int NumberOfSubgrids,
 
     }
 
-    //printf("Start=%"ISYM", End=%"ISYM"\n", Start[flux], End[flux]);
+    //printf("Start=%" ISYM", End=%" ISYM"\n", Start[flux], End[flux]);
 
     for (int dim = 0; dim < MAX_DIMENSION; dim++) {
       Dim[dim] = End[dim] - Start[dim] + 1;
@@ -103,7 +103,7 @@ int grid::SaveSubgridFluxes(fluxes *SubgridFluxes[], int NumberOfSubgrids,
 	      fluxcoef*Flux3D[field][igridflux]*dtdx;
 	    SubgridFluxes[subgrid]->RightFluxes[field][flux][iflux] += 
 	      fluxcoef*Flux3D[field][igridflux+Offset]*dtdx;
-	    //printf("iflux=%"ISYM", igridflux=%"ISYM", offset=%"ISYM"\n",
+	    //printf("iflux=%" ISYM", igridflux=%" ISYM", offset=%" ISYM"\n",
 	    //   iflux, igridflux, Offset);
 	  }
 	}
@@ -113,11 +113,11 @@ int grid::SaveSubgridFluxes(fluxes *SubgridFluxes[], int NumberOfSubgrids,
     
   /*for (int field = 0; field < NEQ_SRHYDRO; field++) {
     for (int n = 0; n < Activesize[0]+1; n++) {
-      printf("%"GSYM" ", Flux3D[field][n]);
+      printf("%" GSYM" ", Flux3D[field][n]);
     }
     printf("\n");
     }*/
-  /*printf("EstimateFluxes: left=%"GSYM", right=%"GSYM"\n",
+  /*printf("EstimateFluxes: left=%" GSYM", right=%" GSYM"\n",
 	 SubgridFluxes[0]->LeftFluxes[1][0][0],
 	 SubgridFluxes[0]->RightFluxes[1][0][0]);*/
 

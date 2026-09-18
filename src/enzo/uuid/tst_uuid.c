@@ -87,7 +87,7 @@ main(int argc ATTR((unused)) , char **argv ATTR((unused)))
 	}
 	printf("\n");
 	type = uuid_type(buf); 	variant = uuid_variant(buf);
-	printf("UUID type = %d, UUID variant = %d\n", type, variant);
+	printf("UUID type = %" ISYM ", UUID variant = %" ISYM "\n", type, variant);
 	if (variant != UUID_VARIANT_DCE) {
 		printf("Incorrect UUID Variant; was expecting DCE!\n");
 		failed++;
@@ -103,7 +103,7 @@ main(int argc ATTR((unused)) , char **argv ATTR((unused)))
 	}
 	printf("\n");
 	type = uuid_type(buf); 	variant = uuid_variant(buf);
-	printf("UUID type = %d, UUID variant = %d\n", type, variant);
+	printf("UUID type = %" ISYM ", UUID variant = %" ISYM "\n", type, variant);
 	if (variant != UUID_VARIANT_DCE) {
 		printf("Incorrect UUID Variant; was expecting DCE!\n");
 		failed++;
@@ -124,7 +124,7 @@ main(int argc ATTR((unused)) , char **argv ATTR((unused)))
 	}
 	printf("\n");
 	type = uuid_type(buf); 	variant = uuid_variant(buf);
-	printf("UUID type = %d, UUID variant = %d\n", type, variant);
+	printf("UUID type = %" ISYM ", UUID variant = %" ISYM "\n", type, variant);
 	if (variant != UUID_VARIANT_DCE) {
 		printf("Incorrect UUID Variant; was expecting DCE!\n");
 		failed++;
@@ -173,7 +173,7 @@ main(int argc ATTR((unused)) , char **argv ATTR((unused)))
 	failed += test_uuid("84949cc5-4701-4a84-895b-354c584a981g", 0);
 
 	if (failed) {
-		printf("%d failures.\n", failed);
+		printf("%" ISYM " failures.\n", failed);
 		exit(1);
 	}
 	return 0;

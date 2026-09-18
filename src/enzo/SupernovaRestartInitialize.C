@@ -83,17 +83,17 @@ int SupernovaRestartInitialize(FILE *fptr, FILE *Outfptr,
  
     /* Read parameters */
  
-    ret += sscanf(line, "SupernovaRestartEjectaMass = %"FSYM,
+    ret += sscanf(line, "SupernovaRestartEjectaMass = %" FSYM,
 		  &SupernovaRestartEjectaMass);
-    ret += sscanf(line, "SupernovaRestartEjectaRadius = %"FSYM,
+    ret += sscanf(line, "SupernovaRestartEjectaRadius = %" FSYM,
 		  &SupernovaRestartEjectaRadius);
-    ret += sscanf(line, "SupernovaRestartEjectaEnergy = %"FSYM,
+    ret += sscanf(line, "SupernovaRestartEjectaEnergy = %" FSYM,
 		  &SupernovaRestartEjectaEnergy);
-    ret += sscanf(line, "SupernovaRestartEjectaCenter = %"PSYM" %"PSYM" %"PSYM,
+    ret += sscanf(line, "SupernovaRestartEjectaCenter = %" PSYM" %" PSYM" %" PSYM,
 		  SupernovaRestartEjectaCenter,
 		  SupernovaRestartEjectaCenter+1,
 		  SupernovaRestartEjectaCenter+2);
-    ret += sscanf(line, "SupernovaRestartColourField = %"ISYM,
+    ret += sscanf(line, "SupernovaRestartColourField = %" ISYM,
 		  &SupernovaRestartColourField);
  
     if (sscanf(line, "SupernovaRestartName = %s", dummy) == 1)
@@ -175,10 +175,10 @@ int SupernovaRestartInitialize(FILE *fptr, FILE *Outfptr,
   EjectaThermalEnergy /= VelocityUnits*VelocityUnits;
  
   if (debug) {
-    printf("SupernovaRestart: initial T = %"GSYM" K\n",
+    printf("SupernovaRestart: initial T = %" GSYM" K\n",
 	   EjectaThermalEnergy*TemperatureUnits*(Gamma-1.0)*0.6);
-    printf("SupernovaRestart: r (code units) = %"GSYM"\n", EjectaRadius);
-    printf("SupernovaRestart: density (code units) = %"GSYM"\n", EjectaDensity);
+    printf("SupernovaRestart: r (code units) = %" GSYM"\n", EjectaRadius);
+    printf("SupernovaRestart: density (code units) = %" GSYM"\n", EjectaDensity);
   }
  
   /* -------------------------------------------------------------------- */
@@ -205,7 +205,7 @@ int SupernovaRestartInitialize(FILE *fptr, FILE *Outfptr,
  
   }
   if (debug)
-    printf("SupernovaRestart: NumberOfCellsSet = %"ISYM"\n", NumberOfCellsSet);
+    printf("SupernovaRestart: NumberOfCellsSet = %" ISYM"\n", NumberOfCellsSet);
  
   /* -------------------------------------------------------------------- */
   /* Loop over grid and project solution to parent to maintain consistency. */
@@ -229,16 +229,16 @@ int SupernovaRestartInitialize(FILE *fptr, FILE *Outfptr,
  
   if (MyProcessorNumber == ROOT_PROCESSOR) {
 
-    fprintf(Outfptr, "SupernovaRestartEjectaMass   = %"FSYM"\n",
+    fprintf(Outfptr, "SupernovaRestartEjectaMass   = %" FSYM"\n",
 	    SupernovaRestartEjectaMass);
-    fprintf(Outfptr, "SupernovaRestartEjectaRadius = %"FSYM"\n",
+    fprintf(Outfptr, "SupernovaRestartEjectaRadius = %" FSYM"\n",
 	    SupernovaRestartEjectaRadius);
-    fprintf(Outfptr, "SupernovaRestartEjectaEnergy = %"FSYM"\n",
+    fprintf(Outfptr, "SupernovaRestartEjectaEnergy = %" FSYM"\n",
 	    SupernovaRestartEjectaEnergy);
     fprintf(Outfptr, "SupernovaRestartEjectaCenter = ");
     WriteListOfFloats(Outfptr, MetaData.TopGridRank,
 		      SupernovaRestartEjectaCenter);
-    fprintf(Outfptr, "SupernovaRestartColourField  = %"ISYM"\n",
+    fprintf(Outfptr, "SupernovaRestartColourField  = %" ISYM"\n",
 	    SupernovaRestartColourField);
     fprintf(Outfptr, "SupernovaRestartName         = %s\n",
 	    SupernovaRestartName);

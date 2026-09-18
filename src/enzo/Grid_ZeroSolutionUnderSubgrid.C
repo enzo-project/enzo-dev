@@ -59,18 +59,18 @@ int grid::ZeroSolutionUnderSubgrid(grid *Subgrid, int FieldsToZero,
     if ( (Unigrid == 1) && ((ProblemType == 30) || (ProblemType == 60) || (ProblemType >= 400)) ) //AK
     {
        printf("ZeroSUS - ZERO_UNDER_SUBGRID_FIELD && Subgrid == NULL\n");
-       printf("ZeroSUS - Unigrid: %"ISYM"\n", Unigrid);
-       printf("ZeroSUS - ProblemType: %"ISYM"\n", ProblemType);
-       printf("ZeroSUS - NumberOfBaryonFields: %"ISYM"\n", NumberOfBaryonFields);
-       printf("ZeroSUS - Zero field size: %"ISYM"\n", (int) (size*sizeof(float)));
+       printf("ZeroSUS - Unigrid: %" ISYM"\n", Unigrid);
+       printf("ZeroSUS - ProblemType: %" ISYM"\n", ProblemType);
+       printf("ZeroSUS - NumberOfBaryonFields: %" ISYM"\n", NumberOfBaryonFields);
+       printf("ZeroSUS - Zero field size: %" ISYM"\n", (int) (size*sizeof(float)));
        printf("ZeroSUS - CAUTION - allocating bogus BaryonField size = 1\n");
        size = 1;
     }
  
 //    else
 //    {
-//       printf("ZeroSUS - NumberOfBaryonFields: %"ISYM"\n", NumberOfBaryonFields);
-//       printf("ZeroSUS - Zero field size: %"ISYM"\n", (int) (size*sizeof(float)));
+//       printf("ZeroSUS - NumberOfBaryonFields: %" ISYM"\n", NumberOfBaryonFields);
+//       printf("ZeroSUS - Zero field size: %" ISYM"\n", (int) (size*sizeof(float)));
 //    }
  
     BaryonField[NumberOfBaryonFields] = new float[size];
@@ -90,7 +90,7 @@ int grid::ZeroSolutionUnderSubgrid(grid *Subgrid, int FieldsToZero,
   /* Compute start and stop indices of the active region of the subgrid
      within this grid (and check to make sure subgrid is within this grid). */
 
-  FLOAT Left, Right, SubLeft, SubRight;
+  FLOAT Left, Right;
   int NumberOfGhostZones;
  
   for (dim = 0; dim < GridRank; dim++) {
@@ -137,7 +137,7 @@ int grid::ZeroSolutionUnderSubgrid(grid *Subgrid, int FieldsToZero,
       SubgridEnd[dim]   = min(SubgridEnd[dim], GridDimension[dim]-1);
     }
  
-//    printf("  ZeroSUS: %"ISYM", %"ISYM", %"ISYM"\n", dim, SubgridStart[dim], SubgridEnd[dim]);
+//    printf("  ZeroSUS: %" ISYM", %" ISYM", %" ISYM"\n", dim, SubgridStart[dim], SubgridEnd[dim]);
   }
  
   /* Now that there is overlap, take the appropriate action. */
@@ -189,7 +189,7 @@ int grid::ZeroSolutionUnderSubgrid(grid *Subgrid, int FieldsToZero,
   }
  
   else {
-    ENZO_VFAIL("FieldsToZero = %"ISYM" not recognized.\n", FieldsToZero)
+    ENZO_VFAIL("FieldsToZero = %" ISYM" not recognized.\n", FieldsToZero)
   }
  
   return SUCCESS;

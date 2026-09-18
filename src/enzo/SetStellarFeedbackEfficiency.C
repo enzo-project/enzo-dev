@@ -36,7 +36,6 @@ int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
 int SetStellarFeedbackEfficiency(FLOAT time)
 {
 
-  int timestep, i;
   FLOAT a, dadt, redshift=0.0;
   FLOAT fb_avg, tdiff; // for option 5 to make the code more legible
   float early_fbeff, late_fbeff, current_fbeff, float_time=0.0, float_redshift=0.0;
@@ -125,7 +124,7 @@ int SetStellarFeedbackEfficiency(FLOAT time)
   }
   
   if(debug){
-    printf("SetStellarFeedbackEfficiency:  StarEnergyToThermalFeedback set to %"FSYM" at time %"PSYM" (redshift %"PSYM")\n",
+    printf("SetStellarFeedbackEfficiency:  StarEnergyToThermalFeedback set to %" FSYM" at time %" PSYM" (redshift %" PSYM")\n",
 	   StarEnergyToThermalFeedback, time, redshift);
   }
   

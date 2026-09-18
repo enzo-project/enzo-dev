@@ -46,10 +46,9 @@ int grid::CommunicationTransferStars(grid* Grids[], int NumberOfGrids,
  
   /* Declarations. */
  
-  int i, j, k, dim, grid, proc, grid_num, width, bin, CenterIndex;
+  int i, dim, grid, proc, grid_num, CenterIndex;
   int GridPosition[MAX_DIMENSION];
-  FLOAT r[MAX_DIMENSION];
-  int *ToGrid, *pbin;
+  int *ToGrid;
   Star *cstar, *MoveStar;
 
   for (dim = 0; dim < MAX_DIMENSION; dim++)

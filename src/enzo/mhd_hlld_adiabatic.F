@@ -167,7 +167,7 @@ c top
 
         subroutine colorflux(q,f,cq,cf,cn) ![BH]
         IMPLICIT NONE ![BH]
-#include "fortran_types.def" ![BH]
+#include "fortran_types.def"
         INTG_PREC cn ! number of colours [BH]
         R_PREC q(8),f(8) ![BH]
         R_PREC cq(cn),cf(cn) ! colour density and colour flux [BH]

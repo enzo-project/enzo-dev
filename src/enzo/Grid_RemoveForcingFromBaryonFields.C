@@ -29,7 +29,7 @@ int grid::RemoveForcingFromBaryonFields()
   /* check.
  
   if (debug)
-    printf("ForcingToBeRemoved[%"ISYM"] NBF %"ISYM"\n", ProcessorNumber,
+    printf("ForcingToBeRemoved[%" ISYM"] NBF %" ISYM"\n", ProcessorNumber,
     NumberOfBaryonFields - GridRank);*/
   if (ProcessorNumber == MyProcessorNumber && debug)
     if (BaryonField[NumberOfBaryonFields-1] == NULL)

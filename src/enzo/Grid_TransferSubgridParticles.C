@@ -35,7 +35,7 @@ int grid::TransferSubgridParticles(grid* Subgrids[], int NumberOfSubgrids,
  
   /* Declarations. */
 
-  int i, j, index, dim, n1, grid, proc;
+  int i, j, index, dim, n1, proc;
   int i0, j0, k0;
 
   /* ----------------------------------------------------------------- */
@@ -115,7 +115,7 @@ int grid::TransferSubgridParticles(grid* Subgrids[], int NumberOfSubgrids,
 	NumberToMove[proc]++;
       }
       if (subgrid[i] < -1 || subgrid[i] > NumberOfSubgrids-1) {
-	ENZO_VFAIL("particle subgrid (%"ISYM"/%"ISYM") out of range\n", 
+	ENZO_VFAIL("particle subgrid (%" ISYM"/%" ISYM") out of range\n", 
 		subgrid[i], NumberOfSubgrids)
       }
       

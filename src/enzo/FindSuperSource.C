@@ -34,9 +34,9 @@ int FindSuperSource(PhotonPackageEntry **PP, int &LeafID,
 	PrintSourceClusteringTree(SourceClusteringTree, fptr);
 	fclose(fptr);
 	fprintf(stdout, "WARNING: NULL leaf in clustering tree. Source was deleted? "
-		"LeafID = %"ISYM", temp = %p, last = %p\n", LeafID, temp, last);
+		"LeafID = %" ISYM", temp = %p, last = %p\n", LeafID, temp, last);
 	if (last != NULL)
-	  fprintf(stdout, "\t last->leafID = %d\n", last->LeafID);
+	  fprintf(stdout, "\t last->leafID = %" ISYM "\n", last->LeafID);
       }
       // Will search by position in grid::ReassignSuperSources
       LeafID = INT_UNDEFINED;

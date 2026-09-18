@@ -70,7 +70,7 @@ int grid::OutputStarParticleInformation(FILE *StarFile)
   float32 buffer[MAX_NUMBER_OF_PARTICLE_ATTRIBUTES+4];
   for (i = 0; i < MAX_NUMBER_OF_PARTICLE_ATTRIBUTES+4; i++)
     buffer[i] = 0;
-  if (debug) printf("NumberOfParticles = %"ISYM"\n", NumberOfParticles);
+  if (debug) printf("NumberOfParticles = %" ISYM"\n", NumberOfParticles);
   if (StarParticleCreation > 0 && StarFile != NULL &&
       NumberOfParticleAttributes > 0) {
     for (i = 0; i < NumberOfParticles; i++)
@@ -85,7 +85,7 @@ int grid::OutputStarParticleInformation(FILE *StarFile)
 	if (fwrite( (void*) buffer,  sizeof(float32),
 
 		    NumberOfParticleAttributes+4, StarFile) !=
-	    NumberOfParticleAttributes+4)
+	    (size_t) (NumberOfParticleAttributes+4))
 	  perror("error in fwrite");
       }
   }

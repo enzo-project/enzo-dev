@@ -61,7 +61,7 @@ int InitializeEquilibriumCoolData(FLOAT Time)
   rewind(fptr);
   while (fgets(line, MAX_LINE_LENGTH, fptr) != NULL)
     if (line[0] != '#')
-      if (sscanf(line, "%"FSYM" %"FSYM" %"FSYM, &temp, &dummy,
+      if (sscanf(line, "%" FSYM" %" FSYM" %" FSYM, &temp, &dummy,
 		 &CoolData.EquilibriumRate[index]) == 3) {
 	CoolData.EquilibriumRate[index] =
 	  POW(10, CoolData.EquilibriumRate[index]);
@@ -74,11 +74,11 @@ int InitializeEquilibriumCoolData(FLOAT Time)
   fclose(fptr);
  
   if (debug) {
-    printf("InitializeEqCoolData: NumberOfTemperatureBins = %"ISYM"\n",
+    printf("InitializeEqCoolData: NumberOfTemperatureBins = %" ISYM"\n",
 		    CoolData.NumberOfTemperatureBins);
-    printf("InitializeEqCoolData: TemperatureStart = %"GSYM"\n",
+    printf("InitializeEqCoolData: TemperatureStart = %" GSYM"\n",
 		    CoolData.TemperatureStart);
-    printf("InitializeEqCoolData: TemperatureEnd = %"GSYM"\n",
+    printf("InitializeEqCoolData: TemperatureEnd = %" GSYM"\n",
 		    CoolData.TemperatureEnd);
   }
  
@@ -141,7 +141,7 @@ int InitializeEquilibriumCoolData(FLOAT Time)
   if( MyProcessorNumber == ROOT_PROCESSOR ){
     fptr = fopen("cool_rates.out", "w");
     for (index = 0; index < CoolData.NumberOfTemperatureBins; index++)
-      fprintf(fptr, "%"GSYM" %"GSYM"\n", log10(CoolData.TemperatureStart) +
+      fprintf(fptr, "%" GSYM" %" GSYM"\n", log10(CoolData.TemperatureStart) +
        (log10(CoolData.TemperatureEnd)-
         log10(CoolData.TemperatureStart)) * float(index)/
        float(CoolData.NumberOfTemperatureBins-1),

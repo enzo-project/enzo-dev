@@ -57,7 +57,7 @@ int ExternalBoundary::SetWengenCollidingFlowBoundary(FLOAT time, FLOAT CellLeftE
   }
  
   /* set the appropriate BoundaryValues on the left side */
-  //  fprintf(stdout, "boundary ints: %i %i %i \n", BoundaryDimension[0],BoundaryDimension[1],BoundaryRank);
+  //  fprintf(stdout, "boundary ints: %" ISYM " %" ISYM " %" ISYM " \n", BoundaryDimension[0],BoundaryDimension[1],BoundaryRank);
   for (dim = 0; dim < BoundaryRank; dim++)
     if (BoundaryDimension[dim] != 1) {
  
@@ -75,7 +75,6 @@ int ExternalBoundary::SetWengenCollidingFlowBoundary(FLOAT time, FLOAT CellLeftE
  
       int dim1, dim2;
       FLOAT x,y;
-      float vx,vy;
       dim1 = (dim == 0) ? 1 : 0;
       dim2 = dim1 + 1;
       dim2 = (dim2 == dim) ? dim2+1 : dim2;
@@ -83,8 +82,8 @@ int ExternalBoundary::SetWengenCollidingFlowBoundary(FLOAT time, FLOAT CellLeftE
 	NumberOfZones[i] = max(BoundaryDimension[i] - 2*NumberOfGhostZones,1);
 	Offset[i]        = min(NumberOfGhostZones, BoundaryDimension[i]) - 1;
       }
-      //      fprintf(stdout, "ints: %i %i %i \n", dim, dim1, dim2);
-      //      fprintf(stdout, "ints: %i %i %i \n", NumberOfZones[dim], NumberOfZones[dim1], NumberOfZones[dim2]);
+      //      fprintf(stdout, "ints: %" ISYM " %" ISYM " %" ISYM " \n", dim, dim1, dim2);
+      //      fprintf(stdout, "ints: %" ISYM " %" ISYM " %" ISYM " \n", NumberOfZones[dim], NumberOfZones[dim1], NumberOfZones[dim2]);
       /* Loop over the boundary face. */
  
       for (i = 0; i < BoundaryDimension[dim1]; i++)
@@ -100,7 +99,7 @@ int ExternalBoundary::SetWengenCollidingFlowBoundary(FLOAT time, FLOAT CellLeftE
 	  //	  fprintf(stdout, "lower: %g %g \n", x ,y);
 
 	  index = j*BoundaryDimension[dim1] + i;
-	  float pres, eintl, eintu, h, cs, dpdrho, dpde,ramp,rhot;
+	  float pres, eintl, h, cs, dpdrho, dpde, ramp;
 	  float rho, vx, vy, bx,by, f, vxu, vxl, vyu, vyl, Bxl, Byl, Bxu, Byu, etotl;
 	  rho = LowerDensity;
 	  vxl = LowerVelocityX;

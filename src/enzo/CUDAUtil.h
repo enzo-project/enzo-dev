@@ -9,7 +9,7 @@
 #define CUDA_SAFE_CALL(call) {                                    \
     cudaError err = call;                                                    \
     if( cudaSuccess != err) {                                                \
-      fprintf(stderr, "Cuda error in file '%s' in line %i : %s.\n",        \
+      fprintf(stderr, "Cuda error in file '%s' in line %" ISYM " : %s.\n",        \
               __FILE__, __LINE__, cudaGetErrorString( err) );              \
       fflush(stderr); \
       exit(1);                                                  \

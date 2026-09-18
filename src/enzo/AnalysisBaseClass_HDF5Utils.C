@@ -79,7 +79,6 @@ void AnalysisBaseClass::HDF5CloseFile( hid_t file_id ){
 hid_t AnalysisBaseClass::HDF5CreateGroup( hid_t loc_id, char *name ){
 
   hid_t group_id;
-  herr_t h5_status;
   herr_t      h5_error = -1;
 
   group_id = H5Gcreate(loc_id, name, 0);
@@ -97,7 +96,6 @@ hid_t AnalysisBaseClass::HDF5CreateGroup( hid_t loc_id, char *name ){
 hid_t AnalysisBaseClass::HDF5OpenGroup( hid_t loc_id, char *name ){
 
   hid_t group_id;
-  herr_t h5_status;
   herr_t      h5_error = -1;
 
   group_id = H5Gopen(loc_id, name);
@@ -280,7 +278,7 @@ void AnalysisBaseClass::HDF5MakeDataset( hid_t group_id,
   delete [] buffer;
 }
 
-void AnalysisBaseClass::HDF5WriteStringAttr(hid_t dset_id, char *Alabel, char *String){
+void AnalysisBaseClass::HDF5WriteStringAttr(hid_t dset_id, const char *Alabel, const char *String){
 
   hid_t       attr_id;
   hid_t       attr_dsp_id;

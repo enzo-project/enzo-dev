@@ -39,7 +39,6 @@ int grid::CommunicationMoveGrid(int ToProcessor, int MoveParticles,
 
   int dim;
   int Zero[] = {0, 0, 0};
-  FLOAT FZero[] = {0.0, 0.0, 0.0};
 
   //CommunicationDirection = COMMUNICATION_SEND_RECEIVE;
  

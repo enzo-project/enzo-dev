@@ -48,8 +48,8 @@ int grid::AddActiveParticles(ActiveParticleList<ActiveParticleType> &NewParticle
 
   if (NumberOfActiveParticles != this->ActiveParticles.size()) {
     printf("Active particle count mismatch!\n");
-    printf("NumberOfActiveParticles = %"ISYM"\n", NumberOfActiveParticles);
-    printf("ActiveParticles.size() = %"ISYM"\n", ActiveParticles.size());
+    printf("NumberOfActiveParticles = %" ISYM"\n", NumberOfActiveParticles);
+    printf("ActiveParticles.size() = %" ISYM"\n", ActiveParticles.size());
     ENZO_FAIL("")
   }
 
@@ -58,16 +58,16 @@ int grid::AddActiveParticles(ActiveParticleList<ActiveParticleType> &NewParticle
     TotalMass += NewParticles[i]->ReturnMass();
     inside = this->PointInGrid(pos);
     if (inside == FALSE) {
-      fprintf(stderr,"pos[0]: %"PSYM", pos[1]: %"PSYM", pos[2]: %"PSYM"\n",pos[0],pos[1],pos[2]);
-      fprintf(stderr,"mass: %"FSYM"\n");
-      fprintf(stderr,"GridLeftEdge[0]: %"PSYM", GridLeftEdge[1]: %"PSYM", GridLeftEdge[2]: %"PSYM"\n",
+      fprintf(stderr,"pos[0]: %" PSYM", pos[1]: %" PSYM", pos[2]: %" PSYM"\n",pos[0],pos[1],pos[2]);
+      fprintf(stderr,"mass: %" FSYM"\n");
+      fprintf(stderr,"GridLeftEdge[0]: %" PSYM", GridLeftEdge[1]: %" PSYM", GridLeftEdge[2]: %" PSYM"\n",
 	      GridLeftEdge[0], GridLeftEdge[1], GridLeftEdge[2]);
-      fprintf(stderr,"GridRightEdge[0]: %"PSYM", GridRightEdge[1]: %"PSYM", GridRightEdge[2]: %"PSYM"\n",
+      fprintf(stderr,"GridRightEdge[0]: %" PSYM", GridRightEdge[1]: %" PSYM", GridRightEdge[2]: %" PSYM"\n",
 	      GridRightEdge[0], GridRightEdge[1], GridRightEdge[2]);      
       ENZO_FAIL("ActiveParticle outside!\n");
     }
   }
-  fprintf(stdout,"AddActiveParticles: Total Mass added to grid = %"FSYM"\n",TotalMass);
+  fprintf(stdout,"AddActiveParticles: Total Mass added to grid = %" FSYM"\n",TotalMass);
 #endif /* DEBUG */  
 
   return SUCCESS;

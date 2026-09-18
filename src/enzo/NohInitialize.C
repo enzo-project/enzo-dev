@@ -38,11 +38,11 @@ int NohInitialize(FILE *fptr,
 		  HierarchyEntry &TopGrid,
 		  TopGridData &MetaData)
 {
-  char *DensName = "Density";
-  char *TEName   = "TotalEnergy";
-  char *Vel1Name = "x-velocity";
-  char *Vel2Name = "y-velocity";
-  char *Vel3Name = "z-velocity";
+  const char *DensName = "Density";
+  const char *TEName   = "TotalEnergy";
+  const char *Vel1Name = "x-velocity";
+  const char *Vel2Name = "y-velocity";
+  const char *Vel3Name = "z-velocity";
 
   /* local declarations */
 
@@ -89,11 +89,11 @@ int NohInitialize(FILE *fptr,
 
     /* read parameters */
 
-    ret += sscanf(line, "NohProblemFullBox = %"ISYM,
+    ret += sscanf(line, "NohProblemFullBox = %" ISYM,
 		  &NohProblemFullBox);
-    ret += sscanf(line, "NohSubgridLeft = %"FSYM, 
+    ret += sscanf(line, "NohSubgridLeft = %" FSYM, 
 		  &NohSubgridLeft);
-    ret += sscanf(line, "NohSubgridRight = %"FSYM,
+    ret += sscanf(line, "NohSubgridRight = %" FSYM,
 		  &NohSubgridRight);
 
     /* if the line is suspicious, issue a warning */
@@ -183,8 +183,8 @@ int NohInitialize(FILE *fptr,
 
   if (MyProcessorNumber == ROOT_PROCESSOR) {
 
-    fprintf(Outfptr, "NohSubgridLeft  = %"GOUTSYM"\n"  , NohSubgridLeft);
-    fprintf(Outfptr, "NohSubgridRight = %"GOUTSYM"\n\n", NohSubgridRight);
+    fprintf(Outfptr, "NohSubgridLeft  = %" GOUTSYM"\n"  , NohSubgridLeft);
+    fprintf(Outfptr, "NohSubgridRight = %" GOUTSYM"\n\n", NohSubgridRight);
   }
 
   return SUCCESS;

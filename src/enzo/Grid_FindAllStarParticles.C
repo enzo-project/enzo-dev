@@ -40,7 +40,7 @@ int grid::FindAllStarParticles(int level)
   if (NumberOfParticles == 0)
     return SUCCESS;
 
-  int i, StarType;
+  int i;
   float LifetimeFactor;
   Star *NewStar;
   

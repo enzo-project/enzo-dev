@@ -44,14 +44,13 @@ int CalculateSubtractionParameters(LevelHierarchyEntry *LevelArray[], int level,
 				   float &Radius, double &Subtraction)
 {
 
-  const double h=0.70;
 
   float mdot, AccretedMass, SafetyFactor;
   float MassEnclosed = 0, Metallicity = 0, ColdGasMass = 0, OneOverRSquaredSum, AvgVelocity[MAX_DIMENSION];
-  float *temperature, density, old_mass, mu, number_density;
+  float old_mass;
   
-  int igrid[MAX_DIMENSION], dim, l, index, c_s;
-  int size=1, FirstLoop = TRUE;
+  int dim, l, c_s;
+  int FirstLoop = TRUE;
   LevelHierarchyEntry *Temp, *Temp2;
   FLOAT Time;
 
@@ -159,7 +158,7 @@ int CalculateSubtractionParameters(LevelHierarchyEntry *LevelArray[], int level,
     
     c_s = (int)(sqrt(Gamma * kboltz * temperature[index] / (mu * mh)));
 
-    fprintf(stdout, "index = %d, temp = %g, mu = %g, density = %g, number_density = %g, c_s = %d\n",
+    fprintf(stdout, "index = %" ISYM ", temp = %g, mu = %g, density = %g, number_density = %g, c_s = %" ISYM "\n",
 	    index, temperature[index], mu, density, number_density, c_s);  
 
     delete [] temperature;
@@ -171,7 +170,7 @@ int CalculateSubtractionParameters(LevelHierarchyEntry *LevelArray[], int level,
 
   CommunicationBroadcastValue(&c_s, star_CurrentGrid->ReturnProcessorNumber());
 
-  fprintf(stdout, "MyProc = %d, star_CurrentGrid_ProcNum = %d, c_s = %d\n", 
+  fprintf(stdout, "MyProc = %" ISYM ", star_CurrentGrid_ProcNum = %" ISYM ", c_s = %" ISYM "\n", 
 	  MyProcessorNumber, star_CurrentGrid->ReturnProcessorNumber(), c_s);
 #endif // UNUSED
 

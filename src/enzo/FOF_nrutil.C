@@ -17,7 +17,7 @@
 #define NR_END 1
 #define FREE_ARG char*
 
-void nrerror(char error_text[])
+void nrerror(const char error_text[])
 /* Numerical Recipes standard error handler */
 {
 	fprintf(stderr,"Numerical Recipes run-time error...\n");

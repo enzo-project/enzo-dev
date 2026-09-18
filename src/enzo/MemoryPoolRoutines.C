@@ -138,7 +138,7 @@ namespace MPool
     MemoryChunkCount += NeededChunks;
 
 #ifdef MEM_TRACE
-    printf("P%d: AllocateMemory: %0.3f MB, (+%0.3f MB)\n",
+    printf("P%" ISYM ": AllocateMemory: %0.3f MB, (+%0.3f MB)\n",
 	   MyProcessorNumber, TotalMemoryPoolSize/1048576.0,
 	   BestMemBlockSize/1048576.0);
 #endif
@@ -339,7 +339,7 @@ namespace MPool
     /* Memory blocks and chunks were allocated together, so we can do
        some pointer arithemtic to find the chunk. */
     
-    size_t ThisDataSize, nChunks, ChunkNumber;
+    size_t nChunks, ChunkNumber;
     TByte *mFirstBlock, *mLastBlock, *mem;
     MemoryChunk *FirstChunkInAlloc, *LastChunkInAlloc;
     mem = (TByte*) sMemoryBlock;

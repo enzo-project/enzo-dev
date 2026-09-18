@@ -62,13 +62,13 @@ int TracerParticlesAddToRestart_DoIt(char * filename, HierarchyEntry *TopGrid,
  
     // Read tracer particle parameters
  
-    sscanf(line, "TracerParticleCreationSpacing = %"PSYM,
+    sscanf(line, "TracerParticleCreationSpacing = %" PSYM,
 	   &TracerParticleCreationSpacing);
-    sscanf(line, "TracerParticleCreationLeftEdge = %"PSYM" %"PSYM" %"PSYM,
+    sscanf(line, "TracerParticleCreationLeftEdge = %" PSYM" %" PSYM" %" PSYM,
 		  TracerParticleCreationLeftEdge,
 		  TracerParticleCreationLeftEdge+1,
 		  TracerParticleCreationLeftEdge+2);
-    sscanf(line, "TracerParticleCreationRightEdge = %"PSYM" %"PSYM" %"PSYM,
+    sscanf(line, "TracerParticleCreationRightEdge = %" PSYM" %" PSYM" %" PSYM,
 		  TracerParticleCreationRightEdge,
 		  TracerParticleCreationRightEdge+1,
 		  TracerParticleCreationRightEdge+2);
@@ -77,13 +77,13 @@ int TracerParticlesAddToRestart_DoIt(char * filename, HierarchyEntry *TopGrid,
   fclose(fptr);
  
   if(debug){
-    fprintf(stderr, "TracerParticleCreation = %"ISYM"\n", MetaData->CycleNumber);
-    fprintf(stderr, "TracerParticleCreationSpacing = %"PSYM"\n", TracerParticleCreationSpacing);
-    fprintf(stderr, "TracerParticleCreationLeftEdge = %"PSYM" %"PSYM" %"PSYM"\n",
+    fprintf(stderr, "TracerParticleCreation = %" ISYM"\n", MetaData->CycleNumber);
+    fprintf(stderr, "TracerParticleCreationSpacing = %" PSYM"\n", TracerParticleCreationSpacing);
+    fprintf(stderr, "TracerParticleCreationLeftEdge = %" PSYM" %" PSYM" %" PSYM"\n",
 	    TracerParticleCreationLeftEdge[0],
 	    TracerParticleCreationLeftEdge[1],
 	    TracerParticleCreationLeftEdge[2]);
-    fprintf(stderr, "TracerParticleCreationRightEdge = %"PSYM" %"PSYM" %"PSYM"\n",
+    fprintf(stderr, "TracerParticleCreationRightEdge = %" PSYM" %" PSYM" %" PSYM"\n",
 	    TracerParticleCreationRightEdge[0],
 	    TracerParticleCreationRightEdge[1],
 	    TracerParticleCreationRightEdge[2]);
@@ -113,7 +113,7 @@ int TracerParticlesAddToRestart_DoIt(char * filename, HierarchyEntry *TopGrid,
  
     LocalNumberOfParticles = 0;
     LocalNumberOfParticles = Temp->GridData->ReturnNumberOfParticles();
-    if(debug) printf("OldLocalParticleCount: %"ISYM"\n", LocalNumberOfParticles );
+    if(debug) printf("OldLocalParticleCount: %" ISYM"\n", LocalNumberOfParticles );
 
 #ifdef USE_MPI 
     CommunicationAllReduceValues(&LocalNumberOfParticles, 1, MPI_SUM);
@@ -121,7 +121,7 @@ int TracerParticlesAddToRestart_DoIt(char * filename, HierarchyEntry *TopGrid,
     Temp->GridData->SetNumberOfParticles(LocalNumberOfParticles);
  
     LocalNumberOfParticles = Temp->GridData->ReturnNumberOfParticles();
-    if(debug) printf("NewLocalParticleCount: %"ISYM"\n", LocalNumberOfParticles );
+    if(debug) printf("NewLocalParticleCount: %" ISYM"\n", LocalNumberOfParticles );
  
     Temp = Temp->NextGridThisLevel;
   }
@@ -150,14 +150,13 @@ int TracerParticlesAddToRestart_DoIt(char * filename, HierarchyEntry *TopGrid,
 void WriteSingleCube(float * array, int Dims[], char* string, int dNum, int gNum, char * label){
   
   hid_t       file_id, dataset_id, dataspace_id, float_type_id;
-  herr_t      status, h5_status, h5_error = -1;
   int FieldRankOut = 3;
   hsize_t     DimsInv[FieldRankOut];
   
-  char filename[20];
+  char filename[64];
   
-  sprintf(filename, "data111%4.4d.grid%4.4d",dNum,gNum);
-  fprintf(stderr,"GPFS WriteCube: %s %s [%"ISYM",%"ISYM",%"ISYM"]\n", string, filename, Dims[0],Dims[1],Dims[2]);
+  sprintf(filename, "data111%4.4" ISYM ".grid%4.4" ISYM, dNum, gNum);
+  fprintf(stderr,"GPFS WriteCube: %s %s [%" ISYM",%" ISYM",%" ISYM"]\n", string, filename, Dims[0],Dims[1],Dims[2]);
   
 #define floatdcc double  
   int jj = sizeof(floatdcc);
@@ -200,12 +199,12 @@ void WriteSingleCube(float * array, int Dims[], char* string, int dNum, int gNum
   //Write the Data Set
   //                (set, memory type, mem. space, file space, transfer details, actual data)
   fprintf(stderr,"Writing set\n");
-  status = H5Dwrite(dataset_id, float_type_id, H5S_ALL, H5S_ALL, H5P_DEFAULT, 
+  H5Dwrite(dataset_id, float_type_id, H5S_ALL, H5S_ALL, H5P_DEFAULT, 
 		    array);
   
   
-  status = H5Sclose(dataspace_id);
-  status = H5Dclose(dataset_id);
-  status = H5Fclose(file_id);
+  H5Sclose(dataspace_id);
+  H5Dclose(dataset_id);
+  H5Fclose(file_id);
     
 }

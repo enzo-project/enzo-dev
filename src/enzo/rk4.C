@@ -44,11 +44,10 @@ int rk4(float *repsi, float *impsi,
          double hmcoef)
 
 {
-  int ijk = MAX_ANY_SINGLE_DIRECTION;
 
   /* Local declarations */
 
-  int i, j, k, jsm1, ksm1, jep1, kep1, ism2, jsm2, ksm2, jep2, kep2;
+  int i, j, k;
   int size = in*jn*kn;
 
   float *r1 = new float[size];
@@ -74,7 +73,7 @@ int rk4(float *repsi, float *impsi,
   kep2 = min(ke+2, kn-1);*/
 
   /* Compute the laplacian term */
- // fprintf(stderr, " ksm1,kep1 %"ISYM", %"ISYM"\n", ks, ke);
+ // fprintf(stderr, " ksm1,kep1 %" ISYM", %" ISYM"\n", ks, ke);
 
   // 1st step
 

@@ -185,9 +185,6 @@ int grid::ComputeElectricField(float dT, float ** Fluxes){
   //                       
   // Li_B indicies are the relevant elements in the flux array. 
   
-  int size = GridDimension[0]*
-    ((GridRank > 1 ) ? GridDimension[1] : 1 )*
-    ((GridRank > 2 ) ? GridDimension[2] : 1 );
   
   int Li_B[3][2] = { {1,1},{1,0},{0,0}};
   //Pointers (and one macro) for brevity.
@@ -278,7 +275,7 @@ int grid::ComputeElectricField(float dT, float ** Fluxes){
 	 F4 = B2 - Db[dimX][1] + MagneticSize[dimY] * Li_B[dimX][1];
 	 break;
        default:
-	 fprintf(stderr,"Athena_ComputeElectricField and incompatable Hydro Method %d\n", HydroMethod);
+	 fprintf(stderr,"Athena_ComputeElectricField and incompatable Hydro Method %" ISYM "\n", HydroMethod);
 	 return FAIL;
        }
 

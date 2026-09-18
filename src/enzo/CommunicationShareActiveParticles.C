@@ -37,8 +37,8 @@ int CommunicationShareActiveParticles(int *NumberToMove,
 				      ActiveParticleList<ActiveParticleType> &SharedList)
 {
 
-  int i, type, proc, ap_id;
-  int SizeOfSends, NumberOfNewParticles;
+  int i, type, proc;
+  int NumberOfNewParticles;
   ActiveParticleType_info *ap_info;
 
   int TotalNumberToMove = 0, GlobalNumberToMove;
@@ -51,10 +51,6 @@ int CommunicationShareActiveParticles(int *NumberToMove,
   if (GlobalNumberToMove == 0) return SUCCESS;
 
 #ifdef USE_MPI
-  MPI_Arg Count;
-  MPI_Arg SendCount;
-  MPI_Arg RecvCount;
-  MPI_Arg stat;
 #endif /* USE_MPI */
 
   if (NumberOfProcessors > 1) {
@@ -68,7 +64,7 @@ int CommunicationShareActiveParticles(int *NumberToMove,
     for (type = 0; type < EnabledActiveParticlesCount; type++) {
 
       ap_info = EnabledActiveParticles[type];
-      ap_id = ap_info->GetEnabledParticleID();
+      ap_info->GetEnabledParticleID();
 
       /* Get counts from each processor to allocate buffers. */
 
@@ -99,10 +95,9 @@ int CommunicationShareActiveParticles(int *NumberToMove,
       else
 	local_buffer_size = 0;
 
-      int send_buffer_size;
       char *send_buffer = new char[local_buffer_size];
       // This will break if more than one AP type is in the simulation
-      send_buffer_size = ap_info->FillBuffer(SendList, NumberToSend, send_buffer);
+      ap_info->FillBuffer(SendList, NumberToSend, send_buffer);
 
       /* generate displacement list. */
 

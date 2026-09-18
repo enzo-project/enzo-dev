@@ -65,7 +65,6 @@ int RadiativeTransferComputeTimestep(LevelHierarchyEntry *LevelArray[],
   const float MaxDTDecrease = 1e-10;
 
   LevelHierarchyEntry *Temp;
-  bool InitialTimestep;
   int l, maxLevel, ncells_rad;
   FLOAT HydroTime;
   float ThisPhotonDT;
@@ -87,7 +86,7 @@ int RadiativeTransferComputeTimestep(LevelHierarchyEntry *LevelArray[],
   }
   maxLevel = CommunicationMaxValue(maxLevel);
   if (debug)
-    fprintf(stdout, "EvolvePhotons: Maximum level with radiation = %d\n", maxLevel);
+    fprintf(stdout, "EvolvePhotons: Maximum level with radiation = %" ISYM "\n", maxLevel);
   // If no radiation, find the maximum level
   if (maxLevel < 0) {
     for (l = MAX_DEPTH_OF_HIERARCHY-1; l >= 0; l--) {
@@ -99,10 +98,8 @@ int RadiativeTransferComputeTimestep(LevelHierarchyEntry *LevelArray[],
   }
 
   // Determine if this is the first timestep (not in restart)
-  InitialTimestep = true;
   for (l = 0; l < MAX_DEPTH_OF_HIERARCHY-1; l++)
     if (LevelCycleCount[l] > 0) {
-      InitialTimestep = false;
       break;
     }
 
@@ -199,7 +196,7 @@ int RadiativeTransferComputeTimestep(LevelHierarchyEntry *LevelArray[],
   float dtTol = PFLOAT_EPSILON * HydroTime;
   if ((HydroTime+dtTol - PhotonTime) < dtPhoton) {
     if (debug) 
-      printf("HydroTime = %"PSYM", PhotonTime = %"PSYM
+      printf("HydroTime = %" PSYM", PhotonTime = %" PSYM
 	     ", dtPhoton = %g, dtPhoton0 = %g\n",
 	     HydroTime, PhotonTime, dtPhoton, Saved_dtPhoton);
     dtPhoton = min(1.01 * (HydroTime - PhotonTime), Saved_dtPhoton);

@@ -121,8 +121,8 @@ int CheckEnergyConservation(HierarchyEntry *Grids[], int grid,
       fprintf(fptr, "\n");
       PrintHeader = FALSE;
     }
-    fprintf(fptr, "%8.4"FSYM"  ", Time);
-    if (ComovingCoordinates) fprintf(fptr, "%8.3"FSYM"  ", a);
+    fprintf(fptr, "%8.4" FSYM"  ", Time);
+    if (ComovingCoordinates) fprintf(fptr, "%8.3" FSYM"  ", a);
     fprintf(fptr, "%8.3e  %8.3e  %8.3e  %8.3e  %8.3e", Energy[4], a*Energy[0],
 	    a*Energy[1], a*Energy[2], a*Energy[3]);
     if (ComovingCoordinates) fprintf(fptr, "  %8.3e", Energy[6]);

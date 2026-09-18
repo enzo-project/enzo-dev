@@ -54,7 +54,7 @@ namespace enzo_timing{
   {
   public:
     // Constructor 
-    section_performance(char* myname){
+    section_performance(const char* myname){
       name = myname;
       next = NULL;
       ngrids = 0;
@@ -180,12 +180,12 @@ namespace enzo_timing{
     SectionMap timers;
 
     // Accessor for section performance object
-    section_performance * get(char *name){
+    section_performance * get(const char *name){
       this->create(name);
       return timers[name];
     }
 
-    void create(char *name){
+    void create(const char *name){
       if (timers.find(name) == timers.end()){
         timers[name] = new section_performance(name);
       }
@@ -193,13 +193,13 @@ namespace enzo_timing{
     }
 
     // Start a timer by name
-    void start(char *name){
+    void start(const char *name){
       this->create(name);
       timers[name]->start();
     }
 
     // Stop a timer by name
-    void stop(char *name){
+    void stop(const char *name){
       timers[name]->stop();
     }
 

@@ -39,9 +39,9 @@ int gFLDSplit::Dump(EnzoVector *ucur)
     fprintf(stderr,"  maxsubcycles = %g\n",maxsubcycles);
     fprintf(stderr,"  maxchemsub = %g\n",maxchemsub);
     fprintf(stderr,"  theta = %g\n",theta);
-    fprintf(stderr,"  Nchem = %"ISYM"\n",Nchem);
-    fprintf(stderr,"  Model = %"ISYM"\n",Model);
-    fprintf(stderr,"  ESpectrum = %"ISYM"\n",ESpectrum);
+    fprintf(stderr,"  Nchem = %" ISYM"\n",Nchem);
+    fprintf(stderr,"  Model = %" ISYM"\n",Model);
+    fprintf(stderr,"  ESpectrum = %" ISYM"\n",ESpectrum);
     fprintf(stderr,"  aUnits = %g\n",aUnits);
     fprintf(stderr,"  ErUnits = %g\n",ErUnits);
     fprintf(stderr,"  ecUnits = %g\n",ecUnits);
@@ -68,31 +68,31 @@ int gFLDSplit::Dump(EnzoVector *ucur)
     rmstmp = U0->rmsnorm_component(ns);
     inftmp = U0->infnorm_component(ns);
     if (debug) 
-      fprintf(stderr,"\n  U0(%"ISYM"): rms = %g, max = %g\n",ns,rmstmp,inftmp);
+      fprintf(stderr,"\n  U0(%" ISYM"): rms = %g, max = %g\n",ns,rmstmp,inftmp);
 
     rmstmp = ucur->rmsnorm_component(ns);
     inftmp = ucur->infnorm_component(ns);
     if (debug) 
-      fprintf(stderr,"  u(%"ISYM"): rms = %g, max = %g\n",ns,rmstmp,inftmp);
+      fprintf(stderr,"  u(%" ISYM"): rms = %g, max = %g\n",ns,rmstmp,inftmp);
   }
   
 
   char *ofile = new char[12];
-  char *tmp_str = new char[3];
+  char *tmp_str = new char[64];
   for (int ns=0; ns<=Nchem+1; ns++) {
 
-    sprintf(tmp_str,"%"ISYM,ns);
+    sprintf(tmp_str,"%" ISYM,ns);
 
     strcpy(ofile,"u0_");
     strcat(strcat(ofile,tmp_str),".vec");
     if (debug) 
-      fprintf(stderr,"  writing U0(%"ISYM") to %s\n",ns,ofile);
+      fprintf(stderr,"  writing U0(%" ISYM") to %s\n",ns,ofile);
     U0->writeall(ofile,ns);
 
     strcpy(ofile,"u_");
     strcat(strcat(ofile,tmp_str),".vec");
     if (debug) 
-      fprintf(stderr,"  writing u(%"ISYM") to %s\n",ns,ofile);
+      fprintf(stderr,"  writing u(%" ISYM") to %s\n",ns,ofile);
     ucur->writeall(ofile,ns);
   }
 

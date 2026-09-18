@@ -10,21 +10,18 @@ Enzo Compilation Requirements
 -----------------------------
 
 Enzo can be compiled on any POSIX-compatible operating system, such as Linux,
-BSD (including Mac OS X), and AIX.  In addition to a C/C++ and Fortran-90
-compiler, the following libraries are necessary:
+BSD (including Mac OS X), and AIX. In addition to a C/C++ and Fortran-90
+compiler, the following libraries and tools are necessary:
 
+   * `CMake <https://cmake.org/>`_ (version 3.20 or newer), the cross-platform build system.
    * `HDF5 <http://www.hdfgroup.org/HDF5/>`_, the hierarchical data format.
      Note that HDF5 also may require the szip and zlib libraries, which can be
-     found at the HDF5 website.  Note that compiling with HDF5 1.8 or greater
-     requires that the compiler directive ``H5_USE_16_API`` be specified;
-     typically this is done with ``-DH5_USE_16_API`` and it's set in most of
-     the provided makefiles.
+     found at the HDF5 website.
    * `MPI <http://www.mcs.anl.gov/research/projects/mpi/>`_, for multi-processor parallel
-     jobs.  Note that Enzo will compile without MPI, but it's fine to compile
-     with MPI and only run on a single processor.
-   * `git <https://git-scm.org/>`__, a free, distributed
-     source control management tool.
-   * `yt <http://yt-project.org>`_, the yt visualization and analysis suite.  
+     jobs. Note that Enzo will compile without MPI if desired, but it is recommended to compile
+     with MPI.
+   * `git <https://git-scm.org/>`__, a free, distributed source control management tool.
+   * `yt <http://yt-project.org>`_, the yt visualization and analysis suite.
      While it is not required to run enzo, ``yt`` enables the easiest analysis
      of its outputs, as well as the ability to run the enzo testing tools.
    * `libyt <https://libyt.readthedocs.io/en/latest/>`__, a C library for in situ analysis using Python and ``yt``.
@@ -39,17 +36,12 @@ List <http://groups.google.com/group/enzo-users>`_, where one can ask questions
 to the community of enzo users and developers.  
 
 Please visit the `Enzo Project home page <http://enzo-project.org>`_ to learn
-more about the code and different installation methods.  To directly access the source
+more about the code and different installation methods. To directly access the source
 code, you can visit the `Enzo Github page <https://github.com/enzo-project>`_.
 
-If you already have Fortran, C, C++ compilers, 
-`git <http://git-scm.com>`_,
-`MPI <http://www.mcs.anl.gov/research/projects/mpi/>`_, and 
-`HDF5 <http://www.hdfgroup.org/HDF5/>`_ installed, then installation of
-Enzo should be straightforward.  Simply run the following at the command line 
-to get the latest stable version of the Enzo source using Mercurial. This 
-command makes a copy of the existing enzo source code repository on your local 
-computer in the current directory:
+If you already have Fortran, C, C++ compilers, CMake, MPI, and HDF5 installed,
+then installation of Enzo should be straightforward. Simply run the following at the command line 
+to get the latest stable version of the Enzo source using git:
 
 .. highlight:: none
 
@@ -57,14 +49,9 @@ computer in the current directory:
 
     ~ $ git clone https://github.com/enzo-project/enzo-dev.git
 
-Later on, if you want to update your code and get any additional modifications 
-which may have occurred since you originally cloned the source repository, 
-you will have to ``pull`` them from the server and then ``update`` your 
-local copy (in this example, no new changes have occurred):
-
 Enzo development continues regularly, and if you wish to use the
 latest changes, you can update the code as follows:
-	       
+
 ::
 
     ~/enzo $ git fetch
@@ -79,219 +66,86 @@ and any git tutorial such as `this one <https://git-scm.com/docs/gittutorial>`_.
 Building Enzo
 -------------
 
-This is a quick, line by line example for building
-Enzo using the current build system. A comprehensive list of the make
-system arguments can be found in :ref:`MakeOptions`.
+Enzo uses CMake to configure and build all targets across platforms. A comprehensive list of the CMake build options can be found in :ref:`CMakeOptions`.
 
-This assumes that we're working from a checkout (or download) of the source
-after following instructions on the `Enzo Project home page <http://enzo-project.org>`_, or the instructions in the last section.  For more detailed information 
-about the structure of the Enzo source control repository, see 
-:ref:`enzo_modification`.
+.. note::
+   If you are compiling a historical version of Enzo that uses the legacy ``Make.mach.*`` Makefile system, please consult the :ref:`LegacyMakeOptions` reference.
 
-Initializing the Build System
-+++++++++++++++++++++++++++++
+Quick Start: Building with Default Options
+++++++++++++++++++++++++++++++++++++++++++
 
-This just clears any existing configurations left over from a previous machine,
-and creates a couple of files for building.
+To build Enzo with default options (64-bit precision, MPI enabled, HDF5 enabled):
 
 ::
 
-    ~ $ cd enzo/
-    ~/enzo $ ./configure 
-    Configure complete.
+    ~ $ cd enzo-dev/
+    ~/enzo-dev $ make
 
-This message just confirms that the build system has been
-initialized.  To further confirm that it ran, there should be a file called
-Make.config.machine in the src/enzo subdirectory.
+This wrapper ``Makefile`` automatically invokes CMake with parallel build jobs matching your available CPU cores.
 
-Go to the Source Directory
-++++++++++++++++++++++++++
-
-The source code for the various Enzo components are laid out in the
-src/ directory.
+Alternatively, you can call CMake directly from the top-level directory:
 
 ::
 
-    ~/enzo $ cd src
-    ~/enzo/src $ ls
-    Makefile      P-GroupFinder      TREECOOL      anyl      enzo      enzohop
-    inits         lcaperf            mpgrafic      performance_tools   ring
+    ~/enzo-dev $ cmake -B build -S .
+    ~/enzo-dev $ cmake --build build
 
-Right now, we're just building the main executable (the one that
-does the simulations), so we need the ``enzo/`` directory.
+All output executables will be generated in the ``bin/`` directory:
 
 ::
 
-    ~/enzo/src $ cd enzo/
+    ~/enzo-dev $ ls bin/
+    enzo  inits  enzohop  ring  anyl  P-GroupFinder
 
-Find the Right Machine File
-+++++++++++++++++++++++++++
+Configuring Custom Build Options
+++++++++++++++++++++++++++++++++
 
-We've chosen to go with configurations files based on specific
-machines. This means we can provide configurations files for most
-of the major NSF resources, and examples for many of the one-off
-(clusters, laptops, etc.).
+You can customize compilation options (such as precision, external libraries, or physics features) by passing ``-DOPTION=VALUE`` flags during CMake configuration.
 
-These machine-specific configuration files are named ``Make.mach.machinename``.
+For example, to build with 32-bit floating point precision and enable Grackle chemistry:
 
 ::
 
-    ~/enzo/src/enzo $ ls Make.mach.*
-    Make.mach.arizona               Make.mach.darwin                
-    Make.mach.hotfoot-condor        Make.mach.kolob                 
-    Make.mach.linux-gnu             Make.mach.nasa-discover         
-    Make.mach.nasa-pleiades         Make.mach.ncsa-bluedrop         
-    Make.mach.ncsa-bluewaters-gnu   Make.mach.ncsa-cobalt           
-    Make.mach.nics-kraken           Make.mach.nics-kraken-gnu       
-    Make.mach.nics-kraken-gnu-yt    Make.mach.nics-nautilus
-    Make.mach.orange                Make.mach.ornl-jaguar-pgi
-    Make.mach.scinet                Make.mach.sunnyvale
-    Make.mach.tacc-ranger           Make.mach.trestles
-    Make.mach.triton                Make.mach.triton-gnu
-    Make.mach.triton-intel          Make.mach.unknown
+    ~/enzo-dev $ cmake -B build -S . -DENZO_PRECISION=32 -DENZO_USE_GRACKLE=ON
+    ~/enzo-dev $ cmake --build build
 
-    ~/enzo/src/enzo $ 
+Common Configuration Options
+++++++++++++++++++++++++++++
 
-In this example, we choose ``Make.mach.darwin``, which is appropriate for Mac
-OS X machines.
+Below are some frequently used CMake options:
 
-Porting
-+++++++
+- ``-DENZO_PRECISION=32|64``: Floating-point precision (default: 64)
+- ``-DENZO_INTEGERS=32|64``: Grid integer size (default: 64)
+- ``-DENZO_PARTICLES=32|64|128``: Particle position precision (default: 64)
+- ``-DENZO_USE_MPI=ON|OFF``: Enable/disable MPI parallel support (default: ON)
+- ``-DENZO_USE_GRACKLE=ON|OFF``: Enable/disable Grackle cooling library (default: OFF)
+- ``-DENZO_USE_HYPRE=ON|OFF``: Enable/disable HYPRE linear solvers (default: OFF)
 
-If there's no machine file for the machine you're on, you will have
-to do a small amount of porting. However, we have attempted to
-provide a wide base of Makefiles, so you should be able to find one
-that is close, if not identical, to the machine you are attempting
-to run Enzo on. The basic steps are as follows:
+For a complete reference of all available options, see :ref:`CMakeOptions`.
 
+Building Individual Tools
++++++++++++++++++++++++++
 
-#. Find a Make.mach file from a similar platform.
-#. Copy it to Make.mach.site-machinename (site = sdsc or owner,
-   machinename = hostname).
-#. Edit the machine-specific settings (compilers, libraries, etc.).
-#. Build and test.
-
-If you expect that you will have multiple checkouts of the Enzo source code,
-you should feel free to create the directory $HOME/.enzo/ and place your custom
-makefiles there, and Enzo's build system will use any machine name-matching
-Makefile in that directory to provide or override Make settings.
-
-Make sure you save your configuration file! If you're on a big system (multiple
-Enzo users), please post your file to `the Enzo mailing list
-<http://groups.google.com/group/enzo-users>`_, and it will be
-considered for inclusion with the base Enzo distribution.
-
-HDF5 Versions
-+++++++++++++
-
-If your system uses a version of HDF5 greater than or equal to 1.8, you
-probably need to add a flag to your compile settings, unless your HDF5 library
-was compiled using --with-default-api-version=v16. The simplest thing to do is
-to find the line in your Make.mach file that sets up MACH_DEFINES, which may
-look like this
+To compile a specific tool without building the entire suite, pass the target name to ``make`` or ``cmake --build``:
 
 ::
 
-    MACH_DEFINES   = -DLINUX # Defines for the architecture; e.g. -DSUN, -DLINUX, etc.
+    ~/enzo-dev $ make enzo        # Builds bin/enzo only
+    ~/enzo-dev $ make inits       # Builds bin/inits only
+    ~/enzo-dev $ make enzohop     # Builds bin/enzohop only
+    ~/enzo-dev $ make anyl        # Builds bin/anyl only
 
-and change it to
-
-::
-
-    MACH_DEFINES   = -DLINUX -DH5_USE_16_API # Defines for the architecture; e.g. -DSUN, -DLINUX, etc.
-
-This will ensure that the HDF5 header files expose the correct API
-for Enzo.
-
-Build the Makefile
+Cleaning the Build
 ++++++++++++++++++
 
-Now that you have your configuration file, tell the build system to
-use it (remember to ``make clean`` if you change any previous settings):
+To remove built binaries and object files:
 
 ::
 
-    ~/enzo/src/enzo $ make machine-darwin
-    
-     *** Execute 'gmake clean' before rebuilding executables ***
-    
-       MACHINE: Darwin (OSX Leopard)
+    ~/enzo-dev $ make clean
 
-You may also want to know the settings (precision, etc.) that are being
-use. You can find this out using ``make show-config``. For a detailed
-explanation of what these mean, see :ref:`MakeOptions`.
+Or remove the ``build/`` directory:
 
 ::
 
-    ~/enzo/src/enzo $ make show-config
-    
-    MACHINE: Darwin (OSX Leopard)
-    MACHINE-NAME: darwin
-
-    PARAMETER_MAX_SUBGRIDS  [max-subgrids-###]                : 100000
-    PARAMETER_MAX_BARYONS  [max-baryons-###]                  : 30
-    PARAMETER_MAX_TASKS_PER_NODE  [max-tasks-per-node-###]    : 8
-    PARAMETER_MEMORY_POOL_SIZE  [memory-pool-###]             : 100000
- 
-    CONFIG_PRECISION  [precision-{32,64}]                     : 64
-    CONFIG_PARTICLES  [particles-{32,64,128}]                 : 64
-    CONFIG_INTEGERS  [integers-{32,64}]                       : 64
-    CONFIG_PARTICLE_IDS  [particle-id-{32,64}]                : 64
-    CONFIG_INITS  [inits-{32,64}]                             : 64
-    CONFIG_IO  [io-{32,64}]                                   : 32
-    CONFIG_USE_MPI  [use-mpi-{yes,no}]                        : yes
-    CONFIG_OBJECT_MODE  [object-mode-{32,64}]                 : 64
-    CONFIG_TASKMAP  [taskmap-{yes,no}]                        : no
-    CONFIG_PACKED_AMR  [packed-amr-{yes,no}]                  : yes
-    CONFIG_PACKED_MEM  [packed-mem-{yes,no}]                  : no
-    CONFIG_LCAPERF  [lcaperf-{yes,no}]                        : no
-    CONFIG_PAPI  [papi-{yes,no}]                              : no
-    CONFIG_PYTHON  [python-{yes,no}]                          : no
-    CONFIG_NEW_PROBLEM_TYPES  [new-problem-types-{yes,no}]    : no
-    CONFIG_ECUDA  [cuda-{yes,no}]                             : no
-    CONFIG_OOC_BOUNDARY  [ooc-boundary-{yes,no}]              : no
-    CONFIG_ACCELERATION_BOUNDARY  [acceleration-boundary-{yes,no}]    : yes
-    CONFIG_OPT  [opt-{warn,debug,cudadebug,high,aggressive}]  : debug
-    CONFIG_TESTING  [testing-{yes,no}]                        : no
-    CONFIG_TPVEL  [tpvel-{yes,no}]]                           : no
-    CONFIG_PHOTON  [photon-{yes,no}]                          : yes
-    CONFIG_HYPRE  [hypre-{yes,no}]                            : no
-    CONFIG_EMISSIVITY  [emissivity-{yes,no}]                  : no
-    CONFIG_USE_HDF4  [use-hdf4-{yes,no}]                      : no
-    CONFIG_NEW_GRID_IO  [newgridio-{yes,no}]                  : yes
-    CONFIG_BITWISE_IDENTICALITY  [bitwise-{yes,no}]           : no
-    CONFIG_FAST_SIB  [fastsib-{yes,no}]                       : yes
-    CONFIG_FLUX_FIX  [fluxfix-{yes,no}]                       : yes
-    CONFIG_GRAVITY_4S  [gravity-4s-{yes,no}]                  : no
-    CONFIG_ENZO_PERFORMANCE  [enzo-performance-{yes,no}]      : yes
-    CONFIG_LOG2ALLOC  [log2alloc-{yes,no}]                    : yes
-    
-    ~/enzo/src/enzo $ 
-
-Build Enzo
-++++++++++
-
-The default build target is the main executable, Enzo.
-
-::
-
-    ~/enzo/src/enzo $ make
-    Updating DEPEND
-    pdating DEPEND
-    Compiling enzo.C
-    Compiling acml_st1.src
-    ... (skipping) ...
-    Compiling Zeus_zTransport.C
-    Linking
-    Success!
-
-After compiling, you will have ``enzo.exe`` in the current directory.
-If you have a failure during the compiler process, you may get enough of
-an error message to track down what was responsible.  If there is a failure
-during linking, examine the ``compile.out`` file to learn more about 
-what caused the problem.  A common problem is that you forgot to include the 
-current location of the HDF5 libraries in your machine-specific
-makefile.
-
-Congratulations!  You now have a working executable and continue
-on the next step of running a test calculation.
+    ~/enzo-dev $ rm -rf build/

@@ -47,19 +47,19 @@ int ReadMetalCoolingRates(float TemperatureUnits, float LengthUnits,
 
   fgets(line, MAX_LINE_LENGTH, fptr);
   fgets(line, MAX_LINE_LENGTH, fptr);
-  if ((sscanf(line, "# %"ISYM" %"ISYM, &NumberOfTemperatureBins, 
+  if ((sscanf(line, "# %" ISYM" %" ISYM, &NumberOfTemperatureBins, 
 	      &CoolData.NumberOfElectronFracBins)) != 2) {
     ENZO_FAIL("Error reading number of bins (line 2)\n");
   }
 
   if (NumberOfTemperatureBins != CoolData.NumberOfTemperatureBins) {
-    ENZO_VFAIL("Number of temperature bins (=%"ISYM") in metal cooling table MUST equal\n"
-	    "NumberOfTemperatureBins in other rate tables (=%"ISYM")\n",
+    ENZO_VFAIL("Number of temperature bins (=%" ISYM") in metal cooling table MUST equal\n"
+	    "NumberOfTemperatureBins in other rate tables (=%" ISYM")\n",
 	    NumberOfTemperatureBins, CoolData.NumberOfTemperatureBins)
   }
 
   fgets(line, MAX_LINE_LENGTH, fptr);
-  if ((sscanf(line, "# %"FSYM" %"FSYM" %"FSYM" %"FSYM, 
+  if ((sscanf(line, "# %" FSYM" %" FSYM" %" FSYM" %" FSYM, 
   //if ((sscanf(line, "# %e %e %e %e", 
 	      TemperatureRange, TemperatureRange+1,
 	      &CoolData.ElectronFracStart, &CoolData.ElectronFracEnd)) != 4) {
@@ -68,8 +68,8 @@ int ReadMetalCoolingRates(float TemperatureUnits, float LengthUnits,
 
   if (TemperatureRange[0] != CoolData.TemperatureStart ||
       TemperatureRange[1] != CoolData.TemperatureEnd) {
-    ENZO_VFAIL("Temperature range [%"GSYM", %"GSYM"] in metal cooling table MUST equal the\n"
-	    "temperature range [%"GSYM", %"GSYM"] in the other rate tables.\n",
+    ENZO_VFAIL("Temperature range [%" GSYM", %" GSYM"] in metal cooling table MUST equal the\n"
+	    "temperature range [%" GSYM", %" GSYM"] in the other rate tables.\n",
 	    TemperatureRange[0], TemperatureRange[1], CoolData.TemperatureStart,
 	    CoolData.TemperatureEnd)
   }
@@ -93,8 +93,8 @@ int ReadMetalCoolingRates(float TemperatureUnits, float LengthUnits,
   for (itemp = 0; itemp < CoolData.NumberOfTemperatureBins; itemp++)
     for (ixe = 0; ixe < CoolData.NumberOfElectronFracBins; ixe++) {
       index = ixe*CoolData.NumberOfTemperatureBins + itemp;
-      if ((fscanf(fptr, "%"FSYM, &CoolData.metals[index])) == EOF) {
-	ENZO_VFAIL("EOF reached at itemp = %"ISYM", ixe = %"ISYM"\n", 
+      if ((fscanf(fptr, "%" FSYM, &CoolData.metals[index])) == EOF) {
+	ENZO_VFAIL("EOF reached at itemp = %" ISYM", ixe = %" ISYM"\n", 
 		itemp, ixe)
 
       }
@@ -124,13 +124,13 @@ int ReadMetalCoolingRates(float TemperatureUnits, float LengthUnits,
 
   fptr2 = fopen("metal_cool_rates.out", "w");
   for (itemp = 0; itemp < CoolData.NumberOfTemperatureBins; itemp++) {
-    fprintf(fptr2, "%"GSYM"\t", log10(CoolData.TemperatureStart) +
+    fprintf(fptr2, "%" GSYM"\t", log10(CoolData.TemperatureStart) +
 	   (log10(CoolData.TemperatureEnd)-
 	    log10(CoolData.TemperatureStart)) * float(itemp)/
 	    float(CoolData.NumberOfTemperatureBins-1));
     for (ixe = 0; ixe < CoolData.NumberOfElectronFracBins; ixe++) {
       index = ixe*CoolData.NumberOfTemperatureBins + itemp;
-      fprintf(fptr2, "%"GSYM"\t", CoolData.metals[index]);
+      fprintf(fptr2, "%" GSYM"\t", CoolData.metals[index]);
     }
     fprintf(fptr2, "\n");
   }

@@ -140,7 +140,7 @@ int grid::TracerParticleOutputData(FILE *fptr, FLOAT WriteOutTime)
 
     // double check to make sure we didn't screw up
     if((numberofcountedparticles != NumberOfTracerParticles) || (fillindex/GridRank != NumberOfTracerParticles)){
-      ENZO_VFAIL("error in grid->TracerParticleOutputData:  Particle num wrong! %"ISYM" %"ISYM" %"ISYM" %"ISYM"\n",
+      ENZO_VFAIL("error in grid->TracerParticleOutputData:  Particle num wrong! %" ISYM" %" ISYM" %" ISYM" %" ISYM"\n",
 		 numberofcountedparticles, NumberOfTracerParticles, fillindex, GridRank)
 	}
 
@@ -153,8 +153,8 @@ int grid::TracerParticleOutputData(FILE *fptr, FLOAT WriteOutTime)
  
   /* Write floatpoint data (this is (2+GridRank) x NumberOfTracerParticles). */
  
-  if (fwrite((void*) TracerParticleData, sizeof(float), BufferSize, fptr) != BufferSize) {
-    ENZO_VFAIL("P(%"ISYM") Error writing tracer particle data\n",
+  if (fwrite((void*) TracerParticleData, sizeof(float), BufferSize, fptr) != (size_t) BufferSize) {
+    ENZO_VFAIL("P(%" ISYM") Error writing tracer particle data\n",
 	       MyProcessorNumber)
       }
 
@@ -164,8 +164,8 @@ int grid::TracerParticleOutputData(FILE *fptr, FLOAT WriteOutTime)
 
     /* write more floating point data (which is GridRank x NumberOfTracerParticles).  This
        happens to be particle velocity. */
-    if (fwrite((void*) TracerParticleVelocityData, sizeof(float), PartVelBufferSize, fptr) != PartVelBufferSize) {
-      ENZO_VFAIL("P(%"ISYM") Error writing tracer particle data (2)\n", 
+    if (fwrite((void*) TracerParticleVelocityData, sizeof(float), PartVelBufferSize, fptr) != (size_t) PartVelBufferSize) {
+      ENZO_VFAIL("P(%" ISYM") Error writing tracer particle data (2)\n", 
 		 MyProcessorNumber)
 	}
 
@@ -180,7 +180,7 @@ int grid::TracerParticleOutputData(FILE *fptr, FLOAT WriteOutTime)
   for (n = 0; n < NumberOfParticles; n++)
     if (ParticleType[n] == PARTICLE_TYPE_TRACER){
       int_buffer[index++] = ParticleNumber[n];
-      //printf("particle ID %d (%d)\n",ParticleNumber[n], int_buffer[index-1]);
+      //printf("particle ID %" ISYM " (%" ISYM ")\n",ParticleNumber[n], int_buffer[index-1]);
     }
 
   fwrite((void*) int_buffer, sizeof(int), NumberOfTracerParticles, fptr);

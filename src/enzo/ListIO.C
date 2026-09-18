@@ -24,8 +24,8 @@ int ReadListOfInts(FILE *fptr, int N, int nums[])
 {
   for (int i = 0; i < N; i++)
     if (fscanf(fptr, "%d", nums + i) != 1) {
-      fprintf(stderr, "ReadListOfInts called with %i numbers to read. %i %i %i %i %i",N,nums);
-      throw(EnzoFatalException("Error in: "__FILE__));
+      fprintf(stderr, "ReadListOfInts called with %d numbers to read.\n", N);
+      throw(EnzoFatalException("Error in: " __FILE__));
  }
   fscanf(fptr, "\n");
   return SUCCESS;
@@ -35,7 +35,7 @@ int ReadListOfInts(FILE *fptr, long long int N, long long int nums[])
 {
   for (long long int i = 0; i < N; i++)
     if (fscanf(fptr, "%lld", nums + i) != 1)
-      throw(EnzoFatalException("Error in: "__FILE__));
+      throw(EnzoFatalException("Error in: " __FILE__));
 
   fscanf(fptr, "\n");
   return SUCCESS;
@@ -59,7 +59,7 @@ int ReadListOfFloats(FILE *fptr, int N, float floats[])
 {
   for (int i = 0; i < N; i++)
     if (fscanf(fptr, "%f", floats + i) != 1)
-      throw(EnzoFatalException("Error in: "__FILE__));
+      throw(EnzoFatalException("Error in: " __FILE__));
  
   fscanf(fptr, "\n");
   return SUCCESS;
@@ -69,7 +69,7 @@ long long int ReadListOfFloats(FILE *fptr, long long int N, float floats[])
 {
   for (long long int i = 0; i < N; i++)
     if (fscanf(fptr, "%f", floats + i) != 1)
-      throw(EnzoFatalException("Error in: "__FILE__));
+      throw(EnzoFatalException("Error in: " __FILE__));
 
   fscanf(fptr, "\n");
   return SUCCESS;
@@ -109,7 +109,7 @@ int ReadListOfFloats(FILE *fptr, int N, double floats[])
 {
   for (int i = 0; i < N; i++)
     if (fscanf(fptr, "%lf", floats + i) != 1)
-      throw(EnzoFatalException("Error in: "__FILE__));
+      throw(EnzoFatalException("Error in: " __FILE__));
  
   fscanf(fptr, "\n");
   return SUCCESS;
@@ -119,7 +119,7 @@ long long int ReadListOfFloats(FILE *fptr, long long int N, double floats[])
 {
   for (long long int i = 0; i < N; i++)
     if (fscanf(fptr, "%lf", floats + i) != 1)
-      throw(EnzoFatalException("Error in: "__FILE__));
+      throw(EnzoFatalException("Error in: " __FILE__));
 
   fscanf(fptr, "\n");
   return SUCCESS;
@@ -148,7 +148,7 @@ int ReadListOfFloats(FILE *fptr, int N, long double floats[])
 {
   for (int i = 0; i < N; i++)
     if (fscanf(fptr, "%Lf", floats + i) != 1)
-      throw(EnzoFatalException("Error in: "__FILE__));
+      throw(EnzoFatalException("Error in: " __FILE__));
  
   fscanf(fptr, "\n");
   return SUCCESS;
@@ -159,7 +159,7 @@ long long int ReadListOfFloats(FILE *fptr, long long int N, long double floats[]
 {
   for (long long int i = 0; i < N; i++)
     if (fscanf(fptr, "%Lf", floats + i) != 1)
-      throw(EnzoFatalException("Error in: "__FILE__));
+      throw(EnzoFatalException("Error in: " __FILE__));
 
   fscanf(fptr, "\n");
   return SUCCESS;

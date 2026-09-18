@@ -54,7 +54,7 @@ int gFLDSplit::InitialGuess(EnzoVector *uvec)
 
   default:  // illegal choice
 
-    fprintf(stderr,"InitialGuess Error: illegal initial_guess choice = %"ISYM"\n",
+    fprintf(stderr,"InitialGuess Error: illegal initial_guess choice = %" ISYM"\n",
 	    initial_guess);
     ENZO_FAIL("Error in gFLDSplit_InitialGuess");
 

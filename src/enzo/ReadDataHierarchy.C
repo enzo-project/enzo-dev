@@ -51,7 +51,6 @@ int ReadDataHierarchy(FILE *fptr, hid_t Hfile_id, HierarchyEntry *Grid, int Grid
 
   //dcollins, August 5 2009.  Updated failsafe for old files that don't have Task defined.
   int NewProc = ReadDataGridCounter % NumberOfProcessors;
-  int ProcMap = ABS(NewProc - NumberOfProcessors) % NumberOfProcessors;
   
   FILE * ptr_task_check = fptr;
   
@@ -59,15 +58,15 @@ int ReadDataHierarchy(FILE *fptr, hid_t Hfile_id, HierarchyEntry *Grid, int Grid
 
     /* Read header info for this grid */
     
-    if (fscanf(fptr, "\nGrid = %"ISYM"\n", &TestGridID) != 1) {
-      ENZO_VFAIL("Error reading Grid # in grid %"ISYM".\n", GridID)
+    if (fscanf(fptr, "\nGrid = %" ISYM"\n", &TestGridID) != 1) {
+      ENZO_VFAIL("Error reading Grid # in grid %" ISYM".\n", GridID)
 	}
     if (TestGridID != GridID) {
-      ENZO_VFAIL("Unexpected GridID = %"ISYM" while reading grid %"ISYM".\n",
+      ENZO_VFAIL("Unexpected GridID = %" ISYM" while reading grid %" ISYM".\n",
 		 TestGridID, GridID)
 	}
         
-    if( fscanf(fptr, "Task = %"ISYM"\n", &Task) != 1){
+    if( fscanf(fptr, "Task = %" ISYM"\n", &Task) != 1){
       Task = NewProc;
       fptr = ptr_task_check;
     }
@@ -89,7 +88,7 @@ int ReadDataHierarchy(FILE *fptr, hid_t Hfile_id, HierarchyEntry *Grid, int Grid
   }
 
   if ( MyProcessorNumber == 0 )
-      fprintf(stderr, "Reading Grid %"ISYM" assigned to Task %"ISYM"\n", TestGridID, Task);
+      fprintf(stderr, "Reading Grid %" ISYM" assigned to Task %" ISYM"\n", TestGridID, Task);
  
 
 // If explicit task mapping is enabled (for Unigrid) then use that map
@@ -97,7 +96,7 @@ int ReadDataHierarchy(FILE *fptr, hid_t Hfile_id, HierarchyEntry *Grid, int Grid
 #ifdef ENABLE_TASKMAP
 
   if ( MyProcessorNumber == 0 )
-    fprintf(stderr, "Task map assignment: GridID = %"ISYM"  MPI Task = %"ISYM"\n", GridID, TaskMap[GridID-1]);
+    fprintf(stderr, "Task map assignment: GridID = %" ISYM"  MPI Task = %" ISYM"\n", GridID, TaskMap[GridID-1]);
   
   Grid->GridData->SetProcessorNumber(TaskMap[GridID-1]);
   
@@ -110,10 +109,11 @@ int ReadDataHierarchy(FILE *fptr, hid_t Hfile_id, HierarchyEntry *Grid, int Grid
     fptr = ptr_task_check;
   }
 
-  if ( MyProcessorNumber == 0 )
-    fprintf(stderr, "Using dumped task assignment: GridID = %"ISYM"  MPI Task = %"ISYM"\n", GridID, Task);
+  if ( MyProcessorNumber == 0 ) {
+    fprintf(stderr, "Using dumped task assignment: GridID = %" ISYM"  MPI Task = %" ISYM"\n", GridID, Task);
+  }
 
-    Grid->GridData->SetProcessorNumber(Task);
+  Grid->GridData->SetProcessorNumber(Task);
 
 #endif
 
@@ -126,7 +126,7 @@ int ReadDataHierarchy(FILE *fptr, hid_t Hfile_id, HierarchyEntry *Grid, int Grid
   Grid->GridData->SetProcessorNumber(NewProc);
 
   if ( MyProcessorNumber == 0 )
-    fprintf(stderr, "TASKMAP DISABLED: Grid->Processor assignment:  GridID = %"ISYM"  MPI Task = %"ISYM"\n", GridID, NewProc);
+    fprintf(stderr, "TASKMAP DISABLED: Grid->Processor assignment:  GridID = %" ISYM"  MPI Task = %" ISYM"\n", GridID, NewProc);
 
 #endif
 
@@ -135,7 +135,7 @@ int ReadDataHierarchy(FILE *fptr, hid_t Hfile_id, HierarchyEntry *Grid, int Grid
   Grid->GridData->SetProcessorNumber(ProcMap);
 
   if ( MyProcessorNumber == 0 )
-    fprintf(stderr, "TASKMAP DISABLED: Grid->Processor assignment:  GridID = %"ISYM"  MPI Task = %"ISYM"\n", GridID, ProcMap);
+    fprintf(stderr, "TASKMAP DISABLED: Grid->Processor assignment:  GridID = %" ISYM"  MPI Task = %" ISYM"\n", GridID, ProcMap);
 
 #endif 
 
@@ -155,11 +155,11 @@ int ReadDataHierarchy(FILE *fptr, hid_t Hfile_id, HierarchyEntry *Grid, int Grid
 
   if(LoadGridDataAtStart){    
     if (Grid->GridData->ReadGrid(fptr, GridID, DataFilename) == FAIL) {
-      ENZO_VFAIL("Error in grid->ReadGrid (grid %"ISYM").\n", GridID)
+      ENZO_VFAIL("Error in grid->ReadGrid (grid %" ISYM").\n", GridID)
     }
   }else{
     if (Grid->GridData->ReadGrid(fptr, GridID, DataFilename, TRUE, FALSE) == FAIL) {
-      ENZO_VFAIL("Error in grid->ReadGrid (grid %"ISYM").\n", GridID)
+      ENZO_VFAIL("Error in grid->ReadGrid (grid %" ISYM").\n", GridID)
     }
     // Store grid id for later grid opening
     if (Grid->GridData->ReturnProcessorNumber() == MyProcessorNumber)
@@ -171,20 +171,20 @@ int ReadDataHierarchy(FILE *fptr, hid_t Hfile_id, HierarchyEntry *Grid, int Grid
   if (RandomForcing && ParentGrid == NULL && extract != TRUE
       && LoadGridDataAtStart )
     if (Grid->GridData->ReadRandomForcingFields(fptr, DataFilename) == FAIL) {
-      ENZO_VFAIL("Error in grid->ReadRandomForcingFields (grid %"ISYM").\n",
+      ENZO_VFAIL("Error in grid->ReadRandomForcingFields (grid %" ISYM").\n",
               GridID)
     }
  
   if (HierarchyFileInputFormat == 1) {
     /* Read pointer information for the next grid this level. */
     
-    if (fscanf(fptr, "Pointer: Grid[%"ISYM"]->NextGridThisLevel = %"ISYM"\n",
+    if (fscanf(fptr, "Pointer: Grid[%" ISYM"]->NextGridThisLevel = %" ISYM"\n",
 	       &TestGridID, &NextGridThisLevelID) != 2) {
-      ENZO_VFAIL("Error reading NextGridThisLevel pointer for grid %"ISYM".\n",
+      ENZO_VFAIL("Error reading NextGridThisLevel pointer for grid %" ISYM".\n",
 		 GridID)
 	}
     if (TestGridID != GridID) {
-      ENZO_VFAIL("GridID = %"ISYM" does not match grid(1) %"ISYM".\n",
+      ENZO_VFAIL("GridID = %" ISYM" does not match grid(1) %" ISYM".\n",
 		 TestGridID, GridID)
 	}
   }
@@ -201,13 +201,13 @@ int ReadDataHierarchy(FILE *fptr, hid_t Hfile_id, HierarchyEntry *Grid, int Grid
   if (HierarchyFileInputFormat == 1) {
     /* Read pointer information for the next grid next level. */
     
-    if (fscanf(fptr, "Pointer: Grid[%"ISYM"]->NextGridNextLevel = %"ISYM"\n",
+    if (fscanf(fptr, "Pointer: Grid[%" ISYM"]->NextGridNextLevel = %" ISYM"\n",
 	       &TestGridID, &NextGridNextLevelID) != 2) {
-      ENZO_VFAIL("Error reading NextGridNextLevel pointer for grid %"ISYM".\n",
+      ENZO_VFAIL("Error reading NextGridNextLevel pointer for grid %" ISYM".\n",
 		 GridID)
 	}
     if (TestGridID != GridID) {
-      ENZO_VFAIL("GridID = %"ISYM" does not match grid(2) %"ISYM".\n",
+      ENZO_VFAIL("GridID = %" ISYM" does not match grid(2) %" ISYM".\n",
 		 TestGridID, GridID)
 	}
   }

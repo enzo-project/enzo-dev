@@ -24,7 +24,7 @@ struct CloudyCoolingDataType
   float CloudyElectronFractionFactor;
 
   // Cooling grid file.
-  char *CloudyCoolingGridFile;
+  const char *CloudyCoolingGridFile;
 
   // Rank of Cloudy dataset.
   int CloudyCoolingGridRank;

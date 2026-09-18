@@ -103,7 +103,6 @@ int CommunicationTransferPhotons(LevelHierarchyEntry *LevelArray[],
 
 #ifdef USE_MPI
 
-  MPI_Status status;
   
   /* Generate a new MPI type corresponding to the PhotonList struct. */
   
@@ -116,9 +115,7 @@ int CommunicationTransferPhotons(LevelHierarchyEntry *LevelArray[],
   /* If parallel, Partition photons into linked lists that are
      transferred to the same grid */
 
-  float value;
-  int ivalue, GridNum, level, i, dim, proc;
-  int NumberOfGrids = 0, count = 0;
+  int i, dim, proc;
 
   GroupPhotonList **SendList = new GroupPhotonList*[NumberOfProcessors];
   int *PhotonCounter = new int[NumberOfProcessors];
@@ -133,11 +130,9 @@ int CommunicationTransferPhotons(LevelHierarchyEntry *LevelArray[],
 
   /* Count photons to move */
 
-  int NumberToMove = 0;
   ListOfPhotonsToMove *TempList = (*AllPhotons)->NextPackageToMove;
   while (TempList != NULL) {
     nPhoton[TempList->ToProcessor]++;
-    NumberToMove++;
     TempList = TempList->NextPackageToMove;
   }
   nPhoton[MyProcessorNumber] = 0;
@@ -165,12 +160,10 @@ int CommunicationTransferPhotons(LevelHierarchyEntry *LevelArray[],
 
   /* Collect photons into lists groups by ToProcessor */
 
-  ListOfPhotonsToMove *LastMover;
   PhotonPackageEntry *dummy;
   int ToProc, ToCount, TempLevel, TempGridNum, FromNumber;
   int localCounter = 0;
 
-  LastMover = *AllPhotons;
   Mover = (*AllPhotons)->NextPackageToMove;
   while (Mover != NULL) {
 
@@ -248,18 +241,17 @@ int CommunicationTransferPhotons(LevelHierarchyEntry *LevelArray[],
       FromNumber = Mover->FromGrid->ReturnNumberOfPhotonPackages();
       Mover->FromGrid->SetNumberOfPhotonPackages(FromNumber-1);
 
-//      printf("CTPh(P%"ISYM"): Photon %"ISYM" (=>P%"ISYM") :: lvl %"ISYM", grid %"ISYM", srcid=%"ISYM", L = %"GSYM"\n",
+//      printf("CTPh(P%" ISYM"): Photon %" ISYM" (=>P%" ISYM") :: lvl %" ISYM", grid %" ISYM", srcid=%" ISYM", L = %" GSYM"\n",
 //	     MyProcessorNumber, ToCount, ToProc, TempLevel, TempGridNum,
 //	     SendList[ToProc][ToCount].buffer.SuperSourceID,
 //	     SendList[ToProc][ToCount].buffer.Photons);
       if (DEBUG > 1)
-	printf("CTPh(P%"ISYM"): Photon %"ISYM" (=>P%"ISYM") :: lvl %"ISYM", grid %"ISYM", L = %"GSYM"\n",
+	printf("CTPh(P%" ISYM"): Photon %" ISYM" (=>P%" ISYM") :: lvl %" ISYM", grid %" ISYM", L = %" GSYM"\n",
 	       MyProcessorNumber, ToCount, ToProc, TempLevel, TempGridNum,
 	       SendList[ToProc][ToCount].buffer.Photons);
 
     }  /* ENDELSE different processor */
 
-    LastMover = Mover;
     Mover = Mover->NextPackageToMove;
 
   } /* ENDWHILE Mover */
@@ -274,10 +266,10 @@ int CommunicationTransferPhotons(LevelHierarchyEntry *LevelArray[],
   if (DEBUG) {
     for (proc = 0; proc < NumberOfProcessors; proc++)
       if (PhotonCounter[proc])
-	printf("CTPh(P%"ISYM"): Packed %"ISYM" photons into COMM buffer #%"ISYM".\n", 
+	printf("CTPh(P%" ISYM"): Packed %" ISYM" photons into COMM buffer #%" ISYM".\n", 
 	       MyProcessorNumber, PhotonCounter[proc], proc);
     if (localCounter)
-      printf("CTPh(P%"ISYM"): Transferred %"ISYM" photons locally.\n", 
+      printf("CTPh(P%" ISYM"): Transferred %" ISYM" photons locally.\n", 
 	     MyProcessorNumber, localCounter);  
   }
 
@@ -328,7 +320,7 @@ int CommunicationTransferPhotons(LevelHierarchyEntry *LevelArray[],
       //tag = MPI_PHOTONGROUP_TAG*10 + nPhoton[proc];
       tag = MPI_PHOTONGROUP_TAG;
       if (DEBUG && NumberOfMessages > 0)
-	printf("CTPh(P%"ISYM"): Sending %"ISYM" photons to P%"ISYM" (%d messages, TAG=%d)\n", 
+	printf("CTPh(P%" ISYM "): Sending %" ISYM " photons to P%" ISYM " (%" ISYM " messages, TAG=%d)\n", 
 	       MyProcessorNumber, nPhoton[proc], proc, NumberOfMessages, tag);
       for (i = 0; i < NumberOfMessages; i++) {
 	Offset = i*PHOTON_BUFFER_SIZE;

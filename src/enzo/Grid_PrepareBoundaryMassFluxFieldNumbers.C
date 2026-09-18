@@ -37,7 +37,7 @@ int grid::PrepareBoundaryMassFluxFieldNumbers(){
   if (BoundaryMassFluxFieldNumbers[0] >= 0) return SUCCESS; // we've already initialized
 
   /* obtain baryon field indexes */
-  int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, CRNum, B1Num, B2Num, B3Num;
+  int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, B1Num, B2Num, B3Num;
   this->DebugCheck("StarParticleHandler");
   if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
                                        Vel3Num, TENum, B1Num, B2Num, B3Num) == FAIL) {

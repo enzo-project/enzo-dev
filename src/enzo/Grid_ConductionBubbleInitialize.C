@@ -40,7 +40,7 @@ static double dtdr(double n);
 
 static double *rad,*nofr,*Tofr, g, bunch_of_constants, dKdr, 
   dKdr_cgs, K_mid, T_mid, n_mid,r_mid, 
-  r_mid_cgs, r_max, r_max_cgs;
+  r_mid_cgs, r_max_cgs;
 static int ncells;
 
 #define KEV_KELVIN 1.1604e+7
@@ -82,11 +82,7 @@ int grid::ConductionBubbleInitialize (FLOAT BubbleRadius, int PulseType, float D
     ENZO_FAIL("Error in IdentifyPhysicalQuantities.");
   }
 
-  int MetallicityField = FALSE;
-  if ((MetalNum = FindField(Metallicity, FieldType, NumberOfBaryonFields))
-      != -1)
-    MetallicityField = TRUE;
-  else
+  if ((MetalNum = FindField(Metallicity, FieldType, NumberOfBaryonFields)) == -1)
     MetalNum = 0;
 
   /* get field numbers for x, y z components of magnetic fields.  Note that
@@ -217,7 +213,7 @@ int grid::ConductionBubbleInitialize (FLOAT BubbleRadius, int PulseType, float D
 	  this_delta = 1.0 + (delta-1.0)*(1.0 - tanh((10.*(celldist/BubbleRadius-1.0)))) / 2.0;
 
 	} else {
-	  ENZO_VFAIL("PulseType is not specified correctly: choose 1,2 or 3 (your val %d)\n", PulseType);
+	  ENZO_VFAIL("PulseType is not specified correctly: choose 1,2 or 3 (your val %" ISYM ")\n", PulseType);
 
 	}
 
@@ -343,7 +339,7 @@ static void get_dens_temp(void){
 
   double r, dr;
   double this_n, this_t, last_n, last_t;
-  int i,Nsteps=200;
+  int i;
 
   this_n = last_n = n_mid;
   this_t = last_t = T_mid;
@@ -401,7 +397,7 @@ static void get_dens_temp(void){
     nofr[ncells/2+i+1] = this_n;
     Tofr[ncells/2+i+1] = this_t;
 
-    //printf("+++ %e %e %e %e (%d %d)\n",this_n, this_t, r, dr,i,ncells/2+1+i);    
+    //printf("+++ %e %e %e %e (%" ISYM " %" ISYM ")\n",this_n, this_t, r, dr,i,ncells/2+1+i);    
   }
 
   this_n = last_n = n_mid;
@@ -446,7 +442,7 @@ static void get_dens_temp(void){
     nofr[ncells/2-1-i] = this_n;
     Tofr[ncells/2-1-i] = this_t;
 
-    //printf("*** %e %e %e %e (%d %d)\n",this_n, this_t, r, dr,i,ncells/2-1-i);    
+    //printf("*** %e %e %e %e (%" ISYM " %" ISYM ")\n",this_n, this_t, r, dr,i,ncells/2-1-i);    
   }
 
   rad[0] = 0.0;
@@ -456,7 +452,7 @@ static void get_dens_temp(void){
   for(i=0;i<ncells;i++){
     this_entropy = Tofr[i] / POW(nofr[i], 2.0/3.0);
     dkdr=(this_entropy-last_entropy)/(-dr);
-    printf("%d r,n,t:  %e  %e  %e  K, dkdkr:  %e  %e\n",i,rad[i],nofr[i],Tofr[i],this_entropy,dkdr);
+    printf("%" ISYM " r,n,t:  %e  %e  %e  K, dkdkr:  %e  %e\n",i,rad[i],nofr[i],Tofr[i],this_entropy,dkdr);
 
     last_entropy = this_entropy;
   }

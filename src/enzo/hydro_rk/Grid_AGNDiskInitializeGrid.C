@@ -17,8 +17,6 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *VelocityUnits, FLOAT Time);
 float gasdev();
 
-static int CollapseTestParticleCount = 0;
-
 int grid::AGNDiskInitializeGrid(float BlackHoleMass,
 				int BlackHoleType,
 				int DiskType,
@@ -30,7 +28,7 @@ int grid::AGNDiskInitializeGrid(float BlackHoleMass,
 {
   /* declarations */
 
-  int dim, i, j, k, m, sphere;
+  int dim, i, j, k;
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
       DINum, DIINum, HDINum;
 
@@ -86,14 +84,10 @@ int grid::AGNDiskInitializeGrid(float BlackHoleMass,
   float CosmologySimulationInitialFractionHII   = 1.2e-5;
   float CosmologySimulationInitialFractionHeII  = 1.0e-14;
   float CosmologySimulationInitialFractionHeIII = 1.0e-17;
-  float CosmologySimulationInitialFractionHM    = 2.0e-9;
-  float CosmologySimulationInitialFractionH2I   = 2.0e-20;
-  float CosmologySimulationInitialFractionH2II  = 3.0e-14;
 
   /* Set various units. */
 
-  float DensityUnits = 1.0, LengthUnits = 1.0, TemperatureUnits = 1, TimeUnits, 
-    VelocityUnits, CriticalDensity = 1, BoxLength = 1, MagneticUnits;
+  float DensityUnits = 1.0, LengthUnits = 1.0, TemperatureUnits = 1, TimeUnits, VelocityUnits, MagneticUnits;
   double MassUnits;
 
   GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
@@ -109,13 +103,11 @@ int grid::AGNDiskInitializeGrid(float BlackHoleMass,
 
   if (UseGas) {
     
-    float density, Velocity[MAX_DIMENSION], temperature, sigma;
+    float density, Velocity[MAX_DIMENSION], temperature;
     FLOAT x, y = 0, z = 0;
     int n = 0;
-    float f_b = 1.0/10.0;
-    float RotVelocity[3];
     FLOAT xpos, ypos, cosphi, sinphi, R, Z; 
-    double mtot, vrot;
+    double vrot;
   
     for (k = 0; k < GridDimension[2]; k++) {
       for (j = 0; j < GridDimension[1]; j++) {
@@ -151,7 +143,7 @@ int grid::AGNDiskInitializeGrid(float BlackHoleMass,
 	      temperature = DiskTemperature;
 	      double DiskMass = 2.0*M_PI*DiskDensity*DiskHeight*DiskRadius*(R-DiskHeight*log(R/DiskHeight+1))*MassUnits;
 	      double Mass = BlackHoleMass*SolarMass + DiskMass;
-	      printf("BH=%"GSYM", Disk=%"GSYM", r=%"GSYM"\n", BlackHoleMass, DiskMass/SolarMass, R);
+	      printf("BH=%" GSYM", Disk=%" GSYM", r=%" GSYM"\n", BlackHoleMass, DiskMass/SolarMass, R);
 	      vrot = sqrt(GravConst*Mass/(max(R,5*CellWidth[0][0])*LengthUnits))/VelocityUnits;
 	      Velocity[0] = -vrot*sinphi;
 	      Velocity[1] = vrot*cosphi;
@@ -264,10 +256,7 @@ int grid::AGNDiskInitializeGrid(float BlackHoleMass,
     mass_p /= MassUnits;
     double dx = CellWidth[0][0];
     double den_p = mass_p / pow(dx,3);
-    double t_dyn = sqrt(3*M_PI/(6.672e-8*den_p*DensityUnits));
-    t_dyn /= TimeUnits;
 
-    double dxm = dx / pow(2.0, MaximumRefinementLevel);
 
     NumberOfParticles = 1;
     NumberOfStars = 1;
@@ -295,8 +284,6 @@ int grid::AGNDiskInitializeGrid(float BlackHoleMass,
     mass_p /= MassUnits;
     double dx = CellWidth[0][0];
     double den_p = mass_p / pow(dx,3);
-    double t_dyn = sqrt(3*M_PI/(6.672e-8*den_p*DensityUnits));
-    t_dyn /= TimeUnits;
       
 
     NumberOfParticles = 1;

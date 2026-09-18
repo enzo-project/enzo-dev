@@ -78,7 +78,7 @@ int grid::SolveOneZoneFreefall()
   /* If using cosmology, compute the expansion factor and get units. */
 
   float TemperatureUnits = 1, DensityUnits = 1, LengthUnits = 1, 
-    VelocityUnits = 1, TimeUnits = 1, aUnits = 1;
+    VelocityUnits = 1, TimeUnits = 1;
 
   if (ComovingCoordinates) {
 
@@ -87,7 +87,6 @@ int grid::SolveOneZoneFreefall()
             ENZO_FAIL("Error in CosmologyComputeExpansionFactors.");
     }
 
-    aUnits = 1.0/(1.0 + InitialRedshift);
 
   }
 
@@ -200,7 +199,7 @@ int grid::SolveOneZoneFreefall()
         BaryonField[DensNum][index] = NewDensity;
 
 	if (index == max_rho_index) {
-	  fprintf(stderr, "One-zone collapse: rho[%"ISYM", %"ISYM", %"ISYM"] = %"ESYM" g/cm^3, f = %"FSYM,
+	  fprintf(stderr, "One-zone collapse: rho[%" ISYM", %" ISYM", %" ISYM"] = %" ESYM" g/cm^3, f = %" FSYM,
 		  i, j, k, (BaryonField[DensNum][index] * DensityUnits), 
 		  force_factor[index]);
 	}
@@ -219,7 +218,7 @@ int grid::SolveOneZoneFreefall()
             BaryonField[H2INum][index] *= DensityRatio;
             BaryonField[H2IINum][index] *= DensityRatio;
 	    if (index == max_rho_index) {
-	      fprintf(stderr, ", f_H2 = %"ESYM,
+	      fprintf(stderr, ", f_H2 = %" ESYM,
 		      (BaryonField[H2INum][index] /
 		       BaryonField[DensNum][index]));
 	    }

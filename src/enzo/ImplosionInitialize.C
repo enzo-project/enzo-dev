@@ -66,11 +66,11 @@
 int ImplosionInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 		       TopGridData &MetaData)
 {
-  char *DensName = "Density";
-  char *TEName   = "TotalEnergy";
-  char *Vel1Name = "x-velocity";
-  char *Vel2Name = "y-velocity";
-  char *Vel3Name = "z-velocity";
+  const char *DensName = "Density";
+  const char *TEName   = "TotalEnergy";
+  const char *Vel1Name = "x-velocity";
+  const char *Vel2Name = "y-velocity";
+  const char *Vel3Name = "z-velocity";
  
   /* parameter declarations */
  
@@ -102,15 +102,15 @@ int ImplosionInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
  
     /* read parameters */
  
-    ret += sscanf(line, "ImplosionDensity  = %"FSYM, &ImplosionDensity);
-    ret += sscanf(line, "ImplosionPressure = %"FSYM, &ImplosionPressure);
-    ret += sscanf(line, "ImplosionDiamondDensity  = %"FSYM,
+    ret += sscanf(line, "ImplosionDensity  = %" FSYM, &ImplosionDensity);
+    ret += sscanf(line, "ImplosionPressure = %" FSYM, &ImplosionPressure);
+    ret += sscanf(line, "ImplosionDiamondDensity  = %" FSYM,
 		        &ImplosionDiamondDensity);
-    ret += sscanf(line, "ImplosionDiamondPressure = %"FSYM,
+    ret += sscanf(line, "ImplosionDiamondPressure = %" FSYM,
 		        &ImplosionDiamondPressure);
-    ret += sscanf(line, "ImplosionSubgridLeft = %"FSYM,
+    ret += sscanf(line, "ImplosionSubgridLeft = %" FSYM,
 		        &ImplosionSubgridLeft);
-    ret += sscanf(line, "ImplosionSubgridRight = %"FSYM,
+    ret += sscanf(line, "ImplosionSubgridRight = %" FSYM,
 		        &ImplosionSubgridRight);
  
     /* if the line is suspicious, issue a warning */
@@ -178,7 +178,7 @@ int ImplosionInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
         *POW(RefineBy, lev + 1);
  
     if (debug)
-      printf("Implosion:: Level[%"ISYM"]: NumberOfSubgridZones[0] = %"ISYM"\n", lev+1,
+      printf("Implosion:: Level[%" ISYM"]: NumberOfSubgridZones[0] = %" ISYM"\n", lev+1,
 	     NumberOfSubgridZones[0]);
  
     if (NumberOfSubgridZones[0] > 0) {
@@ -248,11 +248,11 @@ int ImplosionInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   /* Write parameters to parameter output file */
  
   if (MyProcessorNumber == ROOT_PROCESSOR) {
-    fprintf(Outfptr, "ImplosionDensity         = %"FSYM"\n"  , ImplosionDensity);
-    fprintf(Outfptr, "ImplosionPressure        = %"FSYM"\n"  , ImplosionPressure);
-    fprintf(Outfptr, "ImplosionDiamondDensity  = %"FSYM"\n",
+    fprintf(Outfptr, "ImplosionDensity         = %" FSYM"\n"  , ImplosionDensity);
+    fprintf(Outfptr, "ImplosionPressure        = %" FSYM"\n"  , ImplosionPressure);
+    fprintf(Outfptr, "ImplosionDiamondDensity  = %" FSYM"\n",
 	    ImplosionDiamondDensity);
-    fprintf(Outfptr, "ImplosionDiamondPressure = %"FSYM"\n",
+    fprintf(Outfptr, "ImplosionDiamondPressure = %" FSYM"\n",
 	    ImplosionDiamondPressure);
   }
  

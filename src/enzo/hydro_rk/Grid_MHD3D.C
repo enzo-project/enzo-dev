@@ -48,9 +48,7 @@ int grid::MHD3D(float **Prim, float **dU, float dt,
     return SUCCESS;
   }
 
-  int activesize = 1;
   for (int dim = 0; dim < GridRank; dim++) {
-    activesize *= (GridDimension[dim]-2*NumberOfGhostZones);
   }
 
   float *Flux3D[NEQ_MHD+NSpecies+NColor];
@@ -60,9 +58,7 @@ int grid::MHD3D(float **Prim, float **dU, float dt,
     fluxsize *= (GridDimension[dim]-2*NumberOfGhostZones+1);
   }
 
-  int size = 1;
   for (int dim = 0; dim < GridRank; dim++) {
-    size *= GridDimension[dim];
   }
 
   int Xactivesize = GridDimension[0]-2*NumberOfGhostZones;

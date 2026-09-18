@@ -113,7 +113,7 @@ int grid::RadHydroConstTestInitializeGrid(int NumChemicals,
  
   // allocate fields
   if (NewData == TRUE) {
-//     printf("\n  P%"ISYM": Allocating %"ISYM" baryon fields of size %"ISYM" (%"ISYM"x%"ISYM"x%"ISYM")\n",
+//     printf("\n  P%" ISYM": Allocating %" ISYM" baryon fields of size %" ISYM" (%" ISYM"x%" ISYM"x%" ISYM")\n",
 // 	   MyProcessorNumber, NumberOfBaryonFields, size, 
 // 	   GridDimension[0], GridDimension[1], GridDimension[2]);
 

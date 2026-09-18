@@ -113,7 +113,7 @@ int grid::PreparePotentialField(grid *ParentGrid)
     ParentDim[dim] = ParentGrid->GravitatingMassFieldDimension[dim];
     if (ParentStartIndex[dim] < 0 ||
 	ParentStartIndex[dim]+ParentTempDim[dim] > ParentDim[dim]) {
-      ENZO_VFAIL("ParentStartIndex[%"ISYM"] = %"ISYM" ParentTempDim = %"ISYM"(%"ISYM").\n",
+      ENZO_VFAIL("ParentStartIndex[%" ISYM"] = %" ISYM" ParentTempDim = %" ISYM"(%" ISYM").\n",
 	      dim, ParentStartIndex[dim], ParentTempDim[dim], ParentDim[dim])
     }
   }
@@ -191,7 +191,7 @@ int grid::PreparePotentialField(grid *ParentGrid)
   for (int i=0;i<GridDimension[0]+6; i++) {
     int igrid = GRIDINDEX_NOGHOST(i,(6+GridDimension[0])/2,(6+GridDimension[0])/2);
     int igrid2 =  ( 18 * (*(ParentDim+1)) + 18 ) * (*ParentDim)+i;
-    printf("i: %i \tParent %g  \t Sub %g\n", i, ParentGrid->PotentialField[igrid2], PotentialField[igrid]);
+    printf("i: %" ISYM " \tParent %g  \t Sub %g\n", i, ParentGrid->PotentialField[igrid2], PotentialField[igrid]);
   }
 
   float maxPot=-1e30, minPot=1e30;    

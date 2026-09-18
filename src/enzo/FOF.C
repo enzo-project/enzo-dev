@@ -195,25 +195,22 @@ void save_groups(FOFData &AllVars, int CycleNumber, FLOAT EnzoTime)
   FILE   *fd;
   hid_t  file_id, dset_id, dspace_id, group_id;
   hsize_t hdims[2];
-  herr_t status;
 
-  int    i, gr, offset, dim, index;
-  int    ntot;
+  int i, gr, dim, index;
   int    head, len;
-  char   ctype;
   float cm[3], cmv[3], AM[3], vrms, spin, mtot, mstars, redshift;
   float mvir, rvir;
   double *temp;
   PINT   *TempPINT;
 
   FOF_particle_data *Pbuf;
-  char   *FOF_dirname = "FOF";
+  const char *FOF_dirname = "FOF";
   char   catalogue_fname[200];
   char   particle_fname[200];
   char   halo_name[200];
 
-  sprintf(catalogue_fname, "%s/groups_%5.5d.dat", FOF_dirname, CycleNumber);
-  sprintf(particle_fname, "%s/particles_%5.5d.h5", FOF_dirname, CycleNumber);
+  sprintf(catalogue_fname, "%s/groups_%5.5" ISYM ".dat", FOF_dirname, CycleNumber);
+  sprintf(particle_fname, "%s/particles_%5.5" ISYM ".h5", FOF_dirname, CycleNumber);
 
   if (MyProcessorNumber == ROOT_PROCESSOR) {
 
@@ -226,9 +223,9 @@ void save_groups(FOFData &AllVars, int CycleNumber, FLOAT EnzoTime)
     // Write header
 
     redshift = 1.0 / AllVars.Time - 1.0;
-    fprintf(fd, "# Time     = %"PSYM"\n", EnzoTime);
-    fprintf(fd, "# Redshift = %"FSYM"\n", redshift);
-    fprintf(fd, "# Number of halos = %"ISYM"\n", AllVars.NgroupsAll);
+    fprintf(fd, "# Time     = %" PSYM"\n", EnzoTime);
+    fprintf(fd, "# Redshift = %" FSYM"\n", redshift);
+    fprintf(fd, "# Number of halos = %" ISYM"\n", AllVars.NgroupsAll);
     fprintf(fd, "#\n");
     fprintf(fd, "# Column 1.  Center of mass (x)\n");
     fprintf(fd, "# Column 2.  Center of mass (y)\n");
@@ -299,11 +296,11 @@ void save_groups(FOFData &AllVars, int CycleNumber, FLOAT EnzoTime)
 		     AM, &vrms, &spin);
 
       if (debug && gr == AllVars.NgroupsAll-1)
-	fprintf(stdout, "FOF: Largest group has %"ISYM" particles"
-		" (%"GSYM" M_sun)\n", len, mtot);
+	fprintf(stdout, "FOF: Largest group has %" ISYM" particles"
+		" (%" GSYM" M_sun)\n", len, mtot);
 
 
-      fprintf(fd, "%12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"ISYM" %12"ISYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM"\n",
+      fprintf(fd, "%12" GOUTSYM" %12" GOUTSYM" %12" GOUTSYM" %12" ISYM" %12" ISYM" %12" GOUTSYM" %12" GOUTSYM" %12" GOUTSYM" %12" GOUTSYM" %12" GOUTSYM" %12" GOUTSYM" %12" GOUTSYM" %12" GOUTSYM" %12" GOUTSYM" %12" GOUTSYM" %12" GOUTSYM" %12" GOUTSYM"\n",
 	      cm[0], cm[1], cm[2], AllVars.NgroupsAll-1-gr, len, 
 	      mtot, mvir, mstars, rvir, cmv[0], cmv[1], cmv[2], vrms, AM[0], AM[1], AM[2], spin);
 
@@ -318,7 +315,7 @@ void save_groups(FOFData &AllVars, int CycleNumber, FLOAT EnzoTime)
 	for (i = 0; i < len; i++)
 	  TempPINT[i] = Pbuf[i].PartID;
 
-	sprintf(halo_name, "Halo%8.8d", AllVars.NgroupsAll-1-gr);
+	sprintf(halo_name, "Halo%8.8" ISYM, AllVars.NgroupsAll-1-gr);
 	group_id = H5Gcreate(file_id, halo_name, 0);
 	writeScalarAttribute(group_id, HDF5_REAL, "Total Mass", &mtot);
 	writeScalarAttribute(group_id, HDF5_REAL, "Stellar Mass", &mstars);
@@ -479,7 +476,7 @@ int get_particles(int dest, int minid, int len, FOF_particle_data *buf,
   delete [] localbuf;
 
   if (MyProcessorNumber == dest && nlocal != len) {
-    ENZO_VFAIL("local= %"ISYM"  len=%"ISYM"\n", nlocal, len)
+    ENZO_VFAIL("local= %" ISYM"  len=%" ISYM"\n", nlocal, len)
   }
 
   return len;
@@ -493,9 +490,9 @@ int link_across(FOFData &AllVars)
   MPI_Status status;
 #endif
   FOF_particle_data *buftoleft, *buftoright, *buffer;
-  int    i, j, slab, nl, nr, nbuf, len;
+  int i, j, slab, nl, nr, nbuf;
   int    leftTask, rightTask;
-  int    pp, newid, nlinktot;
+  int nlinktot;
   id_data *iddat;
 
   buftoleft  = new FOF_particle_data[AllVars.NtoLeft[MyProcessorNumber]];
@@ -608,7 +605,7 @@ void compile_group_catalogue(FOFData &AllVars)
 #ifdef USE_MPI
   MPI_Status  status;
 #endif
-  int i, n, gr, tot, count;
+  int i, n, count;
   int nbound, Nbound;
   
   for (n = 1, AllVars.Ngroups = AllVars.Ncontrib = nbound = 0; 
@@ -701,7 +698,7 @@ void compile_group_catalogue(FOFData &AllVars)
     qsort(AllVars.GroupDatAll, AllVars.NgroupsAll, sizeof(gr_data), 
 	  comp_func_gr);
     if (AllVars.NgroupsAll > 0)
-      fprintf(stderr, "FOF: Found %"ISYM" groups, %"ISYM" bound particles\n",
+      fprintf(stderr, "FOF: Found %" ISYM" groups, %" ISYM" bound particles\n",
 	      AllVars.NgroupsAll, Nbound);
   } // ENDIF debug
 
@@ -715,7 +712,7 @@ void compile_group_catalogue(FOFData &AllVars)
 
 void find_minids(FOFData &AllVars)
 {
-  int n, pp, len, sum = 0;
+  int n, pp, len;
 
   for (n = 1; n <= AllVars.Nlocal; n++)
     if (AllVars.Head[n] == n) {
@@ -741,7 +738,6 @@ void find_minids(FOFData &AllVars)
 	AllVars.P[pp].GrLen = AllVars.P[n].GrLen;
       }
 
-      sum += len;
     } // ENDIF
 }
 
@@ -941,15 +937,15 @@ void exchange_shadow(FOFData &AllVars, int TopGridResolution, bool SmoothData)
   } // ENDFOR particles
 
   if (nl != AllVars.NtoLeft[MyProcessorNumber]) {
-    ENZO_VFAIL("[proc %"ISYM"] error: shadows don't match! "
-	    "nl = %"ISYM", NtoLeft[%"ISYM"] = %"ISYM"\n", 
+    ENZO_VFAIL("[proc %" ISYM"] error: shadows don't match! "
+	    "nl = %" ISYM", NtoLeft[%" ISYM"] = %" ISYM"\n", 
 	    MyProcessorNumber, nl, MyProcessorNumber, 
 	    AllVars.NtoLeft[MyProcessorNumber])
   }
   
   if (nr != AllVars.NtoRight[MyProcessorNumber]) {
-    ENZO_VFAIL("[proc %"ISYM"] error: shadows don't match! "
-	    "nr = %"ISYM", NtoRight[%"ISYM"] = %"ISYM"\n",
+    ENZO_VFAIL("[proc %" ISYM"] error: shadows don't match! "
+	    "nr = %" ISYM", NtoRight[%" ISYM"] = %" ISYM"\n",
 	    MyProcessorNumber, nr, MyProcessorNumber, 
 	    AllVars.NtoRight[MyProcessorNumber])
   }
@@ -1011,10 +1007,8 @@ void exchange_shadow(FOFData &AllVars, int TopGridResolution, bool SmoothData)
 void link_local_slab(FOFData &AllVars)
 {
   int  nx,ny,nz;
-  int  iter;
   int  count;
 
-  iter = 1;
 
   for (AllVars.GridCorner[0] = 0, nx = 0; nx < AllVars.Nx; 
        AllVars.GridCorner[0] += (AllVars.Grid - 2.0) / AllVars.Grid * 
@@ -1026,7 +1020,7 @@ void link_local_slab(FOFData &AllVars)
 	   AllVars.GridCorner[2] += (AllVars.Grid - 2.0) / AllVars.Grid * 
 	     AllVars.GridExtension, nz++) {
 //	if (debug)
-//	  printf("Grid placement number: %"ISYM" out of %"ISYM"\n", iter++, 
+//	  printf("Grid placement number: %" ISYM" out of %" ISYM"\n", iter++, 
 //		 AllVars.Nx * AllVars.Ny * AllVars.Nz);
 	  
 	count = coarse_binning(AllVars);
@@ -1066,7 +1060,7 @@ void init_coarse_grid(FOFData &AllVars)
 					AllVars.GridExtension) + 1);
 
 //  if (debug)
-//    printf("\nGrid has to be placed (%"ISYM"|%"ISYM"|%"ISYM") times in each dimension.\n", 
+//    printf("\nGrid has to be placed (%" ISYM"|%" ISYM"|%" ISYM") times in each dimension.\n", 
 //	   AllVars.Nx, AllVars.Ny, AllVars.Nz);
 
   AllVars.GridFirst = i3tensor(0, AllVars.Grid-1, 0, AllVars.Grid-1, 0, 
@@ -1084,7 +1078,7 @@ void init_coarse_grid(FOFData &AllVars)
   AllVars.Next = ivector(1, AllVars.Nlocal);
 
 //  if (debug)
-//    printf("Nlocal = %"ISYM" Task = %"ISYM"\n", AllVars.Nlocal, MyProcessorNumber);
+//    printf("Nlocal = %" ISYM" Task = %" ISYM"\n", AllVars.Nlocal, MyProcessorNumber);
 
   for (i = 1; i <= AllVars.Nlocal; i++) {
     AllVars.Head[i] = i;
@@ -1100,7 +1094,6 @@ void init_coarse_grid(FOFData &AllVars)
 
 void marking(FOFData &AllVars)
 {
-  float posold[3];
   int   i,k,iter,idone;
 
 //  if (debug)
@@ -1117,12 +1110,11 @@ void marking(FOFData &AllVars)
 	  fabs(AllVars.P[i-1].Pos[2] - AllVars.P[i].Pos[2]) < 1e-3*AllVars.Epsilon) {
 
 	for (k = 0; k < 3; k++) {
-	  posold[k]= AllVars.P[i].Pos[k];
 	  AllVars.P[i].Pos[k] += (0.001*AllVars.Epsilon)*(2*drand48()-1);
 	}
 	idone++;
       } // ENDIF
-      iter++;
+    iter++;
   } while (idone > 0 && iter < 10);
 
   qsort(&AllVars.P[1], AllVars.Nlocal, sizeof(FOF_particle_data), 
@@ -1210,7 +1202,7 @@ int coarse_binning(FOFData &AllVars)
   } // ENDFOR n
 
   if (debug1)
-    printf("done.  (count=%"ISYM")\n",count);
+    printf("done.  (count=%" ISYM")\n",count);
 
   return count;
 }
@@ -1380,7 +1372,7 @@ void *mymalloc(size_t size)
   p = malloc(size);
   
   if (!p) {
-    ENZO_VFAIL("Failed to alloc %"ISYM" bytes on process %"ISYM".\n", 
+    ENZO_VFAIL("Failed to alloc %" ISYM" bytes on process %" ISYM".\n", 
 	    (int) size, MyProcessorNumber)
   }
   return p;

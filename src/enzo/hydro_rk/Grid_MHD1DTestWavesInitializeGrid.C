@@ -55,15 +55,14 @@ int grid::MHD1DTestWavesInitializeGrid(float rhol,
     return SUCCESS;
   }
 
-  int activesize = 1, dim;
+  int dim;
 
   for (dim = 0; dim < GridRank; dim++)
-    activesize *= (GridDimension[dim] - 2*NumberOfGhostZones);
   
   this->AllocateGrids();
 
   
-  FLOAT x, rhobg, bxbg, bybg, bzbg, etotbg, pgasbg, B2 = 0., ampl = 1.e-6;
+  FLOAT x, rhobg, bxbg, bybg, bzbg, etotbg, B2 = 0., ampl = 1.e-6;
   int i;
 
   rhobg = 1.; 
@@ -73,7 +72,6 @@ int grid::MHD1DTestWavesInitializeGrid(float rhol,
     bzbg = 0.5;
     B2 = bxbg * bxbg + bybg * bybg + bzbg * bzbg;
   }
-  pgasbg = 1/Gamma;
   etotbg = rhobg / ((Gamma - 1.0)*rhobg) + 0.5 * B2/rhobg;
 
   for (i = 0; i < GridDimension[0]; i++) {

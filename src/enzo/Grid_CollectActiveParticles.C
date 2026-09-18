@@ -31,7 +31,7 @@ int grid::CollectActiveParticles(int GridNum, int* &NumberToMove,
  
   /* Declarations. */
 
-  int i, j, dim, n1, grid, proc;
+  int i, n1;
 
   /* ----------------------------------------------------------------- */
   /* Copy star out of grid. */
@@ -74,7 +74,6 @@ int grid::CollectActiveParticles(int GridNum, int* &NumberToMove,
     if (MyProcessorNumber != ProcessorNumber)
       return SUCCESS;
 
-    int NumberOfNewActiveParticles = EndIndex - StartIndex;
     this->AddActiveParticles(List, StartIndex, EndIndex);
  
   } // end: if (COPY_IN)

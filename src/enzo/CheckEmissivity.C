@@ -47,8 +47,8 @@ int grid::CheckEmissivity(){
 	for(int emis_x=0; emis_x< GridDimension[0]; emis_x++){
 	  emis_index = emis_x + GridDimension[0]*(emis_y + GridDimension[1]*emis_z);
 	  if(BaryonField[EtaNum][emis_index] != 0){
-	    printf("Check Emiss %0.12"GSYM" at %"ISYM" %"ISYM" %"ISYM"\n", BaryonField[EtaNum][emis_index], emis_x, emis_y, emis_z);
-	    printf("This is processor %"ISYM" in EvolveLevel\n", MyProcessorNumber);
+	    printf("Check Emiss %0.12" GSYM" at %" ISYM" %" ISYM" %" ISYM"\n", BaryonField[EtaNum][emis_index], emis_x, emis_y, emis_z);
+	    printf("This is processor %" ISYM" in EvolveLevel\n", MyProcessorNumber);
 	  }
 	}
     //  printf("DONE \n");

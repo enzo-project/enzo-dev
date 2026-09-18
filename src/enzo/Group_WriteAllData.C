@@ -60,7 +60,7 @@ void my_exit(int status);
 int GenerateGridArray(LevelHierarchyEntry *LevelArray[], int level,
 		      HierarchyEntry **Grids[]);
 
-int SysMkdir(char *startdir, char *directory);
+int SysMkdir(const char *startdir, const char *directory);
  
 void AddLevel(LevelHierarchyEntry *Array[], HierarchyEntry *Grid, int level);
 int WriteDataCubes(HierarchyEntry *TopGrid, int TDdims[], char *gridbasename, int &GridID, FLOAT WriteTime);
@@ -132,10 +132,8 @@ int Group_WriteAllData(char *basename, int filenumber,
   char id[MAX_CYCLE_TAG_SIZE], *cptr, name[MAX_LINE_LENGTH];
   char dumpdirname[MAX_LINE_LENGTH];
   char dumpdirroot[MAX_LINE_LENGTH];
-  char unixcommand[MAX_LINE_LENGTH];
   char gridbasename[MAX_LINE_LENGTH];
   char hierarchyname[MAX_LINE_LENGTH];
-  char bhierarchyname[MAX_LINE_LENGTH];
   char radiationname[MAX_LINE_LENGTH];
   char taskmapname[MAX_LINE_LENGTH];
   char memorymapname[MAX_LINE_LENGTH];
@@ -145,9 +143,7 @@ int Group_WriteAllData(char *basename, int filenumber,
   char mtname[MAX_LINE_LENGTH];
  
   int unixresult;
-  int status;
   int local, global;
-  int file_status;
   int ii, pe, nn;
   double twrite0, twrite1;
 
@@ -155,15 +151,10 @@ int Group_WriteAllData(char *basename, int filenumber,
  
   FILE *fptr;
   FILE *sptr;
-  FILE *gptr;
-  FILE *tptr;
   FILE *mptr;
   FILE *optr;
  
   hid_t       file_id;
-  hid_t       file_acc_template;
-  size_t      memory_increment; // in bytes
-  hbool_t     dump_flag;
  
   herr_t      h5_status;
   herr_t      h5_error = -1;
@@ -171,7 +162,6 @@ int Group_WriteAllData(char *basename, int filenumber,
   int GridID = 1;
   int GridJD = 1;
   int GridKD = 1;
-  int GridLD = 1;
  
   /* If this is an interpolated time step, then temporary replace  the time
      in MetaData.  Note:  Modified 6 Feb 2006 to fix interpolated  data outputs. */
@@ -208,11 +198,11 @@ int Group_WriteAllData(char *basename, int filenumber,
   if (ComovingCoordinates && (cptr = strstr(name, "RRRR"))) {
     FLOAT a, dadt;
     CosmologyComputeExpansionFactor(MetaData.Time, &a, &dadt);
-    sprintf(cptr, "%"CYCLE_TAG_FORMAT""ISYM, nint(100*((1 + InitialRedshift)/a - 1)));
+    sprintf(cptr, "%" CYCLE_TAG_FORMAT"" ISYM, nint(100*((1 + InitialRedshift)/a - 1)));
   } else {
  
-    sprintf(id, "%"CYCLE_TAG_FORMAT""ISYM, filenumber);
-    sprintf(pid, "%"TASK_TAG_FORMAT""ISYM, MyProcessorNumber);
+    sprintf(id, "%" CYCLE_TAG_FORMAT"" ISYM, filenumber);
+    sprintf(pid, "%" TASK_TAG_FORMAT"" ISYM, MyProcessorNumber);
 
     /******************** Extra Output ********************/
 
@@ -507,11 +497,11 @@ int Group_WriteAllData(char *basename, int filenumber,
             if (MetaData.ExtraDumpDir != NULL) {
 #ifdef SYSCALL
               unixresult = SysMkdir("", dumpdirname);
-              if (debug) fprintf(stdout, "Extra dump: dumpdirname=(%s) == unixresult=%"ISYM"\n", dumpdirname, unixresult);
+              if (debug) fprintf(stdout, "Extra dump: dumpdirname=(%s) == unixresult=%" ISYM"\n", dumpdirname, unixresult);
 #else
               strcat(strcpy(unixcommand, "mkdir -p "), dumpdirname);
               unixresult = system(unixcommand);
-              if (debug) fprintf(stdout, "DATA dump: %s == %"ISYM"\n", unixcommand, unixresult);
+              if (debug) fprintf(stdout, "DATA dump: %s == %" ISYM"\n", unixcommand, unixresult);
 #endif
             }
 
@@ -521,11 +511,11 @@ int Group_WriteAllData(char *basename, int filenumber,
             if (MetaData.DataDumpDir != NULL) {
 #ifdef SYSCALL
               unixresult = SysMkdir("", dumpdirname);
-              if (debug) fprintf(stdout, "DATA dump: dumpdirname=(%s) == unixresult=%"ISYM"\n", dumpdirname, unixresult);
+              if (debug) fprintf(stdout, "DATA dump: dumpdirname=(%s) == unixresult=%" ISYM"\n", dumpdirname, unixresult);
 #else
               strcat(strcpy(unixcommand, "mkdir -p "), dumpdirname);
               unixresult = system(unixcommand);
-              if (debug) fprintf(stdout, "DATA dump: %s == %"ISYM"\n", unixcommand, unixresult);
+              if (debug) fprintf(stdout, "DATA dump: %s == %" ISYM"\n", unixcommand, unixresult);
 #endif
             }
           } // ENDIF datadump
@@ -534,11 +524,11 @@ int Group_WriteAllData(char *basename, int filenumber,
             if (MetaData.RedshiftDumpDir != NULL) {
 #ifdef SYSCALL
               unixresult = SysMkdir("", dumpdirname);
-              fprintf(stdout, "REDSHIFT dump: dumpdirname=(%s) == unixresult=%"ISYM"\n", dumpdirname, unixresult);
+              fprintf(stdout, "REDSHIFT dump: dumpdirname=(%s) == unixresult=%" ISYM"\n", dumpdirname, unixresult);
 #else
               strcat(strcpy(unixcommand, "mkdir -p "), dumpdirname);
               unixresult = system(unixcommand);
-              fprintf(stdout, "REDSHIFT dump: %s == %"ISYM"\n", unixcommand, unixresult);
+              fprintf(stdout, "REDSHIFT dump: %s == %" ISYM"\n", unixcommand, unixresult);
 #endif
             }
           } // ENDIF redshift
@@ -547,11 +537,11 @@ int Group_WriteAllData(char *basename, int filenumber,
             if (MetaData.RestartDumpDir != NULL) {
 #ifdef SYSCALL
               unixresult = SysMkdir("", dumpdirname);
-              fprintf(stdout, "RESTART dump: dumpdirname=(%s) == unixresult=%"ISYM"\n", dumpdirname, unixresult);
+              fprintf(stdout, "RESTART dump: dumpdirname=(%s) == unixresult=%" ISYM"\n", dumpdirname, unixresult);
 #else
               strcat(strcpy(unixcommand, "mkdir -p "), dumpdirname);
               unixresult = system(unixcommand);
-              fprintf(stdout, "RESTART dump: %s == %"ISYM"\n", unixcommand, unixresult);
+              fprintf(stdout, "RESTART dump: %s == %" ISYM"\n", unixcommand, unixresult);
 #endif
             }
           } // ENDIF restart
@@ -568,11 +558,11 @@ int Group_WriteAllData(char *basename, int filenumber,
           if (MetaData.ExtraDumpDir != NULL) {
 #ifdef SYSCALL
             unixresult = SysMkdir("", dumpdirname);
-            if (debug) fprintf(stdout, "Extra dump: dumpdirname=(%s) == unixresult=%"ISYM"\n", dumpdirname, unixresult);
+            if (debug) fprintf(stdout, "Extra dump: dumpdirname=(%s) == unixresult=%" ISYM"\n", dumpdirname, unixresult);
 #else
             strcat(strcpy(unixcommand, "mkdir -p "), dumpdirname);
             unixresult = system(unixcommand);
-            if (debug) fprintf(stdout, "Extra dump: %s == %"ISYM"\n", unixcommand, unixresult);
+            if (debug) fprintf(stdout, "Extra dump: %s == %" ISYM"\n", unixcommand, unixresult);
 #endif
           }
         } // ENDIF datadump
@@ -581,11 +571,11 @@ int Group_WriteAllData(char *basename, int filenumber,
           if (MetaData.DataDumpDir != NULL) {
 #ifdef SYSCALL
             unixresult = SysMkdir("", dumpdirname);
-            if (debug) fprintf(stdout, "DATA dump: dumpdirname=(%s) == unixresult=%"ISYM"\n", dumpdirname, unixresult);
+            if (debug) fprintf(stdout, "DATA dump: dumpdirname=(%s) == unixresult=%" ISYM"\n", dumpdirname, unixresult);
 #else
             strcat(strcpy(unixcommand, "mkdir -p "), dumpdirname);
             unixresult = system(unixcommand);
-            if (debug) fprintf(stdout, "DATA dump: %s == %"ISYM"\n", unixcommand, unixresult);
+            if (debug) fprintf(stdout, "DATA dump: %s == %" ISYM"\n", unixcommand, unixresult);
 #endif
           }
         } // ENDIF datadump
@@ -594,11 +584,11 @@ int Group_WriteAllData(char *basename, int filenumber,
           if (MetaData.RedshiftDumpDir != NULL) {
 #ifdef SYSCALL
             unixresult = SysMkdir("", dumpdirname);
-            fprintf(stdout, "REDSHIFT dump: dumpdirname=(%s) == unixresult=%"ISYM"\n", dumpdirname, unixresult);
+            fprintf(stdout, "REDSHIFT dump: dumpdirname=(%s) == unixresult=%" ISYM"\n", dumpdirname, unixresult);
 #else
             strcat(strcpy(unixcommand, "mkdir -p "), dumpdirname);
             unixresult = system(unixcommand);
-            fprintf(stdout, "REDSHIFT dump: %s == %"ISYM"\n", unixcommand, unixresult);
+            fprintf(stdout, "REDSHIFT dump: %s == %" ISYM"\n", unixcommand, unixresult);
 #endif
           }
         } // ENDIF redshift
@@ -607,11 +597,11 @@ int Group_WriteAllData(char *basename, int filenumber,
           if (MetaData.RestartDumpDir != NULL) {
 #ifdef SYSCALL
             unixresult = SysMkdir("", dumpdirname);
-            fprintf(stdout, "RESTART dump: dumpdirname=(%s) == unixresult=%"ISYM"\n", dumpdirname, unixresult);
+            fprintf(stdout, "RESTART dump: dumpdirname=(%s) == unixresult=%" ISYM"\n", dumpdirname, unixresult);
 #else
             strcat(strcpy(unixcommand, "mkdir -p "), dumpdirname);
             unixresult = system(unixcommand);
-            fprintf(stdout, "RESTART dump: %s == %"ISYM"\n", unixcommand, unixresult);
+            fprintf(stdout, "RESTART dump: %s == %" ISYM"\n", unixcommand, unixresult);
 #endif
           }
         } // ENDIF restart
@@ -723,7 +713,7 @@ int Group_WriteAllData(char *basename, int filenumber,
       fprintf(fptr, "# WARNING! This is a checkpoint dump! Lots of data!\n");
     }
     else if (WriteTime >= 0) {
-      fprintf(fptr, "# WARNING! Interpolated output: level = %"ISYM"\n",
+      fprintf(fptr, "# WARNING! Interpolated output: level = %" ISYM"\n",
 	      MetaData.OutputFirstTimeAtLevel-1);
     }
     if (WriteParameterFile(fptr, MetaData, name) == FAIL)
@@ -894,7 +884,7 @@ int Group_WriteAllData(char *basename, int filenumber,
   TGdims[1] = MetaData.TopGridDims[1];
   TGdims[2] = MetaData.TopGridDims[2];
  
-  //  fprintf(stdout, "TGdims  %"ISYM"  %"ISYM"  %"ISYM"\n", TGdims[0], TGdims[1], TGdims[2]);
+  //  fprintf(stdout, "TGdims  %" ISYM"  %" ISYM"  %" ISYM"\n", TGdims[0], TGdims[1], TGdims[2]);
  
   if (CubeDumpEnabled == 1)
     if (WriteDataCubes(TempTopGrid, TGdims, name, GridJD, WriteTime) == FAIL)
@@ -926,7 +916,7 @@ int Group_WriteAllData(char *basename, int filenumber,
     
     // printing order: time, regular star count, MBH id, MBH mass, MBH angular momentum
     for (int i = 0; i < G_TotalNumberOfStars; i++) { 
-      fprintf(MBHfptr, " %"FSYM"  %"ISYM"  %"ISYM"  %lf  %"FSYM"  %"FSYM"  %"FSYM"  %lf\n", 
+      fprintf(MBHfptr, " %" FSYM"  %" ISYM"  %" ISYM"  %lf  %" FSYM"  %" FSYM"  %" FSYM"  %lf\n", 
 	      MetaData.Time, NumberOfStarParticles, (int)(MBHParticleIOTemp[i][0]), 
 	      MBHParticleIOTemp[i][1], (float)(MBHParticleIOTemp[i][2]), 
 	      (float)(MBHParticleIOTemp[i][3]), (float)(MBHParticleIOTemp[i][4]),
@@ -995,7 +985,7 @@ int Group_WriteAllData(char *basename, int filenumber,
 
   if ( MyProcessorNumber == ROOT_PROCESSOR ){
     sptr = fopen("OutputLog", "a");
-    fprintf(sptr, "DATASET WRITTEN %s %8"ISYM" %18.16"GSYM" %18.8"FSYM" %18.8"FSYM"\n", 
+    fprintf(sptr, "DATASET WRITTEN %s %8" ISYM" %18.16" GSYM" %18.8" FSYM" %18.8" FSYM"\n", 
 	    name, MetaData.CycleNumber, MetaData.Time, twrite0, (twrite1-twrite0));
     fclose(sptr);
   }

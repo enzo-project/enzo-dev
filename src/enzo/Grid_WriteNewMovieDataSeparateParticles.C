@@ -38,7 +38,7 @@ int grid::WriteNewMovieDataSeparateParticles(FLOAT RegionLeftEdge[], FLOAT Regio
 {
 
   /* Declarations */
-  int i, j, k, dim;
+  int i, j, dim;
   int dataWritten;
   FLOAT CurrentRedshift, Left[MAX_DIMENSION], Right[MAX_DIMENSION], a = 1, dadt;
 
@@ -95,7 +95,7 @@ int grid::WriteNewMovieDataSeparateParticles(FLOAT RegionLeftEdge[], FLOAT Regio
 
     int *NonDMParticleIndices = new int[NumberOfParticles];
     int NumberOfNonDMParticles = 0;
-    int ii, iattr;
+    int iattr;
 
     FLOAT *TempPosition[3];
     float *TempVelocity[3], *TempMass;
@@ -138,7 +138,7 @@ int grid::WriteNewMovieDataSeparateParticles(FLOAT RegionLeftEdge[], FLOAT Regio
       TempNumber[i] = ParticleNumber[j];
     } // ENDFOR non-DM particles
 
-    //    fprintf(stdout, "alreadyopened[] = %d\n", alreadyopened[ProcessorNumber]);  
+    //    fprintf(stdout, "alreadyopened[] = %" ISYM "\n", alreadyopened[ProcessorNumber]);  
 
     if (AmiraGrid.writeSeparateParticles(NumberOfNonDMParticles, NumberOfParticleAttributes,
 					 GridRank, 

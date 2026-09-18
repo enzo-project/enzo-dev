@@ -38,7 +38,7 @@ int grid::DebugCheck(const char *message)
 #ifdef TRACE_ON
  
   if (ProcessorNumber == MyProcessorNumber)
-    fprintf(stderr, "P(%"ISYM"): %s\n", MyProcessorNumber, message);
+    fprintf(stderr, "P(%" ISYM"): %s\n", MyProcessorNumber, message);
  
 #endif /* TRACE_ON */
  
@@ -59,7 +59,7 @@ int grid::DebugCheck(const char *message)
   for (k1 = 0; k1 < NumberOfBaryonFields; k1++)
     for (k2 = 0; k2 < size; k2++)
       if (BaryonField[k1][k2+ThisIsZero] != BaryonField[k1][k2]) {
-	fprintf(stderr, "DebugCheck[%s](Proc %"ISYM"): gas %"ISYM" %"ISYM" %"GSYM"\n", message,
+	fprintf(stderr, "DebugCheck[%s](Proc %" ISYM"): gas %" ISYM" %" ISYM" %" GSYM"\n", message,
 		MyProcessorNumber, k1, k2, BaryonField[k1][k2]);
 	exit(EXIT_FAILURE);
       }
@@ -68,7 +68,7 @@ int grid::DebugCheck(const char *message)
     for (k2 = 0; k2 < NumberOfParticles; k2++)
       if (ParticlePosition[k1][k2] != ParticlePosition[k1][k2+ThisIsZero] ||
 	  ParticleVelocity[k1][k2] != ParticleVelocity[k1][k2+ThisIsZero]  ) {
-	fprintf(stderr, "DebugCheck[%s](Proc %"ISYM"): dm %"ISYM" (%"ISYM"/%"ISYM") %"GSYM" %"GSYM"\n",
+	fprintf(stderr, "DebugCheck[%s](Proc %" ISYM"): dm %" ISYM" (%" ISYM"/%" ISYM") %" GSYM" %" GSYM"\n",
 		message, MyProcessorNumber, k1, k2, NumberOfParticles,
 		ParticlePosition[k1][k2], ParticleVelocity[k1][k2]);
 	exit(EXIT_FAILURE);
@@ -79,7 +79,7 @@ int grid::DebugCheck(const char *message)
     for (k1 = 0; k1 < 2+DualEnergyFormalism; k1++)
       for (k2 = 0; k2 < size; k2++)
 	if (BaryonField[k1][k2+ThisIsZero] <= 0) {
-	  fprintf(stderr, "DebugCheck[%s](Proc %"ISYM"): <0 %"ISYM" %"ISYM" %"GSYM"\n", message,
+	  fprintf(stderr, "DebugCheck[%s](Proc %" ISYM"): <0 %" ISYM" %" ISYM" %" GSYM"\n", message,
 		  MyProcessorNumber, k1, k2, BaryonField[k1][k2]);
 	  exit(EXIT_FAILURE);
 	}

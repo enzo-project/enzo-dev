@@ -95,7 +95,7 @@ void ealInt::ReduceSum(){
 			       IntDataType, MPI_SUM, MPI_COMM_WORLD );
 
   if( mpi_err != MPI_SUCCESS ){
-    fprintf(stderr, "ealInt::ReduceSum, mpi_err = %"ISYM", exiting.\n", mpi_err);
+    fprintf(stderr, "ealInt::ReduceSum, mpi_err = %" ISYM", exiting.\n", mpi_err);
     my_exit(EXIT_FAILURE);
   }
 
@@ -116,7 +116,7 @@ void ealInt::ReduceMin(){
 			       IntDataType, MPI_MIN, MPI_COMM_WORLD );
 
   if( mpi_err != MPI_SUCCESS ){
-    fprintf(stderr, "ealInt::ReduceMax, mpi_err = %"ISYM", exiting.\n", mpi_err);
+    fprintf(stderr, "ealInt::ReduceMax, mpi_err = %" ISYM", exiting.\n", mpi_err);
     my_exit(EXIT_FAILURE);
   }
 
@@ -137,7 +137,7 @@ void ealInt::ReduceMax(){
 			       IntDataType, MPI_MAX, MPI_COMM_WORLD );
 
   if( mpi_err != MPI_SUCCESS ){
-    fprintf(stderr, "ealInt::ReduceMax, mpi_err = %"ISYM", exiting.\n", mpi_err);
+    fprintf(stderr, "ealInt::ReduceMax, mpi_err = %" ISYM", exiting.\n", mpi_err);
     my_exit(EXIT_FAILURE);
   }
 
@@ -188,7 +188,7 @@ void ealInt::Bcast(int FromProcessor){
 			     MPI_COMM_WORLD);
 
   if( mpi_err != MPI_SUCCESS ){
-    fprintf(stderr, "ealInt::Bcast, mpi_err = %"ISYM", exiting.\n", mpi_err);
+    fprintf(stderr, "ealInt::Bcast, mpi_err = %" ISYM", exiting.\n", mpi_err);
     my_exit(EXIT_FAILURE);
   }
 #endif
@@ -199,7 +199,7 @@ void ealInt::Bcast(int FromProcessor){
 int &ealInt::operator[](int subscript){
 
   if(subscript < 0 || subscript >= Size){
-    fprintf(stderr, "ealInt: subscript %"ISYM" out of range. Size = %"ISYM".\n", subscript, Size);
+    fprintf(stderr, "ealInt: subscript %" ISYM" out of range. Size = %" ISYM".\n", subscript, Size);
     my_exit(EXIT_FAILURE);
   }
 
@@ -211,7 +211,7 @@ int ealInt::operator[](int subscript) const
 { 
 
   if(subscript < 0 || subscript >=Size){
-    fprintf(stderr, "ealInt: subscript %"ISYM" out of range. Size = %"ISYM".\n", subscript, Size);
+    fprintf(stderr, "ealInt: subscript %" ISYM" out of range. Size = %" ISYM".\n", subscript, Size);
     my_exit(EXIT_FAILURE);
   }
 
@@ -221,7 +221,7 @@ int ealInt::operator[](int subscript) const
 const ealInt &ealInt::operator=(const ealInt &right){
 
   if(Size != right.Size && right.Size != 1){
-    fprintf(stderr, "ealInt::assignment Size %"ISYM" != right.Size %"ISYM".\n", Size, right.Size);
+    fprintf(stderr, "ealInt::assignment Size %" ISYM" != right.Size %" ISYM".\n", Size, right.Size);
     my_exit(EXIT_FAILURE);
   }
 
@@ -252,7 +252,7 @@ const ealInt
 &ealInt::operator+=(const ealInt &right){
 
   if(Size != right.Size && right.Size != 1){
-    fprintf(stderr, "ealInt::Math Error Size %"ISYM" != right.Size %"ISYM".\n", Size, right.Size);
+    fprintf(stderr, "ealInt::Math Error Size %" ISYM" != right.Size %" ISYM".\n", Size, right.Size);
     my_exit(EXIT_FAILURE);
   }
 
@@ -282,7 +282,7 @@ const ealInt
 &ealInt::operator-=(const ealInt &right){
 
   if(Size != right.Size && right.Size != 1){
-    fprintf(stderr, "ealInt::Math Error Size %"ISYM" != right.Size %"ISYM".\n", Size, right.Size);
+    fprintf(stderr, "ealInt::Math Error Size %" ISYM" != right.Size %" ISYM".\n", Size, right.Size);
     my_exit(EXIT_FAILURE);
   }
 
@@ -312,7 +312,7 @@ const ealInt
 &ealInt::operator*=(const ealInt &right){
 
   if(Size != right.Size && right.Size != 1){
-    fprintf(stderr, "ealInt::Math Error Size %"ISYM" != right.Size %"ISYM".\n", Size, right.Size);
+    fprintf(stderr, "ealInt::Math Error Size %" ISYM" != right.Size %" ISYM".\n", Size, right.Size);
     my_exit(EXIT_FAILURE);
   }
 
@@ -342,7 +342,7 @@ const ealInt
 &ealInt::operator/=(const ealInt &right){
 
   if(Size != right.Size && right.Size != 1){
-    fprintf(stderr, "ealInt::Math Error Size %"ISYM" != right.Size %"ISYM".\n", Size, right.Size);
+    fprintf(stderr, "ealInt::Math Error Size %" ISYM" != right.Size %" ISYM".\n", Size, right.Size);
     my_exit(EXIT_FAILURE);
   }
 

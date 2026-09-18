@@ -48,7 +48,6 @@ int AdjustRefineRegion(LevelHierarchyEntry *LevelArray[],
   int i, dim, idim, level;
   LevelHierarchyEntry *Temp;
   float MinParticleMass, dx;
-  FLOAT RefineRegionWidth[MAX_DIMENSION], RefineRegionCenter[MAX_DIMENSION];
   int MaximumStaticRegionLevel = 0;
 
   /* First find the highest resolution particle in the whole
@@ -88,9 +87,6 @@ int AdjustRefineRegion(LevelHierarchyEntry *LevelArray[],
   */
 
   for (dim = 0; dim < MAX_DIMENSION; dim++) {
-    RefineRegionCenter[dim] = 0.5 * (RefineRegionLeftEdge[dim] + 
-				     RefineRegionRightEdge[dim]);
-    RefineRegionWidth[dim] = RefineRegionRightEdge[dim] - RefineRegionLeftEdge[dim];
   }
 
   for (i = 0; i < MAX_STATIC_REGIONS; i++)
@@ -281,11 +277,11 @@ int AdjustRefineRegion(LevelHierarchyEntry *LevelArray[],
 #endif /* USE_MPI */
 
 //      if (debug) {
-//	printf("LeftEdge = %"ISYM" %"ISYM" %"ISYM"\n", RefineRegionLeftEdgeCell[0], 
+//	printf("LeftEdge = %" ISYM" %" ISYM" %" ISYM"\n", RefineRegionLeftEdgeCell[0], 
 //	       RefineRegionLeftEdgeCell[1], RefineRegionLeftEdgeCell[2]);
-//	printf("RightEdge = %"ISYM" %"ISYM" %"ISYM"\n", RefineRegionRightEdgeCell[0], 
+//	printf("RightEdge = %" ISYM" %" ISYM" %" ISYM"\n", RefineRegionRightEdgeCell[0], 
 //	       RefineRegionRightEdgeCell[1], RefineRegionRightEdgeCell[2]);
-//	printf("dim %"ISYM", side %"ISYM" :: removed %"ISYM", %"ISYM" particles left\n",
+//	printf("dim %" ISYM", side %" ISYM" :: removed %" ISYM", %" ISYM" particles left\n",
 //	       dim, side, NumberToRemove, ParticlesLeft);
 //      }
 
@@ -295,10 +291,10 @@ int AdjustRefineRegion(LevelHierarchyEntry *LevelArray[],
       for (dim = 0; dim < MAX_DIMENSION; dim++)
 	if (RefineRegionLeftEdgeCell[dim] >= RefineRegionRightEdgeCell[dim]) {
 	  fprintf(stderr, "Refine region collapsed to nothing!\n");
-	  fprintf(stderr, "RefineRegionLeftEdgeCell = %"ISYM" %"ISYM" %"ISYM"\n", 
+	  fprintf(stderr, "RefineRegionLeftEdgeCell = %" ISYM" %" ISYM" %" ISYM"\n", 
 		  RefineRegionLeftEdgeCell[0], RefineRegionLeftEdgeCell[1], 
 		  RefineRegionLeftEdgeCell[2]);
-	  fprintf(stderr, "RefineRegionRightEdgeCell = %"ISYM" %"ISYM" %"ISYM"\n", 
+	  fprintf(stderr, "RefineRegionRightEdgeCell = %" ISYM" %" ISYM" %" ISYM"\n", 
 		  RefineRegionRightEdgeCell[0], RefineRegionRightEdgeCell[1], 
 		  RefineRegionRightEdgeCell[2]);
 	  ENZO_FAIL("Refine region collapsed to nothing!\n");
@@ -322,11 +318,11 @@ int AdjustRefineRegion(LevelHierarchyEntry *LevelArray[],
   if (MyProcessorNumber == ROOT_PROCESSOR && TotalNumberOfParticles > 0) {
 
     printf("AdjustRefineRegion: Changed RefineRegionLeftEdge to "
-	   "[%"FSYM" %"FSYM" %"FSYM"]\n", 
+	   "[%" FSYM" %" FSYM" %" FSYM"]\n", 
 	   RefineRegionLeftEdge[0], RefineRegionLeftEdge[1], 
 	   RefineRegionLeftEdge[2]);
     printf("AdjustRefineRegion: Changed RefineRegionRightEdge to "
-	   "[%"FSYM" %"FSYM" %"FSYM"]\n", 
+	   "[%" FSYM" %" FSYM" %" FSYM"]\n", 
 	   RefineRegionRightEdge[0], RefineRegionRightEdge[1], 
 	   RefineRegionRightEdge[2]);
   }

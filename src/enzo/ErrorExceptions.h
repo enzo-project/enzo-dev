@@ -49,7 +49,7 @@ extern char current_error[255];
          fprintf(stderr, "Caught fatal exception:\n\n");
          fprintf(stderr, "   '%s'\n", error_msg);
          if(filename != NULL)
-            fprintf(stderr, "at %s:%d\n\n", filename, line_number);
+	   fprintf(stderr, "at %s:%lld\n\n", filename, (long long) line_number);
          fprintf(stderr, "Backtrace:\n\n");
 
          for (int i = 0; i < nSize; i++)

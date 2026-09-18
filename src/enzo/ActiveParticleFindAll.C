@@ -36,9 +36,7 @@ void ActiveParticleFindAll(
     int ActiveParticleIDToFind, 
     ActiveParticleList<ActiveParticleType>& GlobalList)
 {
-  int i, level, type, ap_id, GridNum, LocalNumberOfActiveParticles, proc, 
-    buffer_size, LocalNumberOfActiveParticlesOnThisLevel, element_size, count, 
-    offset;
+  int i, level, type, ap_id, GridNum, LocalNumberOfActiveParticles, proc, LocalNumberOfActiveParticlesOnThisLevel, element_size, count, offset;
   ActiveParticleList<ActiveParticleType> LocalActiveParticlesOfThisType, 
     LocalActiveParticlesOnThisLevel, ParticlesOnThisProc;
 

@@ -82,7 +82,7 @@ class AnalysisBaseClass{
 			char *dset_name,
 			float *data );
  
-  void HDF5WriteStringAttr(hid_t dset_id, char *Alabel, char *String);
+  void HDF5WriteStringAttr(hid_t dset_id, const char *Alabel, const char *String);
 
   HierarchyEntry *ContainingGrid( HierarchyEntry *Grid, float *point);
 

@@ -38,7 +38,7 @@ int HydroSweepX(float **Prim, float **Flux3D, int GridDimension[],
   */
 {
 
-  int i, j, k, m, iflux, igrid;
+  int i, j, k, iflux, igrid;
   int idual = (DualEnergyFormalism) ? 1 : 0;
   float *FluxLine[NEQ_HYDRO+NSpecies+NColor];
   float *Prim1[NEQ_HYDRO+NSpecies+NColor-idual];
@@ -58,7 +58,7 @@ int HydroSweepX(float **Prim, float **Flux3D, int GridDimension[],
   }
 
   int extra = (ReconstructionMethod == PPM);
-  //    fprintf(stderr, "extra %"ISYM"\n", extra);
+  //    fprintf(stderr, "extra %" ISYM"\n", extra);
   for (int field = 0; field < NEQ_HYDRO-idual; field++) {
     priml[field] = new float[Xactivesize+1+extra];
     primr[field] = new float[Xactivesize+1+extra];

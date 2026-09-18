@@ -46,7 +46,7 @@ int ReadRadiationData(FILE *fptr)
  
   /* read in scalar data. */
  
-  if (fscanf(fptr, "TimeFieldLastUpdated = %"PSYM,
+  if (fscanf(fptr, "TimeFieldLastUpdated = %" PSYM,
 	     &RadiationData.TimeFieldLastUpdated) != 1) {
     ENZO_FAIL("Error reading TimeFieldLastUpdated.\n");
   }
@@ -56,11 +56,11 @@ int ReadRadiationData(FILE *fptr)
   if (RadiationFieldType >= 10 && RadiationFieldType <= 11) { 
     
     for (i = 0; i < RadiationData.NumberOfFrequencyBins; i++)
-      if (fscanf(fptr, "%"FSYM" %"FSYM" %"FSYM" %"FSYM,
+      if (fscanf(fptr, "%" FSYM" %" FSYM" %" FSYM" %" FSYM,
 		 RadiationData.Spectrum[0]+i, RadiationData.Spectrum[1]+i,
 		 RadiationData.Spectrum[2]+i, RadiationData.Spectrum[3]+i)
 	  != 4) {
-	ENZO_VFAIL("Error reading RadiationData line %"ISYM"\n", i)
+	ENZO_VFAIL("Error reading RadiationData line %" ISYM"\n", i)
       }
 
   }

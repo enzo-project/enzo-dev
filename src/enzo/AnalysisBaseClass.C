@@ -106,8 +106,8 @@ AnalysisBaseClass::~AnalysisBaseClass(){
 void AnalysisBaseClass::PrintParameters(){
 
   //printf("Enzo Analysis class parameters:\n");
-  printf("MaximumAnalysisLevel                 = %"ISYM"\n", MaximumAnalysisLevel);
-  printf("CurrentRedshift                      = %"FSYM"\n", CurrentRedshift); 
+  printf("MaximumAnalysisLevel                 = %" ISYM"\n", MaximumAnalysisLevel);
+  printf("CurrentRedshift                      = %" FSYM"\n", CurrentRedshift); 
 }
 
 void AnalysisBaseClass::PrintGridInfo(grid *Grid){
@@ -121,20 +121,20 @@ void AnalysisBaseClass::PrintGridInfo(grid *Grid){
   Grid->ReturnGridInfo(&grid_rank, grid_dims, grid_left, grid_right);
 
   printf("Grid information:\n");
-  printf("  Rank      = %"ISYM"\n", grid_rank);
+  printf("  Rank      = %" ISYM"\n", grid_rank);
   printf("  Dims      = " );
   for( i = 0; i < MAX_DIMENSION; i++ )
-    printf(" %4"ISYM, grid_dims[i]);
+    printf(" %4" ISYM, grid_dims[i]);
   printf("\n" );
 
   printf("  LeftEdge  = " );
   for( i = 0; i < MAX_DIMENSION; i++ )
-    printf(" %8.6"FSYM, grid_left[i]);
+    printf(" %8.6" FSYM, grid_left[i]);
   printf("\n" );
 
   printf("  RightEdge = " );
   for( i = 0; i < MAX_DIMENSION; i++ )
-    printf(" %8.6"FSYM, grid_right[i]);
+    printf(" %8.6" FSYM, grid_right[i]);
   printf("\n" );
 }
 
@@ -265,7 +265,7 @@ void AnalysisBaseClass::InitializeFastFind(){
     delete [] FastFindCellWidth;    
   }
 
-  int i, j, num_cells = 1;
+  int i, num_cells = 1;
 
   HierarchyEntry *this_grid, *next_level;
   

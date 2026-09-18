@@ -23,7 +23,7 @@
 int FindSuperSourceByPosition(PhotonPackageEntry **PP)
 {
 
-  int i, dim_search, loop_count = 0, found = FALSE;
+  int dim_search;
   SuperSourceEntry *temp = OldSourceClusteringTree;
   float SearchRadius;  // min clustering search radius
   SearchRadius = 0.5*(*PP)->Radius / RadiativeTransferPhotonMergeRadius;
@@ -32,7 +32,7 @@ int FindSuperSourceByPosition(PhotonPackageEntry **PP)
 
     if (temp == NULL) {
       ENZO_VFAIL("FindSuperSourceByPosition: NULL leaf in clustering tree.  "
-	      "This shouldn't happen. LeafID = %"ISYM"\n", temp->LeafID)
+	      "This shouldn't happen. LeafID = %" ISYM"\n", temp->LeafID)
     }
 
     //dim_search = loop_count % MAX_DIMENSION;
@@ -57,7 +57,6 @@ int FindSuperSourceByPosition(PhotonPackageEntry **PP)
       temp = temp->ChildSource[1];
     } // ENDELSE right left
     
-    loop_count++;
 
   } // ENDWHILE
 
@@ -75,7 +74,7 @@ int FindSuperSourceByPosition(FLOAT *pos, SuperSourceEntry **result,
 			      int DEBUG)
 {
 
-  int i, dim, dim_search, loop_count = 0;
+  int dim, dim_search;
   SuperSourceEntry *temp = SourceClusteringTree;
   float merge_inv = 0.5 / RadiativeTransferPhotonMergeRadius;
   FLOAT SearchRadius;  // min clustering search radius
@@ -86,7 +85,7 @@ int FindSuperSourceByPosition(FLOAT *pos, SuperSourceEntry **result,
 
     if (temp == NULL) {
       ENZO_VFAIL("FindSuperSourceByPosition: NULL leaf in clustering tree.  "
-	      "This shouldn't happen. LeafID = %"ISYM"\n", temp->LeafID)
+	      "This shouldn't happen. LeafID = %" ISYM"\n", temp->LeafID)
     }
 
     //dim_search = loop_count % MAX_DIMENSION;
@@ -96,7 +95,7 @@ int FindSuperSourceByPosition(FLOAT *pos, SuperSourceEntry **result,
       dim_search = temp->ParentSource->LeafID % MAX_DIMENSION;
 
     if (DEBUG)
-      printf("leaf %d: dim = %d, pos = %f %f %f, leafpos = %f %f %f\n",
+      printf("leaf %" ISYM ": dim = %" ISYM ", pos = %f %f %f, leafpos = %f %f %f\n",
 	     temp->LeafID, dim_search, pos[0], pos[1], pos[2],
 	     temp->Position[0], temp->Position[1],
 	     temp->Position[2]);
@@ -143,7 +142,6 @@ int FindSuperSourceByPosition(FLOAT *pos, SuperSourceEntry **result,
       temp = temp->ChildSource[1];
     } // ENDELSE right left
     
-    loop_count++;
 
   } // ENDWHILE
 
@@ -194,7 +192,7 @@ float CalculateLWFromTree(const FLOAT pos[],
   tan_angle = Leaf->ClusteringRadius * radius_inv;
 
 //  int pid = (Leaf->ParentSource == NULL) ? -1 : Leaf->ParentSource->LeafID;
-//  printf("Leaf->ID = %d (%d), cradius = %g, radius = %g, tan_angle = %g, result0 = %g\n",
+//  printf("Leaf->ID = %" ISYM " (%" ISYM "), cradius = %g, radius = %g, tan_angle = %g, result0 = %g\n",
 //	 Leaf->LeafID, pid, Leaf->ClusteringRadius, sqrt(radius2), tan_angle, result0);
 
   // Larger than opening angle -> go to children
@@ -208,7 +206,7 @@ float CalculateLWFromTree(const FLOAT pos[],
     result += Leaf->LWLuminosity * radius_inv * radius_inv;
   }
 
-  //printf("\t after[%d] -- result = %g\n", Leaf->LeafID, result);
+  //printf("\t after[%" ISYM "] -- result = %g\n", Leaf->LeafID, result);
 
   return result;
 

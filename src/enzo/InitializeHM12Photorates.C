@@ -58,7 +58,7 @@ int InitializeHM12Photorates()
   rewind(fptr);
   while (fgets(line, MAX_LINE_LENGTH, fptr) != NULL) {
     if (line[0] != '#')
-      if (sscanf(line, "%"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM" %"ESYM,
+      if (sscanf(line, "%" ESYM" %" ESYM" %" ESYM" %" ESYM" %" ESYM" %" ESYM" %" ESYM" %" ESYM,
 		 &RateData.HM12Redshifts[index],
 		 &RateData.HM12GH1[index],
 		 &RateData.HM12GhH1[index],
@@ -90,11 +90,11 @@ int InitializeHM12Photorates()
   RateData.HM12RedshiftHi = RateData.HM12Redshifts[RateData.HM12NumberOfRedshiftBins-1];
 
   if (debug) {
-    printf("InitializeHM12Photorates: HM12NumberOfRedshiftBins = %"ISYM"\n",
+    printf("InitializeHM12Photorates: HM12NumberOfRedshiftBins = %" ISYM"\n",
 	   RateData.HM12NumberOfRedshiftBins);
-    printf("InitializeHM12Photorates: HM12RedshiftLo = %"ESYM"\n",
+    printf("InitializeHM12Photorates: HM12RedshiftLo = %" ESYM"\n",
 	   RateData.HM12RedshiftLo);
-    printf("InitializeHM12Photorates: HM12RedshiftHi = %"ESYM"\n",
+    printf("InitializeHM12Photorates: HM12RedshiftHi = %" ESYM"\n",
 	   RateData.HM12RedshiftHi);
   }
 

@@ -43,13 +43,13 @@ void WriteListOfFloats(FILE *fptr, int N, FLOAT floats[]);
 int TestGravitySphereInitialize(FILE *fptr, FILE *Outfptr,
 				HierarchyEntry &TopGrid, TopGridData &MetaData)
 {
-  char *DensName = "Density";
-  char *TEName   = "TotalEnergy";
-  char *GEName   = "GasEnergy";
-  char *Vel1Name = "x-velocity";
-  char *Vel2Name = "y-velocity";
-  char *Vel3Name = "z-velocity";
-  char *GPotName  = "Grav_Potential";
+  const char *DensName = "Density";
+  const char *TEName   = "TotalEnergy";
+  const char *GEName   = "GasEnergy";
+  const char *Vel1Name = "x-velocity";
+  const char *Vel2Name = "y-velocity";
+  const char *Vel3Name = "z-velocity";
+  const char *GPotName  = "Grav_Potential";
  
   /* declarations */
  
@@ -86,23 +86,23 @@ int TestGravitySphereInitialize(FILE *fptr, FILE *Outfptr,
  
     /* read parameters */
  
-    ret += sscanf(line, "TestGravitySphereInteriorDensity = %"FSYM,
+    ret += sscanf(line, "TestGravitySphereInteriorDensity = %" FSYM,
 		  &TestGravitySphereInteriorDensity);
-    ret += sscanf(line, "TestGravitySphereExteriorDensity = %"FSYM,
+    ret += sscanf(line, "TestGravitySphereExteriorDensity = %" FSYM,
 		  &TestGravitySphereExteriorDensity);
-    ret += sscanf(line, "TestGravitySphereRadius = %"FSYM,
+    ret += sscanf(line, "TestGravitySphereRadius = %" FSYM,
 		  &TestGravitySphereRadius);
-    ret += sscanf(line, "TestGravitySphereType = %"ISYM,
+    ret += sscanf(line, "TestGravitySphereType = %" ISYM,
 		  &TestGravitySphereType);
-    ret += sscanf(line, "TestGravitySphereSubgridLeft = %"PSYM,
+    ret += sscanf(line, "TestGravitySphereSubgridLeft = %" PSYM,
 		  &TestGravitySphereSubgridLeft);
-    ret += sscanf(line, "TestGravitySphereSubgridRight = %"PSYM,
+    ret += sscanf(line, "TestGravitySphereSubgridRight = %" PSYM,
 		  &TestGravitySphereSubgridRight);
-    ret += sscanf(line, "TestGravitySphereUseBaryons = %"ISYM,
+    ret += sscanf(line, "TestGravitySphereUseBaryons = %" ISYM,
 		  &TestGravitySphereUseBaryons);
-    ret += sscanf(line, "TestGravitySphereRefineAtStart = %"ISYM,
+    ret += sscanf(line, "TestGravitySphereRefineAtStart = %" ISYM,
 		  &TestGravitySphereRefineAtStart);
-    ret += sscanf(line, "TestGravitySphereCenter = %"PSYM" %"PSYM" %"PSYM,
+    ret += sscanf(line, "TestGravitySphereCenter = %" PSYM" %" PSYM" %" PSYM,
 		  TestGravitySphereCenter, TestGravitySphereCenter+1,
 		  TestGravitySphereCenter+2);
  
@@ -261,21 +261,21 @@ int TestGravitySphereInitialize(FILE *fptr, FILE *Outfptr,
   /* Write parameters to parameter output file */
  
   if (MyProcessorNumber == ROOT_PROCESSOR) {
-    fprintf(Outfptr, "TestGravitySphereInteriorDensity   = %"FSYM"\n",
+    fprintf(Outfptr, "TestGravitySphereInteriorDensity   = %" FSYM"\n",
 	    TestGravitySphereInteriorDensity);
-    fprintf(Outfptr, "TestGravitySphereExteriorDensity   = %"FSYM"\n",
+    fprintf(Outfptr, "TestGravitySphereExteriorDensity   = %" FSYM"\n",
 	    TestGravitySphereExteriorDensity);
-    fprintf(Outfptr, "TestGravitySphereRadius            = %"FSYM"\n",
+    fprintf(Outfptr, "TestGravitySphereRadius            = %" FSYM"\n",
 	    TestGravitySphereRadius);
-    fprintf(Outfptr, "TestGravitySphereType              = %"ISYM"\n",
+    fprintf(Outfptr, "TestGravitySphereType              = %" ISYM"\n",
 	    TestGravitySphereType);
-    fprintf(Outfptr, "TestGravitySphereSubgridLeft       = %"GOUTSYM"\n",
+    fprintf(Outfptr, "TestGravitySphereSubgridLeft       = %" GOUTSYM"\n",
 	    TestGravitySphereSubgridLeft);
-    fprintf(Outfptr, "TestGravitySphereSubgridRight      = %"GOUTSYM"\n",
+    fprintf(Outfptr, "TestGravitySphereSubgridRight      = %" GOUTSYM"\n",
 	    TestGravitySphereSubgridRight);
-    fprintf(Outfptr, "TestGravitySphereUseBaryons        = %"ISYM"\n",
+    fprintf(Outfptr, "TestGravitySphereUseBaryons        = %" ISYM"\n",
 	    TestGravitySphereUseBaryons);
-    fprintf(Outfptr, "TestGravitySphereRefineAtStart     = %"ISYM"\n",
+    fprintf(Outfptr, "TestGravitySphereRefineAtStart     = %" ISYM"\n",
 	    TestGravitySphereRefineAtStart);
     fprintf(Outfptr, "TestGravitySphereCenter            = ");
     WriteListOfFloats(Outfptr, MetaData.TopGridRank, TestGravitySphereCenter);

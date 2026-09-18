@@ -48,19 +48,19 @@ int grid::KHInitializeGridRamp(float KHInnerDensity,
 
   /* declarations */
 
-  int size = 1, dim;
+  int dim;
   for (dim = 0; dim < GridRank; dim++)
-    size *= GridDimension[dim];
+    ;
 
   /* Find fields: density, total energy, velocity1-3. */
 
   int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
-  if (this-IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
+  if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
                                       Vel3Num, TENum) == FAIL) {
     ENZO_FAIL("Error in IdentifyPhysicalQuantities.\n");
   }
 
-  int index, jndex, i, j, k, n = 0;
+  int i, j, k, n = 0;
   FLOAT x, y, KHRampWidth2, DensityDiff, VelocityDiff;
   KHRampWidth2 = KHRampWidth*KHRampWidth;
   DensityDiff = (KHInnerDensity - KHOuterDensity);

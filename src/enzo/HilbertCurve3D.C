@@ -87,7 +87,7 @@ double HilbertCurve3D(FLOAT *coord)
   
   for (dim = 0; dim < MAX_DIMENSION; dim++)
     if (coord[dim] < 0 || coord[dim] > 1)
-      ENZO_VFAIL("Coordinates must be between 0 and 1.  coord[%d] = %f",
+      ENZO_VFAIL("Coordinates must be between 0 and 1.  coord[%" ISYM "] = %f",
 		 dim, coord[dim]);
 
   /* Convert xyz to intergers in the range [0,IMAX] */

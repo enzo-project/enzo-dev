@@ -31,7 +31,6 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, double *MassUnits, FLOAT Time);
 
-static int TestStarParticleParticleCount = 0;
 
 int grid::TestRadiatingStarParticleInitializeGrid(float TestStarParticleStarMass, 
 					 float *Initialdt,
@@ -43,18 +42,15 @@ int grid::TestRadiatingStarParticleInitializeGrid(float TestStarParticleStarMass
 {
   /* declarations */
 
-  float CentralMass = 1.0, temperature;
-  int dim, i, j, k, m, field, size, active_size, index, cindex;
+  float CentralMass = 1.0;
+  int dim, i, size;
 
-  int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
-    DINum, DIINum, HDINum, MetalNum, MetalIaNum;
+  int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum, DINum, DIINum, HDINum, MetalNum;
 
   int kphHINum, gammaNum, kphHeINum, kphHeIINum, kdissH2INum, kdissH2IINum, kphHMNum, RPresNum1, RPresNum2, RPresNum3;
 
-  int ExtraField[2];
 
-  float TestInitialdt = *Initialdt, *density_field = NULL, *HII_field = NULL, *HeII_field = NULL, 
-    *HeIII_field = NULL, *Temperature_field = NULL;
+  float *density_field = NULL, *HII_field = NULL, *HeII_field = NULL, *HeIII_field = NULL, *Temperature_field = NULL;
 
    /* create fields */
 
@@ -129,7 +125,7 @@ int grid::TestRadiatingStarParticleInitializeGrid(float TestStarParticleStarMass
   /* Get Units. */
 
   float TemperatureUnits = 1, DensityUnits = 1, LengthUnits = 1, 
-    VelocityUnits = 1, TimeUnits = 1, CriticalDensity = 1, BoxLength = 1, mu = 0.6, mu_data;
+    VelocityUnits = 1, TimeUnits = 1, mu = 0.6, mu_data;
   double MassUnits = 1;
   
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
@@ -142,7 +138,7 @@ int grid::TestRadiatingStarParticleInitializeGrid(float TestStarParticleStarMass
   NumberOfParticles = 1;
   NumberOfParticleAttributes = 4;
   this->AllocateNewParticles(NumberOfParticles);
-  printf("Allocated %d particles\n", NumberOfParticles);
+  printf("Allocated %" ISYM " particles\n", NumberOfParticles);
  
   /* Set up the baryon field. */ 
    /* compute size of fields */
@@ -276,11 +272,12 @@ if (MultiSpecies) {
   }
 
   if (STARFEED_METHOD(UNIGRID_STAR)) ParticleAttribute[1][0] = 10.0 * Myr_s/TimeUnits;
-  if (STARFEED_METHOD(MOM_STAR))
+  if (STARFEED_METHOD(MOM_STAR)) {
     if(StarMakerExplosionDelayTime >= 0.0)
       ParticleAttribute[1][0] = 1.0;
     else
       ParticleAttribute[1][0] = 10.0 * Myr_s/TimeUnits;
+  }
   
   ParticleAttribute[2][0] = 0.0;  // Metal fraction
   ParticleAttribute[3][0] = 0.0;  // metalfSNIa

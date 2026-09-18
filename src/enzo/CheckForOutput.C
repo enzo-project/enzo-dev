@@ -100,11 +100,11 @@ int CheckForOutput(HierarchyEntry *TopGrid, TopGridData &MetaData,
     if (MyProcessorNumber == ROOT_PROCESSOR) {
       param = new char[512];
       if (MetaData.RestartDumpDir != NULL)
-	sprintf(param, "%s%"CYCLE_TAG_FORMAT""ISYM"/%s%"CYCLE_TAG_FORMAT""ISYM,
+	sprintf(param, "%s%" CYCLE_TAG_FORMAT"" ISYM"/%s%" CYCLE_TAG_FORMAT"" ISYM,
 		MetaData.RestartDumpDir, MetaData.RestartDumpNumber-1,
 		MetaData.RestartDumpName, MetaData.RestartDumpNumber-1);
       else
-	sprintf(param, "%s%"CYCLE_TAG_FORMAT""ISYM,
+	sprintf(param, "%s%" CYCLE_TAG_FORMAT"" ISYM,
 		MetaData.RestartDumpName, MetaData.RestartDumpNumber-1);
 
       if ((pfptr = fopen("RestartParamFile", "w")) == NULL)
@@ -128,7 +128,7 @@ int CheckForOutput(HierarchyEntry *TopGrid, TopGridData &MetaData,
   float FractionalCPUTime = 1.0 - MetaData.LastCycleCPUTime / MetaData.StopCPUTime;
 
   if (debug)
-    printf("CPUTime-output: Frac = %"FSYM", Current = %lg (%lg), Stop = %"FSYM", "
+    printf("CPUTime-output: Frac = %" FSYM", Current = %lg (%lg), Stop = %" FSYM", "
 	   "Last = %lg\n",
 	   FractionalCPUTime, ReturnWallTime()-MetaData.StartCPUTime, 
 	   MetaData.CPUTime, 

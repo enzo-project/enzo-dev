@@ -136,13 +136,13 @@ main(int argc, char **argv)
 	type = uuid_type(buf);
 	time_reg = uuid_time(buf, &tv);
 
-	printf("UUID variant is %d (%s)\n", variant, variant_string(variant));
+	printf("UUID variant is %" ISYM " (%s)\n", variant, variant_string(variant));
 	if (variant != UUID_VARIANT_DCE) {
 		printf("Warning: This program only knows how to interpret "
 		       "DCE UUIDs.\n\tThe rest of the output is likely "
 		       "to be incorrect!!\n");
 	}
-	printf("UUID type is %d", type);
+	printf("UUID type is %" ISYM "", type);
 	switch (type) {
 	case 1:
 		printf(" (time based)\n");

@@ -68,7 +68,6 @@ int LoadBalanceHilbertCurve(HierarchyEntry *GridHierarchyPointer[],
   FLOAT GridCenter[MAX_DIMENSION];
   FLOAT LeftEdge[MAX_DIMENSION], RightEdge[MAX_DIMENSION];
   FLOAT BoundingBox[2][MAX_DIMENSION];
-  FLOAT BoundingBoxWidthInv[MAX_DIMENSION];
   float GridVolume, AxialRatio;
   int GridMemory, NumberOfCells, CellsTotal, NumberOfParticles;
   int iter;
@@ -96,7 +95,7 @@ int LoadBalanceHilbertCurve(HierarchyEntry *GridHierarchyPointer[],
   } // ENDFOR grids
   
   for (dim = 0; dim < MAX_DIMENSION; dim++)
-    BoundingBoxWidthInv[dim] = 1.0/(BoundingBox[1][dim] - BoundingBox[0][dim]);
+    ;
 
   /* Compute the position of each grid on a Hilbert curve */
   // TODO: PARALLELIZE
@@ -166,7 +165,7 @@ int LoadBalanceHilbertCurve(HierarchyEntry *GridHierarchyPointer[],
 //  if (debug) {
 //    printf("BlockDivisions = ");
 //    for (i = 0; i < NumberOfProcessors; i++)
-//      printf("%d ", BlockDivisions[i]);
+//      printf("%" ISYM " ", BlockDivisions[i]);
 //    printf("\n");
 //  }
 
@@ -186,7 +185,7 @@ int LoadBalanceHilbertCurve(HierarchyEntry *GridHierarchyPointer[],
      Hilbert curve. */
 
   const double CriticalBalance = 0.1 / NumberOfProcessors;
-  double div_hkey, min_hkey, max_hkey, global_min_hkey;
+  double div_hkey, min_hkey, max_hkey;
   double hkey_boundary;
   char direction;
   int LoadedBlock, UnloadedBlock, WorkDifference;
@@ -211,7 +210,7 @@ int LoadBalanceHilbertCurve(HierarchyEntry *GridHierarchyPointer[],
       max_hkey = div_hkey + FUZZY_BOUNDARY * 
 	(HilbertData[BlockDivisions[i+1]].hkey - div_hkey);
 //      if (debug)
-//	printf("div%d: Hilbert fuzzy range = %lf -> %lf -> %lf\n",
+//	printf("div%" ISYM ": Hilbert fuzzy range = %lf -> %lf -> %lf\n",
 //	       i, min_hkey, div_hkey, max_hkey);
       
       // Which processor has more work?
@@ -237,7 +236,7 @@ int LoadBalanceHilbertCurve(HierarchyEntry *GridHierarchyPointer[],
 	if (2*GridWork[grid_num] < WorkDifference &&
 	    NewProcessorNumber[HilbertData[grid_num].grid_num] == LoadedBlock) {
 //	  if (debug)
-//	    printf("Moving grid %d (work=%d) from P%d -> P%d\n",
+//	    printf("Moving grid %" ISYM " (work=%" ISYM ") from P%" ISYM " -> P%" ISYM "\n",
 //		   grid_num, GridWork[grid_num], LoadedBlock, UnloadedBlock);
 	  ProcessorWork[LoadedBlock] -= GridWork[grid_num];
 	  ProcessorWork[UnloadedBlock] += GridWork[grid_num];
@@ -260,7 +259,7 @@ int LoadBalanceHilbertCurve(HierarchyEntry *GridHierarchyPointer[],
 #ifdef UNUSED
   float *ww = new float[NumberOfProcessors];
   if (MyProcessorNumber == ROOT_PROCESSOR) {
-    printf("LoadBalance (grids=%"ISYM"): \n", NumberOfGrids);
+    printf("LoadBalance (grids=%" ISYM"): \n", NumberOfGrids);
     float norm = ProcessorWork[0];
     for (i = 1; i < NumberOfProcessors; i++)
       norm = max(norm, ProcessorWork[i]);
@@ -328,7 +327,7 @@ int LoadBalanceHilbertCurve(HierarchyEntry *GridHierarchyPointer[],
 #endif
   if (debug && GridsMoved > 0) {
     tt1 = ReturnWallTime();
-    printf("LoadBalance: Number of grids moved = %"ISYM" out of %"ISYM" "
+    printf("LoadBalance: Number of grids moved = %" ISYM" out of %" ISYM" "
 	   "(%lg seconds elapsed)\n", GridsMoved, NumberOfGrids, tt1-tt0);
   }  
 
@@ -365,14 +364,11 @@ int LoadBalanceHilbertCurve(grid *GridPointers[], int NumberOfGrids,
   FLOAT GridCenter[MAX_DIMENSION];
   FLOAT LeftEdge[MAX_DIMENSION], RightEdge[MAX_DIMENSION];
   FLOAT BoundingBox[2][MAX_DIMENSION];
-  FLOAT BoundingBoxWidthInv[MAX_DIMENSION];
   float GridVolume, AxialRatio;
   int GridMemory, NumberOfCells, CellsTotal, NumberOfParticles;
   int iter;
 
-  double tt0, tt1;
   CommunicationBarrier();
-  tt0 = ReturnWallTime();
 
   /* Find the bounding box of the grids */
 
@@ -390,7 +386,7 @@ int LoadBalanceHilbertCurve(grid *GridPointers[], int NumberOfGrids,
   } // ENDFOR grids
   
   for (dim = 0; dim < MAX_DIMENSION; dim++)
-    BoundingBoxWidthInv[dim] = 1.0/(BoundingBox[1][dim] - BoundingBox[0][dim]);
+    ;
 
   /* Compute the position of each grid on a Hilbert curve */
   // TODO: PARALLELIZE
@@ -459,7 +455,7 @@ int LoadBalanceHilbertCurve(grid *GridPointers[], int NumberOfGrids,
 //  if (debug) {
 //    printf("BlockDivisions = ");
 //    for (i = 0; i < NumberOfProcessors; i++)
-//      printf("%d ", BlockDivisions[i]);
+//      printf("%" ISYM " ", BlockDivisions[i]);
 //    printf("\n");
 //  }
 
@@ -479,7 +475,7 @@ int LoadBalanceHilbertCurve(grid *GridPointers[], int NumberOfGrids,
      Hilbert curve. */
 
   const double CriticalBalance = 0.1 / NumberOfProcessors;
-  double div_hkey, min_hkey, max_hkey, global_min_hkey;
+  double div_hkey, min_hkey, max_hkey;
   double hkey_boundary;
   char direction;
   int LoadedBlock, UnloadedBlock, WorkDifference;
@@ -504,7 +500,7 @@ int LoadBalanceHilbertCurve(grid *GridPointers[], int NumberOfGrids,
       max_hkey = div_hkey + FUZZY_BOUNDARY * 
 	(HilbertData[BlockDivisions[i+1]].hkey - div_hkey);
 //      if (debug)
-//	printf("div%d: Hilbert fuzzy range = %lf -> %lf -> %lf\n",
+//	printf("div%" ISYM ": Hilbert fuzzy range = %lf -> %lf -> %lf\n",
 //	       i, min_hkey, div_hkey, max_hkey);
       
       // Which processor has more work?
@@ -530,7 +526,7 @@ int LoadBalanceHilbertCurve(grid *GridPointers[], int NumberOfGrids,
 	if (2*GridWork[grid_num] < WorkDifference &&
 	    NewProcessorNumber[HilbertData[grid_num].grid_num] == LoadedBlock) {
 //	  if (debug)
-//	    printf("Moving grid %d (work=%d) from P%d -> P%d\n",
+//	    printf("Moving grid %" ISYM " (work=%" ISYM ") from P%" ISYM " -> P%" ISYM "\n",
 //		   grid_num, GridWork[grid_num], LoadedBlock, UnloadedBlock);
 	  ProcessorWork[LoadedBlock] -= GridWork[grid_num];
 	  ProcessorWork[UnloadedBlock] += GridWork[grid_num];
@@ -554,7 +550,7 @@ int LoadBalanceHilbertCurve(grid *GridPointers[], int NumberOfGrids,
   float *ww = new float[NumberOfProcessors];
   if (MyProcessorNumber == ROOT_PROCESSOR) {
 
-    printf("LoadBalance (grids=%"ISYM"): \n", NumberOfGrids);
+    printf("LoadBalance (grids=%" ISYM"): \n", NumberOfGrids);
     float norm = ProcessorWork[0];
     for (i = 1; i < NumberOfProcessors; i++)
       norm = max(norm, ProcessorWork[i]);
@@ -602,14 +598,9 @@ int LoadBalanceHilbertCurve(grid *GridPointers[], int NumberOfGrids,
   FLOAT GridCenter[MAX_DIMENSION];
   FLOAT LeftEdge[MAX_DIMENSION], RightEdge[MAX_DIMENSION];
   FLOAT BoundingBox[2][MAX_DIMENSION];
-  FLOAT BoundingBoxWidthInv[MAX_DIMENSION];
-  float GridVolume, AxialRatio;
   float TotalWork, WorkThisProcessor, WorkPerProcessor, WorkLeft;
-  int GridMemory, NumberOfCells, CellsTotal, NumberOfParticles;
-  int iter, GridsThisProcessor, GridsPerProcessor;
+  int GridsThisProcessor;
 
-  double tt0, tt1;
-  tt0 = ReturnWallTime();
 
   /* Find the bounding box of the grids */
 
@@ -627,7 +618,7 @@ int LoadBalanceHilbertCurve(grid *GridPointers[], int NumberOfGrids,
   } // ENDFOR grids
   
   for (dim = 0; dim < MAX_DIMENSION; dim++)
-    BoundingBoxWidthInv[dim] = 1.0/(BoundingBox[1][dim] - BoundingBox[0][dim]);
+    ;
 
   /* Compute the position of each grid on a Hilbert curve */
   // TODO: PARALLELIZE
@@ -681,7 +672,6 @@ int LoadBalanceHilbertCurve(grid *GridPointers[], int NumberOfGrids,
     WorkThisProcessor = 0;
     GridsThisProcessor = 0;
     WorkPerProcessor = WorkLeft / (NumberOfProcessors-i);
-    GridsPerProcessor = GridsLeft / (NumberOfProcessors-i);
     do {
       GridsThisProcessor++;
       GridsLeft--;
@@ -714,7 +704,7 @@ int LoadBalanceHilbertCurve(grid *GridPointers[], int NumberOfGrids,
 //  if (debug) {
 //    printf("BlockDivisions = ");
 //    for (i = 0; i < NumberOfProcessors; i++)
-//      printf("%d ", BlockDivisions[i]);
+//      printf("%" ISYM " ", BlockDivisions[i]);
 //    printf("\n");
 //  }
 
@@ -733,12 +723,6 @@ int LoadBalanceHilbertCurve(grid *GridPointers[], int NumberOfGrids,
      by moving grids to adjacent processors within some epsilon on the
      Hilbert curve. */
 
-  const double CriticalBalance = 0.1 / NumberOfProcessors;
-  double div_hkey, min_hkey, max_hkey, global_min_hkey;
-  double hkey_boundary;
-  char direction;
-  int LoadedBlock, UnloadedBlock;
-  float WorkDifference, MinWork, MaxWork, WorkImbalance;
 
 #ifdef UNUSED
   for (iter = 0; iter < FUZZY_ITERATIONS; iter++) {
@@ -759,7 +743,7 @@ int LoadBalanceHilbertCurve(grid *GridPointers[], int NumberOfGrids,
       max_hkey = div_hkey + FUZZY_BOUNDARY * 
 	(HilbertData[BlockDivisions[i+1]].hkey - div_hkey);
 //      if (debug)
-//	printf("div%d: Hilbert fuzzy range = %lf -> %lf -> %lf\n",
+//	printf("div%" ISYM ": Hilbert fuzzy range = %lf -> %lf -> %lf\n",
 //	       i, min_hkey, div_hkey, max_hkey);
       
       // Which processor has more work?
@@ -785,7 +769,7 @@ int LoadBalanceHilbertCurve(grid *GridPointers[], int NumberOfGrids,
 	if (2*GridWork[grid_num] < WorkDifference &&
 	    NewProcessorNumber[HilbertData[grid_num].grid_num] == LoadedBlock) {
 //	  if (debug)
-//	    printf("Moving grid %d (work=%d) from P%d -> P%d\n",
+//	    printf("Moving grid %" ISYM " (work=%" ISYM ") from P%" ISYM " -> P%" ISYM "\n",
 //		   grid_num, GridWork[grid_num], LoadedBlock, UnloadedBlock);
 	  ProcessorWork[LoadedBlock] -= GridWork[grid_num];
 	  ProcessorWork[UnloadedBlock] += GridWork[grid_num];
@@ -810,7 +794,7 @@ int LoadBalanceHilbertCurve(grid *GridPointers[], int NumberOfGrids,
   float *ww = new float[NumberOfProcessors];
   if (MyProcessorNumber == ROOT_PROCESSOR) {
 
-    printf("LoadBalance (grids=%"ISYM"): \n", NumberOfGrids);
+    printf("LoadBalance (grids=%" ISYM"): \n", NumberOfGrids);
     float norm = ProcessorWork[0];
     for (i = 1; i < NumberOfProcessors; i++)
       norm = max(norm, ProcessorWork[i]);

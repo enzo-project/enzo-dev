@@ -75,7 +75,7 @@ int ProjectToPlane2(char *ParameterFile, HierarchyEntry &TopGrid,
 		    int ProjectStartTemp[], int ProjectEndTemp[], 
 		    FLOAT ProjectStartCoordinate[],
 		    FLOAT ProjectEndCoordinate[], int ProjectLevel,
-		    int ProjectionDimension, char *ProjectionFileName,
+		    int ProjectionDimension, const char *ProjectionFileName,
 		    int ProjectionSmooth, 
 #ifdef TRANSFER
 		    ImplicitProblemABC *ImplicitSolver,
@@ -85,7 +85,7 @@ int ProjectToPlane2(char *ParameterFile, HierarchyEntry &TopGrid,
 
   /* Declarations */
 
-  int i, j, dim, field, level, ret, size = 1;
+  int i, j, dim, field, level, size = 1;
   int NumberOfProjectedFields = NUMBER_OF_PROJECTED_FIELDS;
   int ProjectDim[MAX_DIMENSION];
   float **ProjectedField, TempCellWidth;
@@ -162,14 +162,14 @@ int ProjectToPlane2(char *ParameterFile, HierarchyEntry &TopGrid,
   }
 
   if (debug)
-    printf("ProjectToPlane: Left = %"GOUTSYM" %"GOUTSYM" %"GOUTSYM"   Right = %"GOUTSYM" %"GOUTSYM" %"GOUTSYM"\n",
+    printf("ProjectToPlane: Left = %" GOUTSYM" %" GOUTSYM" %" GOUTSYM"   Right = %" GOUTSYM" %" GOUTSYM" %" GOUTSYM"\n",
 	   ProjectLeft[0], ProjectLeft[1], ProjectLeft[2],
 	   ProjectRight[0], ProjectRight[1], ProjectRight[2]);
 
   /* Error check. */
 
   if (ProjectionDimension < 0 || ProjectionDimension > MetaData.TopGridRank) {
-    ENZO_VFAIL("Invalid ProjectionDimension (%d).\n",ProjectionDimension)
+    ENZO_VFAIL("Invalid ProjectionDimension (%" ISYM ").\n",ProjectionDimension)
   }
 
   /* Check to see if a metal cooling rates (and ratios of line and total
@@ -351,7 +351,6 @@ int ProjectToPlane2(char *ParameterFile, HierarchyEntry &TopGrid,
     /* Write projected planes to HDF file. */
 
     float *density_squared = new float[size];
-    float Tcmb, exp_tau, temp_b;
     int RhoWeighted, Rho2Weighted, LuminosityField, SubmmField;
     const char *FieldName, *Units;
 

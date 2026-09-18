@@ -40,17 +40,17 @@ int RotatingDiskInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 			   TopGridData &MetaData)
 {
 
-  char *DensName = "Density";
-  char *TEName   = "TotalEnergy";
-  char *GEName   = "GasEnergy";
-  char *Vel1Name = "x-velocity";
-  char *Vel2Name = "y-velocity";
-  char *Vel3Name = "z-velocity";
+  const char *DensName = "Density";
+  const char *TEName   = "TotalEnergy";
+  const char *GEName   = "GasEnergy";
+  const char *Vel1Name = "x-velocity";
+  const char *Vel2Name = "y-velocity";
+  const char *Vel3Name = "z-velocity";
 
   /* local declarations */
  
   char line[MAX_LINE_LENGTH];
-  int  i, j, dim, ret, level;
+  int i, j, ret, level;
      
   float RotatingDiskScaleRadius           = 2265.0; // [pc]
   float RotatingDiskScaleHeight           = 100.0;  // [pc]
@@ -66,21 +66,21 @@ int RotatingDiskInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   while (fgets(line, MAX_LINE_LENGTH, fptr) != NULL) {	
     ret = 0;
     
-    ret += sscanf(line, "RotatingDiskScaleRadius = %"FSYM,
+    ret += sscanf(line, "RotatingDiskScaleRadius = %" FSYM,
 		  &RotatingDiskScaleRadius);
-    ret += sscanf(line, "RotatingDiskScaleHeight = %"FSYM,
+    ret += sscanf(line, "RotatingDiskScaleHeight = %" FSYM,
 		  &RotatingDiskScaleHeight);
-    ret += sscanf(line, "RotatingDiskOuterRadius = %"FSYM,
+    ret += sscanf(line, "RotatingDiskOuterRadius = %" FSYM,
 		  &RotatingDiskOuterRadius);
-    ret += sscanf(line, "RotatingDiskCentralDensity = %"FSYM,
+    ret += sscanf(line, "RotatingDiskCentralDensity = %" FSYM,
 		  &RotatingDiskCentralDensity);
-    ret += sscanf(line, "RotatingDiskDMConcentration = %"FSYM,
+    ret += sscanf(line, "RotatingDiskDMConcentration = %" FSYM,
 		  &RotatingDiskDMConcentration);
-    ret += sscanf(line, "RotatingDiskTotalDMMass = %"FSYM,
+    ret += sscanf(line, "RotatingDiskTotalDMMass = %" FSYM,
 		  &RotatingDiskTotalDMMass);
-    ret += sscanf(line, "RotatingDiskTemperature = %"FSYM,
+    ret += sscanf(line, "RotatingDiskTemperature = %" FSYM,
 		  &RotatingDiskTemperature);
-    ret += sscanf(line, "RotatingDiskRefineAtStart = %"ISYM,
+    ret += sscanf(line, "RotatingDiskRefineAtStart = %" ISYM,
 		  &RotatingDiskRefineAtStart);
     
     /* if the line is suspicious, issue a warning */	
@@ -172,21 +172,21 @@ int RotatingDiskInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   
   if (MyProcessorNumber == ROOT_PROCESSOR) {
 	
-    fprintf(Outfptr, "RotatingDiskRefineAtStart      = %"ISYM"\n",
+    fprintf(Outfptr, "RotatingDiskRefineAtStart      = %" ISYM"\n",
 	    RotatingDiskRefineAtStart);
-    fprintf(Outfptr, "RotatingDiskScaleRadius        = %"FSYM"\n",
+    fprintf(Outfptr, "RotatingDiskScaleRadius        = %" FSYM"\n",
 	    RotatingDiskScaleRadius);
-    fprintf(Outfptr, "RotatingDiskScaleHeight        = %"FSYM"\n",
+    fprintf(Outfptr, "RotatingDiskScaleHeight        = %" FSYM"\n",
 	    RotatingDiskScaleHeight);
-    fprintf(Outfptr, "RotatingDiskCentralDensity     = %"FSYM"\n",
+    fprintf(Outfptr, "RotatingDiskCentralDensity     = %" FSYM"\n",
 	    RotatingDiskCentralDensity);
-    fprintf(Outfptr, "RotatingDiskDMConcentration    = %"FSYM"\n",
+    fprintf(Outfptr, "RotatingDiskDMConcentration    = %" FSYM"\n",
 	    RotatingDiskDMConcentration);
-    fprintf(Outfptr, "RotatingDiskTotalDMMass        = %"FSYM"\n",
+    fprintf(Outfptr, "RotatingDiskTotalDMMass        = %" FSYM"\n",
 	    RotatingDiskTotalDMMass);
-    fprintf(Outfptr, "RotatingDiskTemperature        = %"FSYM"\n",
+    fprintf(Outfptr, "RotatingDiskTemperature        = %" FSYM"\n",
 	    RotatingDiskTemperature);
-    fprintf(Outfptr, "RotatingDiskOuterRadius        = %"FSYM"\n",
+    fprintf(Outfptr, "RotatingDiskOuterRadius        = %" FSYM"\n",
 	    RotatingDiskOuterRadius);
     
   }

@@ -34,7 +34,7 @@ int grid::DetachForcingFromBaryonFields()
    }
   NumberOfBaryonFields -= GridRank;
  
-  //  if (debug) printf("ForcingDetached[%"ISYM"]\n", ProcessorNumber);
+  //  if (debug) printf("ForcingDetached[%" ISYM"]\n", ProcessorNumber);
  
   return SUCCESS;
  

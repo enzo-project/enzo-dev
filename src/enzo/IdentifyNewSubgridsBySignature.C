@@ -38,7 +38,7 @@ int IdentifyNewSubgridsBySignature(ProtoSubgrid *SubgridList[],
   /* Loop over all the grids in the queue SubgridList. */
 
   if ( NumberOfSubgrids > MAX_NUMBER_OF_SUBGRIDS ) {
-    ENZO_VFAIL("PE %"ISYM" NumberOfSubgrids > MAX_NUMBER_OF_SUBGRIDS in IdentifyNewSubgridsBySignature\n", MyProcessorNumber)
+    ENZO_VFAIL("PE %" ISYM" NumberOfSubgrids > MAX_NUMBER_OF_SUBGRIDS in IdentifyNewSubgridsBySignature\n", MyProcessorNumber)
   }
  
   int index = 0;
@@ -87,7 +87,7 @@ int IdentifyNewSubgridsBySignature(ProtoSubgrid *SubgridList[],
 	if (NumberOfNewGrids > 1) {
  
 	  /*	  if (debug)
-	    printf("Breaking by simple zero. new grids[%"ISYM"]=%"ISYM" break=%"ISYM"\n",
+	    printf("Breaking by simple zero. new grids[%" ISYM"]=%" ISYM" break=%" ISYM"\n",
 		   dim, NumberOfNewGrids, GridEnds[j][1]); */
  
 	  for (j = 0; j < NumberOfNewGrids; j++) {
@@ -172,7 +172,7 @@ int IdentifyNewSubgridsBySignature(ProtoSubgrid *SubgridList[],
 
 	
 	//if (debug)
-	  //	printf("Breaking by zero-crossing. dim=%"ISYM"  break=%"ISYM"-%"ISYM"/%"ISYM"-%"ISYM"\n\n",
+	  //	printf("Breaking by zero-crossing. dim=%" ISYM"  break=%" ISYM"-%" ISYM"/%" ISYM"-%" ISYM"\n\n",
 	  //   StrongestDim,
 	  //   GridEnds[StrongestDim*2][0], GridEnds[StrongestDim*2][1],
 	  //   GridEnds[StrongestDim*2+1][0], GridEnds[StrongestDim*2+1][1]);

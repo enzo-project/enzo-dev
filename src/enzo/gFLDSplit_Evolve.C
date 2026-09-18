@@ -61,7 +61,7 @@ int gFLDSplit::Evolve(HierarchyEntry *ThisGrid, float dthydro)
   MPI_Arg MPI_id;
   MPI_Comm_rank(MPI_COMM_WORLD, &MPI_id);
   if (MyProcessorNumber != MPI_id) {
-    fprintf(stderr, "ERROR: Enzo PID %"ISYM" doesn't match MPI ID %"ISYM"\n", 
+    fprintf(stderr, "ERROR: Enzo PID %" ISYM" doesn't match MPI ID %" ISYM"\n", 
 	    MyProcessorNumber, int(MPI_id));
     ENZO_FAIL("Error in gFLDSplit_Evolve");
   }
@@ -319,7 +319,7 @@ int gFLDSplit::Evolve(HierarchyEntry *ThisGrid, float dthydro)
       }
       dt = tnew - told;
       if (debug) 
-       printf("\n subcycled rad %"ISYM": dt=%7.1e, t=%7.1e (hydro dt=%7.1e, t=%7.1e)\n",
+       printf("\n subcycled rad %" ISYM": dt=%7.1e, t=%7.1e (hydro dt=%7.1e, t=%7.1e)\n",
         radstep,dt,tnew,dthydro,end_time);
       
       // take a radiation step
@@ -368,7 +368,7 @@ int gFLDSplit::Evolve(HierarchyEntry *ThisGrid, float dthydro)
           chemstop = 1;
         }
         if (debug) 
-          printf("   subcycled chem %"ISYM": dt=%7.1e, t=%7.1e (rad dt=%7.1e, t=%7.1e)\n",
+          printf("   subcycled chem %" ISYM": dt=%7.1e, t=%7.1e (rad dt=%7.1e, t=%7.1e)\n",
             chemstep,thisdt,tchem,dt,tnew);
 
         //   take a chemistry step
@@ -971,7 +971,7 @@ int gFLDSplit::RadStep(HierarchyEntry *ThisGrid, int eta_set)
   }
   HYPRE_StructPFMGGetNumIterations(preconditioner, &Pits);
   totIters += Sits;
-  if (debug) printf("   lin resid = %.1e (tol = %.1e, |rhs| = %.1e), its = (%i,%i)\n",
+  if (debug) printf("   lin resid = %.1e (tol = %.1e, |rhs| = %.1e), its = (%" ISYM ",%" ISYM ")\n",
 		    finalresid, delta, rhsnorm, Sits, Pits);
   int recompute_step = 0;
   if ((sol_tolerance != 0.0) || (finalresid != finalresid)) {

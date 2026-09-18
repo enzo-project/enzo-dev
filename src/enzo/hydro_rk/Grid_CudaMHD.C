@@ -39,7 +39,7 @@ void grid::CudaMHDMalloc(void **p, size_t size)
   //CUDA_SAFE_CALL( cudaMalloc(p, size) );
   size_t offset = 128*(int)ceil((float)size/128);
   if (MHDData.GPUMemOffset + offset > MHDData.GPUMemSize) {
-    printf("insufficient GPU memory: GPUMemOffset=%d, offset=%d, GPUMemSize=%d!\n",
+    printf("insufficient GPU memory: GPUMemOffset=%" ISYM ", offset=%" ISYM ", GPUMemSize=%" ISYM "!\n",
            MHDData.GPUMemOffset, offset, MHDData.GPUMemSize);
     exit(1);
   }

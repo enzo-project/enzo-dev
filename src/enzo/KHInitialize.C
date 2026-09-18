@@ -40,15 +40,14 @@ int RebuildHierarchy(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 int KHInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
                  TopGridData &MetaData)
 {
-  char *DensName = "Density";
-  char *TEName   = "TotalEnergy";
-  char *Vel1Name = "x-velocity";
-  char *Vel2Name = "y-velocity";
-  char *Vel3Name = "z-velocity";
+  const char *DensName = "Density";
+  const char *TEName   = "TotalEnergy";
+  const char *Vel1Name = "x-velocity";
+  const char *Vel2Name = "y-velocity";
+  const char *Vel3Name = "z-velocity";
 
   /* parameter declarations */
 
-  FLOAT LeftEdge[MAX_DIMENSION], RightEdge[MAX_DIMENSION];
   
   /* local declarations */
 
@@ -79,17 +78,17 @@ int KHInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 
     /* read parameters */
 
-    ret += sscanf(line, "KHInnerDensity  = %"FSYM, &KHInnerDensity);
-    ret += sscanf(line, "KHOuterDensity  = %"FSYM, &KHOuterDensity);
-    ret += sscanf(line, "KHInnerPressure = %"FSYM, &KHInnerPressure);
-    ret += sscanf(line, "KHOuterPressure = %"FSYM, &KHOuterPressure);
-    ret += sscanf(line, "KHVelocityJump  = %"FSYM, &KHVelocityJump);
-    ret += sscanf(line, "KHPerturbationAmplitude = %"FSYM, 
+    ret += sscanf(line, "KHInnerDensity  = %" FSYM, &KHInnerDensity);
+    ret += sscanf(line, "KHOuterDensity  = %" FSYM, &KHOuterDensity);
+    ret += sscanf(line, "KHInnerPressure = %" FSYM, &KHInnerPressure);
+    ret += sscanf(line, "KHOuterPressure = %" FSYM, &KHOuterPressure);
+    ret += sscanf(line, "KHVelocityJump  = %" FSYM, &KHVelocityJump);
+    ret += sscanf(line, "KHPerturbationAmplitude = %" FSYM, 
                   &KHPerturbationAmplitude);
-    ret += sscanf(line, "KHBulkVelocity  = %"FSYM, &KHBulkVelocity);
-    ret += sscanf(line, "KHRamp = %"ISYM, &KHRamp);
-    ret += sscanf(line, "KHRampWidth     = %"FSYM, &KHRampWidth);
-    ret += sscanf(line, "KHRandomSeed    = %"ISYM, &KHRandomSeed);
+    ret += sscanf(line, "KHBulkVelocity  = %" FSYM, &KHBulkVelocity);
+    ret += sscanf(line, "KHRamp = %" ISYM, &KHRamp);
+    ret += sscanf(line, "KHRampWidth     = %" FSYM, &KHRampWidth);
+    ret += sscanf(line, "KHRandomSeed    = %" ISYM, &KHRandomSeed);
 
     /* if the line is suspicious, issue a warning */
 
@@ -255,10 +254,10 @@ int KHInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   /* Write parameters to parameter output file */
 
   if (MyProcessorNumber == ROOT_PROCESSOR) {
-    fprintf(Outfptr, "KHInnerDensity  = %"FSYM"\n", KHInnerDensity);
-    fprintf(Outfptr, "KHInnerPressure = %"FSYM"\n", KHInnerPressure);
-    fprintf(Outfptr, "KHOuterDensity  = %"FSYM"\n", KHOuterDensity);
-    fprintf(Outfptr, "KHOuterPressure = %"FSYM"\n", KHOuterPressure);
+    fprintf(Outfptr, "KHInnerDensity  = %" FSYM"\n", KHInnerDensity);
+    fprintf(Outfptr, "KHInnerPressure = %" FSYM"\n", KHInnerPressure);
+    fprintf(Outfptr, "KHOuterDensity  = %" FSYM"\n", KHOuterDensity);
+    fprintf(Outfptr, "KHOuterPressure = %" FSYM"\n", KHOuterPressure);
   }
 
   return SUCCESS;

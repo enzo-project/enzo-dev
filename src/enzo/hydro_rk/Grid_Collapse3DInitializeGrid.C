@@ -35,7 +35,7 @@ int grid::Collapse3DInitializeGrid(int n_sphere,
 {
   /* declarations */
 
-  int dim, i, j, k, m, sphere;
+  int dim, i, j, k, sphere;
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
     DINum, DIINum, HDINum,  kphHINum, gammaNum, kphHeINum, 
     kphHeIINum, kdissH2INum, RPresNum1, RPresNum2, RPresNum3;
@@ -117,12 +117,12 @@ int grid::Collapse3DInitializeGrid(int n_sphere,
   }
 #endif
 
-  printf("rho_sphere=%"GSYM", cs_sphere=%"GSYM", rho_medium=%"GSYM", p_medium=%"GSYM"\n",
+  printf("rho_sphere=%" GSYM", cs_sphere=%" GSYM", rho_medium=%" GSYM", p_medium=%" GSYM"\n",
 	 rho_sphere[0], cs_sphere[0], rho_medium, p_medium);
 
   // if use BE sphere, read in the BE sphere density profile
 
-  char *filename = "be.dat";
+  const char *filename = "be.dat";
   int n_bin = 6401;
   float radius[n_bin];
   float rho_be[n_bin];
@@ -135,13 +135,13 @@ int grid::Collapse3DInitializeGrid(int n_sphere,
         printf("BE sphere data not enough\n");
         return FAIL;
       }
-      sscanf(line, "%"GSYM" %"GSYM, &radius[i], &rho_be[i]);
+      sscanf(line, "%lf %lf", &radius[i], &rho_be[i]);
     }
     fclose(fptr);
   }
 
   
-  float rho, vel[3], eint, etot, h, cs, dpdrho, dpde, v2;
+  float rho, vel[3], eint, h, cs, dpdrho, dpde, v2;
   FLOAT sinphi, cosphi;
   int n = 0;
   for (k = 0; k < GridDimension[2]; k++) {
@@ -170,13 +170,12 @@ int grid::Collapse3DInitializeGrid(int n_sphere,
 
 	  if (r < r_sphere[sphere]) {
 
-            FLOAT xpos, ypos, zpos, drad;
+            FLOAT xpos, ypos;
                                                                                                                                                           
 	    /* Compute position. */
 	    
 	    xpos = x-sphere_position[sphere][0];
 	    ypos = y-sphere_position[sphere][1];
-	    zpos = z-sphere_position[sphere][2];
 
 	    // compute the azimuthal angle
 	    cosphi = xpos/sqrt(xpos*xpos+ypos*ypos);
@@ -189,27 +188,25 @@ int grid::Collapse3DInitializeGrid(int n_sphere,
 	      EOS(p_sphere[sphere], rho, eint, h, cs, dpdrho, dpde, EOSType, 1);
 	      /*float ps;
 	      EOS(ps, rho, eint, 0, 2);
-	      printf("ps=%"GSYM", pm=%"GSYM", eint=%"GSYM"\n", ps, p_medium, eint);*/
+	      printf("ps=%" GSYM", pm=%" GSYM", eint=%" GSYM"\n", ps, p_medium, eint);*/
             }
 	    
 	    /* 2. Uniform, uniformly rotating */
 
 	    if (sphere_type[sphere] == 2) {
 	      rho = rho_sphere[sphere];
-	      FLOAT cos2phi = cosphi*cosphi -sinphi*sinphi;
-	      FLOAT cos3phi = 4.0*pow(cosphi,3) - 3.0*cosphi;
 	      //rho *= (1.0 + 0.5*cos2phi);
 	      //rho *= (1.0 + 0.5*cos3phi);
 	      //EOS(p_sphere[sphere], rho, eint, h, cs, dpdrho, dpde, EOSType, 1);
 	      eint = pow(cs_sphere[sphere], 2)/(Gamma-1.0);
 	      vel[0] = -omega_sphere[sphere]*ypos;
 	      vel[1] = omega_sphere[sphere]*xpos;
-	      printf("cs=%"GSYM", vel[0]=%"GSYM" ", cs, vel[0]);
+	      printf("cs=%" GSYM", vel[0]=%" GSYM" ", cs, vel[0]);
 	      double mach_turb = 0.0;
 	      vel[0] += mach_turb*Gaussian(cs);
 	      vel[1] += mach_turb*Gaussian(cs);
 	      vel[2] += mach_turb*Gaussian(cs);
-	      //printf("vel[0]=%"GSYM" \n", vel[0]);
+	      //printf("vel[0]=%" GSYM" \n", vel[0]);
 	    }
 
 	    /* 3. Bonnor-Ebert sphere */
@@ -234,10 +231,6 @@ int grid::Collapse3DInitializeGrid(int n_sphere,
 	      rho = rho_sphere[sphere]*rho_be[n];
 	      eint = pow(cs_sphere[sphere], 2)/(Gamma-1.0);
 	      FLOAT cos2phi = cosphi*cosphi - sinphi*sinphi;
-	      FLOAT cos3phi = 4.0*pow(cosphi,3) - 3.0*cosphi;
-	      FLOAT sin3phi = 3.0*sinphi - 4.0*pow(sinphi, 3);
-	      FLOAT phi0 = M_PI/4.0;
-	      FLOAT cos3phi0 = cos3phi*cos(phi0) - sin3phi*sin(phi0);
 	      FLOAT omega2 = 0.0;//omega_sphere[sphere]; // velocity perturbation
 	      FLOAT omega = omega_sphere[sphere] + omega2*cos2phi;
 	      //rho *= (1.0 + 0.5*(cos2phi+cos3phi0));
@@ -331,9 +324,9 @@ int grid::Collapse3DInitializeGrid(int n_sphere,
         ci[dim] = int((pos[dim] - GridLeftEdge[dim]) / CellWidth[dim][0]);
       }
 
-      printf("PhotonTest[%"ISYM"]: Left edge = %"FSYM" %"FSYM" %"FSYM"\n", level, GridLeftEdge[0],
+      printf("PhotonTest[%" ISYM"]: Left edge = %" FSYM" %" FSYM" %" FSYM"\n", level, GridLeftEdge[0],
              GridLeftEdge[1], GridLeftEdge[2]);
-      printf("PhotonTest[%"ISYM"]: source (%"FSYM" %"FSYM" %"FSYM") in %"ISYM" %"ISYM" %"ISYM"\n",
+      printf("PhotonTest[%" ISYM"]: source (%" FSYM" %" FSYM" %" FSYM") in %" ISYM" %" ISYM" %" ISYM"\n",
              level, pos[0], pos[1], pos[2], ci[0], ci[1], ci[2]);
 
       if (pos[0] >= GridLeftEdge[0] && pos[0] <= GridRightEdge[0] &&
@@ -343,7 +336,7 @@ int grid::Collapse3DInitializeGrid(int n_sphere,
         index = GRIDINDEX(ci[0], ci[1], ci[2]);
         BaryonField[kphHINum][index] = 1;
 
-        printf("PhotonTest[%"ISYM"]: set kphHI in %"ISYM" %"ISYM" %"ISYM" (%"ISYM")\n",
+        printf("PhotonTest[%" ISYM"]: set kphHI in %" ISYM" %" ISYM" %" ISYM" (%" ISYM")\n",
                level, ci[0], ci[1], ci[2], index);
       } 
 
@@ -379,10 +372,10 @@ int grid::Collapse3DInitializeGrid(int n_sphere,
     ParticleAttribute[0][0] = 0.001; // creation time
     ParticleAttribute[1][0] = t_dyn; // dynamical time
     ParticleAttribute[2][0] = 0.0; // 
-    printf("NumberOfParticles = %"ISYM"\n", NumberOfParticles);
+    printf("NumberOfParticles = %" ISYM"\n", NumberOfParticles);
   }
 
-  printf("np=%"ISYM"\n", NumberOfParticles);
+  printf("np=%" ISYM"\n", NumberOfParticles);
 
   return SUCCESS;
 }

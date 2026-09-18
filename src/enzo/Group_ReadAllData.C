@@ -93,7 +93,7 @@ int Group_ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData
  
   char hierarchyname[MAX_LINE_LENGTH], radiationname[MAX_LINE_LENGTH];
   char mtname[MAX_LINE_LENGTH], forcingname[MAX_LINE_LENGTH];
-  char HDF5hierarchyname[MAX_LINE_LENGTH];
+  char HDF5hierarchyname[MAX_LINE_LENGTH * 2];
   // Code shrapnel. See comments below. --Rick
   //  char taskmapname[MAX_LINE_LENGTH];
   char memorymapname[MAX_LINE_LENGTH];
@@ -102,26 +102,17 @@ int Group_ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData
 
   FILE *log_fptr;
   FILE *fptr;
-  FILE *tptr;
-  FILE *mptr;
 
   hid_t       file_id, Hfile_id;
-  hid_t       attr_id, dset_id;
-  hid_t       file_acc_template;
-  size_t      memory_increment; // in bytes
-  hbool_t     dump_flag;
 
   herr_t      h5_status;
   herr_t      h5_error = -1;
 
   int GridID = 1;
-  int GridKD = 1;
 
 
-  float dummy;
   int dummy_int;
 
-  int *NumberOfSubgridCells;
 
   int io_log = 0;
 #ifdef IO_LOG
@@ -200,7 +191,7 @@ int Group_ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData
   mpi_rank = 0;
 #endif
 
-  sprintf(pid, "%"TASK_TAG_FORMAT""ISYM, MyProcessorNumber);
+  sprintf(pid, "%" TASK_TAG_FORMAT"" ISYM, MyProcessorNumber);
 
   strcpy(groupfilename, name);
   strcat(groupfilename, CPUSuffix);
@@ -238,7 +229,7 @@ int Group_ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData
 
   strcpy(memorymapname, name);
   strcat(memorymapname, MemoryMapSuffix);
-  sprintf(pid, "%"TASK_TAG_FORMAT""ISYM, MyProcessorNumber);
+  sprintf(pid, "%" TASK_TAG_FORMAT"" ISYM, MyProcessorNumber);
  
   /* Read the memory map */
 
@@ -274,11 +265,11 @@ int Group_ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData
 
   //  if (HierarchyFileInputFormat == 0) {
   if (HierarchyFileInputFormat % 2 == 0) {
-    sprintf(HDF5hierarchyname,"%s.hdf5",hierarchyname);
+    snprintf(HDF5hierarchyname, sizeof(HDF5hierarchyname), "%s.hdf5", hierarchyname);
 
     if (io_log) {
-      char logname[MAX_LINE_LENGTH];
-      sprintf(logname,"%s.in_log",HDF5hierarchyname);
+      char logname[MAX_LINE_LENGTH * 2 + 32];
+      snprintf(logname, sizeof(logname), "%s.in_log", HDF5hierarchyname);
       
       log_fptr = fopen(logname,"w");
     }
@@ -300,7 +291,7 @@ int Group_ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData
 
 //     if(MyProcessorNumber == ROOT_PROCESSOR)
 //       for(int i=0;i<TotalNumberOfGrids;i++)
-// 	fprintf(stderr,"LevelLookupTable[%d] = %d\n",i,LevelLookupTable[i]);
+// 	fprintf(stderr,"LevelLookupTable[%" ISYM "] = %" ISYM "\n",i,LevelLookupTable[i]);
 
   } 
 
@@ -312,7 +303,7 @@ int Group_ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData
     /* scan data hierarchy for maximum task number */
     
     while (fgets(line, MAX_LINE_LENGTH, fptr) != NULL)
-      if (sscanf(line, "Task = %"ISYM, &dummy_int) > 0)
+      if (sscanf(line, "Task = %" ISYM, &dummy_int) > 0)
 	PreviousMaxTask = max(PreviousMaxTask, dummy_int);
 
     rewind(fptr);
@@ -338,7 +329,7 @@ int Group_ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData
 
 #ifdef SINGLE_HDF5_OPEN_ON_INPUT
 
-    fprintf(stderr, "OPEN %s on processor %"ISYM"\n", groupfilename, MyProcessorNumber);
+    fprintf(stderr, "OPEN %s on processor %" ISYM"\n", groupfilename, MyProcessorNumber);
 
 #ifdef USE_HDF5_INPUT_BUFFERING
     memory_increment = 1024*1024;
@@ -378,7 +369,7 @@ int Group_ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData
     return FAIL;
   }
 
-//   printf("P%d: out of Group_RDH\n", MyProcessorNumber);
+//   printf("P%" ISYM ": out of Group_RDH\n", MyProcessorNumber);
 //   CommunicationBarrier();
   
   if(LoadGridDataAtStart){

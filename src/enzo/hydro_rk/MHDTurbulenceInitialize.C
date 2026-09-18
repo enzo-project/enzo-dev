@@ -41,22 +41,22 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 int MHDTurbulenceInitialize(FILE *fptr, FILE *Outfptr, 
 			    HierarchyEntry &TopGrid, TopGridData &MetaData, int SetBaryonFields)
 {
-  char *DensName = "Density";
-  char *TEName   = "TotalEnergy";
-  char *GEName   = "GasEnergy";
-  char *Vel1Name = "x-velocity";
-  char *Vel2Name = "y-velocity";
-  char *Vel3Name = "z-velocity";
-  char *BxName = "Bx";
-  char *ByName = "By";
-  char *BzName = "Bz";
-  char *PhiName = "Phi";
-  char *Drive1Name = "DrivingField1";
-  char *Drive2Name = "DrivingField2";
-  char *Drive3Name = "DrivingField3";
+  const char *DensName = "Density";
+  const char *TEName   = "TotalEnergy";
+  const char *GEName   = "GasEnergy";
+  const char *Vel1Name = "x-velocity";
+  const char *Vel2Name = "y-velocity";
+  const char *Vel3Name = "z-velocity";
+  const char *BxName = "Bx";
+  const char *ByName = "By";
+  const char *BzName = "Bz";
+  const char *PhiName = "Phi";
+  const char *Drive1Name = "DrivingField1";
+  const char *Drive2Name = "DrivingField2";
+  const char *Drive3Name = "DrivingField3";
 
   char  line[MAX_LINE_LENGTH];
-  int   dim, ret, level, sphere, i;
+  int level, i;
 
   /* set default parameters */
 
@@ -68,16 +68,15 @@ int MHDTurbulenceInitialize(FILE *fptr, FILE *Outfptr,
   rewind(fptr);
   while (fgets(line, MAX_LINE_LENGTH, fptr) != NULL) {
 
-    ret = 0;
 
     /* read parameters */
 
-    ret += sscanf(line, "RefineAtStart = %"ISYM, &RefineAtStart);
-    ret += sscanf(line, "Density = %"FSYM, &rho_medium);
-    ret += sscanf(line, "SoundVelocity = %"FSYM, &cs);
-    ret += sscanf(line, "MachNumber = %"FSYM, &mach);
-    ret += sscanf(line, "InitialBfield = %"FSYM, &Bnaught);
-    ret += sscanf(line, "RandomSeed = %"ISYM, &RandomSeed);
+    sscanf(line, "RefineAtStart = %" ISYM, &RefineAtStart);
+    sscanf(line, "Density = %" FSYM, &rho_medium);
+    sscanf(line, "SoundVelocity = %" FSYM, &cs);
+    sscanf(line, "MachNumber = %" FSYM, &mach);
+    sscanf(line, "InitialBfield = %" FSYM, &Bnaught);
+    sscanf(line, "RandomSeed = %" ISYM, &RandomSeed);
 
   } // end input from parameter file
 
@@ -88,7 +87,7 @@ int MHDTurbulenceInitialize(FILE *fptr, FILE *Outfptr,
     Bnaught = 0.0;
   }
 
-  printf(" RAW:  rho_medium = %"GSYM",cs = %"GSYM", mach = %"GSYM", Bnaught = %"GSYM" \n",rho_medium,cs,mach,Bnaught);
+  printf(" RAW:  rho_medium = %" GSYM",cs = %" GSYM", mach = %" GSYM", Bnaught = %" GSYM" \n",rho_medium,cs,mach,Bnaught);
 
   float rhou = 1.0, lenu = 1.0, tempu = 1.0, tu = 1.0, velu = 1.0, 
     presu = 1.0, bfieldu = 1.0;
@@ -101,9 +100,9 @@ int MHDTurbulenceInitialize(FILE *fptr, FILE *Outfptr,
   cs /= velu;
   Bnaught /= bfieldu;
 
-  printf("rhou=%"GSYM",velu=%"GSYM",lenu=%"GSYM",tu=%"GSYM",presu=%"GSYM",bfieldu=%"GSYM", tempu=%"GSYM"\n", 
+  printf("rhou=%" GSYM",velu=%" GSYM",lenu=%" GSYM",tu=%" GSYM",presu=%" GSYM",bfieldu=%" GSYM", tempu=%" GSYM"\n", 
 	 rhou, velu,lenu,tu,presu,bfieldu, tempu);
-  printf("rho_medium=%"GSYM", cs=%"GSYM", Bnaught=%"GSYM"\n", rho_medium, cs, Bnaught);
+  printf("rho_medium=%" GSYM", cs=%" GSYM", Bnaught=%" GSYM"\n", rho_medium, cs, Bnaught);
 
 
   HierarchyEntry *CurrentGrid;
@@ -132,14 +131,14 @@ int MHDTurbulenceInitialize(FILE *fptr, FILE *Outfptr,
 	return FAIL;
       }
       CurrentGrid = CurrentGrid->NextGridThisLevel;
-      fprintf(stderr, "v_rms, Volume: %"GSYM"  %"GSYM"\n", v_rms, Volume);
+      fprintf(stderr, "v_rms, Volume: %" GSYM"  %" GSYM"\n", v_rms, Volume);
     }
     
 #ifdef USE_MPI
     CommunicationAllReduceValues(&v_rms, 1, MPI_SUM);
     CommunicationAllReduceValues(&Volume, 1, MPI_SUM);
 #endif
-    fprintf(stderr, "v_rms, Volume: %"GSYM"  %"GSYM"\n", v_rms, Volume);
+    fprintf(stderr, "v_rms, Volume: %" GSYM"  %" GSYM"\n", v_rms, Volume);
     // Carry out the Normalization
 
     // Normalize Velocities now
@@ -180,7 +179,7 @@ int MHDTurbulenceInitialize(FILE *fptr, FILE *Outfptr,
        and re-initialize the level after it is created. */
 
     for (level = 0; level < MaximumRefinementLevel; level++) {
-      printf("In level %"ISYM"\n", level);
+      printf("In level %" ISYM"\n", level);
       if (RebuildHierarchy(&MetaData, LevelArray, level) == FAIL) {
 	fprintf(stderr, "Error in RebuildHierarchy.\n");
 	return FAIL;

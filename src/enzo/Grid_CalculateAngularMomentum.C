@@ -106,7 +106,7 @@ int grid::CalculateAngularMomentum(FLOAT Center[], float AngularMomentum[],
 	  AngularMomentum[2] += mass * (xpos*vel[1] - ypos*vel[0]);
  
 /*	  if (AngularMomentum[0] != 0)
-	    printf("%"ISYM" %10.5"GSYM" %10.5"GSYM" %10.5"GSYM"  %10.5"GSYM" %10.5"GSYM" %10.5"GSYM"  %10.5"GSYM" %10.5"GSYM" %10.5"GSYM"\n", index, AngularMomentum[0],
+	    printf("%" ISYM" %10.5" GSYM" %10.5" GSYM" %10.5" GSYM"  %10.5" GSYM" %10.5" GSYM" %10.5" GSYM"  %10.5" GSYM" %10.5" GSYM" %10.5" GSYM"\n", index, AngularMomentum[0],
 		   AngularMomentum[1], AngularMomentum[2], xpos, ypos, zpos,
 		   BaryonField[Vel1Num][index], BaryonField[Vel2Num][index],
 		   BaryonField[Vel3Num][index]);

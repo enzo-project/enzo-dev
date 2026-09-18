@@ -67,7 +67,7 @@ int CreateSUBlingList(TopGridData *MetaData,
 
   int i, grid1, grid2, othergrid_id, count;
   int NumberOfGrids, NumberOfChildGrids, LocalNumberOfSUBlings, TotalNumberOfSUBlings;
-  LevelHierarchyEntry *Temp, *NextEntry, *LastEntry;
+  LevelHierarchyEntry *NextEntry, *LastEntry;
   HierarchyEntry *NextGrid, *OtherGrid;
   HierarchyEntry **Grids, **ChildGrids;
 
@@ -153,7 +153,7 @@ int CreateSUBlingList(TopGridData *MetaData,
 
 //  if (debug)
 //    for (i = 0; i < LocalNumberOfSUBlings; i++)
-//      printf("%d: %d %d\n", i, SUBlingIDs[2*i], SUBlingIDs[2*i+1]);
+//      printf("%" ISYM ": %" ISYM " %" ISYM "\n", i, SUBlingIDs[2*i], SUBlingIDs[2*i+1]);
 
   /* Now we have the SUBlings on this processor, we need to gather the
      remote ones.  The serial version is easy enough -- just copy the

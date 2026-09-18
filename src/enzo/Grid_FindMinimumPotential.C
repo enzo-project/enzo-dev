@@ -26,7 +26,6 @@ float grid::FindMinimumPotential(FLOAT *cellpos, FLOAT radius, float *PotentialF
 
   int i = 0, j = 0, k = 0;
   FLOAT pos[3];
-  FLOAT dx = CellWidth[0][0];
   float GravitationalMinimum = 1e20;
   int index = 0;
  
@@ -67,7 +66,6 @@ void grid::CalculatePotentialField(float *PotentialField, int DensNum, float Den
   int i = 0, j = 0, k = 0, ii = 0, jj = 0, kk = 0;
   FLOAT sep = 0;
   FLOAT dx = CellWidth[0][0], pos[3], pos_j[3];
-  float MassUnits = DensityUnits*LengthUnits*LengthUnits*LengthUnits;
   //float G = 4*M_PI*GravConst*DensityUnits*TimeUnits*TimeUnits;
   float G = GravitationalConstant;
   float mass_j = 0;

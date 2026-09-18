@@ -111,7 +111,7 @@ int grid::FlagCellsToBeRefinedByJeansLength()
  
   JLSquared /= POW(RefineByJeansLengthSafetyFactor, 2);
  
-/* printf("jl: JL, dx, t, d = %"GSYM" %"GSYM" %"GSYM" %"GSYM"\n", sqrt(JLSquared), CellWidth[0][3],
+/* printf("jl: JL, dx, t, d = %" GSYM" %" GSYM" %" GSYM" %" GSYM"\n", sqrt(JLSquared), CellWidth[0][3],
      temperature[(3 + 3*GridDimension[1])*GridDimension[0]+3],
      BaryonField[DensNum][(3 + 3*GridDimension[1])*GridDimension[0]+3]);*/
  

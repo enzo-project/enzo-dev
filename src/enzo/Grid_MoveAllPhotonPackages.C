@@ -31,14 +31,14 @@ int grid::MoveAllPhotonPackages(int NumberOfGrids, grid* FromGrid[])
 {
 
   if (NumberOfGrids < 1) {
-    ENZO_VFAIL("grid::MoveAllPhotonPackages: NumberOfGrids(%"ISYM") must be > 0.\n", 
+    ENZO_VFAIL("grid::MoveAllPhotonPackages: NumberOfGrids(%" ISYM") must be > 0.\n", 
 	    NumberOfGrids)
   }
 
   /* Determine total number of particles. */
 
   int TotalNumberOfPackages = NumberOfPhotonPackages;
-  int i, j, gridcount, dim, *Number, *Type;
+  int gridcount;
 
   for (gridcount = 0; gridcount < NumberOfGrids; gridcount++) 
     TotalNumberOfPackages += FromGrid[gridcount]->NumberOfPhotonPackages;
@@ -48,7 +48,7 @@ int grid::MoveAllPhotonPackages(int NumberOfGrids, grid* FromGrid[])
   /* Debugging info. */
 
 //  if (debug)
-//    fprintf(stdout, "MoveAllPackages: %"ISYM" (before: ThisGrid = %"ISYM").\n",
+//    fprintf(stdout, "MoveAllPackages: %" ISYM" (before: ThisGrid = %" ISYM").\n",
 //	    TotalNumberOfPackages, NumberOfPhotonPackages);
 
   // go to end of List
@@ -58,7 +58,7 @@ int grid::MoveAllPhotonPackages(int NumberOfGrids, grid* FromGrid[])
 
   if (NumberOfPhotonPackages < 0) {
     printf("MoveAllPackages: WARNING. Resetting photons. "
-	   "NumberOfPhotons = %"ISYM"\n", NumberOfPhotonPackages);
+	   "NumberOfPhotons = %" ISYM"\n", NumberOfPhotonPackages);
     NumberOfPhotonPackages = 0;
     TotalNumberOfPackages = 0;
     while (PP != NULL) {
@@ -66,7 +66,7 @@ int grid::MoveAllPhotonPackages(int NumberOfGrids, grid* FromGrid[])
       PP = PP->NextPackage;
       TotalNumberOfPackages++;
     }
-    printf("MoveAllPackages: deleted %"ISYM" photons\n", TotalNumberOfPackages);
+    printf("MoveAllPackages: deleted %" ISYM" photons\n", TotalNumberOfPackages);
     return SUCCESS;
   }
 
@@ -109,7 +109,7 @@ int grid::MoveAllPhotonPackages(int NumberOfGrids, grid* FromGrid[])
 	count++;
 
 	if (fromcount > FromGrid[gridcount]->ReturnNumberOfPhotonPackages()) {
-	  printf("MoveAllPackages[P%"ISYM"]: WARNING! fromcount > #ph - %"ISYM" %"ISYM"\n",
+	  printf("MoveAllPackages[P%" ISYM"]: WARNING! fromcount > #ph - %" ISYM" %" ISYM"\n",
 		 MyProcessorNumber, fromcount,
 		 FromGrid[gridcount]->ReturnNumberOfPhotonPackages());
 	  printf("--> Ignoring the rest.\n");
@@ -128,8 +128,8 @@ int grid::MoveAllPhotonPackages(int NumberOfGrids, grid* FromGrid[])
 
       if (DEBUG)
 	if (fromcount)
-	  printf("MoveAllPackages[P%"ISYM"]: (LOCAL) counted %"ISYM" PhotonPackages. "
-		 "grid #%"ISYM" of %"ISYM".\n", MyProcessorNumber, fromcount, gridcount, 
+	  printf("MoveAllPackages[P%" ISYM"]: (LOCAL) counted %" ISYM" PhotonPackages. "
+		 "grid #%" ISYM" of %" ISYM".\n", MyProcessorNumber, fromcount, gridcount, 
 		 NumberOfGrids);
 
     }
@@ -139,8 +139,8 @@ int grid::MoveAllPhotonPackages(int NumberOfGrids, grid* FromGrid[])
       if (MyProcessorNumber == ProcessorNumber ||
           MyProcessorNumber == FromGrid[gridcount]->ProcessorNumber) {
 	if (DEBUG)
-	  printf("MoveAllPackages(%"ISYM"): (COMM) moving %"ISYM" PhotonPackages. "
-		 "grid #%"ISYM" of %"ISYM".\n", 
+	  printf("MoveAllPackages(%" ISYM"): (COMM) moving %" ISYM" PhotonPackages. "
+		 "grid #%" ISYM" of %" ISYM".\n", 
 		 MyProcessorNumber, FromGrid[gridcount]->NumberOfPhotonPackages,
 		 gridcount, NumberOfGrids);      
 	if (FromGrid[gridcount]->CommunicationSendPhotonPackages(this, 
@@ -151,8 +151,8 @@ int grid::MoveAllPhotonPackages(int NumberOfGrids, grid* FromGrid[])
 	count += FromGrid[gridcount]->ReturnNumberOfPhotonPackages();
 	if (DEBUG)
 
-	  printf("MoveAllPackages: (COMM) counted %"ISYM" PhotonPackages. "
-		 "grid #%"ISYM" of %"ISYM".\n", count, gridcount, NumberOfGrids);      
+	  printf("MoveAllPackages: (COMM) counted %" ISYM" PhotonPackages. "
+		 "grid #%" ISYM" of %" ISYM".\n", count, gridcount, NumberOfGrids);      
       }
     }
 

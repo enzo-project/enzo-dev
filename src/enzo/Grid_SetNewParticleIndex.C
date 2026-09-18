@@ -36,7 +36,7 @@ void grid::SetNewParticleIndex(int &NumberCount1, PINT &NumberCount2)
 	ParticleNumber[n] = NumberCount1++ + NumberCount2;
       else 
 	ParticleNumber[n] = NumberCount1 + NumberCount2++;
-//      printf("New star particle index = %d (%d %d)\n",
+//      printf("New star particle index = %" ISYM " (%" ISYM " %" ISYM ")\n",
 //	     ParticleNumber[n], NumberCount1, NumberCount2);
     }
   return;
@@ -47,8 +47,7 @@ void grid::SetNewParticleIndex(int &NumberCount1, PINT &NumberCount2)
 void grid::SetNewActiveParticleIndex(PINT &next_id)
 {
 
-  int n, abstype;
-  int ori_count = next_id;
+  int n;
 
   for (n = 0; n < NumberOfActiveParticles; n++)
     if (ActiveParticles[n]->Identifier == INT_UNDEFINED) {

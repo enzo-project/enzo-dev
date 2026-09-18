@@ -47,7 +47,7 @@ float grid::ComputePhotonTimestepHII(float DensityUnits, float LengthUnits,
 //    return huge_number;
 
   int i, j, k, dim, index, indexn, size;
-  float dt, this_dt, sigma_dx, *temperature;
+  float dt, this_dt, *temperature;
 
   dt = huge_number;
   
@@ -177,7 +177,7 @@ float grid::ComputePhotonTimestepHII(float DensityUnits, float LengthUnits,
   /* Use a weighted averaged of the timestep in a 3^3 cube */
 
   int i0, j0, k0, i1, j1, k1, ii, jj, kk;
-  int imin, ikernel, nx, ny, nz, nn;
+  int imin, nn;
   float weight, kernel2;
   
   const float kernel[] = 
@@ -189,11 +189,9 @@ float grid::ComputePhotonTimestepHII(float DensityUnits, float LengthUnits,
   for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
     k0 = max(k-1, GridStartIndex[2]);
     k1 = min(k+1, GridEndIndex[2]);
-    nz = k1-k0+1;
     for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
       j0 = max(j-1, GridStartIndex[1]);
       j1 = min(j+1, GridEndIndex[1]);
-      ny = j1-j0+1;
       index = GRIDINDEX_NOGHOST(GridStartIndex[0],j,k);
       for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, index++) {
 
@@ -202,7 +200,6 @@ float grid::ComputePhotonTimestepHII(float DensityUnits, float LengthUnits,
 
 	  i0 = max(i-1, GridStartIndex[0]);
 	  i1 = min(i+1, GridEndIndex[1]);
-	  nx = i1-i0+1;
 	  weight = 0.0;
 	  this_dt = 0.0;
 	  for (kk = k0; kk <= k1; kk++)

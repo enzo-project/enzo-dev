@@ -41,10 +41,10 @@ int mt_save(char *fname) {
     if ((fptr = fopen(fname, "w")) == NULL) 
         ENZO_VFAIL("mt_save: failed to open file  %s\n", fname)
 
-    fprintf(fptr,"%"ISYM"\n",mt_index);
+    fprintf(fptr,"%" ISYM"\n",mt_index);
 
 	for (int i = 0; i < MT_LEN; i++)
-        fprintf(fptr,"%lu\n",mt_buffer[i]);
+        fprintf(fptr,"%llu\n",mt_buffer[i]);
     
     fclose(fptr);
 
@@ -61,11 +61,11 @@ int mt_read(char *fname) {
     char line[MAX_LINE_LENGTH];
     
     fgets(line, MAX_LINE_LENGTH, fptr);
-    sscanf(line,"%"ISYM,&mt_index);
+    sscanf(line,"%" ISYM,&mt_index);
     
 	for (int i = 0; i < MT_LEN; i++) {
         fgets(line, MAX_LINE_LENGTH, fptr);
-        sscanf(line,"%lu",&mt_buffer[i]);
+        sscanf(line,"%llu",&mt_buffer[i]);
         }
     
     fclose(fptr);

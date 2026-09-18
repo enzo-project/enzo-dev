@@ -18,7 +18,6 @@
 #include <stdio.h>
 #include <math.h>
 #include "ErrorExceptions.h"
-#include "phys_constants.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -26,6 +25,7 @@
 #include "GridList.h"
 #include "ExternalBoundary.h"
 #include "Grid.h"
+#include "phys_constants.h"
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
              float *TemperatureUnits, float *TimeUnits,
@@ -121,7 +121,7 @@ int grid::ComputeDomainBoundaryMassFlux(float *allgrid_BoundaryMassFluxContainer
       }
     } // if right
 
-//      if (grid_BoundaryMassFluxContainer[i] > 0) printf("field_num = %"ISYM" mass = %"ESYM"\n", field_num, grid_BoundaryMassFluxContainer[i]);
+//      if (grid_BoundaryMassFluxContainer[i] > 0) printf("field_num = %" ISYM" mass = %" ESYM"\n", field_num, grid_BoundaryMassFluxContainer[i]);
 
   } // end loop over dim
 

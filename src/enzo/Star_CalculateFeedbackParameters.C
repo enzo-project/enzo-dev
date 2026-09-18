@@ -42,9 +42,7 @@ void Star::CalculateFeedbackParameters(float &Radius,
   const float	BirthRadius	  = 50;		// pc
   const float	WhalenTemperature = 20000;	// K
   const float	WhalenDensity	  = 1;	        // cm^-3
-  const float	WhalenMaxVelocity = 35;		// km/s
 
-  const double h=0.70;
 
   const float TypeIILowerMass = 11, TypeIIUpperMass = 40.1;
   const float PISNLowerMass = 140, PISNUpperMass = 260;
@@ -64,12 +62,8 @@ void Star::CalculateFeedbackParameters(float &Radius,
   float StarLevelCellWidth, tdyn, frac;
   double EjectaVolume, SNEnergy, HeliumCoreMass, Delta_SF, MetalMass;
 
-  int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
-  int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
-    DINum, DIINum, HDINum;
 
-  int igrid[MAX_DIMENSION], dim, index, bin;
-  int size=1;
+  int bin;
   float mdot;
 
   SphereCheck = true;
@@ -158,7 +152,7 @@ void Star::CalculateFeedbackParameters(float &Radius,
       Delta_SF = dtForThisStar * StarMassEjectionFraction * (Mass/tdyn) *
 	frac * exp(-frac);
 //      if (debug)
-//	printf("Star %d: Delta_SF = %g, Mass = %g, frac = %g (%f %f)\n", 
+//	printf("Star %" ISYM ": Delta_SF = %g, Mass = %g, frac = %g (%f %f)\n", 
 //	       Identifier, Delta_SF, Mass, frac, Time, BirthTime);
     } else {
       Delta_SF = StarMassEjectionFraction * Mass * dtForThisStar * 

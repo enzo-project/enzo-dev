@@ -137,7 +137,7 @@ void ActiveParticleType_AccretingParticle::MergeAccretingParticles(
 #if DEBUG
   int GridId = LevelArray[ThisLevel]->GridData->GetGridID();
   int GridLevel = LevelArray[ThisLevel]->GridData->GetLevel();
-  printf("%s: Grid %p\t GridID = %d\t GridLevel = %d\n", __FUNCTION__,
+  printf("%s: Grid %p\t GridID = %" ISYM "\t GridLevel = %" ISYM "\n", __FUNCTION__,
 	 LevelArray[ThisLevel]->GridData, GridId, GridLevel);
 #endif
   for (i=0; i<(*nParticles); i++) {
@@ -162,13 +162,13 @@ void ActiveParticleType_AccretingParticle::MergeAccretingParticles(
   for (i=0; i<*ngroups; i++) {
     MergedParticles.copy_and_insert(
         *(static_cast<active_particle_class*>(ParticleList[grouplist[i][0]])));
-    printf("%s: groupsize[i] = %d\n", __FUNCTION__, groupsize[i]);
+    printf("%s: groupsize[i] = %" ISYM "\n", __FUNCTION__, groupsize[i]);
     if (groupsize[i] != 1) {
       for (j=1; j<groupsize[i]; j++) {
         MergedParticles[i]->Merge(
             static_cast<active_particle_class*>(ParticleList[grouplist[i][j]]));
-	printf("Processor = %d\n", MergedParticles[i]->ReturnCurrentGrid()->ReturnProcessorNumber());
-	printf("%s: grouplist[%d][%d] = %d\n", __FUNCTION__, i, j, grouplist[i][j]);
+	printf("Processor = %" ISYM "\n", MergedParticles[i]->ReturnCurrentGrid()->ReturnProcessorNumber());
+	printf("%s: grouplist[%" ISYM "][%" ISYM "] = %" ISYM "\n", __FUNCTION__, i, j, grouplist[i][j]);
         if (ParticleList[grouplist[i][j]]->DisableParticle(
                 LevelArray, 
                 MergedParticles[i]->ReturnCurrentGrid()->ReturnProcessorNumber()
@@ -301,7 +301,7 @@ int ActiveParticleType_AccretingParticle::AfterEvolveLevel(
       ParticleList.clear();
       
       if (debug)
-        printf("Number of particles after merging: %"ISYM"\n",NumberOfMergedParticles);
+        printf("Number of particles after merging: %" ISYM"\n",NumberOfMergedParticles);
       
       /* Assign local particles to grids */
       

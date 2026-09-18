@@ -97,7 +97,7 @@ int grid::PrepareRandomForcingNormalization(float * GlobVal, int GlobNum)
  
   /* clean up. */
  
-  delete temperature;
+  delete [] temperature;
  
   return SUCCESS;
  

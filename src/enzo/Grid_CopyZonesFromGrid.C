@@ -75,7 +75,7 @@ int grid::CopyZonesFromGrid(grid *OtherGrid, FLOAT EdgeOffset[MAX_DIMENSION])
 
     delta=L*AngularVelocity*VelocityGradient;
   
-    //printf("L: %"GSYM" Delta: %"GSYM" %"GSYM" (%"GSYM" %"GSYM")\n", L, delta, delta, AngularVelocity, VelocityGradient);
+    //printf("L: %" GSYM" Delta: %" GSYM" %" GSYM" (%" GSYM" %" GSYM")\n", L, delta, delta, AngularVelocity, VelocityGradient);
 
     if (fabs(EdgeOffset[ShearingBoundaryDirection]-FLOAT(1.0)*L)<=
 	CellWidth[ShearingBoundaryDirection][0]*0.1) 
@@ -136,7 +136,7 @@ int grid::CopyZonesFromGrid(grid *OtherGrid, FLOAT EdgeOffset[MAX_DIMENSION])
   for (dim = 0; dim < GridRank; dim++){
     if (GridDimension[dim] > 1) {
  
-      //printf("Dim %d", dim);
+      //printf("Dim %" ISYM "", dim);
       /* Compute left and right positions in problem space.
 	 note: include buffer zones of this grid but not the other grid. */
  
@@ -232,7 +232,7 @@ int grid::CopyZonesFromGrid(grid *OtherGrid, FLOAT EdgeOffset[MAX_DIMENSION])
      the grid. */
  
   if (traceMPI) 
-    fprintf(tracePtr, "CopyZones SendRegion from %"ISYM" to %"ISYM"\n", 
+    fprintf(tracePtr, "CopyZones SendRegion from %" ISYM" to %" ISYM"\n", 
 	    ProcessorNumber, OtherGrid->ProcessorNumber);
  
   
@@ -410,23 +410,20 @@ int grid::CopyZonesFromGrid(grid *OtherGrid, FLOAT EdgeOffset[MAX_DIMENSION])
     // Only the right edge, face centered field (i.e. Bzf(z=1) on the z face) is coppied
     // for boundary calls.  This ensures correct periodicity. dcc.
     
-    int MHDDim[3][3], MHDOtherDim[3][3], MHDShift[3][3], DimToAdd=0;
+    int MHDDim[3][3], MHDOtherDim[3][3], MHDShift[3][3];
     
     for(field=0;field<3;field++)
       for(dim=0;dim<3;dim++){
 	MHDShift[field][dim]=0;
-	DimToAdd = (End[dim] == NumberOfGhostZones-1 && field == dim ) ? 0 : 1;
 	MHDDim[field][dim] = Dim[dim] + ( (field == dim) ? 1 : 0 );
 	MHDOtherDim[field][dim] = OtherDim[dim] + ((field == dim) ?1:0);
       }
     
-    int othersize[3]={1,1,1};
     for (field =0; field<3; field++){
       
       if( MagneticField[field] == NULL )
-	ENZO_VFAIL("Severe Error: Grid_CopyZonesFromGrid.  MagneticField[%d] == NULL..\n", field);
+	ENZO_VFAIL("Severe Error: Grid_CopyZonesFromGrid.  MagneticField[%" ISYM "] == NULL..\n", field);
       
-      othersize[field] = MHDOtherDim[field][0]*MHDOtherDim[field][1]*MHDOtherDim[field][2];
       for( k=0; k<MHDDim[field][2]; k++)
 	for( j=0; j<MHDDim[field][1]; j++)
 	  for( i=0; i<MHDDim[field][0]; i++){
@@ -457,7 +454,7 @@ int grid::CopyZonesFromGrid(grid *OtherGrid, FLOAT EdgeOffset[MAX_DIMENSION])
   this->DebugCheck("CopyZonesFromGrid (after)");
  //  PrintToScreenBoundaries(BaryonField[ieint], "Eint after a copy");
 //   PrintToScreenBoundaries(BaryonField[ietot], "Etot after a copy");
-  //  printf("***Labels copy %d \n", FieldType[ivy]);
+  //  printf("***Labels copy %" ISYM " \n", FieldType[ivy]);
 
    
   return SUCCESS;

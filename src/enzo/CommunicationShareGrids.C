@@ -69,7 +69,7 @@ int CommunicationShareGrids(HierarchyEntry *GridHierarchyPointer[],
     }
   }
  
-//  printf("ShareGrids (%"ISYM"): NumberOfGrids = %"ISYM" GridsToSend = %"ISYM"\n",
+//  printf("ShareGrids (%" ISYM"): NumberOfGrids = %" ISYM" GridsToSend = %" ISYM"\n",
 //	 MyProcessorNumber, NumberOfGrids, GridsToSend);
  
   /* Allocate an array of packed subgrids and fill it out. */

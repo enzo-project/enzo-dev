@@ -126,7 +126,7 @@ int grid::FindPhotonNewGrid(int cindex, FLOAT *r, double *u, int *g,
   /* Error check */
 
   if (DEBUG && MoveToGrid != NULL) {
-    fprintf(stdout, "Walk: left grid: sent photon to grid %d [dx=%g] (DeltaL = %d)\n", 
+    fprintf(stdout, "Walk: left grid: sent photon to grid %" ISYM " [dx=%g] (DeltaL = %" ISYM ")\n", 
 	    MoveToGrid->ID, MoveToGrid->CellWidth[0][0], DeltaLevel);
   }
 
@@ -134,7 +134,7 @@ int grid::FindPhotonNewGrid(int cindex, FLOAT *r, double *u, int *g,
 #ifdef UNUSED
   if (MoveToGrid != NULL && InsideDomain)
     if (MoveToGrid->PointInGridNB(r) == FALSE) {
-      printf("Grid %d, MoveGrid %d\n", this->ID, MoveToGrid->ID);
+      printf("Grid %" ISYM ", MoveGrid %" ISYM "\n", this->ID, MoveToGrid->ID);
       printf("Cell = %6d %6d %6d\n", g[0], g[1], g[2]);
       printf("Position = %15.12f %15.12f %15.12f\n", r[0], r[1], r[2]);
       printf("Source = %15.12f %15.12f %15.12f\n", (PP)->SourcePosition[0],

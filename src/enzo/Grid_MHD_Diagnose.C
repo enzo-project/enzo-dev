@@ -23,7 +23,7 @@
 
 float PreviousEnergy;
 
-int grid::MHD_Diagnose(char * label, float * &DivB)
+int grid::MHD_Diagnose(const char * label, float * &DivB)
 {
 
   if( MyProcessorNumber != ProcessorNumber )
@@ -34,15 +34,9 @@ int grid::MHD_Diagnose(char * label, float * &DivB)
   int Crash = FALSE;
 
   int size = GridDimension[0]*GridDimension[1]*GridDimension[2];
-  float TotalEnergy = 0;
-  float Kinetic = 0;
-  float MagneticCentered = 0;
-  float MagneticFace = 0;
-  float Mass = 0;
-  float GasEnergy = 0;
   float AbsDivB = 0;
   float TotalDivB = 0;
-  float dens, v1, v2, v3, eng, b1, b2, b3, divergence;
+  float divergence;
   float MaxDivB = -1;
   float dx = 1, dy = 1, dz = 1;
 
@@ -57,7 +51,6 @@ int grid::MHD_Diagnose(char * label, float * &DivB)
   int i,j,k, index;
 
   int max[3]={-1,-1,-1}, min[3] = {GridDimension[0],GridDimension[1],GridDimension[2]};
-  int Convex = 1;
   float MaxTolerance = 1e-8;
 
   if( DivB == NULL) {
@@ -73,38 +66,12 @@ int grid::MHD_Diagnose(char * label, float * &DivB)
       return SUCCESS;
     }
 
-  int DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum, B1Num, B2Num, B3Num;
-  this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, 
-                                   TENum, B1Num, B2Num, B3Num);
-
-  
-  
-  //Compute total energy, gas, kinetic, and magnetic energies
-  //as well as divergence.
-
   for(k=GridStartIndex[2];k<=GridEndIndex[2]; k++)
     for(j=GridStartIndex[1];j<=GridEndIndex[1];j++)
       for(i=GridStartIndex[0];i<=GridEndIndex[0];i++){
     
     index = i + GridDimension[0]*(j + GridDimension[1]*k);
 
-    eng= 1.0 + ( (EquationOfState == 0 ) ? BaryonField[TENum][index] : 0.0 );
-    
-    v1 =  BaryonField[Vel1Num][index];
-    v2 =  BaryonField[Vel2Num][index];
-    v3 =  BaryonField[Vel3Num][index];
-    dens = BaryonField[DensNum][index];
-    b1 = BaryonField[B1Num][index];
-    b2 = BaryonField[B2Num][index];
-    b3 = BaryonField[B3Num][index];
-    
-    TotalEnergy += eng;
-    Kinetic += 0.5*dens*(v1*v1+v2*v2+v3*v3);
-    MagneticCentered += 0.5*(b1*b1+b2*b2+b3*b3);
-    Mass += dens;
-    
-    GasEnergy += eng - 0.5*dens*(v1*v1+v2*v2+v3*v3) - 0.5*(b1*b1+b2*b2+b3*b3);
-      
     divergence = 
       (MagneticField[0][indexb1(i+1,j,k)] -MagneticField[0][indexb1(i,j,k)])/ (dx)+
       ( (GridRank < 2 ) ? 0 : 
@@ -140,11 +107,6 @@ int grid::MHD_Diagnose(char * label, float * &DivB)
         fprintf(stderr, " ++++ %13.12e %13.12e %13.12e %13.12e\n", 
             AbsDivB, TotalDivB, AbsDivB/size, MaxDivB);
       }
-    }else{
-      if( i <= max[0] && i >= min[0] &&
-          j <= max[1] && j >= min[1] &&
-          k <= max[2] && k >= min[2])
-        Convex = 0;
     }
     
       }

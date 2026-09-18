@@ -37,13 +37,13 @@ int RotatingCylinderInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGri
     fflush(stdout);
   }
 
-  char *DensName = "Density";
-  char *TEName   = "TotalEnergy";
-  char *GEName   = "GasEnergy";
-  char *Vel1Name = "x-velocity";
-  char *Vel2Name = "y-velocity";
-  char *Vel3Name = "z-velocity";
-  char *MetalName = "Metal_Density";
+  const char *DensName = "Density";
+  const char *TEName   = "TotalEnergy";
+  const char *GEName   = "GasEnergy";
+  const char *Vel1Name = "x-velocity";
+  const char *Vel2Name = "y-velocity";
+  const char *Vel3Name = "z-velocity";
+  const char *MetalName = "Metal_Density";
 
   /* parameter declarations */
  
@@ -60,7 +60,7 @@ int RotatingCylinderInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGri
   /* make sure it is 3D */
  
   if (MetaData.TopGridRank != 3) {
-    ENZO_VFAIL("Cannot do RotatingCylinder in %"ISYM" dimension(s)\n", MetaData.TopGridRank)
+    ENZO_VFAIL("Cannot do RotatingCylinder in %" ISYM" dimension(s)\n", MetaData.TopGridRank)
   }
  
   for(i=0; i<MAX_DIMENSION; i++)
@@ -90,25 +90,25 @@ int RotatingCylinderInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGri
  
     /* read parameters specifically for radiating shock problem*/
 
-    ret += sscanf(line, "RotatingCylinderOverdensity  = %"FSYM, &RotatingCylinderOverdensity);
-    ret += sscanf(line, "RotatingCylinderSubgridLeft = %"PSYM" %"PSYM" %"PSYM,
+    ret += sscanf(line, "RotatingCylinderOverdensity  = %" FSYM, &RotatingCylinderOverdensity);
+    ret += sscanf(line, "RotatingCylinderSubgridLeft = %" PSYM" %" PSYM" %" PSYM,
 		  RotatingCylinderSubgridLeft,RotatingCylinderSubgridLeft+1,RotatingCylinderSubgridLeft+2);
-    ret += sscanf(line, "RotatingCylinderSubgridRight = %"PSYM" %"PSYM" %"PSYM,
+    ret += sscanf(line, "RotatingCylinderSubgridRight = %" PSYM" %" PSYM" %" PSYM,
 		  RotatingCylinderSubgridRight,RotatingCylinderSubgridRight+1,RotatingCylinderSubgridRight+2);
-    ret += sscanf(line, "RotatingCylinderLambda = %"FSYM,
+    ret += sscanf(line, "RotatingCylinderLambda = %" FSYM,
 		        &RotatingCylinderLambda);
 
-    ret += sscanf(line, "RotatingCylinderTotalEnergy = %"FSYM,
+    ret += sscanf(line, "RotatingCylinderTotalEnergy = %" FSYM,
 		        &RotatingCylinderTotalEnergy);
 
-    ret += sscanf(line, "RotatingCylinderRadius = %"PSYM,
+    ret += sscanf(line, "RotatingCylinderRadius = %" PSYM,
 		        &RotatingCylinderRadius);
-    ret += sscanf(line, "RotatingCylinderCenterPosition = %"PSYM" %"PSYM" %"PSYM,
+    ret += sscanf(line, "RotatingCylinderCenterPosition = %" PSYM" %" PSYM" %" PSYM,
 		  RotatingCylinderCenterPosition, RotatingCylinderCenterPosition+1,
 		  RotatingCylinderCenterPosition+2);
 
-    ret += sscanf(line, "TestProblemUseMetallicityField  = %"ISYM, &TestProblemData.UseMetallicityField);
-    ret += sscanf(line, "TestProblemInitialMetallicityFraction  = %"FSYM, &TestProblemData.MetallicityField_Fraction);
+    ret += sscanf(line, "TestProblemUseMetallicityField  = %" ISYM, &TestProblemData.UseMetallicityField);
+    ret += sscanf(line, "TestProblemInitialMetallicityFraction  = %" FSYM, &TestProblemData.MetallicityField_Fraction);
 
     /* if the line is suspicious, issue a warning */
  
@@ -152,7 +152,7 @@ int RotatingCylinderInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGri
         *int(POW(RefineBy, lev + 1));
  
     if (debug)
-      printf("RotatingCylinder:: Level[%"ISYM"]: NumberOfSubgridZones[0] = %"ISYM"\n", lev+1,
+      printf("RotatingCylinder:: Level[%" ISYM"]: NumberOfSubgridZones[0] = %" ISYM"\n", lev+1,
 	     NumberOfSubgridZones[0]);
  
     if (NumberOfSubgridZones[0] > 0) {
@@ -264,15 +264,15 @@ int RotatingCylinderInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGri
   /* Write parameters to parameter output file */
  
   if (MyProcessorNumber == ROOT_PROCESSOR) {
-    fprintf(Outfptr, "RotatingCylinderOverdensity         = %"FSYM"\n"  , RotatingCylinderOverdensity);
-    fprintf(Outfptr, "RotatingCylinderLambda         = %"FSYM"\n"  , RotatingCylinderLambda);
-    fprintf(Outfptr, "RotatingCylinderTotalEnergy         = %"FSYM"\n"  , RotatingCylinderTotalEnergy);
-    fprintf(Outfptr, "RotatingCylinderRadius         = %"PSYM"\n"  , RotatingCylinderRadius);
-    fprintf(Outfptr, "RotatingCylinderCenterPosition = %"PSYM" %"PSYM" %"PSYM"\n",
-		  RotatingCylinderCenterPosition, RotatingCylinderCenterPosition+1,
-		  RotatingCylinderCenterPosition+2);
-    fprintf(Outfptr, "TestProblemUseMetallicityField  = %"ISYM"\n", TestProblemData.UseMetallicityField);
-    fprintf(Outfptr, "TestProblemInitialMetallicityFraction  = %"FSYM"\n", TestProblemData.MetallicityField_Fraction);
+    fprintf(Outfptr, "RotatingCylinderOverdensity         = %" FSYM"\n"  , RotatingCylinderOverdensity);
+    fprintf(Outfptr, "RotatingCylinderLambda         = %" FSYM"\n"  , RotatingCylinderLambda);
+    fprintf(Outfptr, "RotatingCylinderTotalEnergy         = %" FSYM"\n"  , RotatingCylinderTotalEnergy);
+    fprintf(Outfptr, "RotatingCylinderRadius         = %" PSYM"\n"  , RotatingCylinderRadius);
+    fprintf(Outfptr, "RotatingCylinderCenterPosition = %" PSYM" %" PSYM" %" PSYM"\n",
+		  RotatingCylinderCenterPosition[0], RotatingCylinderCenterPosition[1],
+		  RotatingCylinderCenterPosition[2]);
+    fprintf(Outfptr, "TestProblemUseMetallicityField  = %" ISYM"\n", TestProblemData.UseMetallicityField);
+    fprintf(Outfptr, "TestProblemInitialMetallicityFraction  = %" FSYM"\n", TestProblemData.MetallicityField_Fraction);
 
   } //   if (MyProcessorNumber == ROOT_PROCESSOR) 
 

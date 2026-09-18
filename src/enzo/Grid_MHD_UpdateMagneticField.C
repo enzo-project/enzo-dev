@@ -59,8 +59,6 @@ int grid::MHD_UpdateMagneticField(int level, LevelHierarchyEntry * NextLevel,
   FLOAT aN = 1, dadtN=0, aNp1=1, dadtNp1=0, sqrt_aN=1.0, inv_sqrt_aN=1.0, inv_sqrt_aNp1=1.0;
   FLOAT tN, tNp1; //t^{N}, t^{N+1}
    int CurlStart[3] = {0,0,0}, CurlEnd[3] = {GridDimension[0]-1,GridDimension[1]-1,GridDimension[2]-1};
-  float dtUsed;
-    int size = GridDimension[0]*GridDimension[1]*GridDimension[2];
   int i, field;
 
 

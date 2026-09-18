@@ -32,8 +32,8 @@ int FastSiblingLocatorInitializeStaticChainingMesh(ChainingMeshStructure *Mesh, 
 int FastSiblingLocatorInitialize(ChainingMeshStructure *Mesh, int Rank,
 				 int TopGridDims[]);
 int FastSiblingLocatorFinalize(ChainingMeshStructure *Mesh);
-static int StaticSiblingListInitialized = 0; 
 #ifdef STATIC_SIBLING_LIST
+static int StaticSiblingListInitialized = 0; 
 static SiblingGridList StaticSiblingList[MAX_NUMBER_OF_SUBGRIDS];
 #endif
 //SetUpSiblingList(Grids, NumberOfGrids,

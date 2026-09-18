@@ -88,16 +88,8 @@ int grid::SchrodingerSolver( int nhy )
   if (ProcessorNumber != MyProcessorNumber)
     return SUCCESS;
 
-  int i, ie, is, j, je, js, k, ks, ke, n, ixyz, ret;
+  int i, j, k;
   int dim;
-
-  /* compute global start index for left edge of entire grid 
-       (including boundary zones) */
-  Elong_int GridGlobalStart[MAX_DIMENSION];
-
-  for (dim = 0; dim < GridRank; dim++)
-      GridGlobalStart[dim] = nlongint((GridLeftEdge[dim]-DomainLeftEdge[dim])/(*(CellWidth[dim]))) -
-  GridStartIndex[dim];
 
   /* fix grid quantities so they are defined to at least 3 dims */
 
@@ -106,7 +98,6 @@ int grid::SchrodingerSolver( int nhy )
     GridStartIndex[i]  = 0;
     GridEndIndex[i]    = 0;
     GridVelocity[i]    = 0.0;
-    GridGlobalStart[i] = 0;
   }
 
   FLOAT a = 1, dadt;
@@ -130,7 +121,7 @@ int grid::SchrodingerSolver( int nhy )
 
   /* Prepare Gravity. */
 
-  int GravityOn = 0, FloatSize = sizeof(float);
+  int GravityOn = 0;
   if (SelfGravity || UniformGravity || PointSourceGravity || DiskGravity || ExternalGravity )
     GravityOn = 1;
 #ifdef TRANSFER
@@ -166,7 +157,7 @@ int grid::SchrodingerSolver( int nhy )
   for (int dim = 0; dim < GridRank; dim++) {
     Offset[dim] = nint((CellLeftEdge[dim][0] -
 			GravitatingMassFieldLeftEdge[dim])/ CellWidth[dim][0]);
-    //printf("offset %d %d\n", dim , GravitatingMassFieldDimension[dim]);
+    //printf("offset %" ISYM " %" ISYM "\n", dim , GravitatingMassFieldDimension[dim]);
   }
 
   // calculate hbar/m
@@ -216,7 +207,7 @@ int grid::SchrodingerSolver( int nhy )
 
   if (PointSourceGravity > 0) {
 
-    FLOAT a = 1.0, potential, auxre, auxim, radius, rcubed, rsquared, xpos, ypos = 0.0, zpos = 0.0, rcore,x;
+    FLOAT potential, auxre, auxim, radius, rsquared, xpos, ypos = 0.0, zpos = 0.0;
 	FLOAT r0squared, r0, xh, yh, rproj, worb2;
 
     int n = 0;
@@ -229,7 +220,7 @@ int grid::SchrodingerSolver( int nhy )
 	xh = r0*cos(sqrt(worb2)*Time);
 	yh = r0*sin(sqrt(worb2)*Time);
 	if (MyProcessorNumber == ROOT_PROCESSOR) {
-    fprintf(stderr, "orbital freq w, host position x,y =%"GSYM", %"GSYM",%"GSYM"\n", worb2, xh, yh);
+    fprintf(stderr, "orbital freq w, host position x,y =%" GSYM", %" GSYM",%" GSYM"\n", worb2, xh, yh);
 	}
 
     for (k = 0; k < GridDimension[2]; k++) {
@@ -250,7 +241,6 @@ int grid::SchrodingerSolver( int nhy )
  
 	  rsquared = xpos*xpos + ypos*ypos + zpos*zpos;
 	  radius = sqrt(rsquared);
-	  rcore = PointSourceGravityCoreRadius;
 	  rproj = (xpos*xh + ypos*yh)/sqrt(xh*xh + yh*yh);
 
 	  /* Compute potential from point source */
@@ -277,9 +267,9 @@ int grid::SchrodingerSolver( int nhy )
   if ( rk4(repsi, impsi, 
           GridDimension[0], GridDimension[1], GridDimension[2], GridRank, 
           dtFixed, CellWidthTemp[0], CellWidthTemp[1], CellWidthTemp[2], hmcoef) == FAIL){
-    fprintf(stderr, "P(%"ISYM"): Error in rk4 on step %"ISYM" (dt=%"GSYM")\n", MyProcessorNumber,
+    fprintf(stderr, "P(%" ISYM"): Error in rk4 on step %" ISYM" (dt=%" GSYM")\n", MyProcessorNumber,
       nhy, dtFixed);
-    fprintf(stderr, "  grid dims = %"ISYM" %"ISYM" %"ISYM"\n", GridDimension[0], GridDimension[1], GridDimension[2]);
+    fprintf(stderr, "  grid dims = %" ISYM" %" ISYM" %" ISYM"\n", GridDimension[0], GridDimension[1], GridDimension[2]);
     ENZO_FAIL("Error in 4th runge kutta advance\n");
   }
 
@@ -288,9 +278,9 @@ int grid::SchrodingerSolver( int nhy )
   /*if ( sv2(nhy,repsi, impsi, 
           GridDimension[0], GridDimension[1], GridDimension[2], GridRank, 
           dtFixed, CellWidthTemp[0], CellWidthTemp[1], CellWidthTemp[2], hmcoef) == FAIL){
-    fprintf(stderr, "P(%"ISYM"): Error in rk4 on step %"ISYM" (dt=%"GSYM")\n", MyProcessorNumber,
+    fprintf(stderr, "P(%" ISYM"): Error in rk4 on step %" ISYM" (dt=%" GSYM")\n", MyProcessorNumber,
       nhy, dtFixed);
-    fprintf(stderr, "  grid dims = %"ISYM" %"ISYM" %"ISYM"\n", GridDimension[0], GridDimension[1], GridDimension[2]);
+    fprintf(stderr, "  grid dims = %" ISYM" %" ISYM" %" ISYM"\n", GridDimension[0], GridDimension[1], GridDimension[2]);
     ENZO_FAIL("Error in 4th runge kutta advance\n");
     }*/
 

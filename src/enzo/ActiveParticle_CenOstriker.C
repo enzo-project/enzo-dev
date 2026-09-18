@@ -64,8 +64,6 @@ int ActiveParticleType_CenOstriker::CreateParticle(grid *thisgrid_orig,
 {
   //printf("Brute force particle creation of CenOstriker\n");
  
-  CenOstrikerGrid *thisGrid =
-    static_cast<CenOstrikerGrid *>(thisgrid_orig);
 
   ActiveParticleType_CenOstriker *np = new ActiveParticleType_CenOstriker();
   data.NumberOfNewParticles++;
@@ -89,7 +87,7 @@ int ActiveParticleType_CenOstriker::CreateParticle(grid *thisgrid_orig,
   np->vel[2] = thisgrid_orig->ParticleVelocity[2][particle_index];
   
   //  if (debug && data.NumberOfNewParticles > 0)
-  // fprintf(stderr, "AP_CenOstriker: Have created %"ISYM" new particles\n",
+  // fprintf(stderr, "AP_CenOstriker: Have created %" ISYM" new particles\n",
   //	    data.NumberOfNewParticles);
 
   return SUCCESS;
@@ -99,11 +97,9 @@ int ActiveParticleType_CenOstriker::EvaluateFormation(grid *thisgrid_orig, Activ
   CenOstrikerGrid *thisGrid =
     static_cast<CenOstrikerGrid *>(thisgrid_orig);
   
-  float BaryonMass,VelocityDivergence,TotalDensity,DynamicalTime,
-    IsothermalSoundSpeedSquared,JeansMass,StarFraction, RandomNumber;
+  float BaryonMass, VelocityDivergence, TotalDensity, DynamicalTime, IsothermalSoundSpeedSquared, JeansMass, StarFraction;
   float SoundSpeedConstant = 1.3095e8;
-  int i, j, k, dim, index, offset_y, offset_z;
-  int NumberOfNewParticles = 0;
+  int i, j, k, index, offset_y, offset_z;
 
 
   float *density = thisGrid->BaryonField[data.DensNum];
@@ -259,7 +255,7 @@ int ActiveParticleType_CenOstriker::EvaluateFormation(grid *thisgrid_orig, Activ
   }
 
   if (debug && data.NumberOfNewParticles > 0)
-    fprintf(stderr, "AP_CenOstriker: Have created %"ISYM" new particles\n",
+    fprintf(stderr, "AP_CenOstriker: Have created %" ISYM" new particles\n",
 	    data.NumberOfNewParticles);
 
   return SUCCESS;
@@ -279,14 +275,12 @@ int ActiveParticleType_CenOstriker::EvaluateFeedback
   float *gasenergy = thisGrid->BaryonField[data.GENum];
   float *metals = thisGrid->BaryonField[data.MetalNum];
   float dt = thisGrid->dtFixed;
-  float dx = float(thisGrid->CellWidth[0][0]);
 
   float xv1, xv2, ParticleBirthTime, ParticleDynamicalTimeAtBirth,
     ParticleMass, ParticleInitialMass, ParticleMetalFraction, 
     StarFormationDensityThisTimestep, SupernovaEnergyThisTimestep, 
     DensityToAddToEachCell, DensityRatio;
 
-  float StellarMassFormedThisTimestepOnThisGrid = 0;
 
   FLOAT xpos, ypos, zpos;
   float xvel, yvel, zvel;
@@ -355,7 +349,7 @@ int ActiveParticleType_CenOstriker::EvaluateFeedback
     // Check bounds - if star particle is outside of this grid then give a warning and continue
     
     if (i < 0 || i > GridXSize-1 || j < 0 || j > GridYSize-1 || k < 0 || k > GridZSize-1){
-      fprintf(stdout, "Particle out of grid; xind, yind, zind = %"ISYM", %"ISYM", %"ISYM"\n",i,j,k);
+      fprintf(stdout, "Particle out of grid; xind, yind, zind = %" ISYM", %" ISYM", %" ISYM"\n",i,j,k);
       continue;
     }
       
@@ -397,8 +391,6 @@ int ActiveParticleType_CenOstriker::EvaluateFeedback
 
     // Record amount of star formation in this grid
 
-    StellarMassFormedThisTimestepOnThisGrid += 
-      StarFormationDensityThisTimestep * dt * POW(dx,3);
 
     // Calculate supernova energy for this timestep
 

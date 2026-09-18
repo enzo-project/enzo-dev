@@ -80,43 +80,43 @@ int ReadPhotonSources(FILE *fptr, FLOAT CurrentTime)
   /* read input from file */
   while (fgets(line, MAX_LINE_LENGTH, fptr) != NULL) {
      ret = 0;
-    ret += sscanf(line, "PhotonTestNumberOfSources = %"ISYM,
+    ret += sscanf(line, "PhotonTestNumberOfSources = %" ISYM,
 		  &PhotonTestNumberOfSources);
-     if (sscanf(line, "PhotonTestSourceType[%"ISYM"]", &source) > 0) {
-      ret += sscanf(line, "PhotonTestSourceType[%"ISYM"] = %"ISYM, &source,
+     if (sscanf(line, "PhotonTestSourceType[%" ISYM"]", &source) > 0) {
+      ret += sscanf(line, "PhotonTestSourceType[%" ISYM"] = %" ISYM, &source,
 		    &PhotonTestSourceType[source]);
       if (debug)
 	fprintf(stdout, "ReadPhotonSources: Reading Parameters of "
-		"Source %"ISYM"...\n", source);
+		"Source %" ISYM"...\n", source);
     }
-    if (sscanf(line, "PhotonTestSourcePosition[%"ISYM"]", &source) > 0)
-      ret += sscanf(line, "PhotonTestSourcePosition[%"ISYM"] = %"PSYM" %"PSYM" %"PSYM, 
+    if (sscanf(line, "PhotonTestSourcePosition[%" ISYM"]", &source) > 0)
+      ret += sscanf(line, "PhotonTestSourcePosition[%" ISYM"] = %" PSYM" %" PSYM" %" PSYM, 
 		    &source, &PhotonTestSourcePosition[source][0],
 		    &PhotonTestSourcePosition[source][1],
 		    &PhotonTestSourcePosition[source][2]);
-    if (sscanf(line, "PhotonTestSourceLuminosity[%"ISYM"]", &source) > 0)
-      ret += sscanf(line, "PhotonTestSourceLuminosity[%"ISYM"] = %lf", &source,
+    if (sscanf(line, "PhotonTestSourceLuminosity[%" ISYM"]", &source) > 0)
+      ret += sscanf(line, "PhotonTestSourceLuminosity[%" ISYM"] = %lf", &source,
 		    &PhotonTestSourceLuminosity[source]);
-    if (sscanf(line, "PhotonTestSourceCreationTime[%"ISYM"]", &source) > 0)
-      ret += sscanf(line, "PhotonTestSourceCreationTime[%"ISYM"] = %"FSYM, &source,
+    if (sscanf(line, "PhotonTestSourceCreationTime[%" ISYM"]", &source) > 0)
+      ret += sscanf(line, "PhotonTestSourceCreationTime[%" ISYM"] = %" FSYM, &source,
 		    &PhotonTestSourceCreationTime[source]);
-    if (sscanf(line, "PhotonTestSourceLifeTime[%"ISYM"]", &source) > 0)
-      ret += sscanf(line, "PhotonTestSourceLifeTime[%"ISYM"] = %"FSYM, &source,
+    if (sscanf(line, "PhotonTestSourceLifeTime[%" ISYM"]", &source) > 0)
+      ret += sscanf(line, "PhotonTestSourceLifeTime[%" ISYM"] = %" FSYM, &source,
 		    &PhotonTestSourceLifeTime[source]);
-    if (sscanf(line, "PhotonTestSourceRampTime[%"ISYM"]", &source) > 0)
-      ret += sscanf(line, "PhotonTestSourceRampTime[%"ISYM"] = %"FSYM, &source,
+    if (sscanf(line, "PhotonTestSourceRampTime[%" ISYM"]", &source) > 0)
+      ret += sscanf(line, "PhotonTestSourceRampTime[%" ISYM"] = %" FSYM, &source,
 		    &PhotonTestSourceRampTime[source]);
-    if (sscanf(line, "PhotonTestSourceOrientation[%"ISYM"]", &source) > 0)
-      ret += sscanf(line, "PhotonTestSourceOrientation[%"ISYM"] = %"FSYM" %"FSYM" %"FSYM, 
+    if (sscanf(line, "PhotonTestSourceOrientation[%" ISYM"]", &source) > 0)
+      ret += sscanf(line, "PhotonTestSourceOrientation[%" ISYM"] = %" FSYM" %" FSYM" %" FSYM, 
 		    &source, &PhotonTestSourceOrientation[source][0],
 		    &PhotonTestSourceOrientation[source][1],
 		    &PhotonTestSourceOrientation[source][2]);
-    if (sscanf(line, "PhotonTestSourceEnergyBins[%"ISYM"]", &source) > 0) {
-      ret += sscanf(line, "PhotonTestSourceEnergyBins[%"ISYM"] = %"ISYM, &source,
+    if (sscanf(line, "PhotonTestSourceEnergyBins[%" ISYM"]", &source) > 0) {
+      ret += sscanf(line, "PhotonTestSourceEnergyBins[%" ISYM"] = %" ISYM, &source,
 		    &PhotonTestSourceEnergyBins[source]);
       EnergyBinsDefined = true;
     }
-    if (sscanf(line, "PhotonTestSourceSED[%"ISYM"]", &source) > 0) {
+    if (sscanf(line, "PhotonTestSourceSED[%" ISYM"]", &source) > 0) {
       if (!EnergyBinsDefined)
 	ENZO_FAIL("Must define PhotonTestSourceEnergyBins before SED!");
       PhotonTestSourceSED[source] = new float[PhotonTestSourceEnergyBins[source]+1];
@@ -129,7 +129,7 @@ int ReadPhotonSources(FILE *fptr, FLOAT CurrentTime)
 	ret++;
       }
     }
-    if (sscanf(line, "PhotonTestSourceEnergy[%"ISYM"]", &source) > 0) {
+    if (sscanf(line, "PhotonTestSourceEnergy[%" ISYM"]", &source) > 0) {
       if (!EnergyBinsDefined)
 	ENZO_FAIL("Must define PhotonTestSourceEnergyBins before Energies!");
       PhotonTestSourceEnergy[source] = new float[PhotonTestSourceEnergyBins[source]+1];
@@ -186,10 +186,10 @@ int ReadPhotonSources(FILE *fptr, FLOAT CurrentTime)
   GlobalRadiationSources->NextSource = NULL;
   GlobalRadiationSources->PreviousSource = NULL;
   for (i=0; i<PhotonTestNumberOfSources; i++) {
-    if (debug) fprintf(stdout, "ReadPhotonSources: %"ISYM" %"GSYM" %"GSYM" %"GSYM"\n", 
+    if (debug) fprintf(stdout, "ReadPhotonSources: %" ISYM" %" GSYM" %" GSYM" %" GSYM"\n", 
 		       i, PhotonTestSourceLuminosity[i], TimeUnits, LengthUnits);
     PhotonTestSourceLuminosity[i] *= TimeUnits/pow(LengthUnits,3);
-    if (debug) fprintf(stdout, "ReadPhotonSources: %"ISYM"  %"GSYM"\n", 
+    if (debug) fprintf(stdout, "ReadPhotonSources: %" ISYM"  %" GSYM"\n", 
 		       i, PhotonTestSourceLuminosity[i]);
     RadiationSourceEntry *RadSources;
     RadSources = new RadiationSourceEntry;
@@ -232,8 +232,7 @@ int ReadPhotonSources(FILE *fptr, FLOAT CurrentTime)
     if (RadSources->Type != Isotropic && RadSources->Type != Beamed &&
 	RadSources->Type != Episodic) {
       if (MyProcessorNumber == ROOT_PROCESSOR)
-	fprintf(stderr, "PhotonTestSourceType must be 1, -2, -3.\n",
-		"\tChanging to 1 (isotropic)\n");
+	fprintf(stderr, "PhotonTestSourceType must be 1, -2, -3.\n\tChanging to 1 (isotropic)\n");
       RadSources->Type = Isotropic;
     }
 

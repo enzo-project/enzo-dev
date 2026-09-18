@@ -30,10 +30,8 @@
 int grid::MustRefineParticlesFlagFromList()
 {
   
-  int i, dim, LowerIndex, UpperIndex, MidPoint, ParticlesFound, ParticlesFlagged, *ParticleNumberList;
-  int NumberOfParticles;
+  int i, LowerIndex, UpperIndex, MidPoint, ParticlesFound, ParticlesFlagged, *ParticleNumberList;
   FILE *fptr;
-  float tempf;
 
   if (MyProcessorNumber != ProcessorNumber)
     return SUCCESS;
@@ -47,7 +45,7 @@ int grid::MustRefineParticlesFlagFromList()
   while (fgets(line, MAX_LINE_LENGTH, fptr) != NULL)
     if (line[0] != '#') ParticlesFound++;
    
-  if (debug) printf("P(%d): ParticlesFound = %d\n",MyProcessorNumber,ParticlesFound);
+  if (debug) printf("P(%" ISYM "): ParticlesFound = %" ISYM "\n",MyProcessorNumber,ParticlesFound);
   
   ParticleNumberList=new int[ParticlesFound]; //to allocate array space
 
@@ -55,7 +53,7 @@ int grid::MustRefineParticlesFlagFromList()
   i = 0;
   while (fgets(line, MAX_LINE_LENGTH, fptr) != NULL)
     if (line[0] != '#')
-      if (sscanf(line, "%"ISYM, &ParticleNumberList[i]) == 1)
+      if (sscanf(line, "%" ISYM, &ParticleNumberList[i]) == 1)
         i++;
 
   fclose(fptr);
@@ -87,7 +85,7 @@ int grid::MustRefineParticlesFlagFromList()
 
   } // end: loop over particles
   if (ParticlesFlagged > 0)
-    printf("P(%d): MustRefineParticlesFlagFromList:ParticlesFlagged=%d\n",MyProcessorNumber,ParticlesFlagged);
+    printf("P(%" ISYM "): MustRefineParticlesFlagFromList:ParticlesFlagged=%" ISYM "\n",MyProcessorNumber,ParticlesFlagged);
   delete [] ParticleNumberList;
   return SUCCESS;
 }

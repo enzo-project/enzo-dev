@@ -49,7 +49,7 @@ int grid::Hydro3D(float **Prim, float **dU, float dt,
     return SUCCESS;
   }
 
-  int iflux, ifluxp1, fluxsize = 1, activesize = 1;
+  int iflux, ifluxp1, fluxsize = 1;
   float *Flux3D[NEQ_HYDRO+NSpecies+NColor];
 
   for (int dim = 0; dim < GridRank; dim++) {
@@ -57,7 +57,6 @@ int grid::Hydro3D(float **Prim, float **dU, float dt,
   }
 
   for (int dim = 0; dim < GridRank; dim++) {
-    activesize *= (GridDimension[dim]-2*NumberOfGhostZones);
   }
 
   int Xactivesize = GridDimension[0]-2*NumberOfGhostZones;
@@ -224,7 +223,7 @@ int grid::Hydro3D(float **Prim, float **dU, float dt,
     }
 
     if (Coordinate == Spherical) {
-      FLOAT yc, xc, sinyc;
+      FLOAT yc, xc;
       for (int field = 0; field < NEQ_HYDRO+NSpecies+NColor; field++) {
         int n = 0, i1, j1;
         for (int k = 0; k < Zactivesize; k++) {

@@ -95,7 +95,7 @@ int grid::FlagCellsToBeRefinedByTotalJeansLength()
   
   FLOAT CellWidthSquared = CellWidth[0][0]*CellWidth[0][0];
   int j, jj, k, index;
-  float rhox, rhoy, rhoz, rhoxy, rhoxz, rhoyz,  rhomax, maxmax;
+  float rhox, rhoy, rhoz, rhoxy, rhoxz, rhoyz;
 
   if ((GPotNum = FindField(GravPotential, FieldType, NumberOfBaryonFields)) < 0) {
     ENZO_FAIL("Cannot find Gravitational Potential. Set WritePotential = 1 ... hack");
@@ -125,7 +125,7 @@ int grid::FlagCellsToBeRefinedByTotalJeansLength()
 
   //  FORTRAN_NAME(smooth2)(BaryonField[GPotNum] ,Phi, &GridRank, GridDimension, GridDimension+1, GridDimension+2);
       
-  //  printf("GpotNum : %i\n", GPotNum);
+  //  printf("GpotNum : %" ISYM "\n", GPotNum);
   rhox = rhoy = rhoz = 0.;
   int ci,cj,ck,cind;
   for (k = GridStartIndex[2]+1; k < GridEndIndex[2]; k++) {
@@ -209,7 +209,7 @@ int grid::FlagCellsToBeRefinedByTotalJeansLength()
  
   JLSquared /= POW(RefineByJeansLengthSafetyFactor, 2);
  
-  /* printf("jl: JL, dx, t, d = %"GSYM" %"GSYM" %"GSYM" %"GSYM"\n", sqrt(JLSquared), CellWidth[0][3],
+  /* printf("jl: JL, dx, t, d = %" GSYM" %" GSYM" %" GSYM" %" GSYM"\n", sqrt(JLSquared), CellWidth[0][3],
      temperature[(3 + 3*GridDimension[1])*GridDimension[0]+3],
      BaryonField[DensNum][(3 + 3*GridDimension[1])*GridDimension[0]+3]);*/
  
@@ -245,7 +245,7 @@ int grid::FlagCellsToBeRefinedByTotalJeansLength()
     FlaggingField[i] = (FlaggingField[i] >= 1)? 1 : 0;
     NumberOfFlaggedCells += FlaggingField[i];
   };
-  //  printf("NumberOfFlaggedCells %i\n", NumberOfFlaggedCells);
+  //  printf("NumberOfFlaggedCells %" ISYM "\n", NumberOfFlaggedCells);
   
   return NumberOfFlaggedCells;
   

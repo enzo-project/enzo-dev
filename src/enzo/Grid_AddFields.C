@@ -40,7 +40,7 @@ int grid::AddFields(int TypesToAdd[], int NumberOfFields)
 
     if (ProcessorNumber == MyProcessorNumber) {
       if (BaryonField[n] != NULL) {
-	ENZO_VFAIL("BaryonField[%"ISYM"] already assigned?\n", n)
+	ENZO_VFAIL("BaryonField[%" ISYM"] already assigned?\n", n)
 
       }
       BaryonField[n] = new float[size];

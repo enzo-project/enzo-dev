@@ -57,12 +57,10 @@ int grid::MHD1DTestInitializeGrid(float rhol, float rhor,
     return SUCCESS;
   }
 
-  int size = 1, activesize = 1, dim;
+  int dim;
   for (dim = 0; dim < GridRank; dim++)
-    size *= GridDimension[dim];
 
   for (dim = 0; dim < GridRank; dim++)
-    activesize *= (GridDimension[dim] - 2*NumberOfGhostZones);
   
   this->AllocateGrids();
 

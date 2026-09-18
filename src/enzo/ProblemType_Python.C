@@ -43,7 +43,7 @@ void ProblemType_Python::SetField(PythonGrid *grid,
     }
     grid->BaryonField[FieldIndex] = data;
     grid->FieldType[FieldIndex] = FieldType;
-    fprintf(stderr, "Seting %"ISYM" to %"ISYM"\n",
+    fprintf(stderr, "Seting %" ISYM" to %" ISYM"\n",
                 FieldIndex, FieldType);
 }
 

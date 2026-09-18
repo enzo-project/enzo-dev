@@ -44,18 +44,17 @@ int RadHydroStreamTestInitialize(FILE *fptr, FILE *Outfptr,
   if (debug)
     fprintf(stdout,"Entering RadHydroStreamTestInitialize routine\n");
 
-  char *DensName  = "Density";
-  char *TEName    = "TotalEnergy";
-  char *IEName    = "Internal_Energy";
-  char *Vel0Name  = "x-velocity";
-  char *Vel1Name  = "y-velocity";
-  char *Vel2Name  = "z-velocity";
-  char *RadName   = "Grey_Radiation_Energy";
+  const char *DensName  = "Density";
+  const char *TEName    = "TotalEnergy";
+  const char *IEName    = "Internal_Energy";
+  const char *Vel0Name  = "x-velocity";
+  const char *Vel1Name  = "y-velocity";
+  const char *Vel2Name  = "z-velocity";
+  const char *RadName   = "Grey_Radiation_Energy";
 
   // local declarations
-  int dim;
 
-  printf("Setting up problem with rank = %"ISYM"\n",MetaData.TopGridRank);
+  printf("Setting up problem with rank = %" ISYM"\n",MetaData.TopGridRank);
 
   // Setup and parameters:
   //  1. ambient density (should be very small) - free parameter
@@ -70,17 +69,15 @@ int RadHydroStreamTestInitialize(FILE *fptr, FILE *Outfptr,
 
   // overwrite parameters from RadHydroParamFile file, if it exists
   char line[MAX_LINE_LENGTH];
-  int  ret;
   if (MetaData.RadHydroParameterFname != NULL) {
     FILE *RHfptr;
     if ((RHfptr = fopen(MetaData.RadHydroParameterFname, "r")) != NULL) {
       while (fgets(line, MAX_LINE_LENGTH, RHfptr) != NULL) {
-	ret = 0;
 	// read relevant problem parameters
-	ret += sscanf(line, "RadHydroDensity = %"FSYM, &RadHydroDensity);
-	ret += sscanf(line, "RadHydroRadEnergy = %"FSYM, &RadHydroRadEnergy);
-	ret += sscanf(line, "RadStreamDim = %"ISYM, &RadStreamDim);
-	ret += sscanf(line, "RadStreamDir = %"ISYM, &RadStreamDir);
+	sscanf(line, "RadHydroDensity = %" FSYM, &RadHydroDensity);
+	sscanf(line, "RadHydroRadEnergy = %" FSYM, &RadHydroRadEnergy);
+	sscanf(line, "RadStreamDim = %" ISYM, &RadStreamDim);
+	sscanf(line, "RadStreamDir = %" ISYM, &RadStreamDir);
       } // end input from parameter file
       fclose(RHfptr);
     }
@@ -96,7 +93,7 @@ int RadHydroStreamTestInitialize(FILE *fptr, FILE *Outfptr,
 
   // ensure that streaming dimension is active for this rank
   if (RadStreamDim >= MetaData.TopGridRank) {
-    fprintf(stderr,"RadStreamDim = %"ISYM" illegal for rank = %"ISYM"!\n",
+    fprintf(stderr,"RadStreamDim = %" ISYM" illegal for rank = %" ISYM"!\n",
 	    RadStreamDim,MetaData.TopGridRank);
     return FAIL;
   }

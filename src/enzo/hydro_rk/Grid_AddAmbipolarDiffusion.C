@@ -97,7 +97,7 @@ int grid::AddAmbipolarDiffusion()
     }
   }
 
-  printf("AD time step = %"GSYM"\n", dt_ad);
+  printf("AD time step = %" GSYM"\n", dt_ad);
   
   FLOAT dt_total = 0;
   while (dt_total < dtFixed) {
@@ -164,7 +164,7 @@ int grid::AddAmbipolarDiffusion()
   }
 
   /*for (int i = 0; i < size; i++) {
-    printf("%"GSYM" ", BaryonField[B2Num][i]);
+    printf("%" GSYM" ", BaryonField[B2Num][i]);
   }
   printf("\n");*/
 

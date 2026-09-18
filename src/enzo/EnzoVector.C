@@ -318,10 +318,10 @@ EnzoVector* EnzoVector::clone(float **userdata) const
 
 
 //  Write vector species to a given file (no ghosts)
-int EnzoVector::write(char *outfile, int species) const
+int EnzoVector::write(const char *outfile, int species) const
 {
   if ((species<0) || (species >= Nspecies)) {
-    fprintf(stderr,"EnzoVector::write ERROR, illegal species %"ISYM"\n",
+    fprintf(stderr,"EnzoVector::write ERROR, illegal species %" ISYM"\n",
 	    species);
     ENZO_FAIL("EnzoVector::write error");
   }
@@ -329,7 +329,7 @@ int EnzoVector::write(char *outfile, int species) const
   // append processor number to file name
   char *filename = new char[strlen(outfile)+7];
   char *tmp_str  = new char[6];
-  sprintf(tmp_str,"%"ISYM,MyProcessorNumber);
+  sprintf(tmp_str,"%" ISYM,MyProcessorNumber);
   strcpy(filename, outfile);
   strcat(strcat(filename,"."),tmp_str);
   FILE *filePtr;
@@ -341,7 +341,7 @@ int EnzoVector::write(char *outfile, int species) const
     for (int j=0; j<Nx1; j++)
       for (int i=0; i<Nx0; i++) {
 	idx = ((k+Ng2l)*x1len + j+Ng1l)*x0len + i+Ng0l;
-	fprintf(filePtr,"%"ISYM" %"ISYM" %"ISYM" %24.16g\n", 
+	fprintf(filePtr,"%" ISYM" %" ISYM" %" ISYM" %24.16g\n", 
 		i+1, j+1, k+1, data[species][idx]);
       }
   fclose(filePtr);
@@ -352,10 +352,10 @@ int EnzoVector::write(char *outfile, int species) const
 
 
 //  Write vector species to a given file (with ghosts)
-int EnzoVector::writeall(char *outfile, int species) const
+int EnzoVector::writeall(const char *outfile, int species) const
 {
   if ((species<0) || (species >= Nspecies)) {
-    fprintf(stderr,"EnzoVector::writeall ERROR, illegal species %"ISYM"\n",
+    fprintf(stderr,"EnzoVector::writeall ERROR, illegal species %" ISYM"\n",
 	    species);
     ENZO_FAIL("EnzoVector::writeall error");
   }
@@ -363,7 +363,7 @@ int EnzoVector::writeall(char *outfile, int species) const
   // append processor number to file name
   char *filename = new char[strlen(outfile)+7];
   char *tmp_str  = new char[6];
-  sprintf(tmp_str,"%"ISYM,MyProcessorNumber);
+  sprintf(tmp_str,"%" ISYM,MyProcessorNumber);
   strcpy(filename, outfile);
   strcat(strcat(filename,"."),tmp_str);
   FILE *filePtr;
@@ -376,7 +376,7 @@ int EnzoVector::writeall(char *outfile, int species) const
     for (int j=0; j<x1len; j++)
       for (int i=0; i<x0len; i++) {
 	idx = (k*x1len + j)*x0len + i;
-	fprintf(filePtr,"%"ISYM" %"ISYM" %"ISYM" %24.16g\n", 
+	fprintf(filePtr,"%" ISYM" %" ISYM" %" ISYM" %24.16g\n", 
 		i+1, j+1, k+1, data[species][idx]);
       }
   fclose(filePtr);
@@ -402,7 +402,7 @@ int EnzoVector::SetData(int species, float *NewPtr)
 {
   // check that species within range 
   if ((species < 0) || (species >= Nspecies)) {
-    fprintf(stderr,"EnzoVector::SetData ERROR, illegal species %"ISYM"\n",
+    fprintf(stderr,"EnzoVector::SetData ERROR, illegal species %" ISYM"\n",
 	    species);
     ENZO_FAIL("EnzoVector::SetData error");
   }
@@ -455,7 +455,7 @@ int EnzoVector::copy_component(EnzoVector *x, int c)
       (x->Nspecies != Nspecies)) 
     ENZO_FAIL("EnzoVector copy_component ERROR: vector sizes do not match");
   if ((c<0) || (c>=Nspecies)) {
-    fprintf(stderr,"copy_component ERROR: illegal component %"ISYM"\n",c);
+    fprintf(stderr,"copy_component ERROR: illegal component %" ISYM"\n",c);
     ENZO_FAIL("EnzoVector copy_component ERROR");
   }
   for (int i=0; i<((Nx0+Ng0l+Ng0r)*(Nx1+Ng1l+Ng1r)*(Nx2+Ng2l+Ng2r)); i++)  
@@ -510,7 +510,7 @@ int EnzoVector::axpy_component(float a, EnzoVector *x, int c)
       (x->Nspecies != Nspecies)) 
     ENZO_FAIL("EnzoVector axpy_component ERROR: vector sizes do not match");
   if ((c<0) || (c>=Nspecies)) {
-    fprintf(stderr,"axpy_component ERROR: illegal component %"ISYM"\n",c);
+    fprintf(stderr,"axpy_component ERROR: illegal component %" ISYM"\n",c);
     ENZO_FAIL("EnzoVector axpy_component ERROR");
   }
   for (int i=0; i<((Nx0+Ng0l+Ng0r)*(Nx1+Ng1l+Ng1r)*(Nx2+Ng2l+Ng2r)); i++)
@@ -524,7 +524,7 @@ int EnzoVector::axpy_component(float a, EnzoVector *x, int c)
 int EnzoVector::scale_component(int idat, float a)
 {
   if ((idat < 0) || (idat >= Nspecies)) {
-    fprintf(stderr,"scale_component error: illegal var = %"ISYM"\n",idat);
+    fprintf(stderr,"scale_component error: illegal var = %" ISYM"\n",idat);
     return -1.0;
   }
   for (int i=0; i<((Nx0+Ng0l+Ng0r)*(Nx1+Ng1l+Ng1r)*(Nx2+Ng2l+Ng2r)); i++)  
@@ -537,7 +537,7 @@ int EnzoVector::scale_component(int idat, float a)
 int EnzoVector::log_component(int idat)
 {
   if ((idat < 0) || (idat >= Nspecies)) {
-    fprintf(stderr,"log_component error: illegal var = %"ISYM"\n",idat);
+    fprintf(stderr,"log_component error: illegal var = %" ISYM"\n",idat);
     return -1.0;
   }
   for (int i=0; i<((Nx0+Ng0l+Ng0r)*(Nx1+Ng1l+Ng1r)*(Nx2+Ng2l+Ng2r)); i++)  
@@ -550,7 +550,7 @@ int EnzoVector::log_component(int idat)
 int EnzoVector::exp_component(int idat)
 {
   if ((idat < 0) || (idat >= Nspecies)) {
-    fprintf(stderr,"exp_component error: illegal var = %"ISYM"\n",idat);
+    fprintf(stderr,"exp_component error: illegal var = %" ISYM"\n",idat);
     return -1.0;
   }
   for (int i=0; i<((Nx0+Ng0l+Ng0r)*(Nx1+Ng1l+Ng1r)*(Nx2+Ng2l+Ng2r)); i++)  
@@ -597,7 +597,7 @@ int EnzoVector::addconst(float a)
 int EnzoVector::addconst_component(int idat, float a)
 {
   if ((idat < 0) || (idat >= Nspecies)) {
-    fprintf(stderr,"addconst_component error: illegal var = %"ISYM"\n",idat);
+    fprintf(stderr,"addconst_component error: illegal var = %" ISYM"\n",idat);
     return -1.0;
   }
   for (int i=0; i<((Nx0+Ng0l+Ng0r)*(Nx1+Ng1l+Ng1r)*(Nx2+Ng2l+Ng2r)); i++)  
@@ -863,7 +863,7 @@ float EnzoVector::rmsnorm() const
 float EnzoVector::rmsnorm_component(int idat) const
 {
   if ((idat < 0) || (idat >= Nspecies)) {
-    fprintf(stderr,"rmsnorm_component error: illegal var = %"ISYM"\n",idat);
+    fprintf(stderr,"rmsnorm_component error: illegal var = %" ISYM"\n",idat);
     return -1.0;
   }
   float sum=0.0, gsum;
@@ -1004,7 +1004,7 @@ float EnzoVector::infnorm() const
 float EnzoVector::infnorm_component(int var) const
 {
   if ((var < 0) || (var >= Nspecies)) {
-    fprintf(stderr,"infnorm_component error: illegal var = %"ISYM"\n",var);
+    fprintf(stderr,"infnorm_component error: illegal var = %" ISYM"\n",var);
     return -1.0;
   }
 
@@ -1039,7 +1039,7 @@ float EnzoVector::infnorm_component(int var) const
 float EnzoVector::relative_difference(float *x, int var) const
 {
   if ((var < 0) || (var >= Nspecies)) {
-    fprintf(stderr,"relative_difference error: illegal var = %"ISYM"\n",var);
+    fprintf(stderr,"relative_difference error: illegal var = %" ISYM"\n",var);
     return -1.0;
   }
 
@@ -1077,7 +1077,7 @@ float EnzoVector::relative_difference(float *x, int var) const
 float EnzoVector::relative_vol_difference(float *x, int var) const
 {
   if ((var < 0) || (var >= Nspecies)) {
-    fprintf(stderr,"relative_vol_difference error: illegal var = %"ISYM"\n",var);
+    fprintf(stderr,"relative_vol_difference error: illegal var = %" ISYM"\n",var);
     return -1.0;
   }
 

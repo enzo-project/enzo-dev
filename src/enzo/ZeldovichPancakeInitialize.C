@@ -42,17 +42,17 @@ int MHDCTSetupFieldLabels();
 int ZeldovichPancakeInitialize(FILE *fptr, FILE *Outfptr,
 			       HierarchyEntry &TopGrid, TopGridData &MetaData)
 {
-  char *DensName = "Density";
-  char *TEName   = "TotalEnergy";
-  char *GEName   = "GasEnergy";
-  char *Vel1Name = "x-velocity";
-  char *Vel2Name = "y-velocity";
-  char *Vel3Name = "z-velocity";
-  char *BxName = "Bx";
-  char *ByName = "By";
-  char *BzName = "Bz";
-  char *PhiName = "Phi";
-  char *Phi_pName = "Phip";
+  const char *DensName = "Density";
+  const char *TEName   = "TotalEnergy";
+  const char *GEName   = "GasEnergy";
+  const char *Vel1Name = "x-velocity";
+  const char *Vel2Name = "y-velocity";
+  const char *Vel3Name = "z-velocity";
+  const char *BxName = "Bx";
+  const char *ByName = "By";
+  const char *BzName = "Bz";
+  const char *PhiName = "Phi";
+  const char *Phi_pName = "Phip";
 
 
   /* declarations */
@@ -95,21 +95,21 @@ int ZeldovichPancakeInitialize(FILE *fptr, FILE *Outfptr,
  
     /* read parameters */
  
-    ret += sscanf(line, "ZeldovichPancakeDirection = %"ISYM,
+    ret += sscanf(line, "ZeldovichPancakeDirection = %" ISYM,
 		  &ZeldovichPancakeDirection);
-    ret += sscanf(line, "ZeldovichPancakeCentralOffset = %"FSYM,
+    ret += sscanf(line, "ZeldovichPancakeCentralOffset = %" FSYM,
 		  &ZeldovichPancakeCentralOffset);
-    ret += sscanf(line, "ZeldovichPancakeOmegaBaryonNow = %"FSYM,
+    ret += sscanf(line, "ZeldovichPancakeOmegaBaryonNow = %" FSYM,
 		  &ZeldovichPancakeOmegaBaryonNow);
-    ret += sscanf(line, "ZeldovichPancakeOmegaCDMNow = %"FSYM,
+    ret += sscanf(line, "ZeldovichPancakeOmegaCDMNow = %" FSYM,
 		  &ZeldovichPancakeOmegaCDMNow);
-    ret += sscanf(line, "ZeldovichPancakeCollapseRedshift = %"FSYM,
+    ret += sscanf(line, "ZeldovichPancakeCollapseRedshift = %" FSYM,
 		  &ZeldovichPancakeCollapseRedshift);
-    ret += sscanf(line, "ZeldovichPancakeInitialTemperature = %"FSYM,
+    ret += sscanf(line, "ZeldovichPancakeInitialTemperature = %" FSYM,
 		  &ZeldovichPancakeInitialTemperature);
-    ret += sscanf(line, "ZeldovichPancakeInitialGasVelocity = %"FSYM,
+    ret += sscanf(line, "ZeldovichPancakeInitialGasVelocity = %" FSYM,
 		  &ZeldovichPancakeInitialGasVelocity);
-    ret += sscanf(line, "ZeldovichPancakeInitialUniformBField = %"FSYM" %"FSYM" %"FSYM,
+    ret += sscanf(line, "ZeldovichPancakeInitialUniformBField = %" FSYM" %" FSYM" %" FSYM,
 		  ZeldovichPancakeInitialUniformBField,
 		  ZeldovichPancakeInitialUniformBField+1,
 		  ZeldovichPancakeInitialUniformBField+2);
@@ -123,8 +123,7 @@ int ZeldovichPancakeInitialize(FILE *fptr, FILE *Outfptr,
   }
 
   /* Convert from Gauss */
-  float DensityUnits=1, LengthUnits=1, TemperatureUnits=1, TimeUnits=1,
-    VelocityUnits=1, PressureUnits=1.,MagneticUnits=1., a=1,dadt=0;
+  float DensityUnits=1, LengthUnits=1, TemperatureUnits=1, TimeUnits=1, VelocityUnits=1, PressureUnits=1., MagneticUnits=1.;
 
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, InitialTimeInCodeUnits) == FAIL) {
@@ -185,19 +184,19 @@ int ZeldovichPancakeInitialize(FILE *fptr, FILE *Outfptr,
  
   if (MyProcessorNumber == ROOT_PROCESSOR) {
 
-    fprintf(Outfptr, "ZeldovichPancakeDirection          = %"ISYM"\n",
+    fprintf(Outfptr, "ZeldovichPancakeDirection          = %" ISYM"\n",
 	    ZeldovichPancakeDirection);
-    fprintf(Outfptr, "ZeldovichPancakeCentralOffset      = %"FSYM"\n",
+    fprintf(Outfptr, "ZeldovichPancakeCentralOffset      = %" FSYM"\n",
 	    ZeldovichPancakeCentralOffset);
-    fprintf(Outfptr, "ZeldovichPancakeOmegaBaryonNow     = %"FSYM"\n",
+    fprintf(Outfptr, "ZeldovichPancakeOmegaBaryonNow     = %" FSYM"\n",
 	    ZeldovichPancakeOmegaBaryonNow);
-    fprintf(Outfptr, "ZeldovichPancakeOmegaCDMNow        = %"FSYM"\n",
+    fprintf(Outfptr, "ZeldovichPancakeOmegaCDMNow        = %" FSYM"\n",
 	    ZeldovichPancakeOmegaCDMNow);
-    fprintf(Outfptr, "ZeldovichPancakeCollapseRedshift   = %"FSYM"\n",
+    fprintf(Outfptr, "ZeldovichPancakeCollapseRedshift   = %" FSYM"\n",
 	    ZeldovichPancakeCollapseRedshift);
-    fprintf(Outfptr, "ZeldovichPancakeInitialTemperature = %"FSYM"\n",
+    fprintf(Outfptr, "ZeldovichPancakeInitialTemperature = %" FSYM"\n",
 	    ZeldovichPancakeInitialTemperature);
-    fprintf(Outfptr, "ZeldovichPancakeInitialGasVelocity = %"FSYM"\n",
+    fprintf(Outfptr, "ZeldovichPancakeInitialGasVelocity = %" FSYM"\n",
 	    ZeldovichPancakeInitialGasVelocity);
 
     for (int dim = 0; dim < MAX_DIMENSION; dim++) 

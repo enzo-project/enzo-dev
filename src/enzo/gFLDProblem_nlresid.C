@@ -99,7 +99,7 @@ int gFLDProblem::nlresid(EnzoVector *fu, EnzoVector *u)
 //   if (debug) {
 //     printf("    ");
 //     for (i=0; i<Nchem+2; i++) 
-//       printf("    f(%"ISYM") = %.2e",i,rmsvals[i]);
+//       printf("    f(%" ISYM") = %.2e",i,rmsvals[i]);
 //     printf("\n");
 //   }
 

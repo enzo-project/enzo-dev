@@ -67,7 +67,7 @@ int grid::MHD_Curl(int * Start, int * End, int Method){
   float dTdX[3] = {0,0,0};
   
   for( dimX=0;dimX<GridRank; dimX++ )
-    dTdX[dimX] = (dtUsed*(CellWidth[dimX][0] != 0 )) ? (1.0/CellWidth[dimX][0]) : 0;
+    dTdX[dimX] = (CellWidth[dimX][0] != 0.0) ? (dtUsed/CellWidth[dimX][0]) : 0.0;
   
   // offset for the Electric field.
   int Db[3][2] = { { GridDimension[0]+1, (GridDimension[0]+1)*GridDimension[1] },
@@ -121,7 +121,7 @@ int grid::MHD_Curl(int * Start, int * End, int Method){
 		-( (OK[dimX][1] == 1) ? dTdX[dimZ]*(ElectricField[dimY][E4]- ElectricField[dimY][E3]) : 0 ));
 	    break;
 	  default:
-	    ENZO_VFAIL(" Method = %"ISYM" isn't a valid argument to MHD_Curl.  Fix it.\n",Method)
+	    ENZO_VFAIL(" Method = %" ISYM" isn't a valid argument to MHD_Curl.  Fix it.\n",Method)
 	    break;
 	  }//switch
 	}//i,j,k

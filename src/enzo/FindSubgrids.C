@@ -97,7 +97,7 @@ int FindSubgrids(HierarchyEntry *Grid, int level, int &TotalFlaggedCells,
   if (NumberOfFlaggedCells > 0)
     FlaggedGrids++;
   if (debug1)
-    printf("RebuildHierarchy[%"ISYM"]: NumberOfFlaggedCells = %"ISYM".\n",
+    printf("RebuildHierarchy[%" ISYM"]: NumberOfFlaggedCells = %" ISYM".\n",
 	   level, NumberOfFlaggedCells);
  
 #ifdef MPI_INSTRUMENTATION
@@ -135,7 +135,7 @@ int FindSubgrids(HierarchyEntry *Grid, int level, int &TotalFlaggedCells,
     HierarchyEntry *PreviousGrid = Grid, *ThisGrid;
 
     if ( NumberOfSubgrids > MAX_NUMBER_OF_SUBGRIDS ) {
-      ENZO_VFAIL("PE %"ISYM" NumberOfSubgrids > MAX_NUMBER_OF_SUBGRIDS\n", MyProcessorNumber)
+      ENZO_VFAIL("PE %" ISYM" NumberOfSubgrids > MAX_NUMBER_OF_SUBGRIDS\n", MyProcessorNumber)
     }
  
     for (i = 0; i < NumberOfSubgrids; i++) {

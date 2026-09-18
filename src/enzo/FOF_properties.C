@@ -17,7 +17,7 @@ void get_properties(FOFData D, FOF_particle_data *p, int len, bool subgroup,
 		    float *pcmv, float *pmtot, float *pmstars, float *pmvir,
 		    float *prvir, float *pL, float *pvrms, float *pspin)
 {
-  int i,k,dim, irvir, len4;
+  int i, k, dim, irvir;
   double s[3], sv[3], L[3], delx[3], delv[3], vrms, spin, mvir, rvir, del;
   double mtot, mtot0, mstars, menc, rho, factor, rho178, r3, e2;
   float *radius;
@@ -136,7 +136,6 @@ void get_properties(FOFData D, FOF_particle_data *p, int len, bool subgroup,
     // 1/a^3 factor converts comoving radius to proper.
     factor = 1e10 / (4*pi/3.0) * pow(D.Time, -3.0);
     rho178 = 178.0 * D.RhoCritical0 * e2;
-    len4 = len/4;
 
     mtot = mtot0;
     menc = mtot;

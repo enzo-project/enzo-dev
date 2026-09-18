@@ -48,7 +48,7 @@ int grid::ConvertTotalEnergyToGasEnergy()
 					 Vel3Num, TENum) == FAIL) {
     ENZO_FAIL("CTETGE: Error in IdentifyPhysicalQuantities.\n");
   }
-  printf("DensNum = %d, GENum = %d, vel1Num = %d, vel2Num = %d,vel3Num = %d,TENum = %d \n",DensNum, GENum, Vel1Num, Vel2Num,Vel3Num, TENum ); 
+  printf("DensNum = %" ISYM ", GENum = %" ISYM ", vel1Num = %" ISYM ", vel2Num = %" ISYM ",vel3Num = %" ISYM ",TENum = %" ISYM " \n",DensNum, GENum, Vel1Num, Vel2Num,Vel3Num, TENum ); 
   /* Subtract kinetic component. */
   //printf("BaryonField[DensNum][1] = %g \n",i,BaryonField[DensNum][1]); 
   //printf("BaryonField[TENum][2] = %g \n",i,BaryonField[TENum][2]); 

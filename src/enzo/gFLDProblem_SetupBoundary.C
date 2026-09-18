@@ -71,11 +71,11 @@ int gFLDProblem::SetupBoundary(int Dim, int Face,
 
   // Error check
   if ((Dim < 0) || (Dim >= rank)) {
-    fprintf(stderr, "SetupBoundary: Dim %"ISYM" out of bounds.\n", Dim);
+    fprintf(stderr, "SetupBoundary: Dim %" ISYM" out of bounds.\n", Dim);
     ENZO_FAIL("Error in gFLDProblem_SetupBoundar");
   }
   if ((Face != 0) && (Face != 1)) {
-    fprintf(stderr, "SetupBoundary: Face %"ISYM" != {0,1}.\n", Face);
+    fprintf(stderr, "SetupBoundary: Face %" ISYM" != {0,1}.\n", Face);
     ENZO_FAIL("Error in gFLDProblem_SetupBoundar");
   }
 

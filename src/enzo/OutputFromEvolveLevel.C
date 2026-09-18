@@ -71,8 +71,7 @@ int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaDat
 #endif
 			  ){
 
-  int WriteOutput = FALSE, ExitEnzo = FALSE, NumberOfGrids;
-  int PackedStatus = 0;
+  int WriteOutput = FALSE, ExitEnzo = FALSE;
   int CheckpointDump = FALSE;
   WriteOutput = OutputNow;
 
@@ -117,14 +116,14 @@ int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaDat
       /* Make sure we are all synced up across processors. */
       CurrentMaximumDensity = CommunicationMaxValue(CurrentMaximumDensity);
       if (MyProcessorNumber == ROOT_PROCESSOR) {
-        fprintf(stderr, "Current maximum density is %"GSYM" g/cm^3.\n",
+        fprintf(stderr, "Current maximum density is %" GSYM" g/cm^3.\n",
                 (CurrentMaximumDensity*DensityUnits));
       }
 
       if (StopFirstTimeAtMetalEnrichedDensity > 0.) {
         CurrentMaximumMetalEnrichedDensity = CommunicationMaxValue(CurrentMaximumMetalEnrichedDensity);
         if (MyProcessorNumber == ROOT_PROCESSOR) {
-          fprintf(stderr, "Current maximum metal enriched density is %"GSYM" g/cm^3.\n",
+          fprintf(stderr, "Current maximum metal enriched density is %" GSYM" g/cm^3.\n",
                   (CurrentMaximumMetalEnrichedDensity*DensityUnits));
         }
       }
@@ -134,7 +133,7 @@ int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaDat
           while (log10(CurrentMaximumDensity*DensityUnits) > CurrentDensityOutput) {
             CurrentDensityOutput += IncrementDensityOutput;
           }
-          fprintf(stderr, "Outputting based on DensMax == %"FSYM" (now set to %"FSYM")\n",
+          fprintf(stderr, "Outputting based on DensMax == %" FSYM" (now set to %" FSYM")\n",
                   log10(CurrentMaximumDensity*DensityUnits), CurrentDensityOutput);
           WriteOutput = TRUE;
         }
@@ -143,7 +142,7 @@ int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaDat
       if (StopFirstTimeAtDensity > 0. && 
           CurrentMaximumDensity*DensityUnits >= StopFirstTimeAtDensity) {
         if (MyProcessorNumber == ROOT_PROCESSOR) {
-          fprintf(stderr, "Exiting after reaching max density of %"GSYM" g/cm^3.\n",
+          fprintf(stderr, "Exiting after reaching max density of %" GSYM" g/cm^3.\n",
                   (StopFirstTimeAtDensity));
         }
         ExitEnzo = TRUE;
@@ -153,7 +152,7 @@ int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaDat
       if (StopFirstTimeAtMetalEnrichedDensity > 0. && 
           CurrentMaximumMetalEnrichedDensity*DensityUnits >= StopFirstTimeAtMetalEnrichedDensity) {
         if (MyProcessorNumber == ROOT_PROCESSOR) {
-          fprintf(stderr, "Exiting after reaching max density of %"GSYM" g/cm^3.\n",
+          fprintf(stderr, "Exiting after reaching max density of %" GSYM" g/cm^3.\n",
                   (StopFirstTimeAtMetalEnrichedDensity));
         }
         ExitEnzo = TRUE;
@@ -213,7 +212,7 @@ int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaDat
 	  if (fgets(line, MAX_LINE_LENGTH, fptr) == NULL) {
 	    fprintf(stderr, "Error reading subcycle file subcycleCount.  Skipping.\n");
 	  } else {
-	    sscanf(line, "%"ISYM, &MetaData->SubcycleSkipDataDump);
+	    sscanf(line, "%" ISYM, &MetaData->SubcycleSkipDataDump);
 	    MetaData->SubcycleLastDataDump = MetaData->SubcycleNumber;
 	  }
 	  fclose(fptr);
@@ -269,7 +268,7 @@ int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaDat
     if (LevelArray[level]->GridData->ReturnTime() >= 
 	MetaData->TimeLastInterpolatedDataDump + MetaData->dtInterpolatedDataDump   && 
 	MetaData->dtInterpolatedDataDump > 0.0) {
-      printf("Writing data based on dtInterpolatedDataDump (%"FSYM" %"FSYM" %"FSYM")\n",
+      printf("Writing data based on dtInterpolatedDataDump (%" FSYM" %" FSYM" %" FSYM")\n",
 	     LevelArray[level]->GridData->ReturnTime(), MetaData->TimeLastInterpolatedDataDump,
 	     MetaData->dtInterpolatedDataDump);
       MetaData->TimeLastInterpolatedDataDump += MetaData->dtInterpolatedDataDump;
@@ -282,7 +281,7 @@ int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaDat
     if (MetaData->SubcycleNumber >= MetaData->SubcycleLastDataDump +
 	MetaData->SubcycleSkipDataDump   &&
 	MetaData->SubcycleSkipDataDump > 0) {
-      printf("Writing data based on SubcycleDumpSkipping (%"ISYM" %"ISYM" %"ISYM")\n",
+      printf("Writing data based on SubcycleDumpSkipping (%" ISYM" %" ISYM" %" ISYM")\n",
 	     MetaData->SubcycleNumber, MetaData->SubcycleLastDataDump,
 	     MetaData->SubcycleSkipDataDump);
       MetaData->SubcycleLastDataDump += MetaData->SubcycleSkipDataDump;
@@ -328,7 +327,7 @@ int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaDat
       MetaData->OutputsLeftBeforeExit--;
       if (MetaData->OutputsLeftBeforeExit <= 0){
         if (MyProcessorNumber == ROOT_PROCESSOR) {
-          fprintf(stderr, "Exiting after writing%"ISYM" datadumps.\n",
+          fprintf(stderr, "Exiting after writing%" ISYM" datadumps.\n",
                   MetaData->NumberOfOutputsBeforeExit);
         }
         ExitEnzo = TRUE;
@@ -345,7 +344,7 @@ int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaDat
     }
     if (MyProcessorNumber == ROOT_PROCESSOR) {
 
-      fprintf(stderr, "Stopping due to request on level %"ISYM"\n", level);
+      fprintf(stderr, "Stopping due to request on level %" ISYM"\n", level);
       Exit_fptr = fopen("RunFinished", "w");
       fclose(Exit_fptr);
     }

@@ -31,7 +31,7 @@ int grid::MoveSubgridParticlesFast(int NumberOfSubgrids, grid* ToGrids[],
 {
 
   if (debug1) 
-    printf("MoveSubgridParticlesFast: %"ISYM"\n", NumberOfParticles);
+    printf("MoveSubgridParticlesFast: %" ISYM"\n", NumberOfParticles);
  
   /* If there are no particles to move, we're done. */
  
@@ -79,7 +79,7 @@ int grid::MoveSubgridParticlesFast(int NumberOfSubgrids, grid* ToGrids[],
       if (subgrid >= 0)
 	ParticlesToMove[subgrid]++;
       if (subgrid < -1 || subgrid > NumberOfSubgrids-1) {
-	ENZO_VFAIL("particle subgrid (%"ISYM"/%"ISYM") out of range\n", subgrid,
+	ENZO_VFAIL("particle subgrid (%" ISYM"/%" ISYM") out of range\n", subgrid,
 		NumberOfSubgrids)
       }
  
@@ -116,14 +116,14 @@ int grid::MoveSubgridParticlesFast(int NumberOfSubgrids, grid* ToGrids[],
  
 	if (ToGrids[subgrid]->ParticlePosition[0] != NULL ||
 	    ToGrids[subgrid]->NumberOfParticles != 0) {
-	  ENZO_VFAIL("Particles already in subgrid %"ISYM" (n=%"ISYM", nm=%"ISYM")\n",
+	  ENZO_VFAIL("Particles already in subgrid %" ISYM" (n=%" ISYM", nm=%" ISYM")\n",
 		  subgrid, ToGrids[subgrid]->NumberOfParticles,
 		  ParticlesToMove[subgrid])
 	}
  
 	ToGrids[subgrid]->AllocateNewParticles(ParticlesToMove[subgrid]);
  
-	if (debug1) printf("MoveSubgridParticles: subgrid[%"ISYM"] = %"ISYM"\n",
+	if (debug1) printf("MoveSubgridParticles: subgrid[%" ISYM"] = %" ISYM"\n",
 			  subgrid, ParticlesToMove[subgrid]);
  
       } // end: if (ParticlesToMove > 0)

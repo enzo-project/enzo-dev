@@ -27,7 +27,7 @@ int grid::NohInitializeGrid(float d0, float p0, float u0)
 {
   /* declarations */
 
-  int index, size, dim, i, j, k;
+  int index, dim, i, j, k;
 
   /* error check */
 
@@ -50,9 +50,7 @@ int grid::NohInitializeGrid(float d0, float p0, float u0)
   if (ProcessorNumber != MyProcessorNumber)
     return SUCCESS;
 
-  size = 1;
   for (dim = 0; dim < GridRank; dim++)
-    size *= GridDimension[dim];
 
   this->AllocateGrids();
 

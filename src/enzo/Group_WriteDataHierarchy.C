@@ -43,7 +43,7 @@ int Group_WriteDataHierarchy(FILE *fptr, TopGridData &MetaData, HierarchyEntry *
   /* Write out header info for this grid */
  
   if (MyProcessorNumber == ROOT_PROCESSOR && HierarchyFileOutputFormat > 0)
-    fprintf(fptr, "\nGrid = %"ISYM"\n", GridID);
+    fprintf(fptr, "\nGrid = %" ISYM"\n", GridID);
   OriginalID = GridID;
 
   /* Write out grid data for this grid (if WriteTime is < 0 then output
@@ -75,7 +75,7 @@ int Group_WriteDataHierarchy(FILE *fptr, TopGridData &MetaData, HierarchyEntry *
   NextGridThisLevelID = GridID + 1;
   if (Grid->NextGridThisLevel == NULL) NextGridThisLevelID = 0;
   if (MyProcessorNumber == ROOT_PROCESSOR && HierarchyFileOutputFormat > 0)
-    fprintf(fptr, "Pointer: Grid[%"ISYM"]->NextGridThisLevel = %"ISYM"\n", OriginalID,
+    fprintf(fptr, "Pointer: Grid[%" ISYM"]->NextGridThisLevel = %" ISYM"\n", OriginalID,
 	    NextGridThisLevelID);
  
   if (NextGridThisLevelID != 0) {
@@ -91,7 +91,7 @@ int Group_WriteDataHierarchy(FILE *fptr, TopGridData &MetaData, HierarchyEntry *
   NextGridNextLevelID = GridID + 1;
   if (Grid->NextGridNextLevel == NULL) NextGridNextLevelID = 0;
   if (MyProcessorNumber == ROOT_PROCESSOR && HierarchyFileOutputFormat > 0)
-    fprintf(fptr, "Pointer: Grid[%"ISYM"]->NextGridNextLevel = %"ISYM"\n", OriginalID,
+    fprintf(fptr, "Pointer: Grid[%" ISYM"]->NextGridNextLevel = %" ISYM"\n", OriginalID,
 	    NextGridNextLevelID);
  
   if (NextGridNextLevelID != 0) {

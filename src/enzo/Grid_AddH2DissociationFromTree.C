@@ -39,12 +39,8 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 int grid::AddH2DissociationFromTree(void)
 {
 
-  int i, j, k, index, dim, ci;
+  int i, j, k, index;
   FLOAT pos[MAX_DIMENSION];
-  FLOAT radius2;
-  FLOAT innerFront, outerFront, innerFront2, outerFront2;
-  double Luminosity[MAX_ENERGY_BINS];
-  float energies[MAX_ENERGY_BINS], kdiss_r2;
   double H2Luminosity, H2ISigma = 3.71e-18;
 
   if (MyProcessorNumber != ProcessorNumber)
@@ -66,8 +62,7 @@ int grid::AddH2DissociationFromTree(void)
 
   /* If using cosmology, get units. */
 
-  float TemperatureUnits, DensityUnits, LengthUnits, VelocityUnits, 
-    TimeUnits, aUnits = 1;
+  float TemperatureUnits, DensityUnits, LengthUnits, VelocityUnits, TimeUnits;
 
   GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	   &TimeUnits, &VelocityUnits, PhotonTime);

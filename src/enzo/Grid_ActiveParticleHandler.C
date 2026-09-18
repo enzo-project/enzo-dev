@@ -95,7 +95,7 @@ int grid::ActiveParticleHandler(HierarchyEntry* SubgridPointer, int level,
   if (NumberOfNewParticles > 0) {
     this->AddActiveParticles(supplemental_data.NewParticles, 0, NumberOfNewParticles);
     if (debug2)
-      printf("Creating %d new active particles\n", NumberOfNewParticles);
+      printf("Creating %" ISYM " new active particles\n", NumberOfNewParticles);
   }
 
   /******************** FEEDBACK ********************/
@@ -126,7 +126,6 @@ int grid::ActiveParticleHandler_Convert(HierarchyEntry* SubgridPointer, int leve
     return SUCCESS; 
   if (NumberOfBaryonFields == 0)
     return SUCCESS;
-  int totalconverted = 0;  //static
   struct ActiveParticleFormationData supplemental_data = data_default;
   supplemental_data.level = level;
   supplemental_data.GridID = this->ID;
@@ -141,7 +140,6 @@ int grid::ActiveParticleHandler_Convert(HierarchyEntry* SubgridPointer, int leve
   
   LCAPERF_START("grid_ActiveParticleHandler_Convert");
  
-  float LifetimeFactor = 1.;
   int particles2convert = 0;
 
   int *hasharray = new int[NumberOfParticles];
@@ -155,7 +153,7 @@ int grid::ActiveParticleHandler_Convert(HierarchyEntry* SubgridPointer, int leve
       //	  this->Time <= ParticleAttribute[0][i] + 
       //	  LifetimeFactor * ParticleAttribute[1][i]) {
 	
-	//printf("P%d: OK we are going to convert particle type %d (P2) on grid %d\n",
+	//printf("P%" ISYM ": OK we are going to convert particle type %" ISYM " (P2) on grid %" ISYM "\n",
 	//		 MyProcessorNumber, ParticleType[i], gridnum);
       {
       particles2convert++;
@@ -175,7 +173,7 @@ int grid::ActiveParticleHandler_Convert(HierarchyEntry* SubgridPointer, int leve
       //       if (this->Time >= ParticleAttribute[0][i] &&
       //	  this->Time <= ParticleAttribute[0][i] + 
       //	  LifetimeFactor * ParticleAttribute[1][i]) {
-	 //printf("P%d: OK we are going to convert particle type %d (P3) on grid %d\n",
+	 //printf("P%" ISYM ": OK we are going to convert particle type %" ISYM " (P3) on grid %" ISYM "\n",
 	 //     MyProcessorNumber, ParticleType[i], gridnum);
       {
       particles2convert++;
@@ -196,21 +194,20 @@ int grid::ActiveParticleHandler_Convert(HierarchyEntry* SubgridPointer, int leve
   /* Now we copy the particles from NewParticles into a statically allocated
    * array */
  
-  totalconverted += supplemental_data.NumberOfNewParticles;
   //if(totalconverted)
-  // printf("%s: Adding %d new active particles to grid (total = %d)\n", __FUNCTION__,
+  // printf("%s: Adding %" ISYM " new active particles to grid (total = %" ISYM ")\n", __FUNCTION__,
   //	   supplemental_data.NumberOfNewParticles, totalconverted); fflush(stdout);
   NumberOfNewParticles = supplemental_data.NumberOfNewParticles;
   if (NumberOfNewParticles > 0) {
     this->AddActiveParticles(supplemental_data.NewParticles, 0, NumberOfNewParticles);
-    //printf("Creating %d new active particles\n", NumberOfNewParticles);
+    //printf("Creating %" ISYM " new active particles\n", NumberOfNewParticles);
   }  
 #if H_DEBUG  
 if(particles2convert) {
-    printf("%s: P%d: particles2convert = %d\t NumberOfParticles = %d\n", __FUNCTION__, 
+    printf("%s: P%" ISYM ": particles2convert = %" ISYM "\t NumberOfParticles = %" ISYM "\n", __FUNCTION__, 
 	   MyProcessorNumber, particles2convert, NumberOfParticles);
-    printf("%s: NumberOfStars = %d\n", __FUNCTION__, ReturnNumberOfStars());
-    printf("%s: NumberOfStarParticles = %d\n", __FUNCTION__, ReturnNumberOfStarParticles());
+    printf("%s: NumberOfStars = %" ISYM "\n", __FUNCTION__, ReturnNumberOfStars());
+    printf("%s: NumberOfStarParticles = %" ISYM "\n", __FUNCTION__, ReturnNumberOfStarParticles());
   } 
 #endif
   if(particles2convert > 0) {
@@ -241,7 +238,7 @@ if(particles2convert) {
   LCAPERF_STOP("grid_ActiveParticleHandler_Convert");
 #if H_DEBUG
   if(particles2convert) {
-    printf("P%d: NumberOfParticles now on grid = %d\t Number of Star Particles = %d\n", 
+    printf("P%" ISYM ": NumberOfParticles now on grid = %" ISYM "\t Number of Star Particles = %" ISYM "\n", 
 	   MyProcessorNumber, NumberOfParticles, NumberOfStarParticles);
   }
 #endif

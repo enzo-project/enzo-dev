@@ -30,8 +30,7 @@ int grid::PutSinkRestartInitialize(int level, int *NumberOfCellsSet)
 {
   /* declarations */
  
-  int dim, i, j, k,l, n;
-  FLOAT delx, dely, delz, radius2, DomainWidth[MAX_DIMENSION];
+  int dim, i, j, k, l;
 
   float DensityUnits = 1.0, LengthUnits = 1.0, TemperatureUnits = 1.0, TimeUnits = 1.0,
     VelocityUnits = 1.0;
@@ -43,7 +42,7 @@ int grid::PutSinkRestartInitialize(int level, int *NumberOfCellsSet)
 
 
   for (dim = 0; dim < GridRank; dim++)
-    DomainWidth[dim] = DomainRightEdge[dim] - DomainLeftEdge[dim];
+    ;
  
   /* Find fields: density, total energy, velocity1-3. */
  
@@ -65,22 +64,17 @@ int grid::PutSinkRestartInitialize(int level, int *NumberOfCellsSet)
     if (StellarWindFeedback) NumberOfParticleAttributes = 6;
     this->AllocateNewParticles(NumberOfParticles);
     double mass_m = 3.415*SolarMass; //Mass of massive stars
-    double mass_s = 0.01*SolarMass; //Mass of small stars
     mass_m /= MassUnits;
-    mass_s /= MassUnits;
     double dx = CellWidth[0][0];
     double den_m = mass_m / pow(dx,3);
-    double den_s = mass_s / pow(dx,3);
     double t_dyn_m = sqrt(3*pi/(GravConst*den_m*DensityUnits));
-    double t_dyn_s = sqrt(3*pi/(GravConst*den_s*DensityUnits));
     t_dyn_m /= TimeUnits;
-    t_dyn_s /= TimeUnits;
     double dxm = dx / pow(RefineBy, MaximumRefinementLevel);
     for (k=0; k<4; k++){
       for (j=0; j<4; j++){
 	for (i=0; i<4; i++){
 	  l = i+4*j+16*k;
-	  printf("Creating particle %i \n",l);
+	  printf("Creating particle %" ISYM " \n",l);
 	  ParticleMass[l] = den_m;
 	  ParticleNumber[l] = l;
 	  ParticleType[l] = PARTICLE_TYPE_MUST_REFINE;
@@ -102,7 +96,7 @@ int grid::PutSinkRestartInitialize(int level, int *NumberOfCellsSet)
 	    ParticleAttribute[5][l] = 0.0;
 	  }
 	  this->ClearParticleAccelerations();
-	  printf("Completed particle %i, position %g,%g,%g \n",l,ParticlePosition[0][l],ParticlePosition[1][l],ParticlePosition[2][l]);
+	  printf("Completed particle %" ISYM ", position %g,%g,%g \n",l,ParticlePosition[0][l],ParticlePosition[1][l],ParticlePosition[2][l]);
 	}
       }
     }

@@ -71,7 +71,7 @@ const  char *Vel3Name = "z-velocity";
   /* make sure this is 2D or 3D */
 
   if (MetaData.TopGridRank < 2 || MetaData.TopGridRank > 3) {
-    ENZO_VFAIL("Cannot model SedovBlast in %"ISYM" dimension(s)\n", MetaData.TopGridRank)
+    ENZO_VFAIL("Cannot model SedovBlast in %" ISYM" dimension(s)\n", MetaData.TopGridRank)
   }    
 
   /* There are four parameters:
@@ -109,16 +109,16 @@ const  char *Vel3Name = "z-velocity";
 
     /* read parameters */
 
-    ret += sscanf(line, "SedovBlastFullBox  = %"ISYM, &SedovBlastFullBox);
-    ret += sscanf(line, "SedovBlastType  = %"ISYM, &SedovBlastType);
-    ret += sscanf(line, "SedovBlastInitialTime  = %"PSYM, &SedovBlastInitialTime);
-    ret += sscanf(line, "SedovBlastDensity  = %"FSYM, &SedovBlastDensity);
-    ret += sscanf(line, "SedovBlastPressure = %"FSYM, &SedovBlastPressure);
-    ret += sscanf(line, "SedovBlastInputEnergy   = %"FSYM, &SedovBlastInputEnergy);
-    ret += sscanf(line, "SedovBlastEnergyZones = %"FSYM, &SedovBlastEnergyZones);
-    ret += sscanf(line, "SedovBlastSubgridLeft = %"PSYM, 
+    ret += sscanf(line, "SedovBlastFullBox  = %" ISYM, &SedovBlastFullBox);
+    ret += sscanf(line, "SedovBlastType  = %" ISYM, &SedovBlastType);
+    ret += sscanf(line, "SedovBlastInitialTime  = %" PSYM, &SedovBlastInitialTime);
+    ret += sscanf(line, "SedovBlastDensity  = %" FSYM, &SedovBlastDensity);
+    ret += sscanf(line, "SedovBlastPressure = %" FSYM, &SedovBlastPressure);
+    ret += sscanf(line, "SedovBlastInputEnergy   = %" FSYM, &SedovBlastInputEnergy);
+    ret += sscanf(line, "SedovBlastEnergyZones = %" FSYM, &SedovBlastEnergyZones);
+    ret += sscanf(line, "SedovBlastSubgridLeft = %" PSYM, 
 		        &SedovBlastSubgridLeft);
-    ret += sscanf(line, "SedovBlastSubgridRight = %"PSYM, 
+    ret += sscanf(line, "SedovBlastSubgridRight = %" PSYM, 
 		        &SedovBlastSubgridRight);
 
     /* if the line is suspicious, issue a warning */
@@ -163,7 +163,7 @@ const  char *Vel3Name = "z-velocity";
 
     float pjump = SedovBlastInnerPressure/SedovBlastPressure;
     if ( pjump < 10.0*(Gamma+1)/(Gamma-1) )
-      printf("SBI: WARNING! No self-similarity. Pressure jump %"GSYM".\n", pjump);
+      printf("SBI: WARNING! No self-similarity. Pressure jump %" GSYM".\n", pjump);
 
     /* Compute total energy in the explosion region. */
 
@@ -215,7 +215,7 @@ const  char *Vel3Name = "z-velocity";
     }
     
       if (debug)
-	printf("SedovBlast:: Level[%"ISYM"]: NumberOfSubgridZones[0] = %"ISYM"\n", lev+1, 
+	printf("SedovBlast:: Level[%" ISYM"]: NumberOfSubgridZones[0] = %" ISYM"\n", lev+1, 
 	       NumberOfSubgridZones[0]);
 
 
@@ -309,7 +309,7 @@ const  char *Vel3Name = "z-velocity";
   /* set up the root grid */
 
   if (SedovBlastInitialTime != 0.0) 
-    printf("SBI: Setting up the top grid at time = %"GSYM" based on data from %s.\n",
+    printf("SBI: Setting up the top grid at time = %" GSYM" based on data from %s.\n",
 	   SedovBlastInitialTime, "sedov.in");
 
   if (MaximumRefinementLevel > 0) {
@@ -363,14 +363,14 @@ const  char *Vel3Name = "z-velocity";
 
   if (MyProcessorNumber == ROOT_PROCESSOR) {
 
-    fprintf(Outfptr, "SedovBlastFullBox         = %"ISYM"\n"  , SedovBlastFullBox);
-    fprintf(Outfptr, "SedovBlastDensity         = %"FSYM"\n"  , SedovBlastDensity);
-    fprintf(Outfptr, "SedovBlastPressure        = %"FSYM"\n"  , SedovBlastPressure);
-    fprintf(Outfptr, "SedovBlastInputEnergy     = %"FSYM"\n"  , SedovBlastInputEnergy);
-    fprintf(Outfptr, "SedovBlastInnerPressure   = %"FSYM"\n"  , SedovBlastInnerPressure);
-    fprintf(Outfptr, "SedovBlastEnergyZonesUsed = %"ISYM"\n"  , SedovBlastEnergyZonesUsed);
-    fprintf(Outfptr, "SedovBlastEnergyRadius  = %"FSYM"\n", dr);
-    fprintf(Outfptr, "SedovBlastType         = %"ISYM"\n"  , SedovBlastType);
+    fprintf(Outfptr, "SedovBlastFullBox         = %" ISYM"\n"  , SedovBlastFullBox);
+    fprintf(Outfptr, "SedovBlastDensity         = %" FSYM"\n"  , SedovBlastDensity);
+    fprintf(Outfptr, "SedovBlastPressure        = %" FSYM"\n"  , SedovBlastPressure);
+    fprintf(Outfptr, "SedovBlastInputEnergy     = %" FSYM"\n"  , SedovBlastInputEnergy);
+    fprintf(Outfptr, "SedovBlastInnerPressure   = %" FSYM"\n"  , SedovBlastInnerPressure);
+    fprintf(Outfptr, "SedovBlastEnergyZonesUsed = %" ISYM"\n"  , SedovBlastEnergyZonesUsed);
+    fprintf(Outfptr, "SedovBlastEnergyRadius  = %" FSYM"\n", dr);
+    fprintf(Outfptr, "SedovBlastType         = %" ISYM"\n"  , SedovBlastType);
   }
 
   return SUCCESS;

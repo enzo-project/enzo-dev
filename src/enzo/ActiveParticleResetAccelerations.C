@@ -44,9 +44,8 @@ int ActiveParticleResetAccelerations(float *ActiveParticleAcceleration)
   /* Call reset accelerations routines for each active particle type  */
 
   for (int i = 0 ; i < EnabledActiveParticlesCount; i++) {
-    int ActiveParticleID;
     ActiveParticleType_info *ActiveParticleTypeToEvaluate = EnabledActiveParticles[i];
-    ActiveParticleID = ActiveParticleTypeToEvaluate->GetEnabledParticleID();
+    ActiveParticleTypeToEvaluate->GetEnabledParticleID();
     
     /* 
      * For each enabled active particle reset the acceleration

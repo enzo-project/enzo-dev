@@ -76,28 +76,27 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
   const int offset[] = {1, GridDimension[0], GridDimension[0]*GridDimension[1]};
 
   int i, index, dim, splitMe, direction;
-  int keep_walking, count, H2Thin, TemperatureField; 
+  int keep_walking, TemperatureField;
   int type = (*PP)->Type;
-  int g[3], celli[3], u_dir[3], u_sign[3];
+  int g[3], u_dir[3], u_sign[3];
   int cindex;
   float m[3], slice_factor, slice_factor2, sangle_inv;
   float MinTauIfront, PhotonEscapeRadius[3], c, c_inv, tau, taua;
   float DomainWidth[3], dx, dx2, dxhalf, fraction, dColumnDensity;
-  float shield1, shield2, solid_angle, midpoint, nearest_edge;
+  float solid_angle, midpoint, nearest_edge;
   float tau_delete, flux_floor;
   double dN;
   FLOAT radius, oldr, cdt, dr;
   FLOAT CellVolume = 1, Volume_inv, Area_inv, SplitCriteron, SplitWithinRadius;
-  FLOAT SplitCriteronIonized, PauseRadius, r_merge, d_ss, d2_ss, u_dot_d, sqrt_term;
+  FLOAT PauseRadius, r_merge, d_ss, d2_ss, u_dot_d, sqrt_term;
   FLOAT sigma[H2II + 1]; //Accounts for all of the cross sections needed
-  FLOAT ddr, dP, dP1, dp2,EndTime;
+  FLOAT ddr, dP, dP1, EndTime;
   FLOAT dPi[H_SPECIES + 1], dPXray[H_SPECIES + 1];  //+ 1 is to account for Compton
   FLOAT thisDensity, min_dr;
   FLOAT ce[3], nce[3];
   FLOAT s[3], f[3], u_inv[3], r[3], dri[3];
   double dir_vec[3], u[3];
   static int secondary_flag = 1, compton_flag = 1;
-  static int photoncounter = 0;
 
   /* Check for early termination */
 
@@ -120,7 +119,6 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
     ENZO_FAIL("Error in GetUnits.\n");
   }
   // Convert from #/s to RT units
-  double LConv = (double) TimeUnits / POW(LengthUnits,3);
   /* This controls the splitting condition, where this many rays must
      exist in each cell */
 
@@ -144,7 +142,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
   pix2vec_nest64((int64_t) (1 << (*PP)->level), (*PP)->ipix, dir_vec);
 
   if (DEBUG) 
-    fprintf(stderr,"grid::WalkPhotonPackage: %"GSYM" %"GSYM" %"GSYM". \n", 
+    fprintf(stderr,"grid::WalkPhotonPackage: %" GSYM" %" GSYM" %" GSYM". \n", 
 	    dir_vec[0], dir_vec[1], dir_vec[2]);
 
   /***********************************************************************/
@@ -251,14 +249,14 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
   double dtheta = sqrt(omega_package);
   if(n_on_this_level <= 0.0  || omega_package == INFINITY)  {
     fprintf(stdout, "%s: level = %llu\n", __FUNCTION__, level);
-    fprintf(stdout, "%s: 2*(*PP)->level-1 = %llu\n", __FUNCTION__, res*(*PP)->level-1);
-    fprintf(stdout, "%s: 12 * (1 << (2*(*PP)->level)) = %llu\n", __FUNCTION__, 
+    fprintf(stdout, "%s: 2*(*PP)->level-1 = %lu\n", __FUNCTION__, res*(*PP)->level-1);
+    fprintf(stdout, "%s: 12 * (1 << (2*(*PP)->level)) = %lu\n", __FUNCTION__, 
 	    BRP * (1L << (res*(*PP)->level)));
-    fprintf(stdout, "%s: Hlevel = %llu\n", __FUNCTION__, Hlevel);
-    fprintf(stdout, "%s: Nlevel = %llu\n", __FUNCTION__, Nlevel);
+    fprintf(stdout, "%s: Hlevel = %lu\n", __FUNCTION__, Hlevel);
+    fprintf(stdout, "%s: Nlevel = %lu\n", __FUNCTION__, Nlevel);
     fprintf(stdout, "%s: n_on_this_level = %lf\n", __FUNCTION__, n_on_this_level);
     ENZO_VFAIL("Computation of the number of pixels failed.\n"
-	       "\t level = %llu\n", (*PP)->level);
+	       "\t level = %ld\n", (long)(*PP)->level);
   }
  
   if (RadiativeTransferAdaptiveTimestep)
@@ -311,7 +309,6 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
   dx2 = dx*dx;
   dxhalf = 0.5f * dx;
   SplitCriteron = dx2 / RaysPerCell;
-  SplitCriteronIonized = dx2;
   Volume_inv = 1.0 / CellVolume;
   Area_inv = 1.0 / dx2;
 
@@ -398,7 +395,6 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
   /*                       MAIN RAY TRACING LOOP                          */
   /************************************************************************/
 
-  count = 0;
   keep_walking = 1;
   //cindex = GRIDINDEX_NOGHOST(g[0],g[1],g[2]);
   while (keep_walking) {
@@ -451,7 +447,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
     dr = radius - oldr;
 
     if (dr < 0) {
-      printf("dr < 0:   %"GSYM" %"GSYM" %"GSYM"\n", dr, min_dr, oldr);
+      printf("dr < 0:   %" GSYM" %" GSYM" %" GSYM"\n", dr, min_dr, oldr);
       (*PP)->Photons = -1;
       DeleteMe = TRUE;
       return SUCCESS;
@@ -490,7 +486,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
     }  // if (splitting condition)
     
     if (DEBUG > 1) 
-      fprintf(stdout, "%x %"ISYM" %"ISYM" %"ISYM" %"GSYM" %"GSYM"\t|\n",
+      fprintf(stdout, "%p %" ISYM" %" ISYM" %" ISYM" %" GSYM" %" GSYM"\t|\n",
 	      (*PP), g[0], g[1], g[2], (*PP)->Radius, dr);
 
     index = cindex;
@@ -510,7 +506,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
       ddr *= fraction;
       cdt *= fraction;
       if (DEBUG > 1) 
-	fprintf(stderr, "PAUSE: PP->Photons: %"GSYM"  PP->Radius: %"GSYM"\n",
+	fprintf(stderr, "PAUSE: PP->Photons: %" GSYM"  PP->Radius: %" GSYM"\n",
 		(*PP)->Photons, (*PP)->Radius);
       PauseMe = TRUE;
     }
@@ -567,7 +563,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
      *
      */
 #if DEBUG
-    printf("%s: Radiation Type = %d\t PhotonEnergy = %f\n", __FUNCTION__, type, (*PP)->Energy);
+    printf("%s: Radiation Type = %" ISYM "\t PhotonEnergy = %f\n", __FUNCTION__, type, (*PP)->Energy);
 #endif
     switch (type) {
 
@@ -804,7 +800,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 
       break;
     default:
-      printf("Photon type = %d, radius = %g, pos = %"FSYM" %"FSYM" %"FSYM"\n",
+      printf("Photon type = %" ISYM ", radius = %g, pos = %" FSYM" %" FSYM" %" FSYM"\n",
 	     type, radius, r[0], r[1], r[2]);
       ENZO_FAIL("Bad photon type.");
 
@@ -852,11 +848,11 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
     if ((*PP)->Photons < MinimumPhotonFlux*(solid_angle*Area_inv) || 
 	(*PP)->ColumnDensity > tau_delete) {
       if (DEBUG > 1) {
-	fprintf(stderr, "PP-Photons: %"GSYM" (%"GSYM"), PP->Radius: %"GSYM
-		"PP->CurrentTime: %"FSYM"\n",
+	fprintf(stderr, "PP-Photons: %" GSYM" (%" GSYM"), PP->Radius: %" GSYM
+		"PP->CurrentTime: %" FSYM"\n",
 		(*PP)->Photons, MinimumPhotonFlux*solid_angle*Area_inv, 
 		(*PP)->Radius, (*PP)->CurrentTime);
-	fprintf(stderr, "\tdP: %"GSYM"\tddr: %"GSYM"\t cdt: %"GSYM"\t tau: %"GSYM"\n", 
+	fprintf(stderr, "\tdP: %" GSYM"\tddr: %" GSYM"\t cdt: %" GSYM"\t tau: %" GSYM"\n", 
 		dP, ddr, cdt, tau);
       }
       (*PP)->Photons = -1;
@@ -889,7 +885,6 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
       return SUCCESS;
     }
 
-    count++;
     
     g[direction] += u_sign[direction];
     cindex += u_sign[direction] * offset[direction];

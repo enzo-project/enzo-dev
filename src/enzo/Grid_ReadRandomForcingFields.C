@@ -47,8 +47,8 @@ int ReadListOfInts(FILE *fptr, int N, int nums[]);
 int grid::ReadRandomForcingFields(FILE *fptr, char DataFilename[])
 {
  
-  int i, j, k, dim, field, size, active_size;
-  char name[MAX_LINE_LENGTH], dummy[MAX_LINE_LENGTH];
+  int i, j, k, dim, size, active_size;
+  char name[MAX_LINE_LENGTH];
  
   int ActiveDim[MAX_DIMENSION];
   
@@ -56,17 +56,14 @@ int grid::ReadRandomForcingFields(FILE *fptr, char DataFilename[])
   FILE *log_fptr;
  
   hid_t       file_id, dset_id;
-  hid_t       float_type_id, FLOAT_type_id;
+  hid_t float_type_id;
   hid_t       file_dsp_id;
-  hid_t       num_type;
  
   hsize_t     OutDims[MAX_DIMENSION];
-  hsize_t     TempIntArray[MAX_DIMENSION];
  
   herr_t      h5_status;
   herr_t      h5_error = -1;
  
-  int         num_size;
  
 #ifdef IO_LOG
   int         io_log = 1;
@@ -99,15 +96,12 @@ int grid::ReadRandomForcingFields(FILE *fptr, char DataFilename[])
   {
  
     case 4:
-      FLOAT_type_id = HDF5_R4;
       break;
  
     case 8:
-      FLOAT_type_id = HDF5_R8;
       break;
  
     case 16:
-      FLOAT_type_id = HDF5_R16;
       break;
  
     default:
@@ -123,7 +117,7 @@ int grid::ReadRandomForcingFields(FILE *fptr, char DataFilename[])
   int MinNumberOfFields = GridRank + 1;
   if( EquationOfState == 0 ) MinNumberOfFields++;
   if (NumberOfBaryonFields < MinNumberOfFields) {
-    fprintf(stderr, "Error: No.  Baryon Fields (%"ISYM") => Nothing to Force. Right?.\n",
+    fprintf(stderr, "Error: No.  Baryon Fields (%" ISYM") => Nothing to Force. Right?.\n",
             NumberOfBaryonFields);
     ERROR_MESSAGE;
   }
@@ -177,7 +171,7 @@ int grid::ReadRandomForcingFields(FILE *fptr, char DataFilename[])
     if (io_log) log_fptr = fopen(logname, "a");
     if (io_log) fprintf(log_fptr,"H5Fopen with Name %s\n",name);
     file_id = H5Fopen(name,  H5F_ACC_RDONLY, H5P_DEFAULT);
-    if (io_log) fprintf(log_fptr, "H5Fopen id: %"ISYM"\n", file_id);
+    if (io_log) fprintf(log_fptr, "H5Fopen id: %ld\n", file_id);
     if( file_id == h5_error ){my_exit(EXIT_FAILURE);}
   }
  
@@ -191,7 +185,7 @@ int grid::ReadRandomForcingFields(FILE *fptr, char DataFilename[])
       ENZO_FAIL("GRRFF: Error in IdentifyPhysicalQuantities.\n");
     }
     int vel = Vel1Num;
-    printf("RandomForcing: Fields %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" \n",
+    printf("RandomForcing: Fields %" ISYM" %" ISYM" %" ISYM" %" ISYM" %" ISYM" \n",
            DensNum, TENum, Vel1Num, Vel2Num, Vel3Num);
  
  
@@ -215,7 +209,7 @@ int grid::ReadRandomForcingFields(FILE *fptr, char DataFilename[])
  
     for (dim = 0; dim < GridRank; dim++) {
       OutDims[GridRank-dim-1] = ActiveDim[dim];
-      if (io_log) fprintf(log_fptr, "Outdims %"ISYM"\n", (int) OutDims[GridRank-dim-1]);
+      if (io_log) fprintf(log_fptr, "Outdims %" ISYM"\n", (int) OutDims[GridRank-dim-1]);
     }
  
     /* allocate temporary space */
@@ -227,26 +221,26 @@ int grid::ReadRandomForcingFields(FILE *fptr, char DataFilename[])
  
     for (i = 0; i < vel; i++) {
       file_dsp_id = H5Screate_simple((Eint32) GridRank, OutDims, NULL);
-      if (io_log) fprintf(log_fptr, "H5Screate file_dsp_id: %"ISYM"\n", file_dsp_id);
+      if (io_log) fprintf(log_fptr, "H5Screate file_dsp_id: %ld\n", file_dsp_id);
       if( file_dsp_id == h5_error ){my_exit(EXIT_FAILURE);}
  
       if (io_log) fprintf(log_fptr, "H5Dopen with Name = %s\n", DataLabel[i]);
  
       dset_id =  H5Dopen(file_id, DataLabel[i]);
-      if (io_log) fprintf(log_fptr, "H5Dopen id: %"ISYM"\n", dset_id);
+      if (io_log) fprintf(log_fptr, "H5Dopen id: %ld\n", dset_id);
       if( dset_id == h5_error ){my_exit(EXIT_FAILURE);}
  
       h5_status = H5Dread(dset_id, float_type_id, H5S_ALL, H5S_ALL, H5P_DEFAULT, (VOIDP) temp);
-      if (io_log) fprintf(log_fptr, "H5Dread: %"ISYM"\n", h5_status);
+      if (io_log) fprintf(log_fptr, "H5Dread: %d\n", h5_status);
       if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
       //      LCAPERF_COUNT_READ(dset_id, float_type_id, H5S_ALL);
  
       h5_status = H5Sclose(file_dsp_id);
-      if (io_log) fprintf(log_fptr, "H5Sclose: %"ISYM"\n", h5_status);
+      if (io_log) fprintf(log_fptr, "H5Sclose: %d\n", h5_status);
       if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
  
       h5_status = H5Dclose(dset_id);
-      if (io_log) fprintf(log_fptr, "H5Dclose: %"ISYM"\n", h5_status);
+      if (io_log) fprintf(log_fptr, "H5Dclose: %d\n", h5_status);
       if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
     }
  
@@ -257,26 +251,26 @@ int grid::ReadRandomForcingFields(FILE *fptr, char DataFilename[])
       /* get data into temporary array */
  
       file_dsp_id = H5Screate_simple((Eint32) GridRank, OutDims, NULL);
-      if (io_log) fprintf(log_fptr, "H5Screate file_dsp_id: %"ISYM"\n", file_dsp_id);
+      if (io_log) fprintf(log_fptr, "H5Screate file_dsp_id: %ld\n", file_dsp_id);
       if( file_dsp_id == h5_error ){my_exit(EXIT_FAILURE);}
  
       if (io_log) fprintf(log_fptr, "H5Dopen with Name = %s\n", DataLabel[vel+dim]);
  
       dset_id =  H5Dopen(file_id, DataLabel[vel+dim]);
-      if (io_log) fprintf(log_fptr, "H5Dopen id: %"ISYM"\n", dset_id);
+      if (io_log) fprintf(log_fptr, "H5Dopen id: %ld\n", dset_id);
       if( dset_id == h5_error ){my_exit(EXIT_FAILURE);}
  
       h5_status = H5Dread(dset_id, float_type_id, H5S_ALL, H5S_ALL, H5P_DEFAULT, (VOIDP) temp);
-      if (io_log) fprintf(log_fptr, "H5Dread: %"ISYM"\n", h5_status);
+      if (io_log) fprintf(log_fptr, "H5Dread: %d\n", h5_status);
       if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
       //JBPERF_COUNT_READ(dset_id, float_type_id, H5S_ALL);
  
       h5_status = H5Sclose(file_dsp_id);
-      if (io_log) fprintf(log_fptr, "H5Sclose: %"ISYM"\n", h5_status);
+      if (io_log) fprintf(log_fptr, "H5Sclose: %d\n", h5_status);
       if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
  
       h5_status = H5Dclose(dset_id);
-      if (io_log) fprintf(log_fptr, "H5Dclose: %"ISYM"\n", h5_status);
+      if (io_log) fprintf(log_fptr, "H5Dclose: %d\n", h5_status);
       if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
  
       /* copy velocity from active region into whole grid forcing field;
@@ -308,7 +302,7 @@ int grid::ReadRandomForcingFields(FILE *fptr, char DataFilename[])
        (NumberOfBaryonFields > 0) )
   {
      h5_status = H5Fclose(file_id);
-       if (io_log) fprintf(log_fptr, "H5Fclose: %"ISYM"\n", h5_status);
+       if (io_log) fprintf(log_fptr, "H5Fclose: %d\n", h5_status);
        if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
   }
  

@@ -116,7 +116,7 @@ ActiveParticleType::~ActiveParticleType(void)
 
 void ActiveParticleType::operator=(ActiveParticleType *a)
 {
-  int i, dim;
+  int dim;
   CurrentGrid = a->CurrentGrid;
   for (dim = 0; dim < MAX_DIMENSION; dim++) {
     pos[dim] = a->pos[dim];
@@ -360,11 +360,11 @@ void ActiveParticleType::CopyFromParticle(grid *_grid, int _id, int _level)
 
 void ActiveParticleType::PrintInfo(void)
 {
-  printf("[P%d] ActiveParticle %"ISYM": pos = %"PSYM" %"PSYM" %"PSYM", vel = %"FSYM" %"FSYM" %"FSYM"\n",
+  printf("[P%" ISYM "] ActiveParticle %" ISYM": pos = %" PSYM" %" PSYM" %" PSYM", vel = %" FSYM" %" FSYM" %" FSYM"\n",
 	 MyProcessorNumber, Identifier, pos[0], pos[1], pos[2], vel[0], vel[1], vel[2]);
-  printf("\t birthtime = %"FSYM", tdyn = %"FSYM"\n", BirthTime, DynamicalTime);
-  printf("\t Z = %"GSYM"\n", Metallicity);
-  printf("\t mass = %"GSYM", type = %"ISYM", grid %"ISYM", lvl %"ISYM"\n", 
+  printf("\t birthtime = %" FSYM", tdyn = %" FSYM"\n", BirthTime, DynamicalTime);
+  printf("\t Z = %" GSYM"\n", Metallicity);
+  printf("\t mass = %" GSYM", type = %" ISYM", grid %" ISYM", lvl %" ISYM"\n", 
 	 Mass, type, GridID, level);
   return;
 }
@@ -421,7 +421,7 @@ int ActiveParticleType_SmartStar::CalculateAccretedAngularMomentum()
     ENZO_FAIL("SmartStar:AccreteAngularMomentum: 1 or 2 dimension is not implemented! \n");
    }
 
-  int dim, i, j, k, index, ibuff = NumberOfGhostZones;
+  int dim, i, j, k, index;
   double gas_angmom[] = {0.0, 0.0, 0.0}, total_gas_mass = 0.0, gas_mass = 0.0;
   FLOAT CellVolume = 1, BoxSize = 1, DensityConversion = 1, VelocityConversion = 1;
   FLOAT a = 1, dadt;

@@ -57,16 +57,16 @@ void lcaperfInitialize (int max_level)
 
     char lcaperf_counter_name[30];
 
-    sprintf (lcaperf_counter_name,"count-zones-local-%"ISYM,level);
+    sprintf (lcaperf_counter_name,"count-zones-local-%" ISYM,level);
     lcaperf.new_counter(lcaperf_counter_name,LCAPERF_COUNTER_TYPE_USER_ABS);
 
-    sprintf (lcaperf_counter_name,"count-ghosts-local-%"ISYM,level);
+    sprintf (lcaperf_counter_name,"count-ghosts-local-%" ISYM,level);
     lcaperf.new_counter(lcaperf_counter_name,LCAPERF_COUNTER_TYPE_USER_ABS);
 
-    sprintf (lcaperf_counter_name,"count-grids-local-%"ISYM,level);
+    sprintf (lcaperf_counter_name,"count-grids-local-%" ISYM,level);
     lcaperf.new_counter(lcaperf_counter_name,LCAPERF_COUNTER_TYPE_USER_ABS);
 
-    sprintf (lcaperf_counter_name,"count-particles-local-%"ISYM,level);
+    sprintf (lcaperf_counter_name,"count-particles-local-%" ISYM,level);
     lcaperf.new_counter(lcaperf_counter_name,LCAPERF_COUNTER_TYPE_USER_ABS);
 
   }

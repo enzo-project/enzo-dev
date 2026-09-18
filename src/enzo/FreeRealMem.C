@@ -28,7 +28,7 @@ Eint64 FreeRealMem( char *node )
 
 #ifdef SEABORG
     sscanf(node, "s%5d", &node_number);
-    fprintf(stderr, "Seaborg Node %s number %d\n", node, node_number);
+    fprintf(stderr, "Seaborg Node %s number %" ISYM "\n", node, node_number);
 
     if ( 701 <= node_number && node_number <= 713 ) {
       def_mem = (Eint64)(56.0);
@@ -45,7 +45,7 @@ Eint64 FreeRealMem( char *node )
 
 #ifdef DATASTAR
     sscanf(node, "ds%3d", &node_number);
-    fprintf(stderr, "DataStar Node %s number %d\n", node, node_number);
+    fprintf(stderr, "DataStar Node %s number %" ISYM "\n", node, node_number);
 
     if ( 4 <= node_number && node_number <= 11 ) {
       def_mem = (Eint64)(120.0);
@@ -61,7 +61,7 @@ Eint64 FreeRealMem( char *node )
 #endif
 
   def_mem = def_mem * 1024.0;
-  fprintf(stderr,"Default node memory on node %s [%d] is %"ISYM" MBytes\n", node, node_number, def_mem);
+  fprintf(stderr,"Default node memory on node %s [%" ISYM "] is %" ISYM" MBytes\n", node, node_number, def_mem);
 
   ok = 0;
 
@@ -98,7 +98,7 @@ Eint64 FreeRealMem( char *node )
   rc = ll_get_data(job, LL_MachineFreeRealMemory64, &free);
 
   if (rc) {
-    fprintf(stderr, "Get data: ll_get_data() return code is non-zero: %d\n", rc);
+    fprintf(stderr, "Get data: ll_get_data() return code is non-zero: %" ISYM "\n", rc);
     freemem = def_mem;
     return(freemem);
   }
@@ -135,7 +135,7 @@ Eint64 FreeRealMem( char *node )
 
 #ifdef SEABORG
     sscanf(node, "s%5d", &node_number);
-    fprintf(stderr, "Seaborg Node %s number %d\n", node, node_number);
+    fprintf(stderr, "Seaborg Node %s number %" ISYM "\n", node, node_number);
 
     if ( 701 <= node_number && node_number <= 713 ) {
       def_mem = (Eint64)(56.0);
@@ -152,7 +152,7 @@ Eint64 FreeRealMem( char *node )
 
 #ifdef DATASTAR
     sscanf(node, "ds%3d", &node_number);
-    fprintf(stderr, "DataStarNode %s number %d\n", node, node_number);
+    fprintf(stderr, "DataStarNode %s number %" ISYM "\n", node, node_number);
 
     if ( 4 <= node_number && node_number <= 11 ) {
       def_mem = (Eint64)(120.0);
@@ -168,7 +168,7 @@ Eint64 FreeRealMem( char *node )
 #endif
 
   def_mem = def_mem * 1024.0;
-  fprintf(stderr,"Default node memory on node %s [%d] is %"ISYM" MBytes\n", node, node_number, def_mem);
+  fprintf(stderr,"Default node memory on node %s [%" ISYM "] is %" ISYM" MBytes\n", node, node_number, def_mem);
 
   freemem = def_mem;
 

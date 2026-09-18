@@ -51,11 +51,7 @@ int grid::ConductionCloudInitialize (float CloudOverdensity, FLOAT CloudWidth, i
             ENZO_FAIL("Error in grid->IdentifySpeciesFields.");
     }
 
-  int MetallicityField = FALSE;
-  if ((MetalNum = FindField(Metallicity, FieldType, NumberOfBaryonFields))
-      != -1)
-    MetallicityField = TRUE;
-  else
+  if ((MetalNum = FindField(Metallicity, FieldType, NumberOfBaryonFields)) == -1)
     MetalNum = 0;
 
   int GridStart[] = {0, 0, 0}, GridEnd[] = {0, 0, 0};

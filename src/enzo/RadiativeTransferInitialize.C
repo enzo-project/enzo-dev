@@ -281,7 +281,7 @@ int RadiativeTransferInitialize(char *ParameterFile,
   // Add the necessary fields
   if (FieldsToAdd > 0 && debug)
     fprintf(stdout, "RadiativeTransferInitialize: Increasing baryon fields "
-	    "from %"ISYM" to %"ISYM"\n", OldNumberOfBaryonFields, 
+	    "from %" ISYM" to %" ISYM"\n", OldNumberOfBaryonFields, 
 	    OldNumberOfBaryonFields+FieldsToAdd);
 
   // Add an extra 1 because we will need it for flagging/marking cells.

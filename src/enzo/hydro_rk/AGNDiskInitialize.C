@@ -25,44 +25,44 @@ int RebuildHierarchy(TopGridData *MetaData,
 int AGNDiskInitialize(FILE *fptr, FILE *Outfptr, 
 		      HierarchyEntry &TopGrid, TopGridData &MetaData)
 {
-  char *DensName = "Density";
-  char *Vel1Name = "x-velocity";
-  char *Vel2Name = "y-velocity";
-  char *Vel3Name = "z-velocity";
-  char *TEName   = "TotalEnergy";
-  char *GEName   = "GasEnergy";
-  char *BxName = "Bx";
-  char *ByName = "By";
-  char *BzName = "Bz";
-  char *PhiName = "Phi";
-  char *ElectronName = "Electron_Density";
-  char *HIName    = "HI_Density";
-  char *HIIName   = "HII_Density";
-  char *HeIName   = "HeI_Density";
-  char *HeIIName  = "HeII_Density";
-  char *HeIIIName = "HeIII_Density";
-  char *HMName    = "HM_Density";
-  char *H2IName   = "H2I_Density";
-  char *H2IIName  = "H2II_Density";
-  char *DIName    = "DI_Density";
-  char *DIIName   = "DII_Density";
-  char *HDIName   = "HDI_Density";
-  char *kphHIName    = "HI_kph";
-  char *gammaHIName  = "HI_gamma";
-  char *kphHeIName   = "HeI_kph";
-  char *gammaHeIName = "HeI_gamma";
-  char *kphHeIIName  = "HeII_kph";
-  char *gammaHeIIName= "HeII_gamma";
-  char *kdissH2IName = "H2I_kdiss";
-  char *RadAccel1Name = "RadAccel1";
-  char *RadAccel2Name = "RadAccel2";
-  char *RadAccel3Name = "RadAccel3";
-  char *GravPotenName = "PotentialField";
+  const char *DensName = "Density";
+  const char *Vel1Name = "x-velocity";
+  const char *Vel2Name = "y-velocity";
+  const char *Vel3Name = "z-velocity";
+  const char *TEName   = "TotalEnergy";
+  const char *GEName   = "GasEnergy";
+  const char *BxName = "Bx";
+  const char *ByName = "By";
+  const char *BzName = "Bz";
+  const char *PhiName = "Phi";
+  const char *ElectronName = "Electron_Density";
+  const char *HIName    = "HI_Density";
+  const char *HIIName   = "HII_Density";
+  const char *HeIName   = "HeI_Density";
+  const char *HeIIName  = "HeII_Density";
+  const char *HeIIIName = "HeIII_Density";
+  const char *HMName    = "HM_Density";
+  const char *H2IName   = "H2I_Density";
+  const char *H2IIName  = "H2II_Density";
+  const char *DIName    = "DI_Density";
+  const char *DIIName   = "DII_Density";
+  const char *HDIName   = "HDI_Density";
+  const char *kphHIName    = "HI_kph";
+  const char *gammaHIName  = "HI_gamma";
+  const char *kphHeIName   = "HeI_kph";
+  const char *gammaHeIName = "HeI_gamma";
+  const char *kphHeIIName  = "HeII_kph";
+  const char *gammaHeIIName= "HeII_gamma";
+  const char *kdissH2IName = "H2I_kdiss";
+  const char *RadAccel1Name = "RadAccel1";
+  const char *RadAccel2Name = "RadAccel2";
+  const char *RadAccel3Name = "RadAccel3";
+  const char *GravPotenName = "PotentialField";
 
   /* declarations */
 
   char  line[MAX_LINE_LENGTH];
-  int   dim, ret, level, sphere, i;
+  int level, i;
 
   /* set default parameters */
 
@@ -79,46 +79,44 @@ int AGNDiskInitialize(FILE *fptr, FILE *Outfptr,
 
   while (fgets(line, MAX_LINE_LENGTH, fptr) != NULL) {
 
-    ret = 0;
 
     /* read parameters */
 
-    ret += sscanf(line, "DiskType = %"ISYM,
+    sscanf(line, "DiskType = %" ISYM,
 		  &DiskType);
-    ret += sscanf(line, "RefineAtStart = %"ISYM, 
+    sscanf(line, "RefineAtStart = %" ISYM, 
 		  &RefineAtStart);
-    ret += sscanf(line, "BlackHoleMass = %"FSYM,
+    sscanf(line, "BlackHoleMass = %" FSYM,
 		  &BlackHoleMass);
-    ret += sscanf(line, "DiskType = %"ISYM, 
+    sscanf(line, "DiskType = %" ISYM, 
 		  &DiskType);
-    ret += sscanf(line, "BlackHoleType = %"ISYM, 
+    sscanf(line, "BlackHoleType = %" ISYM, 
 		  &BlackHoleType);
-    ret += sscanf(line, "UseGas = %"ISYM, 
+    sscanf(line, "UseGas = %" ISYM, 
 		  &UseGas);
-    ret += sscanf(line, "DiskDensity = %"FSYM, 
+    sscanf(line, "DiskDensity = %" FSYM, 
 		  &DiskDensity);
-    ret += sscanf(line, "DiskTemperature = %"FSYM, 
+    sscanf(line, "DiskTemperature = %" FSYM, 
 		  &DiskTemperature);
-    ret += sscanf(line, "DiskRadius = %"PSYM, 
+    sscanf(line, "DiskRadius = %" PSYM, 
 		  &DiskRadius);
-    ret += sscanf(line, "DiskHeight = %"PSYM, 
+    sscanf(line, "DiskHeight = %" PSYM, 
 		  &DiskHeight);
 
   } // end input from parameter file
 
-  float DensityUnits = 1.0, LengthUnits = 1.0, TemperatureUnits = 1, TimeUnits, 
-    VelocityUnits, CriticalDensity = 1, BoxLength = 1, mu = 0.6;
+  float DensityUnits = 1.0, LengthUnits = 1.0, TemperatureUnits = 1, TimeUnits, VelocityUnits;
   GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	   &TimeUnits, &VelocityUnits, 1);
   float MagneticUnits = sqrt(DensityUnits*4.0*M_PI)*VelocityUnits;
   float PressureUnits = DensityUnits*pow(VelocityUnits,2);
 
-  printf("denu=%"GSYM", velu=%"GSYM", timeu=%"GSYM", tempu=%"GSYM", lenu=%"GSYM", bu=%"GSYM", presu=%"GSYM"\n",
+  printf("denu=%" GSYM", velu=%" GSYM", timeu=%" GSYM", tempu=%" GSYM", lenu=%" GSYM", bu=%" GSYM", presu=%" GSYM"\n",
 	 DensityUnits, VelocityUnits, TimeUnits, TemperatureUnits, LengthUnits, 
 	 MagneticUnits, PressureUnits);
 
-  printf("timeu=%"GSYM"(year)\n", TimeUnits/3.1558e7);
-  //printf("temp=%"GSYM", radius=%"GSYM", height=%"GSYM", density=%"GSYM"\n",
+  printf("timeu=%" GSYM"(year)\n", TimeUnits/3.1558e7);
+  //printf("temp=%" GSYM", radius=%" GSYM", height=%" GSYM", density=%" GSYM"\n",
   // DiskTemperature[0], DiskRadius[0], DiskHeight[0], DiskDensity[0]);
 
   if (UsePhysicalUnit) {

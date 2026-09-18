@@ -161,7 +161,7 @@ float grid::Gadget_EquilibriumCooling(float u_old, float rho, float dt,
       return u;
     }
 
-  /* u *= All.UnitDensity_in_cgs / All.UnitPressure_in_cgs; */	/* to internal units */
+  /* u *= All.UnitDensity_in_cgs / All.UnitPressure_in_cgs; */	 /* to internal units */
 
   /* back into code units */
   u /= POW( ( (*uxyz)*(1.0+redshift)/(*utim)/(1.0+InitialRedshift)),2.0);

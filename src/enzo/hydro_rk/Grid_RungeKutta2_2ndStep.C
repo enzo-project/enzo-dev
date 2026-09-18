@@ -45,7 +45,6 @@ int grid::RungeKutta2_2ndStep(fluxes *SubgridFluxes[],
     return SUCCESS;
   }
 
-  double time1 = ReturnWallTime();
 
   float *Prim[NEQ_HYDRO+NSpecies+NColor];
   float *OldPrim[NEQ_HYDRO+NSpecies+NColor];

@@ -26,17 +26,17 @@ int gFLDSplit::WriteParameters(FILE *fptr)
 
 //   if (debug)  printf("Entering gFLDSplit::WriteParameters routine\n");
   
-  fprintf(fptr, "RadHydroESpectrum = %"ISYM"\n", ESpectrum);
-  fprintf(fptr, "RadHydroChemistry = %"ISYM"\n", Nchem);
+  fprintf(fptr, "RadHydroESpectrum = %" ISYM"\n", ESpectrum);
+  fprintf(fptr, "RadHydroChemistry = %" ISYM"\n", Nchem);
   fprintf(fptr, "RadHydroHFraction = %22.16e\n", HFrac);
-  fprintf(fptr, "RadHydroModel = %"ISYM"\n", Model);
+  fprintf(fptr, "RadHydroModel = %" ISYM"\n", Model);
 
   // set restart initial time step to current time step
   fprintf(fptr, "RadHydroInitDt = %22.16e\n", dtrad);
   fprintf(fptr, "RadHydroMaxDt = %22.16e\n", maxdt);
   fprintf(fptr, "RadHydroMinDt = %22.16e\n", mindt);
-  fprintf(fptr, "RadHydroMaxSubcycles = %"FSYM"\n", maxsubcycles);
-  fprintf(fptr, "RadHydroMaxChemSubcycles = %"FSYM"\n", maxchemsub);
+  fprintf(fptr, "RadHydroMaxSubcycles = %" FSYM"\n", maxsubcycles);
+  fprintf(fptr, "RadHydroMaxChemSubcycles = %" FSYM"\n", maxchemsub);
   fprintf(fptr, "RadHydroDtNorm = %22.16e\n", dtnorm);
   fprintf(fptr, "RadHydroDtGrowth = %22.16e\n", dtgrowth);
   fprintf(fptr, "RadHydroDtRadFac = %22.16e\n", dtfac[0]);
@@ -54,24 +54,24 @@ int gFLDSplit::WriteParameters(FILE *fptr)
 
   fprintf(fptr, "RadHydroTheta = %22.16e\n", theta);
 
-  fprintf(fptr, "RadiationBoundaryX0Faces = %"ISYM" %"ISYM"\n", 
+  fprintf(fptr, "RadiationBoundaryX0Faces = %" ISYM" %" ISYM"\n", 
 	  BdryType[0][0], BdryType[0][1]);
   if (rank > 1) {
-    fprintf(fptr, "RadiationBoundaryX1Faces = %"ISYM" %"ISYM"\n", 
+    fprintf(fptr, "RadiationBoundaryX1Faces = %" ISYM" %" ISYM"\n", 
 	    BdryType[1][0], BdryType[1][1]);
     if (rank > 2) {
-      fprintf(fptr, "RadiationBoundaryX2Faces = %"ISYM" %"ISYM"\n", 
+      fprintf(fptr, "RadiationBoundaryX2Faces = %" ISYM" %" ISYM"\n", 
 	      BdryType[2][0], BdryType[2][1]);
     }
   }
 
-  fprintf(fptr, "RadHydroInitialGuess = %"ISYM"\n", initial_guess);    
-  fprintf(fptr, "RadHydroKrylovMethod = %"ISYM"\n", Krylov_method);
+  fprintf(fptr, "RadHydroInitialGuess = %" ISYM"\n", initial_guess);    
+  fprintf(fptr, "RadHydroKrylovMethod = %" ISYM"\n", Krylov_method);
   fprintf(fptr, "RadHydroSolTolerance = %22.16e\n", sol_tolerance);
-  fprintf(fptr, "RadHydroMaxMGIters = %i\n", sol_maxit);    
-  fprintf(fptr, "RadHydroMGRelaxType = %i\n", sol_rlxtype);    
-  fprintf(fptr, "RadHydroMGPreRelax = %i\n", sol_npre);    
-  fprintf(fptr, "RadHydroMGPostRelax = %i\n", sol_npost);    
+  fprintf(fptr, "RadHydroMaxMGIters = %d\n", sol_maxit);    
+  fprintf(fptr, "RadHydroMGRelaxType = %d\n", sol_rlxtype);    
+  fprintf(fptr, "RadHydroMGPreRelax = %d\n", sol_npre);    
+  fprintf(fptr, "RadHydroMGPostRelax = %d\n", sol_npost);    
 
   fprintf(fptr, "EnergyOpacityC0 = %22.16e\n", EnergyOpacityC0);
   fprintf(fptr, "EnergyOpacityC1 = %22.16e\n", EnergyOpacityC1);

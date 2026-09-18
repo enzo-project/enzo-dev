@@ -96,7 +96,7 @@ Eint64 mused(void)
 
 #endif
 
-void PrintMemoryUsage(char *str)
+void PrintMemoryUsage(const char *str)
 {
 #ifdef MEM_TRACE
   Eint64 MemInUse, MinMem, MaxMem, MeanMem;

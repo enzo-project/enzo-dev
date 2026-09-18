@@ -12,6 +12,8 @@ Reference Information
    FluxObjects.rst
    Headers.rst
    MakeOptions.rst
+   CMakeOptions.rst
+   LegacyMakeOptions.rst
    HowDoesParallelRootGridIOwork.rst
    LinkedLists.rst
    MachineNotes.rst

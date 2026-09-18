@@ -27,9 +27,7 @@ float grid::FindAverageTemperatureinRegion(float *temperature, FLOAT *cellpos, F
   FLOAT pos[3];
   float TotalTemperature = 0.0;
   int index = 0, numcells = 0;
-  int size = 1;
   for (int dim = 0; dim < GridRank; dim++)
-    size *= GridDimension[dim];
   for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
     for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
       for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++) {

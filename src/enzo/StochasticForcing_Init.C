@@ -97,14 +97,14 @@ int StochasticForcing::Init(int my_spectral_rank,
 
     if (MyProcessorNumber == ROOT_PROCESSOR) {
         printf("\n### STOCHASTIC FORCING CONFIG ###\n"
-"Spectral profile %"ISYM"\n"
-"Weight of solenoidal component %"FSYM"\n"
-"Alpha %"ISYM" %"ISYM" %"ISYM"\n"
-"Band width %"FSYM" %"FSYM" %"FSYM"\n"
-"Integral velocity %"FSYM" %"FSYM" %"FSYM"\n"
-"Integral length %"FSYM" %"FSYM" %"FSYM"\n"
-"Integral time %"FSYM" %"FSYM" %"FSYM"\n"
-"Autocorrelation time %"FSYM" %"FSYM" %"FSYM"\n\n",
+"Spectral profile %" ISYM"\n"
+"Weight of solenoidal component %" FSYM"\n"
+"Alpha %" ISYM" %" ISYM" %" ISYM"\n"
+"Band width %" FSYM" %" FSYM" %" FSYM"\n"
+"Integral velocity %" FSYM" %" FSYM" %" FSYM"\n"
+"Integral length %" FSYM" %" FSYM" %" FSYM"\n"
+"Integral time %" FSYM" %" FSYM" %" FSYM"\n"
+"Autocorrelation time %" FSYM" %" FSYM" %" FSYM"\n\n",
 SpectProfile,SolenoidalWeight,
 alpha[0],alpha[1],alpha[2],BandWidth[0],BandWidth[1],BandWidth[2],
 IntgrVelocity[0],IntgrVelocity[1],IntgrVelocity[2],
@@ -135,7 +135,7 @@ AutoCorrlTime[0],AutoCorrlTime[1],AutoCorrlTime[2]);
 
     if (MyProcessorNumber == ROOT_PROCESSOR) {
 
-	if (debug) printf("Total number of stochastic forcing modes = %"ISYM"\n",NumModes);
+	if (debug) printf("Total number of stochastic forcing modes = %" ISYM"\n",NumModes);
 
 	/* determine forcing field amplitudes */
 
@@ -164,8 +164,8 @@ AutoCorrlTime[0],AutoCorrlTime[1],AutoCorrlTime[2]);
 	    a1 = 1.0-BandWidth[0];
 	    a2 = 1.0+BandWidth[0];
 	    if (debug) {
-		    printf("i1 = %"ISYM", i2 = %"ISYM"\n",i1,i2);
-		    printf("a1 = %"FSYM", a2 = %"FSYM"\n\n",a1,a2);
+		    printf("i1 = %" ISYM", i2 = %" ISYM"\n",i1,i2);
+		    printf("a1 = %" FSYM", a2 = %" FSYM"\n\n",a1,a2);
 	    }
 
 	    /* compute amplitude factors for wave numbers within the interval [a1, a2] */
@@ -183,9 +183,9 @@ AutoCorrlTime[0],AutoCorrlTime[1],AutoCorrlTime[2]);
             else Amplitude[0][i-1] = 0.0;
 		}
 		if (debug) {
-		    printf("i = %"ISYM", a = %"FSYM"\n",i,a);
-		    printf("x1 = %"FSYM", x2 = %"FSYM"\n",x1,x2);
-		    printf("n = %"ISYM", Amplitude = %"FSYM"\n",i-1,Amplitude[0][i-1]);
+		    printf("i = %" ISYM", a = %" FSYM"\n",i,a);
+		    printf("x1 = %" FSYM", x2 = %" FSYM"\n",x1,x2);
+		    printf("n = %" ISYM", Amplitude = %" FSYM"\n",i-1,Amplitude[0][i-1]);
 		}
 	    }
 
@@ -207,10 +207,10 @@ AutoCorrlTime[0],AutoCorrlTime[1],AutoCorrlTime[2]);
 		}
         
 		if (debug) {printf("\n"
-		    "j1 = %"FSYM", j2 = %"FSYM"\n"
-		    "b1 = %"FSYM", b2 = %"FSYM"\n"
-		    "f1 = %"FSYM", f2 = %"FSYM"\n"
-		    "g1 = %"FSYM", g2 = %"FSYM"\n\n",
+		    "j1 = %" ISYM", j2 = %" ISYM"\n"
+		    "b1 = %" FSYM", b2 = %" FSYM"\n"
+		    "f1 = %" FSYM", f2 = %" FSYM"\n"
+		    "g1 = %" FSYM", g2 = %" FSYM"\n\n",
             j1,j2,b1,b2,f1,f2,g1,g2);
 		}
 
@@ -235,9 +235,9 @@ AutoCorrlTime[0],AutoCorrlTime[1],AutoCorrlTime[2]);
             
 			if (debug) {
                 printf(
-			    "i = %"ISYM", a = %"FSYM", j = %"ISYM", b = %"FSYM"\n"
-			    "x1 = %"FSYM", x2 = %"FSYM"\n"
-			    "n = %"ISYM", Amplitude = %"FSYM"\n",
+			    "i = %" ISYM", a = %" FSYM", j = %" ISYM", b = %" FSYM"\n"
+			    "x1 = %" FSYM", x2 = %" FSYM"\n"
+			    "n = %" ISYM", Amplitude = %" FSYM"\n",
                 i,a,j,b,x1,x2,n,Amplitude[0][n]);
 			}
             
@@ -260,7 +260,7 @@ AutoCorrlTime[0],AutoCorrlTime[1],AutoCorrlTime[2]);
 		    }
             
 		    if (debug) {
-                printf("\nc1 = %"FSYM", c2 = %"FSYM"\nh1 = %"FSYM", h2 = %"FSYM"\n\n",
+                printf("\nc1 = %" FSYM", c2 = %" FSYM"\nh1 = %" FSYM", h2 = %" FSYM"\n\n",
                     c1,c2,h1,h2);
 		    }
 		    
@@ -286,9 +286,9 @@ AutoCorrlTime[0],AutoCorrlTime[1],AutoCorrlTime[2]);
                 
 				if (debug) {
                     printf(
-    			    "i = %"ISYM", a = %"FSYM", j = %"ISYM", b = %"FSYM", k = %"ISYM
-    			    ", c = %"FSYM", x1 = %"FSYM", x2 = %"FSYM"\n"
-    			    "n = %"ISYM", Amplitude = %"FSYM"\n",
+    			    "i = %" ISYM", a = %" FSYM", j = %" ISYM", b = %" FSYM", k = %" ISYM
+    			    ", c = %" FSYM", x1 = %" FSYM", x2 = %" FSYM"\n"
+    			    "n = %" ISYM", Amplitude = %" FSYM"\n",
                     i,a,j,b,k,c,x1,x2,n,Amplitude[0][n]);
 				}
                 
@@ -320,7 +320,7 @@ AutoCorrlTime[0],AutoCorrlTime[1],AutoCorrlTime[2]);
 	    if (SpectralRank > 2) Amplitude[2][n] = Amplitude[1][n];
 	    //if (debug) cout << n << "   " << Amplitude[0][n] << " " << mask[n] << "\n";
 	}	    	    
-	printf("Number of non-zero stochastic forcing modes = %"ISYM"\n",NumNonZeroModes);
+	printf("Number of non-zero stochastic forcing modes = %" ISYM"\n",NumNonZeroModes);
 	
 	if (NumNonZeroModes == 0) return FAIL;
 	
@@ -360,7 +360,7 @@ AutoCorrlTime[0],AutoCorrlTime[1],AutoCorrlTime[2]);
 	for (int n = 0; n < NumModes; n++)
 	    if (mask[n]) ++NumNonZeroModes;
 	if (debug) 
-        printf("Number of non-zero stochastic forcing modes = %"ISYM", proc # %"ISYM"\n",
+        printf("Number of non-zero stochastic forcing modes = %" ISYM", proc # %" ISYM"\n",
             NumNonZeroModes, MyProcessorNumber);
     }
 

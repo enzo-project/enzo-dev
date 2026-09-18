@@ -74,10 +74,10 @@ int InitializeRateData(FLOAT Time)
     ENZO_FAIL("For H2FormationOnDust = 1, must have RadiativeCooling = 1 and MultiSpecies > 0.");
   }
   
-  if (debug) printf("InitializeRateData: NumberOfTemperatureBins = %"ISYM"\n",
+  if (debug) printf("InitializeRateData: NumberOfTemperatureBins = %" ISYM"\n",
 		    CoolData.NumberOfTemperatureBins);
 
-  if (debug) printf("InitializeRateData: RadiationFieldType = %"ISYM"\n",
+  if (debug) printf("InitializeRateData: RadiationFieldType = %" ISYM"\n",
 		    RadiationFieldType);
 
 

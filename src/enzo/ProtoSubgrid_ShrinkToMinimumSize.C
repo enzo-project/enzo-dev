@@ -82,7 +82,7 @@ int ProtoSubgrid::ShrinkToMinimumSize()
  
     /*
     if (debug)
-      printf("Shrinking from %"ISYM" %"ISYM" %"ISYM" to %"ISYM" %"ISYM" %"ISYM"\n",
+      printf("Shrinking from %" ISYM" %" ISYM" %" ISYM" to %" ISYM" %" ISYM" %" ISYM"\n",
 	     GridDimension[0], GridDimension[1], GridDimension[2],
 	     NewGridDim[0], NewGridDim[1], NewGridDim[2]); */
  

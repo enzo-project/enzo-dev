@@ -38,7 +38,7 @@
 int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
 void GadgetInitCoolMemory(void);
 void GadgetMakeCoolingTable(void);
-void GadgetReadIonizeParams(char *fname);
+void GadgetReadIonizeParams(const char *fname);
 void GadgetIonizeParamsTable(float redshift);
 
 int InitializeGadgetEquilibriumCoolData(FLOAT Time)

@@ -80,7 +80,6 @@ int gFLDProblem::ComputeTemperature(float *TempArr, float time,
   for (dim=0; dim<rank; dim++)  size *= ArrDims[dim];
 
 
-  float maxval, minval, avgval;
 
 
   ////////////////////////////

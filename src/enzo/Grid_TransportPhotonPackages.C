@@ -44,7 +44,7 @@ int grid::TransportPhotonPackages(int level, int finest_level,
 				  grid *ParentGrid, grid *CurrentGrid)
 {
 
-  int i,j,k, dim, index, count;
+  int i, dim, count;
   grid *MoveToGrid;
 
   if (MyProcessorNumber != ProcessorNumber)
@@ -90,7 +90,7 @@ int grid::TransportPhotonPackages(int level, int finest_level,
   }
 
   // if (DEBUG) fprintf(stdout,"TransportPhotonPackage: initialize fields.\n");
-  // if (DEBUG) fprintf(stdout,"TransportPhotonPackage: %"ISYM" %"ISYM" .\n",
+  // if (DEBUG) fprintf(stdout,"TransportPhotonPackage: %" ISYM" %" ISYM" .\n",
   // 		     GridStartIndex[0], GridEndIndex[0]);
 
   PhotonPackageEntry *PP, *FPP, *SavedPP, *PausedPP;
@@ -103,7 +103,7 @@ int grid::TransportPhotonPackages(int level, int finest_level,
       PP=PP->NextPackage;
     }
     fprintf(stdout, "TransportPhotonPackage: done initializing.\n");
-    fprintf(stdout, "[%d] counted %"ISYM" packages\n", this->ID, count);
+    fprintf(stdout, "[%" ISYM "] counted %" ISYM" packages\n", this->ID, count);
   }
 
   /* If requested, make vertex centered field (only when it doesn't
@@ -114,7 +114,7 @@ int grid::TransportPhotonPackages(int level, int finest_level,
       if (FieldsToInterpolate[i] == TRUE)
 	if (this->ComputeVertexCenteredField(i) == FAIL) {
 	  ENZO_VFAIL("Error in grid->ComputeVertexCenteredField "
-		  "(field %"ISYM").\n", i)
+		  "(field %" ISYM").\n", i)
 	}
 
   /* Calculate minimum photon flux before a ray is deleted */
@@ -163,7 +163,6 @@ int grid::TransportPhotonPackages(int level, int finest_level,
     EndTime = PhotonTime+dtPhoton-PFLOAT_EPSILON;
 
   while (PP != NULL) {
-    int retval = 0;
     if (PP->PreviousPackage == NULL)
       printf("Bad package.\n");
     DeleteMe = FALSE;
@@ -172,12 +171,12 @@ int grid::TransportPhotonPackages(int level, int finest_level,
     AdvancePhotonPointer = TRUE;
     if (MYPROC && DEBUG) {
       if(prev_type != PP->Type) {
-	fprintf(stdout, "%s: Radiation type = %ld\n", __FUNCTION__, PP->Type);
+	fprintf(stdout, "%s: Radiation type = %" ISYM "\n", __FUNCTION__, PP->Type);
 	prev_type = PP->Type;
       }
     }
     if ((PP->CurrentTime) < EndTime) {
-      retval = WalkPhotonPackage(&PP,
+      WalkPhotonPackage(&PP,
 				 &MoveToGrid, ParentGrid, CurrentGrid, Grids0, nGrids0,
 				 DeleteMe, PauseMe, DeltaLevel, LightCrossingTime,
 				 LightSpeed, level, MinimumPhotonFlux);
@@ -195,12 +194,12 @@ int grid::TransportPhotonPackages(int level, int finest_level,
     }
 
     if (DEBUG > 1) 
-      fprintf(stdout, "photon #%"ISYM" %x %x %x\n",
+      fprintf(stdout, "photon #%" ISYM" %p %p %p\n",
 	      tcount,  PP,  PhotonPackages, 
 	      MoveToGrid); 
 
     if (PauseMe == TRUE) {
-      if (DEBUG > 1) fprintf(stdout, "paused photon %x\n", PP);
+      if (DEBUG > 1) fprintf(stdout, "paused photon %p\n", PP);
       this->RegridPausedPhotonPackage(&PP, ParentGrid, &MoveToGrid, DeltaLevel,
 				      DeleteMe, DomainWidth, LightSpeed);
 
@@ -215,7 +214,7 @@ int grid::TransportPhotonPackages(int level, int finest_level,
     }
 
     if (DeleteMe == TRUE) {
-      if (DEBUG > 1) fprintf(stdout, "delete photon %x\n", PP);
+      if (DEBUG > 1) fprintf(stdout, "delete photon %p\n", PP);
       dcount++;
       PP = DeletePhotonPackage(PP);
       MoveToGrid = NULL;
@@ -223,9 +222,9 @@ int grid::TransportPhotonPackages(int level, int finest_level,
 
     if (MoveToGrid != NULL) {
       if (DEBUG > 1) {
-	fprintf(stdout, "moving photon from %x to %x\n", 
+	fprintf(stdout, "moving photon from %p to %p\n", 
 		 CurrentGrid,  MoveToGrid);
-	fprintf(stdout, "moving photon %x %x %x %x\n", 
+	fprintf(stdout, "moving photon %p %p %p %p\n", 
 		 PP,  PP->PreviousPackage, 
 		 PP->NextPackage,  PhotonPackages);
       }
@@ -245,7 +244,7 @@ int grid::TransportPhotonPackages(int level, int finest_level,
       if (NewEntry->ToProcessor >= NumberOfProcessors ||
 	  NewEntry->ToProcessor < 0) {
 	PP->PrintInfo();
-	ENZO_VFAIL("Grid %d, Invalid ToProcessor P%d", GridNum, 
+	ENZO_VFAIL("Grid %" ISYM ", Invalid ToProcessor P%" ISYM "", GridNum, 
 		   NewEntry->ToProcessor)
       }
 
@@ -262,8 +261,8 @@ int grid::TransportPhotonPackages(int level, int finest_level,
   } // ENDWHILE photons
 
   if (DEBUG)
-    fprintf(stdout, "grid::TransportPhotonPackage[%d]: "
-	    "transported %"ISYM" deleted %"ISYM" paused %"ISYM" moved %"ISYM"\n",
+    fprintf(stdout, "grid::TransportPhotonPackage[%" ISYM "]: "
+	    "transported %" ISYM" deleted %" ISYM" paused %" ISYM" moved %" ISYM"\n",
 	    this->ID, tcount, dcount, pcount, trcount);
   NumberOfPhotonPackages -= dcount;
 
@@ -287,21 +286,21 @@ int grid::TransportPhotonPackages(int level, int finest_level,
   // Debug xyz-axis for a unigrid 64^3 with a source in the corner.
 #define NO_DEBUG_AXES
 #ifdef DEBUG_AXES
-  printf("PHDebug(x): kph= %"GSYM" %"GSYM" %"GSYM", Nph = %"GSYM" %"GSYM" %"GSYM"\n, HI = %"GSYM" %"GSYM" %"GSYM"\n",
+  printf("PHDebug(x): kph= %" GSYM" %" GSYM" %" GSYM", Nph = %" GSYM" %" GSYM" %" GSYM"\n, HI = %" GSYM" %" GSYM" %" GSYM"\n",
 	 BaryonField[kphHINum][14914], BaryonField[kphHINum][14915], 
 	 BaryonField[kphHINum][14916], 
 	 BaryonField[kphHeIINum][14914], BaryonField[kphHeIINum][14915], 
 	 BaryonField[kphHeIINum][14916], 
 	 BaryonField[HINum][14914], BaryonField[HINum][14915], 
 	 BaryonField[HINum][14916]);
-  printf("PHDebug(y): kph= %"GSYM" %"GSYM" %"GSYM", Nph = %"GSYM" %"GSYM" %"GSYM"\n, HI = %"GSYM" %"GSYM" %"GSYM"\n",
+  printf("PHDebug(y): kph= %" GSYM" %" GSYM" %" GSYM", Nph = %" GSYM" %" GSYM" %" GSYM"\n, HI = %" GSYM" %" GSYM" %" GSYM"\n",
 	 BaryonField[kphHINum][14983], BaryonField[kphHINum][15053], 
 	 BaryonField[kphHINum][15123], 
 	 BaryonField[kphHeIINum][14983], BaryonField[kphHeIINum][15053], 
 	 BaryonField[kphHeIINum][15123], 
 	 BaryonField[HINum][14983], BaryonField[HINum][15053], 
 	 BaryonField[HINum][15123]);
-  printf("PHDebug(z): kph= %"GSYM" %"GSYM" %"GSYM", Nph = %"GSYM" %"GSYM" %"GSYM"\n, HI = %"GSYM" %"GSYM" %"GSYM"\n",
+  printf("PHDebug(z): kph= %" GSYM" %" GSYM" %" GSYM", Nph = %" GSYM" %" GSYM" %" GSYM"\n, HI = %" GSYM" %" GSYM" %" GSYM"\n",
 	 BaryonField[kphHINum][19813], BaryonField[kphHINum][24713], 
 	 BaryonField[kphHINum][29613], 
 	 BaryonField[kphHeIINum][19813], BaryonField[kphHeIINum][24713], 

@@ -42,7 +42,7 @@ int CheckForTimeAction(LevelHierarchyEntry *LevelArray[],
     if (MetaData.Time >= TimeActionTime[i] && TimeActionTime[i] > 0) {
  
       if (debug)
-	printf("Applying TimeAction %"ISYM" at t=%"GOUTSYM"\n", i, TimeActionTime[i]);
+	printf("Applying TimeAction %" ISYM" at t=%" GOUTSYM"\n", i, TimeActionTime[i]);
  
       /* Done, turn it off (-1 in redshift indicates off). */
  

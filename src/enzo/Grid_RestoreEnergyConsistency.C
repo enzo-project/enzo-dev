@@ -43,7 +43,7 @@ int grid::RestoreEnergyConsistency(int Region)
   /* Error check */
  
   if (Region != ENTIRE_REGION && Region != ONLY_BOUNDARY) {
-    ENZO_VFAIL("Region type %"ISYM" unknown.\n", Region)
+    ENZO_VFAIL("Region type %" ISYM" unknown.\n", Region)
   }
  
   /* If there is no work, we're done. */

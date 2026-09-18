@@ -38,7 +38,7 @@ int grid::MoveSubgridActiveParticles(int NumberOfSubgrids, grid* ToGrids[],
   if (NumberOfActiveParticles == 0 || NumberOfSubgrids == 0)
     return SUCCESS;
 
-  int i, j, dim, index, index1, index2, n;
+  int i, dim, index;
 
   /* Initialize. */
 
@@ -58,9 +58,7 @@ int grid::MoveSubgridActiveParticles(int NumberOfSubgrids, grid* ToGrids[],
   /* Loop over particles and count the number in each subgrid. */
 
   int i0 = 0, j0 = 0, k0 = 0;
-  int NumberToMoveLocal = 0;
   ActiveParticleType *np;
-  ActiveParticleList<ActiveParticleType> *OldParticles = NULL;
 
   if (MyProcessorNumber == ProcessorNumber) {
     for (i = 0; i < NumberOfActiveParticles; i++) {
@@ -86,10 +84,9 @@ int grid::MoveSubgridActiveParticles(int NumberOfSubgrids, grid* ToGrids[],
 	 star to "fake" grid. */
 
       subgrid[i] = nint(BaryonField[NumberOfBaryonFields][index])-1;
-      if (subgrid[i] >= 0) NumberToMoveLocal++;
 
       if (subgrid[i] < -1 || subgrid[i] > NumberOfSubgrids-1) {
-	ENZO_VFAIL("particle subgrid (%"ISYM"/%"ISYM") out of range\n", subgrid[i],
+	ENZO_VFAIL("particle subgrid (%" ISYM"/%" ISYM") out of range\n", subgrid[i],
 		NumberOfSubgrids)
       }
 

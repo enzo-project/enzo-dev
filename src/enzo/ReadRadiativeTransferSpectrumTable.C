@@ -35,7 +35,6 @@ int ReadRadiativeTransferSpectrumTable(float TemperatureUnits, float LengthUnits
   FILE *fptr;
   char line[MAX_LINE_LENGTH];
   int i, nbins;
-  float TemperatureRange[2];
 
   // open the file
 
@@ -48,7 +47,7 @@ int ReadRadiativeTransferSpectrumTable(float TemperatureUnits, float LengthUnits
 
   fgets(line, MAX_LINE_LENGTH, fptr); // pass the first line
   fgets(line, MAX_LINE_LENGTH, fptr);
-  if ((sscanf(line, "# %"ISYM, &nbins)) != 1) {
+  if ((sscanf(line, "# %" ISYM, &nbins)) != 1) {
     ENZO_FAIL("Error reading number of bins (line 2)\n");
   }
 
@@ -64,14 +63,14 @@ int ReadRadiativeTransferSpectrumTable(float TemperatureUnits, float LengthUnits
   // Read the spectrum table
 
   for (i = 0; i < nbins; i++) {
-      if (fscanf(fptr, "%"FSYM" %"FSYM" %"FSYM" %"FSYM" %f",
+      if (fscanf(fptr, "%" FSYM" %" FSYM" %" FSYM" %" FSYM" %" FSYM"",
 		 &RadiativeTransferSpectrumTable.columndensity_table[i],
 		 &RadiativeTransferSpectrumTable.fractionphotons_table[0][i],
 		 &RadiativeTransferSpectrumTable.fractionphotons_table[1][i],
 		 &RadiativeTransferSpectrumTable.fractionphotons_table[2][i],
 		 &RadiativeTransferSpectrumTable.meanenergy_table[i])
 	  != 5) {
-	ENZO_VFAIL("Error reading RadiationData line %"ISYM"\n", i)
+	ENZO_VFAIL("Error reading RadiationData line %" ISYM"\n", i)
 
       }
   }
@@ -86,7 +85,7 @@ int ReadRadiativeTransferSpectrumTable(float TemperatureUnits, float LengthUnits
 
   fptr2 = fopen("spectrum_table.out", "w");
   for (i = 0; i < RadiativeTransferSpectrumTable.NumberOfColumnDensityBins; i++) 
-    fprintf(fptr2, "%g  %"FSYM"  %"FSYM"  %"FSYM"  %f\n", 
+    fprintf(fptr2, "%g  %" FSYM"  %" FSYM"  %" FSYM"  %f\n", 
 	    RadiativeTransferSpectrumTable.columndensity_table[i],
 	    RadiativeTransferSpectrumTable.fractionphotons_table[0][i],
 	    RadiativeTransferSpectrumTable.fractionphotons_table[1][i],

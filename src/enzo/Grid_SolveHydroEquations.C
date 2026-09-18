@@ -74,7 +74,7 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
     /* initialize */
 
     // MAX_COLOR is defined in fortran.def
-    int dim, i, j, field, size, subgrid, n, colnum[MAX_COLOR];
+    int dim, i, j, field, size, n, colnum[MAX_COLOR];
     Elong_int GridGlobalStart[MAX_DIMENSION];
     FLOAT a = 1, dadt;
 
@@ -199,8 +199,7 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
     if(TestProblemData.GloverChemistryModel){
 
       // Declarations for Simon Glover's cooling.
-      int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
-	DINum, DIINum, HDINum;
+      int HINum, HIINum, HeINum, HeIINum, HeIIINum, H2INum, DINum, DIINum, HDINum;
 
       int CINum,CIINum,OINum,OIINum,SiINum,SiIINum,SiIIINum,CHINum,CH2INum,
 	CH3IINum,C2INum,COINum,HCOIINum,OHINum,H2OINum,O2INum;
@@ -410,7 +409,7 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
 
     /* Prepare Gravity. */
 
-    int GravityOn = 0, FloatSize = sizeof(float);
+    int GravityOn = 0;
     if (SelfGravity || UniformGravity || PointSourceGravity || DiskGravity || ExternalGravity )
       GravityOn = 1;
 #ifdef TRANSFER
@@ -461,8 +460,6 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
 
 
     float* Fluxes[3] = {MagneticFlux[0][0],MagneticFlux[1][0],MagneticFlux[2][0]};
-    int CurlStart[3] = {0,0,0}, 
-    CurlEnd[3] = {GridDimension[0]-1,GridDimension[1]-1,GridDimension[2]-1};
     if ( UseMHDCT ){
         if (HydroMethod == MHD_Li){
           this->SolveMHD_Li(CycleNumber, NumberOfSubgrids, SubgridFluxes, 

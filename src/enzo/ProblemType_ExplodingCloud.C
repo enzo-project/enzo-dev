@@ -122,17 +122,17 @@ class ProblemType_ExplodingCloud : public EnzoProblemType
 
 	/* read parameters */
 	
-	ret += sscanf(line, "ExplodingCloudExternalDensity  = %"FSYM, &ExplodingCloudExternalDensity);
-	ret += sscanf(line, "ExplodingCloudInnerDensity = %"FSYM, &ExplodingCloudInnerDensity);
-	ret += sscanf(line, "ExplodingCloudExternalTemperature  = %"FSYM, &ExplodingCloudExternalTemperature);
-	ret += sscanf(line, "ExplodingCloudInnerTemperature = %"FSYM, &ExplodingCloudInnerTemperature);
-	ret += sscanf(line, "ExplodingCloudTotalInputEnergy   = %"FSYM, &ExplodingCloudTotalInputEnergy);
-	ret += sscanf(line, "ExplodingCloudRadius = %"FSYM, &ExplodingCloudRadius);
-	ret += sscanf(line, "ExplodingCloudSubgridLeft = %"FSYM, &ExplodingCloudSubgridLeft);
-	ret += sscanf(line, "ExplodingCloudSubgridRight = %"FSYM, &ExplodingCloudSubgridRight);
-	ret += sscanf(line, "ExplodingCloudEnergyDumpPosition = %"PSYM" %"PSYM" %"PSYM, 
+	ret += sscanf(line, "ExplodingCloudExternalDensity  = %" FSYM, &ExplodingCloudExternalDensity);
+	ret += sscanf(line, "ExplodingCloudInnerDensity = %" FSYM, &ExplodingCloudInnerDensity);
+	ret += sscanf(line, "ExplodingCloudExternalTemperature  = %" FSYM, &ExplodingCloudExternalTemperature);
+	ret += sscanf(line, "ExplodingCloudInnerTemperature = %" FSYM, &ExplodingCloudInnerTemperature);
+	ret += sscanf(line, "ExplodingCloudTotalInputEnergy   = %" FSYM, &ExplodingCloudTotalInputEnergy);
+	ret += sscanf(line, "ExplodingCloudRadius = %" FSYM, &ExplodingCloudRadius);
+	ret += sscanf(line, "ExplodingCloudSubgridLeft = %" FSYM, &ExplodingCloudSubgridLeft);
+	ret += sscanf(line, "ExplodingCloudSubgridRight = %" FSYM, &ExplodingCloudSubgridRight);
+	ret += sscanf(line, "ExplodingCloudEnergyDumpPosition = %" PSYM" %" PSYM" %" PSYM, 
 		      ExplodingCloudEnergyDumpPosition, ExplodingCloudEnergyDumpPosition+1, ExplodingCloudEnergyDumpPosition+2);
-	ret += sscanf(line, "ExplodingCloudCenterPosition = %"PSYM" %"PSYM" %"PSYM, 
+	ret += sscanf(line, "ExplodingCloudCenterPosition = %" PSYM" %" PSYM" %" PSYM, 
 		      ExplodingCloudCenterPosition, ExplodingCloudCenterPosition+1, ExplodingCloudCenterPosition+2);
 
 	/* if the line is suspicious, issue a warning */
@@ -190,7 +190,7 @@ class ProblemType_ExplodingCloud : public EnzoProblemType
             *int(POW(RefineBy, lev + 1));
 
         if (debug)
-          printf("ExplodingCloud:: Level[%"ISYM"]: NumberOfSubgridZones[0] = %"ISYM"\n", lev+1,
+          printf("ExplodingCloud:: Level[%" ISYM"]: NumberOfSubgridZones[0] = %" ISYM"\n", lev+1,
               NumberOfSubgridZones[0]);
 
         if (NumberOfSubgridZones[0] > 0) {
@@ -265,15 +265,15 @@ class ProblemType_ExplodingCloud : public EnzoProblemType
 
       if (MyProcessorNumber == ROOT_PROCESSOR) {
 	
-        fprintf(Outfptr, "ExplodingCloudInnerDensity         = %"FSYM"\n"  , ExplodingCloudInnerDensity);
-        fprintf(Outfptr, "ExplodingCloudExternalDensity         = %"FSYM"\n"  , ExplodingCloudExternalDensity);
-        fprintf(Outfptr, "ExplodingCloudInnerTemperature         = %"FSYM"\n"  , ExplodingCloudInnerTemperature);
-        fprintf(Outfptr, "ExplodingCloudExternalTemperature         = %"FSYM"\n"  , ExplodingCloudExternalTemperature);
-	fprintf(Outfptr, "ExplodingCloudRadius         = %"FSYM"\n"  , ExplodingCloudRadius);
-	fprintf(Outfptr, "ExplodingCloudTotalInputEnergy         = %"FSYM"\n"  , ExplodingCloudTotalInputEnergy);
-	fprintf(Outfptr, "ExplodingCloudCenterPosition = %"PSYM" %"PSYM" %"PSYM"\n",
+        fprintf(Outfptr, "ExplodingCloudInnerDensity         = %" FSYM"\n"  , ExplodingCloudInnerDensity);
+        fprintf(Outfptr, "ExplodingCloudExternalDensity         = %" FSYM"\n"  , ExplodingCloudExternalDensity);
+        fprintf(Outfptr, "ExplodingCloudInnerTemperature         = %" FSYM"\n"  , ExplodingCloudInnerTemperature);
+        fprintf(Outfptr, "ExplodingCloudExternalTemperature         = %" FSYM"\n"  , ExplodingCloudExternalTemperature);
+	fprintf(Outfptr, "ExplodingCloudRadius         = %" FSYM"\n"  , ExplodingCloudRadius);
+	fprintf(Outfptr, "ExplodingCloudTotalInputEnergy         = %" FSYM"\n"  , ExplodingCloudTotalInputEnergy);
+	fprintf(Outfptr, "ExplodingCloudCenterPosition = %" PSYM" %" PSYM" %" PSYM"\n",
 		ExplodingCloudCenterPosition, ExplodingCloudCenterPosition+1, ExplodingCloudCenterPosition+2);
-	fprintf(Outfptr, "ExplodingCloudEnergyDumpPosition = %"PSYM" %"PSYM" %"PSYM"\n",
+	fprintf(Outfptr, "ExplodingCloudEnergyDumpPosition = %" PSYM" %" PSYM" %" PSYM"\n",
 		ExplodingCloudEnergyDumpPosition, ExplodingCloudEnergyDumpPosition+1, ExplodingCloudEnergyDumpPosition+2);
 	
       } //   if (MyProcessorNumber == ROOT_PROCESSOR) 

@@ -48,12 +48,9 @@ int grid::SetSubgridMarkerFromParent(grid *Parent, int level)
 
   /* declarations */
     
-  int i, j, k, dim, field, index, pindex, size, activesize, gzsize;
+  int i, j, k, dim, index, pindex, gzsize;
   int pi, pj, pk, buffer_index, marker_level;
   int GZStart[MAX_DIMENSION], GZEnd[MAX_DIMENSION];
-  FLOAT GridLeft[MAX_DIMENSION], GridRight[MAX_DIMENSION];
-  FLOAT Left[MAX_DIMENSION], Right[MAX_DIMENSION];
-  int Start[MAX_DIMENSION], End[MAX_DIMENSION];
   int ParentStart[MAX_DIMENSION], CellOffset[MAX_DIMENSION];
   int Refinement[MAX_DIMENSION], MarkerRefinement;
   Eint32 *buffer = NULL;
@@ -64,10 +61,10 @@ int grid::SetSubgridMarkerFromParent(grid *Parent, int level)
 
   if (MyProcessorNumber == ProcessorNumber)
     if (SubgridMarker == NULL)
-      ENZO_VFAIL("SubgridMarker not allocated! level=%d", level)
+      ENZO_VFAIL("SubgridMarker not allocated! level=%" ISYM "", level)
   if (MyProcessorNumber == Parent->ProcessorNumber)
     if (Parent->SubgridMarker == NULL)
-      ENZO_VFAIL("Parent SubgridMarker not allocated! level=%d", level)
+      ENZO_VFAIL("Parent SubgridMarker not allocated! level=%" ISYM "", level)
 
   /* Calculate where the grid (including ghost zones) lies in the
      parent grid */
@@ -245,7 +242,7 @@ int grid::SetSubgridMarkerFromParent(grid *Parent, int level)
 
       /* Send the buffer */
 
-//      printf("P%d: Send %d Subgrid markers from grid %d:%d to %d:%d\n",
+//      printf("P%" ISYM ": Send %" ISYM " Subgrid markers from grid %" ISYM ":%" ISYM " to %" ISYM ":%" ISYM "\n",
 //	     MyProcessorNumber, gzsize, level-1, Parent->ID, level, ID);
       CommunicationBufferedSend(buffer, gzsize, MPI_INT, ProcessorNumber,
 				MPI_SENDMARKER_TAG, MPI_COMM_WORLD,
@@ -258,7 +255,7 @@ int grid::SetSubgridMarkerFromParent(grid *Parent, int level)
       /* Post the receive call */
 
       if (CommunicationDirection == COMMUNICATION_POST_RECEIVE) {
-//	printf("P%d: Posting receive for %d Subgrid markers from "
+//	printf("P%" ISYM ": Posting receive for %" ISYM " Subgrid markers from "
 //	       "grid %d:%d to %d:%d\n",
 //	       MyProcessorNumber, gzsize, level-1, Parent->ID, level, ID);
 	MPI_Irecv(buffer, gzsize, MPI_INT, Parent->ProcessorNumber,
@@ -281,7 +278,7 @@ int grid::SetSubgridMarkerFromParent(grid *Parent, int level)
 	   Can't pass it without modifying
 	   CommunicationReceiveHandler() everywhere */
 
-//	printf("P%d: Processing receive for %d Subgrid markers from "
+//	printf("P%" ISYM ": Processing receive for %" ISYM " Subgrid markers from "
 //	       "grid %d:%d to %d:%d\n",
 //	       MyProcessorNumber, gzsize, level-1, Parent->ID, level, ID);
 

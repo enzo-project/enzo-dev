@@ -10,8 +10,9 @@ syntax: glob
 *.ipch
 .vscode
 
-bin/enzo
-bin/inits
+bin/
+build/
+lib/
 TAGS
 DEPEND
 DEPEND.bak

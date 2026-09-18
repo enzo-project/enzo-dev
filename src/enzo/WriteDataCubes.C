@@ -30,9 +30,8 @@ int WriteDataCubes(HierarchyEntry *Grid, int TGdims[],
 		   char* base_name, int &GridID, FLOAT WriteTime)
 {
  
-  int OriginalID, NextGridThisLevelID, NextGridNextLevelID;
+  int NextGridThisLevelID;
  
-  OriginalID = GridID;
  
   /* Write out grid data for this grid (if WriteTime is < 0 then output
      at the grid's time, otherwise interpolate to WriteTime and output). */

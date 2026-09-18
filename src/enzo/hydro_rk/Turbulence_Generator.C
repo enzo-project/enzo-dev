@@ -45,7 +45,7 @@ double Gaussian(double cs);
      }
    }
 
-   printf("Turbulence_Generator: seed=%"ISYM", kmin=%"GSYM", kmax=%"GSYM", dk = %"GSYM"\n", 
+   printf("Turbulence_Generator: seed=%" ISYM", kmin=%" GSYM", kmax=%" GSYM", dk = %" GSYM"\n", 
 	  seed, kmin, kmax, dk);
    srand(seed);
 
@@ -54,7 +54,7 @@ double Gaussian(double cs);
    double k_wave;
    float kx, ky, kz, k2;
    for (kz = 0; kz <= kmax; kz+=dk) {
-     printf("kz=%"GSYM"\n", kz);
+     printf("kz=%" GSYM"\n", kz);
      for (ky = 0; ky <= kmax; ky+=dk) {
        for (kx = 0; kx <= kmax; kx+=dk) {
 
@@ -109,7 +109,7 @@ double Gaussian(double cs);
 	     }
 	   }
 	 }
-	   //	   printf("%"GSYM" \n", CellWidth[0][0]);
+	   //	   printf("%" GSYM" \n", CellWidth[0][0]);
 
        }
      }

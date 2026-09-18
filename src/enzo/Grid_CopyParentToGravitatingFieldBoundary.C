@@ -95,7 +95,7 @@ int grid::CopyParentToGravitatingFieldBoundary(grid *ParentGrid)
     size *= GravitatingMassFieldDimension[dim];
     if (ParentStartIndex[dim] < 0 ||
 	ParentStartIndex[dim]+ParentTempDim[dim] > ParentDim[dim]) {
-      ENZO_VFAIL("ParentStartIndex[%"ISYM"] = %"ISYM" ParentTempDim = %"ISYM"(%"ISYM").\n",
+      ENZO_VFAIL("ParentStartIndex[%" ISYM"] = %" ISYM" ParentTempDim = %" ISYM"(%" ISYM").\n",
 	      dim, ParentStartIndex[dim], ParentTempDim[dim], ParentDim[dim])
     }
   }
@@ -197,7 +197,7 @@ int grid::CopyParentToGravitatingFieldBoundary(grid *ParentGrid)
       //      if (j == GravitatingMassFieldDimension[1]/2 &&
       //	  k == GravitatingMassFieldDimension[2]/2)
       //	for (i = 0; i < GravitatingMassFieldDimension[0]; i++)
-      //	  printf("%"ISYM" %"GSYM"\n", i,
+      //	  printf("%" ISYM" %" GSYM"\n", i,
       //		 GravitatingMassField[gravityindex-SubGridExtra[0]+i]);
       for (i = SubGridExtra[0];
 	   i < GravitatingMassFieldDimension[0]-SubGridExtra[0];

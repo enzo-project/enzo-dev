@@ -51,8 +51,7 @@ int grid::InterpolateAccelerations(grid *FromGrid)
   /* Declarations. */
  
   float GridOffset[MAX_DIMENSION];
-  int GridStart[MAX_DIMENSION], GridEnd[MAX_DIMENSION], GridDim[MAX_DIMENSION],
-      GridActiveDim[MAX_DIMENSION], Refinement[MAX_DIMENSION], dim, size = 1;
+  int GridStart[MAX_DIMENSION], GridEnd[MAX_DIMENSION], GridActiveDim[MAX_DIMENSION], Refinement[MAX_DIMENSION], dim, size = 1;
  
   /* Compute refinement factors. */
  
@@ -63,7 +62,6 @@ int grid::InterpolateAccelerations(grid *FromGrid)
   for (dim = GridRank; dim < MAX_DIMENSION; dim++) {
     GridOffset[dim] = 0;
     GridStart[dim] = GridEnd[dim] = 0;
-    GridDim[dim] = GridActiveDim[dim] = 1;
   }
  
   /* Compute the GridOffset (in grid units) and GridStartIndex and
@@ -73,7 +71,6 @@ int grid::InterpolateAccelerations(grid *FromGrid)
     GridOffset[dim] = (CellLeftEdge[dim][0] -
 		       FromGrid->CellLeftEdge[dim][0])/
 		       CellWidth[dim][0];
-    GridDim[dim]    = GridDimension[dim];
 #ifdef UNUSED
     GridStart[dim]  = nint(GridOffset[dim]/Refinement[dim]) - 1;
     GridEnd[dim]    = nint((GridStart[dim] + GridDim[dim])/Refinement[dim])+2;
@@ -84,7 +81,7 @@ int grid::InterpolateAccelerations(grid *FromGrid)
     size *= GridDimension[dim];
  
     if (GridOffset[dim] < 0) {
-      ENZO_VFAIL("GridOffset[%"ISYM"] = %"GSYM" < 0.\n", dim, GridOffset[dim])
+      ENZO_VFAIL("GridOffset[%" ISYM"] = %" GSYM" < 0.\n", dim, GridOffset[dim])
     }
   }
  
@@ -114,7 +111,6 @@ int grid::InterpolateAccelerations(grid *FromGrid)
       GridOffset[dim] = (CellLeftEdge[dim][GridStart[dim]] -
 		       FromGrid->GravitatingMassFieldLeftEdge[dim])/
 		       CellWidth[dim][0];
-      GridDim[dim] = GridEnd[dim] - GridStart[dim] + 1;
       GridStart[dim] = 0;
       GridEnd[dim] = GridDim[dim] - 1;
     }

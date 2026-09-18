@@ -61,7 +61,6 @@ int grid::ClusterSMBHFeedback(int level)
   FLOAT JetCenter[MAX_DIMENSION];
 
   FLOAT DiskLeftCorner[MAX_DIMENSION], DiskRightCorner[MAX_DIMENSION];
-  FLOAT DiskCenter[MAX_DIMENSION];
 
   float DensityUnits = 1.0, LengthUnits = 1.0, TemperatureUnits = 1,
     TimeUnits = 1.0, VelocityUnits = 1.0;
@@ -82,7 +81,7 @@ int grid::ClusterSMBHFeedback(int level)
   jet_dim = ClusterSMBHJetDim % 3;
   float JetScaleRadius; // cellwidths
   float JetMdot; // Jet mass flow in SolarMass/year (need to convert units)-- gets value from parameter ClusterSMBHJetMdot
-  float JetVelocity, FastJetVelocity; // Jet Velocity in km/s (should make parameter)-- gets value from parameter ClusterSMBHJetVelocity
+  float JetVelocity;
   JetScaleRadius = ClusterSMBHJetRadius/2.0;  //JetScaleRadius is half the radius of the jet launch region in cellwidths
   float DiskRadius; //ClusterSMBHDiskRadius = 0.5;  //ClusterSMBHDiskRadiu now a parameter
   DiskRadius = ClusterSMBHDiskRadius*kpc_cm/LengthUnits; //from kpc to codeunits 
@@ -95,7 +94,6 @@ int grid::ClusterSMBHFeedback(int level)
       JetLeftCorner[dim] -= ClusterSMBHJetRadius*CellWidth[dim][0];
       JetRightCorner[dim] += ClusterSMBHJetRadius*CellWidth[dim][0];
     }
-    DiskCenter[dim] = PointSourceGravityPosition[dim];
     DiskLeftCorner[dim] = PointSourceGravityPosition[dim]- DiskRadius;
     DiskRightCorner[dim] = PointSourceGravityPosition[dim] + DiskRadius;
   }

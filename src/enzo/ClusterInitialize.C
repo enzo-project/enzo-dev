@@ -38,13 +38,13 @@ int CommunicationPartitionGrid(HierarchyEntry *Grid, int gridnum);
 int ClusterInitialize(FILE *fptr, FILE *Outfptr, 
                            HierarchyEntry &TopGrid, TopGridData &MetaData, ExternalBoundary &Exterior)
 {
-  char *DensName = "Density";
-  char *TEName   = "TotalEnergy";
-  char *GEName   = "GasEnergy";
-  char *Vel1Name = "x-velocity";
-  char *Vel2Name = "y-velocity";
-  char *Vel3Name = "z-velocity";
-  char *ColourName = "colour";
+  const char *DensName = "Density";
+  const char *TEName   = "TotalEnergy";
+  const char *GEName   = "GasEnergy";
+  const char *Vel1Name = "x-velocity";
+  const char *Vel2Name = "y-velocity";
+  const char *Vel3Name = "z-velocity";
+  const char *ColourName = "colour";
 
   /* declarations */
 
@@ -91,43 +91,43 @@ int ClusterInitialize(FILE *fptr, FILE *Outfptr,
 
     /* read parameters */
 
-    ret += sscanf(line, "ClusterNumberOfSpheres = %"ISYM,
+    ret += sscanf(line, "ClusterNumberOfSpheres = %" ISYM,
                   &ClusterNumberOfSpheres);
-    ret += sscanf(line, "ClusterRefineAtStart = %"ISYM, 
+    ret += sscanf(line, "ClusterRefineAtStart = %" ISYM, 
                   &ClusterRefineAtStart);
-    ret += sscanf(line, "ClusterUseParticles = %"ISYM, 
+    ret += sscanf(line, "ClusterUseParticles = %" ISYM, 
                   &ClusterUseParticles);
-    ret += sscanf(line, "ClusterUseColour = %"ISYM, 
+    ret += sscanf(line, "ClusterUseColour = %" ISYM, 
                   &ClusterUseColour);
-    ret += sscanf(line, "ClusterInitialTemperature = %"FSYM, 
+    ret += sscanf(line, "ClusterInitialTemperature = %" FSYM, 
                   &ClusterInitialTemperature);
-    ret += sscanf(line, "ClusterInitialSpinParameter = %"FSYM,
+    ret += sscanf(line, "ClusterInitialSpinParameter = %" FSYM,
 		  &ClusterInitialSpinParameter);
-    ret += sscanf(line, "ClusterUniformVelocity = %"FSYM" %"FSYM" %"FSYM, 
+    ret += sscanf(line, "ClusterUniformVelocity = %" FSYM" %" FSYM" %" FSYM, 
                   ClusterUniformVelocity, ClusterUniformVelocity+1,
                   ClusterUniformVelocity+2);
-    if (sscanf(line, "ClusterSphereType[%"ISYM"]", &sphere) > 0)
-      ret += sscanf(line, "ClusterSphereType[%"ISYM"] = %"ISYM, &sphere,
+    if (sscanf(line, "ClusterSphereType[%" ISYM"]", &sphere) > 0)
+      ret += sscanf(line, "ClusterSphereType[%" ISYM"] = %" ISYM, &sphere,
                     &ClusterSphereType[sphere]);
-    if (sscanf(line, "ClusterSphereRadius[%"ISYM"]", &sphere) > 0)
-      ret += sscanf(line, "ClusterSphereRadius[%"ISYM"] = %"PSYM, &sphere,
+    if (sscanf(line, "ClusterSphereRadius[%" ISYM"]", &sphere) > 0)
+      ret += sscanf(line, "ClusterSphereRadius[%" ISYM"] = %" PSYM, &sphere,
                     &ClusterSphereRadius[sphere]);
-    if (sscanf(line, "ClusterSphereCoreRadius[%"ISYM"]", &sphere) > 0)
-      ret += sscanf(line, "ClusterSphereCoreRadius[%"ISYM"] = %"PSYM, &sphere,
+    if (sscanf(line, "ClusterSphereCoreRadius[%" ISYM"]", &sphere) > 0)
+      ret += sscanf(line, "ClusterSphereCoreRadius[%" ISYM"] = %" PSYM, &sphere,
                     &ClusterSphereCoreRadius[sphere]);
-    if (sscanf(line, "ClusterSphereDensity[%"ISYM"]", &sphere) > 0)
-      ret += sscanf(line, "ClusterSphereDensity[%"ISYM"] = %"FSYM, &sphere,
+    if (sscanf(line, "ClusterSphereDensity[%" ISYM"]", &sphere) > 0)
+      ret += sscanf(line, "ClusterSphereDensity[%" ISYM"] = %" FSYM, &sphere,
                     &ClusterSphereDensity[sphere]);
-    if (sscanf(line, "ClusterSphereTemperature[%"ISYM"]", &sphere) > 0)
-      ret += sscanf(line, "ClusterSphereTemperature[%"ISYM"] = %"FSYM, &sphere,
+    if (sscanf(line, "ClusterSphereTemperature[%" ISYM"]", &sphere) > 0)
+      ret += sscanf(line, "ClusterSphereTemperature[%" ISYM"] = %" FSYM, &sphere,
                     &ClusterSphereTemperature[sphere]);
-    if (sscanf(line, "ClusterSpherePosition[%"ISYM"]", &sphere) > 0)
-      ret += sscanf(line, "ClusterSpherePosition[%"ISYM"] = %"PSYM" %"PSYM" %"PSYM, 
+    if (sscanf(line, "ClusterSpherePosition[%" ISYM"]", &sphere) > 0)
+      ret += sscanf(line, "ClusterSpherePosition[%" ISYM"] = %" PSYM" %" PSYM" %" PSYM, 
                     &sphere, &ClusterSpherePosition[sphere][0],
                     &ClusterSpherePosition[sphere][1],
                     &ClusterSpherePosition[sphere][2]);
-    if (sscanf(line, "ClusterSphereVelocity[%"ISYM"]", &sphere) > 0)
-      ret += sscanf(line, "ClusterSphereVelocity[%"ISYM"] = %"FSYM" %"FSYM" %"FSYM, 
+    if (sscanf(line, "ClusterSphereVelocity[%" ISYM"]", &sphere) > 0)
+      ret += sscanf(line, "ClusterSphereVelocity[%" ISYM"] = %" FSYM" %" FSYM" %" FSYM, 
                     &sphere, &ClusterSphereVelocity[sphere][0],
                     &ClusterSphereVelocity[sphere][1],
                     &ClusterSphereVelocity[sphere][2]);
@@ -256,36 +256,36 @@ int ClusterInitialize(FILE *fptr, FILE *Outfptr,
   /* Write parameters to parameter output file */
 
   if (MyProcessorNumber == ROOT_PROCESSOR) {
-    fprintf(Outfptr, "ClusterNumberOfSpheres    = %"ISYM"\n",
+    fprintf(Outfptr, "ClusterNumberOfSpheres    = %" ISYM"\n",
             ClusterNumberOfSpheres);
-    fprintf(Outfptr, "ClusterRefineAtStart      = %"ISYM"\n",
+    fprintf(Outfptr, "ClusterRefineAtStart      = %" ISYM"\n",
             ClusterRefineAtStart);
-    fprintf(Outfptr, "ClusterUseParticles       = %"ISYM"\n",
+    fprintf(Outfptr, "ClusterUseParticles       = %" ISYM"\n",
             ClusterUseParticles);
-    fprintf(Outfptr, "ClusterUseColour          = %"ISYM"\n",
+    fprintf(Outfptr, "ClusterUseColour          = %" ISYM"\n",
             ClusterUseColour);
-    fprintf(Outfptr, "ClusterInitialTemperature = %"GOUTSYM"\n",
+    fprintf(Outfptr, "ClusterInitialTemperature = %" GOUTSYM"\n",
             ClusterInitialTemperature);
-    fprintf(fptr, "ClusterInitialSpinParameter   = %"FSYM"\n",
+    fprintf(fptr, "ClusterInitialSpinParameter   = %" FSYM"\n",
 	    ClusterInitialSpinParameter);
-    fprintf(Outfptr, "ClusterUniformVelocity    = %"GOUTSYM" %"GOUTSYM" %"GOUTSYM"\n",
+    fprintf(Outfptr, "ClusterUniformVelocity    = %" GOUTSYM" %" GOUTSYM" %" GOUTSYM"\n",
             ClusterUniformVelocity[0], ClusterUniformVelocity[1],
             ClusterUniformVelocity[2]);
     for (sphere = 0; sphere < ClusterNumberOfSpheres; sphere++) {
-      fprintf(Outfptr, "ClusterSphereType[%"ISYM"] = %"ISYM"\n", sphere,
+      fprintf(Outfptr, "ClusterSphereType[%" ISYM"] = %" ISYM"\n", sphere,
               ClusterSphereType[sphere]);
-      fprintf(Outfptr, "ClusterSphereRadius[%"ISYM"] = %"GOUTSYM"\n", sphere,
+      fprintf(Outfptr, "ClusterSphereRadius[%" ISYM"] = %" GOUTSYM"\n", sphere,
               ClusterSphereRadius[sphere]);
-      fprintf(Outfptr, "ClusterSphereCoreRadius[%"ISYM"] = %"GOUTSYM"\n", sphere,
+      fprintf(Outfptr, "ClusterSphereCoreRadius[%" ISYM"] = %" GOUTSYM"\n", sphere,
               ClusterSphereCoreRadius[sphere]);
-      fprintf(Outfptr, "ClusterSphereDensity[%"ISYM"] = %"GOUTSYM"\n", sphere,
+      fprintf(Outfptr, "ClusterSphereDensity[%" ISYM"] = %" GOUTSYM"\n", sphere,
               ClusterSphereDensity[sphere]);
-      fprintf(Outfptr, "ClusterSphereTemperature[%"ISYM"] = %"GOUTSYM"\n", sphere,
+      fprintf(Outfptr, "ClusterSphereTemperature[%" ISYM"] = %" GOUTSYM"\n", sphere,
               ClusterSphereTemperature[sphere]);
-      fprintf(Outfptr, "ClusterSpherePosition[%"ISYM"] = ", sphere);
+      fprintf(Outfptr, "ClusterSpherePosition[%" ISYM"] = ", sphere);
       WriteListOfFloats(Outfptr, MetaData.TopGridRank,
                         ClusterSpherePosition[sphere]);
-      fprintf(Outfptr, "ClusterSphereVelocity[%"ISYM"] = ", sphere);
+      fprintf(Outfptr, "ClusterSphereVelocity[%" ISYM"] = ", sphere);
       WriteListOfFloats(Outfptr, MetaData.TopGridRank,
                         ClusterSphereVelocity[sphere]);
     }

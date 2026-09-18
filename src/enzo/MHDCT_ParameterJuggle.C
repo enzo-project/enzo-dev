@@ -39,7 +39,7 @@ int MHDCT_ParameterJuggle(){
     ProblemType = 500;
 
   if( HydroMethod == HD_RK || HydroMethod == MHD_RK )
-    ENZO_VFAIL("Error: HydroMethod %"ISYM" from Old MHD incompatable with New MHD.\n Either set UseMHDCT = 0, or use HydroMethod 6.",HydroMethod);
+    ENZO_VFAIL("Error: HydroMethod %" ISYM" from Old MHD incompatable with New MHD.\n Either set UseMHDCT = 0, or use HydroMethod 6.",HydroMethod);
   
   return SUCCESS;
 }

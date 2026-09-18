@@ -44,27 +44,17 @@ int grid::RemoveMassFromGrid(ActiveParticleType* ThisParticle,
   int index = 0, numcells = 0;
   double rhocell = 0.0, mcell = 0.0;
   FLOAT radius2 = 0.0;
-  float SmallRhoFac = 1e-10, Weight = 0.0, SmallEFac = 10., SmEint = 0,  AccretedMomentum[3],
-    vgas[3], etot, eint, ke,  etotnew, rhonew, eintnew,
-    kenew;
+  float SmallRhoFac = 1e-10, Weight = 0.0, SmallEFac = 10., SmEint = 0, vgas[3], etot, eint, ke, etotnew, eintnew, kenew;
   double maccreted = 0, mnew = 0.0, cumulative_accreted_mass = 0.0;
-  double GasAngularMomentumBefore[3] = {0.0, 0.0, 0.0}, GasAngularMomentumAfter[3] = {0.0, 0.0, 0.0};
-  double GasLinearMomentumBefore[3] = {0.0, 0.0, 0.0}, GasLinearMomentumAfter[3] = {0.0, 0.0, 0.0};
  
-  double SSAngularMomentumBefore[3] = {0.0, 0.0, 0.0}, SSAngularMomentumAfter[3] = {0.0, 0.0, 0.0};
-  double SSLinearMomentumBefore[3] = {0.0, 0.0, 0.0}, SSLinearMomentumAfter[3] = {0.0, 0.0, 0.0};
-  double TotalAngularMomentumBefore[3] = {0.0, 0.0, 0.0}, TotalAngularMomentumAfter[3] = {0.0, 0.0, 0.0};
-  double TotalLinearMomentumBefore[3] = {0.0, 0.0, 0.0}, TotalLinearMomentumAfter[3] = {0.0, 0.0, 0.0};
   float AveragedVelocity[3] = {0.0, 0.0, 0.0};
-  double totalmass_before = 0.0, totalmass_after = 0.0;
-  FLOAT xpos = 0.0, ypos = 0.0, zpos = 0.0;
+  double totalmass_before = 0.0;
   int offset[] =
     {1, GridDimension[0], GridDimension[0]*GridDimension[1]};
    /* Set the units. */
  
   float DensityUnits = 1, LengthUnits = 1, TemperatureUnits = 1,
-    TimeUnits = 1, VelocityUnits = 1,
-    PressureUnits = 0, GEUnits = 0, VelUnits = 0;
+    TimeUnits = 1, VelocityUnits = 1;
   double MassUnits = 1, CellVolume = 1;
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, Time) == FAIL) {
@@ -194,13 +184,13 @@ int grid::RemoveMassFromGrid(ActiveParticleType* ThisParticle,
 #endif
 #if DEBUG_AP
 	  //maccreted = 0.1*mcell;
-	  //printf("Index %d: mcell: %g\t maccreted: %g\t  maccreted/mcell = %g\n", index,
+	  //printf("Index %" ISYM ": mcell: %g\t maccreted: %g\t  maccreted/mcell = %g\n", index,
 	  // 		 mcell, maccreted, maccreted/mcell);
 #endif
 
 	  if (maccreted > ACCRETION_LIMIT*mcell) {
 	    //#if DEBUG_AP
-	    // printf("Index %d: accretion rate capped - old maccreted = %g new maccreted = %g\n",
+	    // printf("Index %" ISYM ": accretion rate capped - old maccreted = %g new maccreted = %g\n",
 	    //	   index, maccreted, ACCRETION_LIMIT*mcell);
 	    //#endif
 	    maccreted = ACCRETION_LIMIT*mcell;
@@ -220,14 +210,10 @@ int grid::RemoveMassFromGrid(ActiveParticleType* ThisParticle,
 
 	  mnew = mcell - maccreted;
 	  maccreted = mcell - mnew;
-	  rhonew = mnew/CellVolume;
 	  
 	  // Calculate angular momentum of cell before
 	  //L = r x p
 	  
-	  xpos = (CellLeftEdge[0][i] + 0.5*CellWidth[0][i]);
-	  ypos = (CellLeftEdge[0][j] + 0.5*CellWidth[0][j]);
-	  zpos = (CellLeftEdge[0][k] + 0.5*CellWidth[0][k]);
 	  
 
 	  numcells++;
@@ -303,7 +289,6 @@ int grid::RemoveMassFromGrid(ActiveParticleType* ThisParticle,
 	  AveragedVelocity[1] += mcell*vgas[1];
 	  AveragedVelocity[2] += mcell*vgas[2];
 	  totalmass_before += mcell;
-	  totalmass_after += mnew;
 #if DEBUG_AP
 
 	  GasAngularMomentumBefore[0] += mcell*(ypos*vgas[2] -
@@ -445,7 +430,7 @@ int grid::RemoveMassFromGrid(ActiveParticleType* ThisParticle,
   printf("Relative Error in Linear Momentum Conservation = %e\n", RelativeError);
   RelativeError = fabs(DeltaTotalAngularMomentum[0]/TotalAngularMomentumBefore[0]);
   printf("Relative Error in Angular Momentum Conservation = %e\n", RelativeError);
-  printf("NumCells = %d\n", numcells);
+  printf("NumCells = %" ISYM "\n", numcells);
 
 
   printf("Gas Angular Momentum Before = %e\n",

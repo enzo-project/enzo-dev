@@ -35,12 +35,12 @@
 int TestGravityInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 		       TopGridData &MetaData)
 {
-  char *DensName = "Density";
-  char *TEName   = "TotalEnergy";
-  char *GEName   = "GasEnergy";
-  char *Vel1Name = "x-velocity";
-  char *Vel2Name = "y-velocity";
-  char *Vel3Name = "z-velocity";
+  const char *DensName = "Density";
+  const char *TEName   = "TotalEnergy";
+  const char *GEName   = "GasEnergy";
+  const char *Vel1Name = "x-velocity";
+  const char *Vel2Name = "y-velocity";
+  const char *Vel3Name = "z-velocity";
  
   /* declarations */
  
@@ -70,14 +70,14 @@ int TestGravityInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
  
     /* read parameters */
  
-    ret += sscanf(line, "TestGravityDensity = %"FSYM, &TestGravityDensity);
-    ret += sscanf(line, "TestGravitySubgridLeft = %"PSYM,
+    ret += sscanf(line, "TestGravityDensity = %" FSYM, &TestGravityDensity);
+    ret += sscanf(line, "TestGravitySubgridLeft = %" PSYM,
 		  &TestGravitySubgridLeft);
-    ret += sscanf(line, "TestGravitySubgridRight = %"PSYM,
+    ret += sscanf(line, "TestGravitySubgridRight = %" PSYM,
 		  &TestGravitySubgridRight);
-    ret += sscanf(line, "TestGravityNumberOfParticles = %"ISYM,
+    ret += sscanf(line, "TestGravityNumberOfParticles = %" ISYM,
 		  &TestGravityNumberOfParticles);
-    ret += sscanf(line, "TestGravityUseBaryons = %"ISYM,
+    ret += sscanf(line, "TestGravityUseBaryons = %" ISYM,
 		  &TestGravityUseBaryons);
  
     /* if the line is suspicious, issue a warning */
@@ -168,15 +168,15 @@ int TestGravityInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
  
   if (MyProcessorNumber == ROOT_PROCESSOR) {
 
-    fprintf(Outfptr, "TestGravityDensity           = %"FSYM"\n",
+    fprintf(Outfptr, "TestGravityDensity           = %" FSYM"\n",
 	    TestGravityDensity);
-    fprintf(Outfptr, "TestGravitySubgridLeft       = %"GOUTSYM"\n",
+    fprintf(Outfptr, "TestGravitySubgridLeft       = %" GOUTSYM"\n",
 	    TestGravitySubgridLeft);
-    fprintf(Outfptr, "TestGravitySubgridRight      = %"GOUTSYM"\n",
+    fprintf(Outfptr, "TestGravitySubgridRight      = %" GOUTSYM"\n",
 	    TestGravitySubgridRight);
-    fprintf(Outfptr, "TestGravityNumberOfParticles = %"ISYM"\n",
+    fprintf(Outfptr, "TestGravityNumberOfParticles = %" ISYM"\n",
 	    TestGravityNumberOfParticles);
-    fprintf(Outfptr, "TestGravityUseBaryons        = %"ISYM"\n\n",
+    fprintf(Outfptr, "TestGravityUseBaryons        = %" ISYM"\n\n",
 	    TestGravityUseBaryons);
   }
  

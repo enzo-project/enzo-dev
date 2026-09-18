@@ -47,12 +47,10 @@ int SchrodingerAddPotential(float *repsi, float *impsi,
          double hmcoef,
          float *p, int start1, int start2, int start3)
 {
-  int ijk = MAX_ANY_SINGLE_DIRECTION;
 
   /* Local declarations */
 
-  int i, j, k, jsm1, ksm1, jep1, kep1, ism2, jsm2, ksm2, jep2, kep2;
-  int size = in*jn*kn;
+  int i, j, k;
 
   /* ======================================================================= */
 

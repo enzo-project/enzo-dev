@@ -50,21 +50,17 @@ int ZeusSource(float *d, float *e, float *u, float *v, float *w, float *p, float
 
   /* Local declarations */
 
-  int i, j, k, jsm1, ksm1, jep1, kep1, jsm2, ksm2, jep2, kep2, n, nstep;
-  float  alpha, q[ijk], div[ijk], deltav, deltavmax, e1, gamma1, dt1, CRalpha;
+  int i, j, k, jep1, kep1, jsm2, ksm2, n, nstep;
+  float alpha, q[ijk], div[ijk], deltav, e1, gamma1, dt1, CRalpha;
 
   /* ======================================================================= */
 
   /* Compute varients on start indexes */
 
-  jsm1 = max(js-1, 0);
-  ksm1 = max(ks-1, 0);
   jep1 = min(je+1, jn-1);
   kep1 = min(ke+1, kn-1);
   jsm2 = max(js-2, 0);
   ksm2 = max(ks-2, 0);
-  jep2 = min(je+2, jn-1);
-  kep2 = min(ke+2, kn-1);
 
   gamma1 = gamma[0];  // if gamma is a scalar
 
@@ -98,8 +94,8 @@ int ZeusSource(float *d, float *e, float *u, float *v, float *w, float *p, float
 	  p[IDX(i,j,k)] = max((gamma1-1.0)*d[IDX(i,j,k)]*e1, pmin);
 
 	  if (e[IDX(i,j,k)] <= 0.0 || d[IDX(i,j,k)] <= 0.0) {
-	    printf("%"ISYM"\n", IDX(i,j,k));
-	    fprintf(stderr, "zeus_source1: e,d=%"GSYM",%"GSYM" i,j,k=%"ISYM",%"ISYM",%"ISYM"\n",
+	    printf("%" ISYM"\n", IDX(i,j,k));
+	    fprintf(stderr, "zeus_source1: e,d=%" GSYM",%" GSYM" i,j,k=%" ISYM",%" ISYM",%" ISYM"\n",
 		    e[IDX(i,j,k)],d[IDX(i,j,k)],i,j,k);
 	    ENZO_FAIL("Negative energy or density!\n");
 	  }
@@ -324,20 +320,20 @@ int ZeusSource(float *d, float *e, float *u, float *v, float *w, float *p, float
 	e[IDX(i,j,k)] = e[IDX(i,j,k)] * (1.0 - alpha)/(1.0 + alpha);
 
 	if (e[IDX(i,j,k)] <= 0.0 || d[IDX(i,j,k)] <= 0.0) {
-	  fprintf(stderr, "zeus_div error: e,alpha,div=%"GSYM",%"GSYM",%"GSYM"   i,j,k=%"ISYM",%"ISYM",%"ISYM"\n",
+	  fprintf(stderr, "zeus_div error: e,alpha,div=%" GSYM",%" GSYM",%" GSYM"   i,j,k=%" ISYM",%" ISYM",%" ISYM"\n",
                   e[IDX(i,j,k)],alpha, div[i],i,j,k);
-	  fprintf(stderr, "%"GSYM" %"GSYM" dt=%"GSYM" dx=%"GSYM"\n", d[IDX(i,j,k)],p[IDX(i,j,k)],dt,dx[i]);
-	  fprintf(stderr, "p1=%"GSYM",%"GSYM",%"GSYM"\n", p[IDX(i+1,j,k)],p[IDX(i,j+1,k)],p[IDX(i,j,k+1)]);
-	  fprintf(stderr, "p2=%"GSYM",%"GSYM",%"GSYM"\n", p[IDX(i-1,j,k)],p[IDX(i,j-1,k)],p[IDX(i,j,k-1)]);
-	  fprintf(stderr, "d=%"GSYM",%"GSYM",%"GSYM"\n", d[IDX(i-1,j,k)],d[IDX(i,j-1,k)],d[IDX(i,j,k-1)]);
-	  fprintf(stderr, "u=%"GSYM",%"GSYM",%"GSYM"\n", u[IDX(i-1,j,k)],u[IDX(i,j,k)],u[IDX(i+1,j,k)]);
-	  fprintf(stderr, "v=%"GSYM",%"GSYM",%"GSYM"\n", v[IDX(i,j-1,k)],v[IDX(i,j,k)],v[IDX(i,j+1,k)]);
-	  fprintf(stderr, "w=%"GSYM",%"GSYM",%"GSYM"\n", w[IDX(i,j,k-1)],w[IDX(i,j,k)],w[IDX(i,j,k+1)]);
-	  fprintf(stderr, "grav_x=%"GSYM",%"GSYM",%"GSYM"\n", gr_xacc[IDX(i-1,j,k)],gr_xacc[IDX(i,j,k)], gr_xacc[IDX(i+1,j,k)]);
-	  fprintf(stderr, "grav_y=%"GSYM",%"GSYM",%"GSYM"\n", gr_yacc[IDX(i,j-1,k)],gr_yacc[IDX(i,j,k)], gr_yacc[IDX(i,j+1,k)]);
-	  fprintf(stderr, "grav_z=%"GSYM",%"GSYM",%"GSYM"\n", gr_zacc[IDX(i,j,k-1)],gr_zacc[IDX(i,j,k)], gr_zacc[IDX(i,j,k+1)]);
+	  fprintf(stderr, "%" GSYM" %" GSYM" dt=%" GSYM" dx=%" GSYM"\n", d[IDX(i,j,k)],p[IDX(i,j,k)],dt,dx[i]);
+	  fprintf(stderr, "p1=%" GSYM",%" GSYM",%" GSYM"\n", p[IDX(i+1,j,k)],p[IDX(i,j+1,k)],p[IDX(i,j,k+1)]);
+	  fprintf(stderr, "p2=%" GSYM",%" GSYM",%" GSYM"\n", p[IDX(i-1,j,k)],p[IDX(i,j-1,k)],p[IDX(i,j,k-1)]);
+	  fprintf(stderr, "d=%" GSYM",%" GSYM",%" GSYM"\n", d[IDX(i-1,j,k)],d[IDX(i,j-1,k)],d[IDX(i,j,k-1)]);
+	  fprintf(stderr, "u=%" GSYM",%" GSYM",%" GSYM"\n", u[IDX(i-1,j,k)],u[IDX(i,j,k)],u[IDX(i+1,j,k)]);
+	  fprintf(stderr, "v=%" GSYM",%" GSYM",%" GSYM"\n", v[IDX(i,j-1,k)],v[IDX(i,j,k)],v[IDX(i,j+1,k)]);
+	  fprintf(stderr, "w=%" GSYM",%" GSYM",%" GSYM"\n", w[IDX(i,j,k-1)],w[IDX(i,j,k)],w[IDX(i,j,k+1)]);
+	  fprintf(stderr, "grav_x=%" GSYM",%" GSYM",%" GSYM"\n", gr_xacc[IDX(i-1,j,k)],gr_xacc[IDX(i,j,k)], gr_xacc[IDX(i+1,j,k)]);
+	  fprintf(stderr, "grav_y=%" GSYM",%" GSYM",%" GSYM"\n", gr_yacc[IDX(i,j-1,k)],gr_yacc[IDX(i,j,k)], gr_yacc[IDX(i,j+1,k)]);
+	  fprintf(stderr, "grav_z=%" GSYM",%" GSYM",%" GSYM"\n", gr_zacc[IDX(i,j,k-1)],gr_zacc[IDX(i,j,k)], gr_zacc[IDX(i,j,k+1)]);
 	  for (n=is; n <= ie; n++)
-	    fprintf(stderr, "d,e,u,v,w=%"GSYM",%"GSYM",%"GSYM",%"GSYM",%"GSYM"\n", d[IDX(n,j,k)],e[IDX(n,j,k)],u[IDX(n,j,k)],v[IDX(n,j,k)],w[IDX(n,j,k)]);
+	    fprintf(stderr, "d,e,u,v,w=%" GSYM",%" GSYM",%" GSYM",%" GSYM",%" GSYM"\n", d[IDX(n,j,k)],e[IDX(n,j,k)],u[IDX(n,j,k)],v[IDX(n,j,k)],w[IDX(n,j,k)]);
 	  ENZO_FAIL("Negative energy or density!\n");
 	}
 
@@ -360,7 +356,7 @@ int ZeusSource(float *d, float *e, float *u, float *v, float *w, float *p, float
       for (i = is-2; i <= ie+2; i++) {
 	p[IDX(i,j,k)] = max((gamma-1.0)*d[IDX(i,j,k)]*e[IDX(i,j,k)], pmin);
 	if (e[IDX(i,j,k)] <= 0.0 || d[IDX(i,j,k)] <= 0.0) {
-	  ENZO_VFAIL("zeus_source2: e,d=%"GSYM",%"GSYM"  i,j,k=%"ISYM",%"ISYM",%"ISYM"\n",
+	  ENZO_VFAIL("zeus_source2: e,d=%" GSYM",%" GSYM"  i,j,k=%" ISYM",%" ISYM",%" ISYM"\n",
 		  e(i,j,j),d[IDX(i,j,k)],i,j,k)
 
 	}

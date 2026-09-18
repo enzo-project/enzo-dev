@@ -70,9 +70,7 @@ int grid::ComputeDustTemperatureField(float *temperature, float *dust_temperatur
   
   /* Compute the size of the fields. */
  
-  int i, size = 1;
   for (int dim = 0; dim < GridRank; dim++)
-    size *= GridDimension[dim];
  
   /* Find Density, if possible. */
  

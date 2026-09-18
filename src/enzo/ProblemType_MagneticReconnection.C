@@ -150,32 +150,32 @@ class ProblemType_MagneticReconnection : public EnzoProblemType
 
         /* read parameters specifically for radiating shock problem*/
 
-        ret += sscanf(line, "MagneticReconnectionOverdensity  = %"FSYM, &MagneticReconnectionOverdensity);
-        ret += sscanf(line, "MagneticReconnectionSubgridLeft = %"PSYM,
+        ret += sscanf(line, "MagneticReconnectionOverdensity  = %" FSYM, &MagneticReconnectionOverdensity);
+        ret += sscanf(line, "MagneticReconnectionSubgridLeft = %" PSYM,
             &MagneticReconnectionSubgridLeft);
-        ret += sscanf(line, "MagneticReconnectionSubgridRight = %"PSYM,
+        ret += sscanf(line, "MagneticReconnectionSubgridRight = %" PSYM,
             &MagneticReconnectionSubgridRight);
-        ret += sscanf(line, "MagneticReconnectionLambda = %"FSYM,
+        ret += sscanf(line, "MagneticReconnectionLambda = %" FSYM,
             &MagneticReconnectionLambda);
-        ret += sscanf(line, "MagneticReconnectionBperturbation = %"FSYM,
+        ret += sscanf(line, "MagneticReconnectionBperturbation = %" FSYM,
             &MagneticReconnectionBperturbation);
 
-        ret += sscanf(line, "MagneticReconnectionTotalEnergy = %"FSYM,
+        ret += sscanf(line, "MagneticReconnectionTotalEnergy = %" FSYM,
             &MagneticReconnectionTotalEnergy);
 
-        ret += sscanf(line, "MagneticReconnectionCenterPosition = %"PSYM" %"PSYM" %"PSYM,
+        ret += sscanf(line, "MagneticReconnectionCenterPosition = %" PSYM" %" PSYM" %" PSYM,
             MagneticReconnectionCenterPosition, MagneticReconnectionCenterPosition+1,
             MagneticReconnectionCenterPosition+2);
-        ret += sscanf(line, "MagneticReconnectionBperturbk = %"PSYM" %"PSYM" %"PSYM,
+        ret += sscanf(line, "MagneticReconnectionBperturbk = %" PSYM" %" PSYM" %" PSYM,
             MagneticReconnectionBperturbk, MagneticReconnectionBperturbk+1,
             MagneticReconnectionBperturbk+2);
-        ret += sscanf(line, "MagneticReconnectionBField = %"PSYM" %"PSYM" %"PSYM,
+        ret += sscanf(line, "MagneticReconnectionBField = %" PSYM" %" PSYM" %" PSYM,
             MagneticReconnectionBField, MagneticReconnectionBField+1,
             MagneticReconnectionBField+2);
-        ret += sscanf(line, "MagneticReconnectionRefineAtStart = %"ISYM, &MagneticReconnectionRefineAtStart);
+        ret += sscanf(line, "MagneticReconnectionRefineAtStart = %" ISYM, &MagneticReconnectionRefineAtStart);
 
-        ret += sscanf(line, "TestProblemUseMetallicityField  = %"ISYM, &TestProblemData.UseMetallicityField);
-        ret += sscanf(line, "TestProblemInitialMetallicityFraction  = %"FSYM, &TestProblemData.MetallicityField_Fraction);
+        ret += sscanf(line, "TestProblemUseMetallicityField  = %" ISYM, &TestProblemData.UseMetallicityField);
+        ret += sscanf(line, "TestProblemInitialMetallicityFraction  = %" FSYM, &TestProblemData.MetallicityField_Fraction);
 
         /* if the line is suspicious, issue a warning */
 
@@ -262,22 +262,22 @@ class ProblemType_MagneticReconnection : public EnzoProblemType
       /* Write parameters to parameter output file */
 
       if (MyProcessorNumber == ROOT_PROCESSOR) {
-        fprintf(Outfptr, "MagneticReconnectionOverdensity         = %"FSYM"\n"  , MagneticReconnectionOverdensity);
-        fprintf(Outfptr, "MagneticReconnectionLambda         = %"FSYM"\n"  , MagneticReconnectionLambda);
-        fprintf(Outfptr, "MagneticReconnectionBperturbation  = %"FSYM"\n"  , MagneticReconnectionBperturbation);
-        fprintf(Outfptr, "MagneticReconnectionTotalEnergy         = %"FSYM"\n"  , MagneticReconnectionTotalEnergy);
-        fprintf(Outfptr, "MagneticReconnectionCenterPosition = %"PSYM" %"PSYM" %"PSYM"\n",
+        fprintf(Outfptr, "MagneticReconnectionOverdensity         = %" FSYM"\n"  , MagneticReconnectionOverdensity);
+        fprintf(Outfptr, "MagneticReconnectionLambda         = %" FSYM"\n"  , MagneticReconnectionLambda);
+        fprintf(Outfptr, "MagneticReconnectionBperturbation  = %" FSYM"\n"  , MagneticReconnectionBperturbation);
+        fprintf(Outfptr, "MagneticReconnectionTotalEnergy         = %" FSYM"\n"  , MagneticReconnectionTotalEnergy);
+        fprintf(Outfptr, "MagneticReconnectionCenterPosition = %" PSYM" %" PSYM" %" PSYM"\n",
             MagneticReconnectionCenterPosition, MagneticReconnectionCenterPosition+1,
             MagneticReconnectionCenterPosition+2);
-        fprintf(Outfptr, "MagneticReconnectionBperturbk = %"PSYM" %"PSYM" %"PSYM"\n",
+        fprintf(Outfptr, "MagneticReconnectionBperturbk = %" PSYM" %" PSYM" %" PSYM"\n",
             MagneticReconnectionBperturbk, MagneticReconnectionBperturbk+1,
             MagneticReconnectionBperturbk+2);
-        fprintf(Outfptr, "MagneticReconnectionBField = %"PSYM" %"PSYM" %"PSYM"\n",
+        fprintf(Outfptr, "MagneticReconnectionBField = %" PSYM" %" PSYM" %" PSYM"\n",
             MagneticReconnectionBField, MagneticReconnectionBField+1,
             MagneticReconnectionBField+2);
-        fprintf(Outfptr, "MagneticReconnectionRefineAtStart           = %"ISYM"\n", MagneticReconnectionRefineAtStart);
-        fprintf(Outfptr, "TestProblemUseMetallicityField  = %"ISYM"\n", TestProblemData.UseMetallicityField);
-        fprintf(Outfptr, "TestProblemInitialMetallicityFraction  = %"FSYM"\n", TestProblemData.MetallicityField_Fraction);
+        fprintf(Outfptr, "MagneticReconnectionRefineAtStart           = %" ISYM"\n", MagneticReconnectionRefineAtStart);
+        fprintf(Outfptr, "TestProblemUseMetallicityField  = %" ISYM"\n", TestProblemData.UseMetallicityField);
+        fprintf(Outfptr, "TestProblemInitialMetallicityFraction  = %" FSYM"\n", TestProblemData.MetallicityField_Fraction);
 
       } //   if (MyProcessorNumber == ROOT_PROCESSOR) 
 

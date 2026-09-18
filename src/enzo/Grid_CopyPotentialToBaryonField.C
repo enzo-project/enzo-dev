@@ -63,18 +63,13 @@ int grid::CopyPotentialToBaryonField()
      See Grid_InitializeGravitatingMassField.C for details.
   */
  
-  int BaryonFieldBufferSize = NumberOfGhostZones;
-  int GravityBufferSize = GRAVITY_BUFFER_SIZE;
-  int DimTemp, BufferSize;
   int dim;
   int Off[3];
  
   for (dim = 0; dim < GridRank; dim++)
   {
-     DimTemp = GridEndIndex[dim] - GridStartIndex[dim] + 1;
-     BufferSize = (GravitatingMassFieldDimension[dim] - DimTemp)/2;
      Off[dim] = (GravitatingMassFieldDimension[dim] - GridDimension[dim])/2;
-//     fprintf(stderr, "CPOT (%"ISYM") %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM"\n", dim, GridDimension[dim], GridStartIndex[dim], GridEndIndex[dim], GravitatingMassFieldDimension[dim], BufferSize, Off[dim]);
+//     fprintf(stderr, "CPOT (%" ISYM") %" ISYM" %" ISYM" %" ISYM" %" ISYM" %" ISYM" %" ISYM"\n", dim, GridDimension[dim], GridStartIndex[dim], GridEndIndex[dim], GravitatingMassFieldDimension[dim], BufferSize, Off[dim]);
   }
  
   int i, j, k;
@@ -100,7 +95,7 @@ int grid::CopyPotentialToBaryonField()
     }
   }
  
-//  fprintf(stderr, "STUFF field %"ISYM"  elements %"ISYM"  %16.8e  %16.8e\n", field, crap, big, low);
+//  fprintf(stderr, "STUFF field %" ISYM"  elements %" ISYM"  %16.8e  %16.8e\n", field, crap, big, low);
 //  if (debug1) printf("Potential minimum: %g \t maximum: %g\n", minPot, maxPot);
 
 

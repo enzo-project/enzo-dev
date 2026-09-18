@@ -43,21 +43,16 @@ int WriteStreamData(LevelHierarchyEntry *LevelArray[], int level,
 		    TopGridData *MetaData, int *CycleCount, int open=FALSE) 
 {
 
-  float MaxDensity = -1e20;
   float root_dx = 1.0 / MetaData->TopGridDims[0];
   FLOAT *pos;
-  FLOAT lbbox[] = { huge_number,  huge_number,  huge_number};
-  FLOAT rbbox[] = {-huge_number, -huge_number, -huge_number};
-  FLOAT Left[3], Right[3];
-  int Dims[3], Rank, i, j;
+  int i, j;
 
-  int ilevel, Zero = FALSE;
+  int Zero = FALSE;
   LevelHierarchyEntry *Temp;
 
-  int count;
 
 //  if (debug)
-//    printf("Movie: %d %d\n", level, CycleCount[level]);
+//    printf("Movie: %" ISYM " %" ISYM "\n", level, CycleCount[level]);
 
   if (MovieSkipTimestep == INT_UNDEFINED)
     return SUCCESS;
@@ -97,20 +92,20 @@ int WriteStreamData(LevelHierarchyEntry *LevelArray[], int level,
       if ((header = fopen(headerName, "w")) == NULL)
 	ENZO_FAIL("Error in opening movie header.\n");
       fprintf(header, "MovieVersion = %s\n", movieVersion);
-      fprintf(header, "RootReso = %d\n", MetaData->TopGridDims[0]);
-      fprintf(header, "FLOATSize = %d\n", sizeOfFLOAT);
-      fprintf(header, "RecordSize = %d\n", sizeOfRecord);
-      fprintf(header, "NumFields = %d\n", nMovieFields);
-      fprintf(header, "NumCPUs = %d\n", NumberOfProcessors);
+      fprintf(header, "RootReso = %" ISYM "\n", MetaData->TopGridDims[0]);
+      fprintf(header, "FLOATSize = %" ISYM "\n", sizeOfFLOAT);
+      fprintf(header, "RecordSize = %" ISYM "\n", sizeOfRecord);
+      fprintf(header, "NumFields = %" ISYM "\n", nMovieFields);
+      fprintf(header, "NumCPUs = %" ISYM "\n", NumberOfProcessors);
       fprintf(header, "FileStem = %s\n", NewMovieName);
       fclose(header);
     } /* END: write movie header file */
 
-    int field, nBaryonFields;
+    int field;
     int nFields = 0;
     while (MovieDataField[nFields] != INT_UNDEFINED)
       nFields++;
-    nBaryonFields = LevelArray[0]->GridData->ReturnNumberOfBaryonFields();
+    LevelArray[0]->GridData->ReturnNumberOfBaryonFields();
 
     char **FieldNames = new char*[nFields];
     for (field = 0; field < nFields; field++) {
@@ -126,7 +121,7 @@ int WriteStreamData(LevelHierarchyEntry *LevelArray[], int level,
     int *RefineByArray = new int[3];
     bool error = FALSE;
     hid_t DataType = H5T_NATIVE_FLOAT;
-    char fileID[5], pid[6];
+    char fileID[16], pid[16];
   
     staggering stag = (MovieVertexCentered) ? VERTEX_CENTERED : CELL_CENTERED;
     fieldtype field_type = SCALAR;
@@ -143,8 +138,8 @@ int WriteStreamData(LevelHierarchyEntry *LevelArray[], int level,
     // previous data
     //    int RestartFileNumber = -1;
 
-    sprintf(pid, "_P%3.3d", MyProcessorNumber);
-    sprintf(fileID, "%4.4d", NewMovieDumpNumber);
+    sprintf(pid, "_P%3.3" ISYM, MyProcessorNumber);
+    sprintf(fileID, "%4.4" ISYM, NewMovieDumpNumber);
     
     strcpy(AmiraFileName, NewMovieName);
     strcat(AmiraFileName, fileID);
@@ -290,14 +285,14 @@ int WriteStreamData(LevelHierarchyEntry *LevelArray[], int level,
     /*
     for (i = 0; i < NumberOfProcessors; i++)  
       for (j = 0; j < 8; j++) 
- 	fprintf(stdout, "WriteStreamData: NumberOfStarParticlesOnProcOnLvl[%d][%d] = %d\n", 
+ 	fprintf(stdout, "WriteStreamData: NumberOfStarParticlesOnProcOnLvl[%" ISYM "][%" ISYM "] = %" ISYM "\n", 
  		i, j, NumberOfStarParticlesOnProcOnLvl[i][j]); 
     */
     
   } // ENDIF NON_DM_PARTICLES_MERGED_LEVEL
 
   if (debug)
-    printf("WriteStreamData: level = %d, StartLevel = %d, timestep = %d\n", 
+    printf("WriteStreamData: level = %" ISYM ", StartLevel = %" ISYM ", timestep = %" ISYM "\n", 
 	   level, StartLevel, MetaData->MovieTimestepCounter);
 
   for (ilvl = StartLevel; ilvl < MAX_DEPTH_OF_HIERARCHY; ilvl++) {
@@ -442,7 +437,7 @@ int WriteStreamData(LevelHierarchyEntry *LevelArray[], int level,
 #endif
 
 //    for (i = 0; i < NumberOfProcessors; i++)
-//      fprintf(stdout, "WriteStreamData: NumberOfStarParticlesOnProc[%d] = %d\n", 
+//      fprintf(stdout, "WriteStreamData: NumberOfStarParticlesOnProc[%" ISYM "] = %" ISYM "\n", 
 //	      i, NumberOfStarParticlesOnProc[i]);  
 
     // starting from ilvl=0, to print all the particles in the dataset
@@ -504,7 +499,7 @@ int WriteStreamData(LevelHierarchyEntry *LevelArray[], int level,
       if ((fptr = fopen("densestPoint.dat", "a")) == NULL)
 	ENZO_FAIL("Error in opening file densestPoint.dat\n");
 
-    fprintf(fptr, "%"GOUTSYM" %15.6g %"GOUTSYM" %"GOUTSYM" %"GOUTSYM" %"GOUTSYM" %"GOUTSYM" %"GOUTSYM" %"GOUTSYM" %"GOUTSYM" %"GOUTSYM"\n",
+    fprintf(fptr, "%" GOUTSYM" %15.6g %" GOUTSYM" %" GOUTSYM" %" GOUTSYM" %" GOUTSYM" %" GOUTSYM" %" GOUTSYM" %" GOUTSYM" %" GOUTSYM" %" GOUTSYM"\n",
 	    MetaData->Time, MaxDensity, pos[0], pos[1], pos[2],
 	    lbbox[0], lbbox[1], lbbox[2], rbbox[0], rbbox[1], rbbox[2]);
     fclose(fptr);

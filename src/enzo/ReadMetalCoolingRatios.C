@@ -31,7 +31,7 @@ int ReadMetalCoolingRatios(char *filename)
 
   FILE *fptr;
   char line[MAX_LINE_LENGTH];
-  int i, nbins;
+  int nbins;
 
   if ((fptr = fopen(filename, "r")) == NULL) {
     ENZO_VFAIL("Error opening metal cooling table %s\n", filename)
@@ -42,13 +42,13 @@ int ReadMetalCoolingRatios(char *filename)
 
   fgets(line, MAX_LINE_LENGTH, fptr);
   fgets(line, MAX_LINE_LENGTH, fptr);
-  if ((sscanf(line, "# %"ISYM" %"ISYM, &CoolData.MR_NumberOfTemperatureBins, 
+  if ((sscanf(line, "# %" ISYM" %" ISYM, &CoolData.MR_NumberOfTemperatureBins, 
 	      &CoolData.MR_NumberOfElectronFracBins)) != 2) {
     ENZO_FAIL("Error reading number of bins (line 2)\n");
   }
 
   fgets(line, MAX_LINE_LENGTH, fptr);
-  if ((sscanf(line, "# %"GSYM" %"GSYM" %"GSYM" %"GSYM, 
+  if ((sscanf(line, "# %" FSYM " %" FSYM " %" FSYM " %" FSYM, 
 	      &CoolData.MR_TemperatureStart, &CoolData.MR_TemperatureEnd,
 	      &CoolData.MR_ElectronFracStart, &CoolData.MR_ElectronFracEnd)) != 4) {
     ENZO_FAIL("Error reading number of ranges (line 3)\n");
@@ -76,19 +76,19 @@ int ReadMetalCoolingRatios(char *filename)
   for (ixe = 0; ixe < CoolData.MR_NumberOfElectronFracBins; ixe++) {
 
     // Throw away line that indicates electron fraction bin and value
-    fscanf(fptr, "%"GSYM, &dummy);
-    fscanf(fptr, "%"GSYM, &dummy);
+    fscanf(fptr, "%" FSYM, &dummy);
+    fscanf(fptr, "%" FSYM, &dummy);
     //fgets(line, MAX_LINE_LENGTH, fptr);
 
     for (itemp = 0; itemp < CoolData.MR_NumberOfTemperatureBins; itemp++) {
 
       // Throw away first column (temperature)
-      fscanf(fptr, "%"GSYM, &dummy);
+      fscanf(fptr, "%" FSYM, &dummy);
 
       // Read ratios
       for (icool = 0; icool < NUMBER_OF_COOLANTS; icool++, index++) {
-	if ((fscanf(fptr, "%"GSYM, &CoolData.metal_ratios[index])) == EOF) {
-	  ENZO_VFAIL("EOF reached at itemp = %"ISYM", ixe = %"ISYM", icool = %"ISYM"\n", 
+	if ((fscanf(fptr, "%" FSYM, &CoolData.metal_ratios[index])) == EOF) {
+	  ENZO_VFAIL("EOF reached at itemp = %" ISYM", ixe = %" ISYM", icool = %" ISYM"\n", 
 		  itemp, ixe, icool)
 
 	}

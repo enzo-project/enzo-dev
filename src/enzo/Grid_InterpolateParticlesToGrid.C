@@ -62,7 +62,7 @@ int grid::InterpolateParticlesToGrid(FOFData *D)
   int ActiveDim[MAX_DIMENSION];
   int min_slab, max_slab, NumberOfFields = 0;
   int i, j, k, n, field, dim, proc, size;
-  int DensNum, VrmsNum, Vel1Num, Vel2Num, Vel3Num;
+  int DensNum, VrmsNum, Vel1Num, Vel3Num;
 
 #ifdef USE_MPI
   MPI_Datatype DataType = (sizeof(float) == 4) ? MPI_FLOAT : MPI_DOUBLE;
@@ -92,7 +92,7 @@ int grid::InterpolateParticlesToGrid(FOFData *D)
   case 1: NumberOfFields = 1; break;  // density
   case 2: NumberOfFields = 5; break;  // + rms velocity + 3-velocity
   default: 
-    fprintf(stdout, "Unrecognized value for OutputSmoothedDarkMatter = %"ISYM"\n",
+    fprintf(stdout, "Unrecognized value for OutputSmoothedDarkMatter = %" ISYM"\n",
 	    OutputSmoothedDarkMatter);
     fprintf(stdout, "Setting to 1.  Outputting smoothed density only.\n");
     OutputSmoothedDarkMatter = 1;
@@ -105,7 +105,6 @@ int grid::InterpolateParticlesToGrid(FOFData *D)
   DensNum = 0;
   VrmsNum = 1;
   Vel1Num = 2;
-  Vel2Num = 3;
   Vel3Num = 4;
 
   size = 1;

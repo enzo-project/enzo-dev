@@ -103,7 +103,7 @@ int grid::DepositParticlePositionsLocal(FLOAT DepositTime, int DepositField,
  
   /* Deposit particles. */
  
-//  fprintf(stderr, "----DPP Call this->DepositPositions with NP = %"ISYM"\n", NumberOfParticles);
+//  fprintf(stderr, "----DPP Call this->DepositPositions with NP = %" ISYM"\n", NumberOfParticles);
  
   if (this->DepositPositions(ParticlePosition, ParticleMassPointer,
 			     NumberOfParticles, DepositField) == FAIL) {

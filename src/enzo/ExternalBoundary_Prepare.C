@@ -38,10 +38,10 @@ int ExternalBoundary::Prepare(grid *TopGrid)
     TopGrid->NumberOfBaryonFields = 0; /* bad kludge! */
  
   if (debug) {
-    printf("ExtBndry: BoundaryRank = %"ISYM"\n", BoundaryRank);
+    printf("ExtBndry: BoundaryRank = %" ISYM"\n", BoundaryRank);
     printf("ExtBndry: GridDimension = ");
     WriteListOfInts(stdout, BoundaryRank, TopGrid->GridDimension);
-    printf("ExtBndry: NumberOfBaryonFields = %"ISYM"\n", NumberOfBaryonFields);
+    printf("ExtBndry: NumberOfBaryonFields = %" ISYM"\n", NumberOfBaryonFields);
   }
  
   int size = 1;

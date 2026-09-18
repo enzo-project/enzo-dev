@@ -62,7 +62,7 @@ void EnableActiveParticleType(char *active_particle_type_name) {
     my_type->InitializeParticleType();
 
     EnabledActiveParticles[EnabledActiveParticlesCount++] = my_type;
-    int this_id = my_type->Enable();
+    my_type->Enable();
     /* Note that this ID is only unique for each individual instantiation of
        Enzo.  The next time you start it, these numbers might be different.
        This is why they aren't output to a file!
@@ -76,9 +76,7 @@ int ActiveParticleType::ReadDataset(int ndims, hsize_t *dims, const char *name,
 {
   hid_t file_dsp_id;
   hid_t dset_id;
-  hid_t h5_status;
   herr_t      h5_error = -1;
-  int i, j, k, dim;
   /* get data into temporary array */
 
   file_dsp_id = H5Screate_simple((Eint32) ndims, dims, NULL);
@@ -87,13 +85,13 @@ int ActiveParticleType::ReadDataset(int ndims, hsize_t *dims, const char *name,
   dset_id =  H5Dopen(group, name);
   if( dset_id == h5_error )ENZO_VFAIL("Error opening %s", name)
 
-  h5_status = H5Dread(dset_id, data_type, H5S_ALL, H5S_ALL, H5P_DEFAULT, (VOIDP) read_to);
+  H5Dread(dset_id, data_type, H5S_ALL, H5S_ALL, H5P_DEFAULT, (VOIDP) read_to);
   if( dset_id == h5_error )ENZO_VFAIL("Error reading %s", name)
 
-  h5_status = H5Sclose(file_dsp_id);
+  H5Sclose(file_dsp_id);
   if( dset_id == h5_error )ENZO_VFAIL("Error closing dataspace %s", name)
 
-  h5_status = H5Dclose(dset_id);
+  H5Dclose(dset_id);
   if( dset_id == h5_error )ENZO_VFAIL("Error closing %s", name)
 
   return SUCCESS;
@@ -146,7 +144,7 @@ void ActiveParticleType::ConstructData(grid *_grid,
 
   /* initialize */
 
-  int dim, i, j, k, index, size, field, GhostZones = NumberOfGhostZones;
+  int dim, i, j, k, index, size;
   int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, B1Num, B2Num, B3Num,H2INum, H2IINum;
 
   /* Compute size (in floats) of the current grid. */
@@ -185,11 +183,7 @@ void ActiveParticleType::ConstructData(grid *_grid,
   /* If using MHD, subtract magnetic energy from total energy because
      density may be modified in star_maker8. */
 
-  float *Bfieldx = NULL, *Bfieldy = NULL, *Bfieldz = NULL;
   if (HydroMethod == MHD_RK) {
-    Bfieldx = _grid->BaryonField[B1Num];
-    Bfieldy = _grid->BaryonField[B2Num];
-    Bfieldz = _grid->BaryonField[B3Num];
     for (int n = 0; n < size; n++) {
       float den = _grid->BaryonField[DensNum][n];
       float Bx  = _grid->BaryonField[B1Num  ][n];
@@ -304,10 +298,11 @@ void ActiveParticleType::ConstructData(grid *_grid,
     float *electronguessptr;
     float electronguess = 0.01;
     electronguessptr = &electronguess;
-    for (i = 0; i < size; i++)
+    for (i = 0; i < size; i++) {
       cgsdensity = data.DensityUnits*_grid->BaryonField[DensNum][i];
       data.CoolingRate[i] = _grid->GadgetCoolingRate
 	(log10(data.Temperature[i]), cgsdensity, electronguessptr, zred);
+    }
 
   } // ENDIF CoolingRate
 
@@ -316,9 +311,7 @@ void ActiveParticleType::ConstructData(grid *_grid,
   if (flags.MetalField) {
     float *MetalPointer = NULL;
     float *TotalMetals = NULL;
-    int MetallicityField;
 
-    MetallicityField = (MetalNum != -1 || SNColourNum != -1);
 
     if (MetalNum != -1 && SNColourNum != -1) {
       TotalMetals = new float[size];

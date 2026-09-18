@@ -40,8 +40,7 @@ int GrackleSetDefaultParameters(FILE *fptr){
   /* First, check if Grackle is actually being used in this problem */
   rewind(fptr);
   while (fgets(line, MAX_LINE_LENGTH, fptr) != NULL) {
-    int ret = 0;
-    ret += sscanf(line, "use_grackle = %"ISYM, &use_grackle);
+    sscanf(line, "use_grackle = %" ISYM, &use_grackle);
   }
 
 #ifndef USE_GRACKLE
@@ -101,61 +100,59 @@ int GrackleReadParameters(FILE *fptr, FLOAT InitTime)
     return SUCCESS;
   }
 
-  char line[MAX_LINE_LENGTH];
   char *dummy = new char[MAX_LINE_LENGTH];
   dummy[0] = 0;
 
 
 #ifdef USE_GRACKLE
 
+  char line[MAX_LINE_LENGTH];
+
   // Go back through parameter file to check for Grackle-specific
   // parameters that do not have Enzo equivalents
   rewind(fptr);
   while (fgets(line, MAX_LINE_LENGTH, fptr) != NULL) {
 
-    int ret = 0;
-    ret += sscanf(line, "with_radiative_cooling = %d",
-                  &grackle_data->with_radiative_cooling);
-    ret += sscanf(line, "use_volumetric_heating_rate = %d",
-                    &grackle_data->use_volumetric_heating_rate);
-    ret += sscanf(line, "use_specific_heating_rate = %d",
-                    &grackle_data->use_specific_heating_rate);
-    ret += sscanf(line, "self_shielding_method = %d",
-                    &grackle_data->self_shielding_method);
-    ret += sscanf(line, "H2_self_shielding = %d",
-                    &grackle_data->H2_self_shielding);
+    sscanf(line, "with_radiative_cooling = %d",
+           &grackle_data->with_radiative_cooling);
+    sscanf(line, "use_volumetric_heating_rate = %d",
+           &grackle_data->use_volumetric_heating_rate);
+    sscanf(line, "use_specific_heating_rate = %d",
+           &grackle_data->use_specific_heating_rate);
+    sscanf(line, "self_shielding_method = %d",
+           &grackle_data->self_shielding_method);
+    sscanf(line, "H2_self_shielding = %d",
+           &grackle_data->H2_self_shielding);
 
     if (sscanf(line, "grackle_data_file = %s", dummy) == 1) {
       grackle_data->grackle_data_file = dummy;
-      ret++;
     }
-    ret += sscanf(line, "UVbackground = %d", &grackle_data->UVbackground);
-    ret += sscanf(line, "Compton_xray_heating = %d",
-                    &grackle_data->Compton_xray_heating);
-    ret += sscanf(line, "LWbackground_intensity = %lf",
-                  &grackle_data->LWbackground_intensity);
-    ret += sscanf(line, "LWbackground_sawtooth_suppression = %d",
-                  &grackle_data->LWbackground_sawtooth_suppression);
+    sscanf(line, "UVbackground = %d", &grackle_data->UVbackground);
+    sscanf(line, "Compton_xray_heating = %d",
+           &grackle_data->Compton_xray_heating);
+    sscanf(line, "LWbackground_intensity = %lf",
+           &grackle_data->LWbackground_intensity);
+    sscanf(line, "LWbackground_sawtooth_suppression = %d",
+           &grackle_data->LWbackground_sawtooth_suppression);
 
-    ret += sscanf(line, "local_dust_to_gas_ratio = %f",
-                  &grackle_data->local_dust_to_gas_ratio);
+    sscanf(line, "local_dust_to_gas_ratio = %lf",
+           &grackle_data->local_dust_to_gas_ratio);
 
-    ret += sscanf(line, "dust_chemistry = %d",
-                  &grackle_data->dust_chemistry);
+    sscanf(line, "dust_chemistry = %d",
+           &grackle_data->dust_chemistry);
 
     /* functionality for below two are not yet implemented but are
        involved in options for other Grackle settings. Read in
        here to do error checking to make sure these are not used */
-    ret += sscanf(line, "use_isrf_field = %d",
-                  &grackle_data->use_isrf_field);
-    ret += sscanf(line, "use_dust_density_field = %d",
-                  &grackle_data->use_dust_density_field);
+    sscanf(line, "use_isrf_field = %d",
+           &grackle_data->use_isrf_field);
+    sscanf(line, "use_dust_density_field = %d",
+           &grackle_data->use_dust_density_field);
 
     /* If the dummy char space was used, then make another. */
     if (*dummy != 0) {
       dummy = new char[MAX_LINE_LENGTH];
       dummy[0] = 0;
-      ret++;
     }
 
   }

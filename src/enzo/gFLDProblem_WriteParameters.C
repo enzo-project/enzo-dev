@@ -28,10 +28,10 @@ int gFLDProblem::WriteParameters(FILE *fptr)
 
 //   if (debug)  printf("Entering gFLDProblem::WriteParameters routine\n");
   
-  fprintf(fptr, "RadHydroESpectrum = %"ISYM"\n", ESpectrum);
-  fprintf(fptr, "RadHydroChemistry = %"ISYM"\n", Nchem);
+  fprintf(fptr, "RadHydroESpectrum = %" ISYM"\n", ESpectrum);
+  fprintf(fptr, "RadHydroChemistry = %" ISYM"\n", Nchem);
   fprintf(fptr, "RadHydroHFraction = %22.16e\n", HFrac);
-  fprintf(fptr, "RadHydroModel = %"ISYM"\n", Model);
+  fprintf(fptr, "RadHydroModel = %" ISYM"\n", Model);
 
   // set restart initial time step to current time step
   if (dt == 0.0) 
@@ -50,33 +50,33 @@ int gFLDProblem::WriteParameters(FILE *fptr)
   fprintf(fptr, "ChemistryScaling = %22.16e\n", NiScale);
 
   fprintf(fptr, "RadHydroTheta = %22.16e\n", theta);
-  fprintf(fptr, "RadHydroLimiterType = %"ISYM"\n", LimType);
+  fprintf(fptr, "RadHydroLimiterType = %" ISYM"\n", LimType);
 
-  fprintf(fptr, "RadiationBoundaryX0Faces = %"ISYM" %"ISYM"\n", 
+  fprintf(fptr, "RadiationBoundaryX0Faces = %" ISYM" %" ISYM"\n", 
 	  BdryType[0][0], BdryType[0][1]);
   if (rank > 1) {
-    fprintf(fptr, "RadiationBoundaryX1Faces = %"ISYM" %"ISYM"\n", 
+    fprintf(fptr, "RadiationBoundaryX1Faces = %" ISYM" %" ISYM"\n", 
 	    BdryType[1][0], BdryType[1][1]);
     if (rank > 2) {
-      fprintf(fptr, "RadiationBoundaryX2Faces = %"ISYM" %"ISYM"\n", 
+      fprintf(fptr, "RadiationBoundaryX2Faces = %" ISYM" %" ISYM"\n", 
 	      BdryType[2][0], BdryType[2][1]);
     }
   }
 
-  fprintf(fptr, "RadHydroAprxJacobian = %"ISYM"\n", approx_jac);    
-  fprintf(fptr, "RadHydroInitialGuess = %"ISYM"\n", initial_guess);    
-  fprintf(fptr, "RadHydroAnalyticChem = %"ISYM"\n", AnalyticChem);
-  fprintf(fptr, "RadHydroNewtLinesearch = %"ISYM"\n", newt_linesearch);
-  fprintf(fptr, "RadHydroNewtIters = %"ISYM"\n", newt_maxit);
-  fprintf(fptr, "RadHydroNewtNorm = %"ISYM"\n", newt_norm);    
+  fprintf(fptr, "RadHydroAprxJacobian = %" ISYM"\n", approx_jac);    
+  fprintf(fptr, "RadHydroInitialGuess = %" ISYM"\n", initial_guess);    
+  fprintf(fptr, "RadHydroAnalyticChem = %" ISYM"\n", AnalyticChem);
+  fprintf(fptr, "RadHydroNewtLinesearch = %" ISYM"\n", newt_linesearch);
+  fprintf(fptr, "RadHydroNewtIters = %" ISYM"\n", newt_maxit);
+  fprintf(fptr, "RadHydroNewtNorm = %" ISYM"\n", newt_norm);    
   fprintf(fptr, "RadHydroINConst = %22.16e\n", newt_INconst);    
   fprintf(fptr, "RadHydroNewtTolerance = %22.16e\n", newt_tol);    
   fprintf(fptr, "RadHydroMinLinesearch = %22.16e\n", 
 	  newt_MinLinesearch);    
-  fprintf(fptr, "RadHydroMaxMGIters = %i\n", sol_maxit);    
-  fprintf(fptr, "RadHydroMGRelaxType = %i\n", sol_rlxtype);    
-  fprintf(fptr, "RadHydroMGPreRelax = %i\n", sol_npre);    
-  fprintf(fptr, "RadHydroMGPostRelax = %i\n", sol_npost);    
+  fprintf(fptr, "RadHydroMaxMGIters = %d\n", sol_maxit);    
+  fprintf(fptr, "RadHydroMGRelaxType = %d\n", sol_rlxtype);    
+  fprintf(fptr, "RadHydroMGPreRelax = %d\n", sol_npre);    
+  fprintf(fptr, "RadHydroMGPostRelax = %d\n", sol_npost);    
 
   fprintf(fptr, "PlanckOpacityC0 = %22.16e\n", PlanckOpacityC0);
   fprintf(fptr, "PlanckOpacityC1 = %22.16e\n", PlanckOpacityC1);
@@ -102,7 +102,7 @@ int gFLDProblem::WriteParameters(FILE *fptr)
   // if doing a Marshak-type problem (20 <= Model < 30), 
   // output additional Marshak parameters 
   if ( Model >= 20 && Model <= 29 ) {
-    fprintf(fptr, "SuOlsonGreyEps = %22.16e", &MarshakParms[0]);
+    fprintf(fptr, "SuOlsonGreyEps = %22.16e", MarshakParms[0]);
   }
 
   // output relevant units: although these aren't required for restart, 

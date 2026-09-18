@@ -44,8 +44,7 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
 
   float values[7];
   float AccretedMass, DynamicalTime = 0, AvgDensity, AvgVelocity[MAX_DIMENSION];
-  int StarType, i, l, dim, FirstLoop = TRUE, SphereTooSmall, 
-    MBHFeedbackThermalRadiusTooSmall;
+  int StarType, l, dim, SphereTooSmall;
   float MassEnclosed, Metallicity2, Metallicity3, ColdGasMass, 
     ColdGasFraction, initialRadius, tdyn_code;
   float ShellMass, ShellMetallicity2, ShellMetallicity3, ShellColdGasMass, 
@@ -76,7 +75,7 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
       (StarType == PopIII && FeedbackFlag == FORMATION &&
        Mass >= this->FinalMass)) {
     if (debug)
-      printf("StarParticle[%"ISYM"]: Accreted mass = %"GSYM" SolarMass.\n", Identifier, Mass);
+      printf("StarParticle[%" ISYM"]: Accreted mass = %" GSYM" SolarMass.\n", Identifier, Mass);
     SkipMassRemoval = TRUE;
     return SUCCESS;
   }
@@ -262,7 +261,7 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
 
       //fprintf(stderr, "Star::FFS: EjectaThermalEnergy = %g\n", EjectaThermalEnergy); 
 
-      //      printf("AddFeedback: EjectaDensity = %"GSYM"\n", EjectaDensity);
+      //      printf("AddFeedback: EjectaDensity = %" GSYM"\n", EjectaDensity);
       //      EjectaDensity = Shine[p].Mass / MassEnclosed;
 
   }  // ENDWHILE (too little mass)
@@ -309,27 +308,27 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
   if (SphereContained && FeedbackFlag == FORMATION) {
 
     if (debug) {
-      printf("StarParticle[birth]: L%"ISYM", r = %"GSYM" pc, M = %"GSYM
-	     ", Z2/Z3 = %"GSYM"/%"GSYM"\n",
+      printf("StarParticle[birth]: L%" ISYM", r = %" GSYM" pc, M = %" GSYM
+	     ", Z2/Z3 = %" GSYM"/%" GSYM"\n",
 	     level, Radius*LengthUnits/pc_cm, MassEnclosed, Metallicity2,
 	     Metallicity3);
       if (StarType == PopII || StarType == PopIII)
-	printf("\t mass = %"GSYM" (%"GSYM"%% cold) SolarMass, \n"
-	       "\t rho = %"GSYM" g/cm3, tdyn = %"GSYM" Myr\n"
-	       "\t vel = %"FSYM" %"FSYM" %"FSYM" (%"FSYM" %"FSYM" %"FSYM")\n"
-	       "\t pos = %"PSYM" %"PSYM" %"PSYM"\n",
+	printf("\t mass = %" GSYM" (%" GSYM"%% cold) SolarMass, \n"
+	       "\t rho = %" GSYM" g/cm3, tdyn = %" GSYM" Myr\n"
+	       "\t vel = %" FSYM" %" FSYM" %" FSYM" (%" FSYM" %" FSYM" %" FSYM")\n"
+	       "\t pos = %" PSYM" %" PSYM" %" PSYM"\n",
 	       this->Mass+AccretedMass, 100*ColdGasFraction, 
 	       AvgDensity, DynamicalTime*TimeUnits/Myr_s,
 	       AvgVelocity[0], AvgVelocity[1], AvgVelocity[2],
 	       vel[0], vel[1], vel[2],
 	       pos[0], pos[1], pos[2]);
-      printf("FindFeedbackSphere[%"ISYM"][%"ISYM"]: Adding sphere for feedback type = %"ISYM"\n", 
+      printf("FindFeedbackSphere[%" ISYM"][%" ISYM"]: Adding sphere for feedback type = %" ISYM"\n", 
 	     level, Identifier, FeedbackFlag);
     }
     //if (abs(type) == SimpleSource){
     //  EjectaDensity = (float) 
 //	(double(MassEnclosed));
-    //  printf(" \n              XXXXXXX EjectaDensity = %"FSYM"\n\n",EjectaDensity );
+    //  printf(" \n              XXXXXXX EjectaDensity = %" FSYM"\n\n",EjectaDensity );
       // HERE DENSITY is actually a mass so factor is calculated correctly in Grid_AddFeedbackSphere
     //}
 
@@ -341,7 +340,7 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
 	Time-this->BirthTime > 0.1*tdyn_code) {
       if (debug) 
 	printf("star::FindFeedbackSphere: Old protostar: lived %g yr. "
-	       "Particle mass = %g. Star particle %"PISYM".  Turning on.\n",
+	       "Particle mass = %g. Star particle %" PISYM".  Turning on.\n",
 	       (Time-this->BirthTime)*TimeUnits/yr_s, this->Mass, this->Identifier);
       this->BirthTime = Time;
       this->type = PopII;

@@ -55,8 +55,7 @@ int grid::RadHydroRadShockInitializeGrid(float DensityConstant,
 
 
   // create necessary baryon fields
-  int RhoNum, TENum, IENum, V0Num, V1Num, V2Num, EgNum, DeNum, 
-    HINum, HIINum, HeINum, HeIINum, HeIIINum;
+  int RhoNum, TENum, IENum, V0Num, V1Num, V2Num, EgNum;
   NumberOfBaryonFields = 0;
   FieldType[RhoNum = NumberOfBaryonFields++]   = Density;
   FieldType[TENum = NumberOfBaryonFields++]    = TotalEnergy;
@@ -100,7 +99,7 @@ int grid::RadHydroRadShockInitializeGrid(float DensityConstant,
  
     // set fluid density, total energy, [internal energy,] velocities, 
     // radiation energy
-    int i, j, k;
+    int i;
     float IEConstant = TEConstant - 0.5 * VelocityConstant * VelocityConstant;
     float eUnits = VelocityUnits*VelocityUnits;
     float EUnits = DensityUnits*eUnits;
@@ -137,7 +136,7 @@ int grid::RadHydroRadShockInitializeGrid(float DensityConstant,
 
     if (debug) {
       fprintf(stdout,"RadHydroRadShockInitializeGrid:\n");
-      printf("           ShockDir = %"ISYM"\n",ShockDir);
+      printf("           ShockDir = %" ISYM"\n",ShockDir);
       
       printf("    DensityConstant = %g\n",DensityConstant);    
       printf("         TEConstant = %g\n",TEConstant);    

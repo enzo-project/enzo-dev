@@ -52,12 +52,8 @@ int grid::CommunicationReceiveRegion(grid *FromGrid, int FromProcessor,
 				     int IncludeBoundary)
 {
 #ifdef USE_MPI 
-  MPI_Request  RequestHandle;
   MPI_Status Status;
   MPI_Datatype DataType = (sizeof(float) == 4) ? MPI_FLOAT : MPI_DOUBLE;
-  MPI_Arg Count;
-  MPI_Arg Source;
-  MPI_Arg ZeroTag;
 
   int i, index, field, dim, Zero[] = {0, 0, 0};
 
@@ -119,7 +115,6 @@ int SendAllBaryonFields = FALSE;
   
   int MHDRegionDim[3][3], MHDRegionSize[3]={1,1,1}, MHDFromDim[3][3];
   int MHDeRegionDim[3][3], MHDeRegionSize[3]={1,1,1}, MHDeFromDim[3][3];
-  int ThisIsAFaceProjection=FALSE;
   int MHD_SendBFlag[3]={FALSE,FALSE,FALSE};
   int MHD_SendEFlag[3]={FALSE,FALSE,FALSE};
   //This is used for determining the proper Electric dimensions.
@@ -339,7 +334,7 @@ int SendAllBaryonFields = FALSE;
     if (MyProcessorNumber == FromProcessor) {
 #ifdef MPI_INSTRUMENTATION
       if (traceMPI) 
-	fprintf(tracePtr, "CRR RF: Sending %"ISYM" floats from %"ISYM" to %"ISYM"\n", 
+	fprintf(tracePtr, "CRR RF: Sending %" ISYM" floats from %" ISYM" to %" ISYM"\n", 
 		TransferSize, FromProcessor, ProcessorNumber);
 #endif
       CommunicationBufferedSend(buffer, TransferSize, DataType, ProcessorNumber, 

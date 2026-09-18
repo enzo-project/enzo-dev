@@ -57,7 +57,6 @@ int grid::GetProjectedBoundaryFluxes(grid *ParentGrid, fluxes &ProjectedFluxes)
   ParentGrid->ComputeRefinementFactors(this, RefinementFactors);
  
   int i, j, k, i1, j1, k1, dim, Dims[3], field, size;
-  int index1, index2;
   int ProjectedDims[MAX_DIMENSION];
  
   /* If the BoundaryFluxes structure doesn't exist yet, then create it. */

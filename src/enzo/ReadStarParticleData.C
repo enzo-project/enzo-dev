@@ -44,16 +44,16 @@ int ReadStarParticleData(FILE *fptr, hid_t Hfile_id, FILE *log_fptr)
     }
 
     if (HierarchyFileInputFormat == 1) {
-      if (fscanf(fptr, "NumberOfStarParticles = %"ISYM"\n",
+      if (fscanf(fptr, "NumberOfStarParticles = %" ISYM"\n",
 		 &NumberOfStarParticles) != 1) {
 	//      ENZO_FAIL("Error reading NumberOfStarParticles.\n");
 	
       }
-      if (fscanf(fptr, "NumberOfActiveParticles = %"ISYM"\n",
+      if (fscanf(fptr, "NumberOfActiveParticles = %" ISYM"\n",
                  &NumberOfActiveParticles) != 1) {
         //      ENZO_FAIL("Error reading NumberOfActiveParticles.\n");
       }
-      if (fscanf(fptr, "NextActiveParticleID = %"PISYM"\n",
+      if (fscanf(fptr, "NextActiveParticleID = %" PISYM"\n",
                  &NextActiveParticleID) != 1) {
         //      ENZO_FAIL("Error reading NumberOfActiveParticles.\n");
       }

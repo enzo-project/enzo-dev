@@ -43,7 +43,7 @@ int grid::SubgridMarkerPostParallel(HierarchyEntry **Grids[], int *NumberOfGrids
   /* declarations */
     
   const int mask = (1 << LEVEL_BIT_OFFSET) - 1;
-  int i, j, k, dim, index, size, GridID, GridLevel;
+  int dim, index, size, GridID, GridLevel;
   long packed_int;
   
   for (dim = 0, size = 1; dim < GridRank; dim++)
@@ -68,7 +68,7 @@ int grid::SubgridMarkerPostParallel(HierarchyEntry **Grids[], int *NumberOfGrids
       GridID = packed_int & mask;
       GridLevel = packed_int >> LEVEL_BIT_OFFSET;
       if (GridID < 0 || GridID >= NumberOfGrids[GridLevel])
-	ENZO_VFAIL("BBP%d: packed_int[%d] = %d, Grid %d, MarkerGrid/Level %d/%d\n", 
+	ENZO_VFAIL("BBP%" ISYM ": packed_int[%" ISYM "] = %ld, Grid %" ISYM ", MarkerGrid/Level %" ISYM "/%" ISYM "\n", 
 		   MyProcessorNumber, index, packed_int, this->ID, GridLevel, GridID);
       SubgridMarker[index] = Grids[GridLevel][GridID]->GridData;
     }

@@ -117,10 +117,10 @@ class EnzoVector {
   EnzoVector* clone(float **userdata) const;
 
   //   Writes a given species to file (no ghosts)
-  int write(char *outfile, int species) const;
+  int write(const char *outfile, int species) const;
 
   //   Writes a given species to file (with ghosts)
-  int writeall(char *outfile, int species) const;
+  int writeall(const char *outfile, int species) const;
 
   //   Communicates ghost cells with neighbors
   int exchange();

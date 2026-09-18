@@ -37,39 +37,39 @@ int RebuildHierarchy(TopGridData *MetaData,
 int GalaxyDiskInitialize(FILE *fptr, FILE *Outfptr, 
 			 HierarchyEntry &TopGrid, TopGridData &MetaData)
 {
-  char *DensName = "Density";
-  char *Vel1Name = "x-velocity";
-  char *Vel2Name = "y-velocity";
-  char *Vel3Name = "z-velocity";
-  char *TEName   = "TotalEnergy";
-  char *GEName   = "GasEnergy";
-  char *BxName = "Bx";
-  char *ByName = "By";
-  char *BzName = "Bz";
-  char *PhiName = "Phi";
-  char *ElectronName = "Electron_Density";
-  char *HIName    = "HI_Density";
-  char *HIIName   = "HII_Density";
-  char *HeIName   = "HeI_Density";
-  char *HeIIName  = "HeII_Density";
-  char *HeIIIName = "HeIII_Density";
-  char *HMName    = "HM_Density";
-  char *H2IName   = "H2I_Density";
-  char *H2IIName  = "H2II_Density";
-  char *DIName    = "DI_Density";
-  char *DIIName   = "DII_Density";
-  char *HDIName   = "HDI_Density";
-  char *kphHIName    = "HI_kph";
-  char *gammaHIName  = "HI_gamma";
-  char *kphHeIName   = "HeI_kph";
-  char *gammaHeIName = "HeI_gamma";
-  char *kphHeIIName  = "HeII_kph";
-  char *gammaHeIIName= "HeII_gamma";
-  char *kdissH2IName = "H2I_kdiss";
-  char *RadAccel1Name = "RadAccel1";
-  char *RadAccel2Name = "RadAccel2";
-  char *RadAccel3Name = "RadAccel3";
-  char *Phi_pName = "Phip";
+  const char *DensName = "Density";
+  const char *Vel1Name = "x-velocity";
+  const char *Vel2Name = "y-velocity";
+  const char *Vel3Name = "z-velocity";
+  const char *TEName   = "TotalEnergy";
+  const char *GEName   = "GasEnergy";
+  const char *BxName = "Bx";
+  const char *ByName = "By";
+  const char *BzName = "Bz";
+  const char *PhiName = "Phi";
+  const char *ElectronName = "Electron_Density";
+  const char *HIName    = "HI_Density";
+  const char *HIIName   = "HII_Density";
+  const char *HeIName   = "HeI_Density";
+  const char *HeIIName  = "HeII_Density";
+  const char *HeIIIName = "HeIII_Density";
+  const char *HMName    = "HM_Density";
+  const char *H2IName   = "H2I_Density";
+  const char *H2IIName  = "H2II_Density";
+  const char *DIName    = "DI_Density";
+  const char *DIIName   = "DII_Density";
+  const char *HDIName   = "HDI_Density";
+  const char *kphHIName    = "HI_kph";
+  const char *gammaHIName  = "HI_gamma";
+  const char *kphHeIName   = "HeI_kph";
+  const char *gammaHeIName = "HeI_gamma";
+  const char *kphHeIIName  = "HeII_kph";
+  const char *gammaHeIIName= "HeII_gamma";
+  const char *kdissH2IName = "H2I_kdiss";
+  const char *RadAccel1Name = "RadAccel1";
+  const char *RadAccel2Name = "RadAccel2";
+  const char *RadAccel3Name = "RadAccel3";
+  const char *Phi_pName = "Phip";
 
   /* declarations */
 
@@ -127,73 +127,73 @@ int GalaxyDiskInitialize(FILE *fptr, FILE *Outfptr,
 
     /* read parameters */
 
-    ret += sscanf(line, "NumberOfHalos = %"ISYM,
+    ret += sscanf(line, "NumberOfHalos = %" ISYM,
 		  &NumberOfHalos);
-    ret += sscanf(line, "RefineAtStart = %"ISYM, 
+    ret += sscanf(line, "RefineAtStart = %" ISYM, 
 		  &RefineAtStart);
-    ret += sscanf(line, "UseParticles = %"ISYM, 
+    ret += sscanf(line, "UseParticles = %" ISYM, 
 		  &UseParticles);
-    ret += sscanf(line, "UseGas = %"ISYM, 
+    ret += sscanf(line, "UseGas = %" ISYM, 
 		  &UseGas);
-    ret += sscanf(line, "MediumTemperature = %"FSYM, 
+    ret += sscanf(line, "MediumTemperature = %" FSYM, 
 		  &MediumTemperature);
-    ret += sscanf(line, "MediumDensity = %"FSYM,
+    ret += sscanf(line, "MediumDensity = %" FSYM,
 		  &MediumDensity);
-    ret += sscanf(line, "HaloMagneticField = %"FSYM,
+    ret += sscanf(line, "HaloMagneticField = %" FSYM,
 		  &HaloMagneticField);
-    ret += sscanf(line, "UniformVelocity = %"FSYM" %"FSYM" %"FSYM, 
+    ret += sscanf(line, "UniformVelocity = %" FSYM" %" FSYM" %" FSYM, 
 		  UniformVelocity, UniformVelocity+1,
 		  UniformVelocity+2);
-    if (sscanf(line, "GalaxyType[%"ISYM"]", &sphere) > 0)
-      ret += sscanf(line, "GalaxyType[%"ISYM"] = %"ISYM, &sphere,
+    if (sscanf(line, "GalaxyType[%" ISYM"]", &sphere) > 0)
+      ret += sscanf(line, "GalaxyType[%" ISYM"] = %" ISYM, &sphere,
 		    &GalaxyType[sphere]);
-    if (sscanf(line, "HaloRadius[%"ISYM"]", &sphere) > 0)
-      ret += sscanf(line, "HaloRadius[%"ISYM"] = %"PSYM, &sphere,
+    if (sscanf(line, "HaloRadius[%" ISYM"]", &sphere) > 0)
+      ret += sscanf(line, "HaloRadius[%" ISYM"] = %" PSYM, &sphere,
 		    &HaloRadius[sphere]);
-    if (sscanf(line, "HaloCoreRadius[%"ISYM"]", &sphere) > 0)
-      ret += sscanf(line, "HaloCoreRadius[%"ISYM"] = %"PSYM, &sphere,
+    if (sscanf(line, "HaloCoreRadius[%" ISYM"]", &sphere) > 0)
+      ret += sscanf(line, "HaloCoreRadius[%" ISYM"] = %" PSYM, &sphere,
 		    &HaloCoreRadius[sphere]);
-    if (sscanf(line, "HaloDensity[%"ISYM"]", &sphere) > 0)
-      ret += sscanf(line, "HaloDensity[%"ISYM"] = %"FSYM, &sphere,
+    if (sscanf(line, "HaloDensity[%" ISYM"]", &sphere) > 0)
+      ret += sscanf(line, "HaloDensity[%" ISYM"] = %" FSYM, &sphere,
 		    &HaloDensity[sphere]);
-    if (sscanf(line, "HaloTemperature[%"ISYM"]", &sphere) > 0)
-      ret += sscanf(line, "HaloTemperature[%"ISYM"] = %"FSYM, &sphere,
+    if (sscanf(line, "HaloTemperature[%" ISYM"]", &sphere) > 0)
+      ret += sscanf(line, "HaloTemperature[%" ISYM"] = %" FSYM, &sphere,
 		    &HaloTemperature[sphere]);
-    if (sscanf(line, "HaloAngVel[%"ISYM"]", &sphere) > 0)
-      ret += sscanf(line, "HaloAngVel[%"ISYM"] = %"FSYM, &sphere,
+    if (sscanf(line, "HaloAngVel[%" ISYM"]", &sphere) > 0)
+      ret += sscanf(line, "HaloAngVel[%" ISYM"] = %" FSYM, &sphere,
 		    &HaloAngVel[sphere]);
-    if (sscanf(line, "HaloSpin[%"ISYM"]", &sphere) > 0)
-      ret += sscanf(line, "HaloSpin[%"ISYM"] = %"FSYM, &sphere,
+    if (sscanf(line, "HaloSpin[%" ISYM"]", &sphere) > 0)
+      ret += sscanf(line, "HaloSpin[%" ISYM"] = %" FSYM, &sphere,
 		    &HaloSpin[sphere]);
-    if (sscanf(line, "HaloPosition[%"ISYM"]", &sphere) > 0)
-      ret += sscanf(line, "HaloPosition[%"ISYM"] = %"FSYM" %"FSYM" %"FSYM, 
+    if (sscanf(line, "HaloPosition[%" ISYM"]", &sphere) > 0)
+      ret += sscanf(line, "HaloPosition[%" ISYM"] = %" FSYM" %" FSYM" %" FSYM, 
 		    &sphere, &HaloPosition[sphere][0],
 		    &HaloPosition[sphere][1],
 		    &HaloPosition[sphere][2]);
-    if (sscanf(line, "HaloVelocity[%"ISYM"]", &sphere) > 0)
-      ret += sscanf(line, "HaloVelocity[%"ISYM"] = %"FSYM" %"FSYM" %"FSYM, 
+    if (sscanf(line, "HaloVelocity[%" ISYM"]", &sphere) > 0)
+      ret += sscanf(line, "HaloVelocity[%" ISYM"] = %" FSYM" %" FSYM" %" FSYM, 
 		    &sphere, &HaloVelocity[sphere][0],
 		    &HaloVelocity[sphere][1],
 		    &HaloVelocity[sphere][2]);
-    if (sscanf(line, "DiskRadius[%"ISYM"]", &sphere) > 0)
-      ret += sscanf(line, "DiskRadius[%"ISYM"] = %"PSYM, &sphere,
+    if (sscanf(line, "DiskRadius[%" ISYM"]", &sphere) > 0)
+      ret += sscanf(line, "DiskRadius[%" ISYM"] = %" PSYM, &sphere,
 		    &DiskRadius[sphere]);
-    if (sscanf(line, "DiskHeight[%"ISYM"]", &sphere) > 0)
-      ret += sscanf(line, "DiskHeight[%"ISYM"] = %"FSYM, &sphere,
+    if (sscanf(line, "DiskHeight[%" ISYM"]", &sphere) > 0)
+      ret += sscanf(line, "DiskHeight[%" ISYM"] = %" FSYM, &sphere,
 		    &DiskHeight[sphere]);
-    if (sscanf(line, "DiskDensity[%"ISYM"]", &sphere) > 0)
-      ret += sscanf(line, "DiskDensity[%"ISYM"] = %"FSYM, &sphere,
+    if (sscanf(line, "DiskDensity[%" ISYM"]", &sphere) > 0)
+      ret += sscanf(line, "DiskDensity[%" ISYM"] = %" FSYM, &sphere,
 		    &DiskDensity[sphere]);
-    if (sscanf(line, "DiskTemperature[%"ISYM"]", &sphere) > 0)
-      ret += sscanf(line, "DiskTemperature[%"ISYM"] = %"FSYM, &sphere,
+    if (sscanf(line, "DiskTemperature[%" ISYM"]", &sphere) > 0)
+      ret += sscanf(line, "DiskTemperature[%" ISYM"] = %" FSYM, &sphere,
 		    &DiskTemperature[sphere]);
 
-    if (sscanf(line, "DiskMassFraction[%"ISYM"]", &sphere) > 0)
-      ret += sscanf(line, "DiskMassFraction[%"ISYM"] = %"FSYM, &sphere,
+    if (sscanf(line, "DiskMassFraction[%" ISYM"]", &sphere) > 0)
+      ret += sscanf(line, "DiskMassFraction[%" ISYM"] = %" FSYM, &sphere,
 		    &DiskMassFraction[sphere]);
 
-    if (sscanf(line, "DiskFlaringParameter[%"ISYM"]", &sphere) > 0)
-      ret += sscanf(line, "DiskFlaringParameter[%"ISYM"] = %"FSYM, &sphere,
+    if (sscanf(line, "DiskFlaringParameter[%" ISYM"]", &sphere) > 0)
+      ret += sscanf(line, "DiskFlaringParameter[%" ISYM"] = %" FSYM, &sphere,
 		    &DiskFlaringParameter[sphere]);
 
 
@@ -205,14 +205,13 @@ int GalaxyDiskInitialize(FILE *fptr, FILE *Outfptr,
 
   } // end input from parameter file
 
-  float DensityUnits = 1.0, LengthUnits = 1.0, TemperatureUnits = 1, TimeUnits, 
-    VelocityUnits, CriticalDensity = 1, BoxLength = 1, mu = 0.6;
+  float DensityUnits = 1.0, LengthUnits = 1.0, TemperatureUnits = 1, TimeUnits, VelocityUnits;
   GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	   &TimeUnits, &VelocityUnits, 1);
   float MagneticUnits = sqrt(DensityUnits*4.0*M_PI)*VelocityUnits;
   float PressureUnits = DensityUnits*pow(VelocityUnits,2);
 
-  printf("denu=%"GSYM", velu=%"GSYM", timeu=%"GSYM", tempu=%"GSYM", lenu=%"GSYM", bu=%"GSYM", presu=%"GSYM"\n",
+  printf("denu=%" GSYM", velu=%" GSYM", timeu=%" GSYM", tempu=%" GSYM", lenu=%" GSYM", bu=%" GSYM", presu=%" GSYM"\n",
 	 DensityUnits, VelocityUnits, TimeUnits, TemperatureUnits, LengthUnits, 
 	 MagneticUnits, PressureUnits);
 
@@ -228,7 +227,7 @@ int GalaxyDiskInitialize(FILE *fptr, FILE *Outfptr,
       DiskDensity[sphere] /= DensityUnits;
     }
     HaloMagneticField /= MagneticUnits;
-    printf("halodensity=%"GSYM"\n", HaloDensity[0]);
+    printf("halodensity=%" GSYM"\n", HaloDensity[0]);
   }
 
   HaloVirialRadius  = HaloRadius[0]*LengthUnits;

@@ -46,7 +46,7 @@ int Star::SubtractAccretedMassFromCell(void)
       (this->CurrentGrid == NULL))
     return SUCCESS;
 
-  int dim, igrid[MAX_DIMENSION], index, size;
+  int dim, igrid[MAX_DIMENSION], index;
   FLOAT time = CurrentGrid->Time;
 
   float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits, VelocityUnits;
@@ -76,7 +76,6 @@ int Star::SubtractAccretedMassFromCell(void)
 
   int SNColourNum, MetalNum, MBHColourNum, Galaxy1ColourNum, Galaxy2ColourNum,
     MetalIaNum, MetalIINum;
-  int MetallicityField = FALSE;
 
   if (CurrentGrid->IdentifyColourFields(SNColourNum, MetalNum, MetalIaNum, MetalIINum, 
               MBHColourNum, Galaxy1ColourNum, Galaxy2ColourNum) == FAIL)
@@ -85,7 +84,6 @@ int Star::SubtractAccretedMassFromCell(void)
   /* Now let's start working! */
 
   for (dim = 0; dim < MAX_DIMENSION; dim++) {
-    size *= CurrentGrid->GridDimension[dim];
     igrid[dim] = (int) ((pos[dim] - CurrentGrid->GridLeftEdge[dim]) /
 			CurrentGrid->CellWidth[0][0]);
   }
@@ -97,7 +95,7 @@ int Star::SubtractAccretedMassFromCell(void)
 
   float MassConversion = (float) (pow(LengthUnits * CurrentGrid->CellWidth[0][0], 3.0)
 				  * double(DensityUnits));
-  float densgrid, ugrid, vgrid, wgrid, denssink, usink, vsink, wsink, drho;
+  float ugrid, vgrid, wgrid, denssink, usink, vsink, wsink, drho;
   double OldDensity, NewDensity, factor;
 
 
@@ -111,7 +109,6 @@ int Star::SubtractAccretedMassFromCell(void)
   usink     = this->vel[0];
   vsink     = this->vel[1];
   wsink     = this->vel[2];
-  densgrid  = OldDensity;
   ugrid     = CurrentGrid->BaryonField[Vel1Num][index];
   vgrid     = CurrentGrid->BaryonField[Vel2Num][index];
   wgrid     = CurrentGrid->BaryonField[Vel3Num][index];
@@ -130,9 +127,9 @@ int Star::SubtractAccretedMassFromCell(void)
   //                                         = ugrid;  //velocity of the grids will be unchanged! 
 
 
-//  fprintf(stdout, "star::SubtractAccretedMass[%d]:  DeltaMass = %e, OldDensity =%e, NewDensity =%e, factor =%e\n", 
+//  fprintf(stdout, "star::SubtractAccretedMass[%" ISYM "]:  DeltaMass = %e, OldDensity =%e, NewDensity =%e, factor =%e\n", 
 //	  this->Identifier, this->DeltaMass, OldDensity, NewDensity, factor); 
-//  fprintf(stdout, "star::SubtractAccretedMass[%d]:  vel_p[1] = %g -> %g\n", 
+//  fprintf(stdout, "star::SubtractAccretedMass[%" ISYM "]:  vel_p[1] = %g -> %g\n", 
 //	  this->Identifier, vsink, vel[1]); 
 
 

@@ -139,38 +139,47 @@ int grid::GrackleCustomCoolRate(int rank, int *dim, float *cool_rate,
   my_fields.grid_end       = g_grid_end;
   my_fields.grid_dx        = this->CellWidth[0][0]; // CHANGE
 
+  GrackleFieldBuffer buf_dens, buf_te, buf_v1, buf_v2, buf_v3;
+  GrackleFieldBuffer buf_HI, buf_HII, buf_HeI, buf_HeII, buf_HeIII, buf_e;
+  GrackleFieldBuffer buf_HM, buf_H2I, buf_H2II, buf_DI, buf_DII, buf_HDI;
+  GrackleFieldBuffer buf_metal, buf_vol_heat, buf_spec_heat;
+  GrackleFieldBuffer buf_cool_rate;
+#ifdef TRANSFER
+  GrackleFieldBuffer buf_rt_hi, buf_rt_hei, buf_rt_heii, buf_rt_h2, buf_rt_heat;
+#endif
+
   /* now add in the baryon fields */
-  my_fields.density         = (gr_float*)dens;
-  my_fields.internal_energy = thrmeng;
-  my_fields.x_velocity      = velx;
-  my_fields.y_velocity      = vely;
-  my_fields.z_velocity      = velz;
+  my_fields.density         = buf_dens.prepare(dens, size);
+  my_fields.internal_energy = buf_te.prepare(thrmeng, size);
+  my_fields.x_velocity      = buf_v1.prepare(velx, size);
+  my_fields.y_velocity      = buf_v2.prepare(vely, size);
+  my_fields.z_velocity      = buf_v3.prepare(velz, size);
 
   if (MultiSpecies) {
-    my_fields.HI_density      = HIdens;
-    my_fields.HII_density     = HIIdens;
-    my_fields.HeI_density     = HeIdens;
-    my_fields.HeII_density    = HeIIdens;
-    my_fields.HeIII_density   = HeIIIdens;
-    my_fields.e_density       = edens;
+    my_fields.HI_density      = buf_HI.prepare(HIdens, size);
+    my_fields.HII_density     = buf_HII.prepare(HIIdens, size);
+    my_fields.HeI_density     = buf_HeI.prepare(HeIdens, size);
+    my_fields.HeII_density    = buf_HeII.prepare(HeIIdens, size);
+    my_fields.HeIII_density   = buf_HeIII.prepare(HeIIIdens, size);
+    my_fields.e_density       = buf_e.prepare(edens, size);
 
     if (MultiSpecies > 1) {
-      my_fields.HM_density      = HMdens;
-      my_fields.H2I_density     = H2Idens;
-      my_fields.H2II_density    = H2IIdens;
+      my_fields.HM_density      = buf_HM.prepare(HMdens, size);
+      my_fields.H2I_density     = buf_H2I.prepare(H2Idens, size);
+      my_fields.H2II_density    = buf_H2II.prepare(H2IIdens, size);
     
       if (MultiSpecies > 2) {
-	my_fields.DI_density      = DIdens;
-	my_fields.DII_density     = DIIdens;
-	my_fields.HDI_density     = HDIdens;
+	my_fields.DI_density      = buf_DI.prepare(DIdens, size);
+	my_fields.DII_density     = buf_DII.prepare(DIIdens, size);
+	my_fields.HDI_density     = buf_HDI.prepare(HDIdens, size);
       }
     }
   }
   
-  my_fields.metal_density   = metaldens;
+  my_fields.metal_density   = buf_metal.prepare(metaldens, size);
   
-  my_fields.volumetric_heating_rate  = volumetric_heating_rate;
-  my_fields.specific_heating_rate    = specific_heating_rate;
+  my_fields.volumetric_heating_rate  = buf_vol_heat.prepare(volumetric_heating_rate, size);
+  my_fields.specific_heating_rate    = buf_spec_heat.prepare(specific_heating_rate, size);
 
 #ifdef TRANSFER
 
@@ -179,27 +188,30 @@ int grid::GrackleCustomCoolRate(int rank, int *dim, float *cool_rate,
   float rtunits = ev2erg / TimeUnits;
 
   if ( RadiativeTransfer ){
-    my_fields.RT_HI_ionization_rate = kphHI;
+    my_fields.RT_HI_ionization_rate = buf_rt_hi.prepare(kphHI, size);
 
     if (RadiativeTransferHydrogenOnly == FALSE){
-      my_fields.RT_HeI_ionization_rate  = kphHeI;
-      my_fields.RT_HeII_ionization_rate = kphHeII;
+      my_fields.RT_HeI_ionization_rate  = buf_rt_hei.prepare(kphHeI, size);
+      my_fields.RT_HeII_ionization_rate = buf_rt_heii.prepare(kphHeII, size);
     }
 
     if (MultiSpecies > 1)
-      my_fields.RT_H2_dissociation_rate = kdissH2I;
+      my_fields.RT_H2_dissociation_rate = buf_rt_h2.prepare(kdissH2I, size);
 
     /* need to convert to CGS units */
     for( i = 0; i < size; i++) gamma[i] *= rtunits;
 
-    my_fields.RT_heating_rate = gamma;
+    my_fields.RT_heating_rate = buf_rt_heat.prepare(gamma, size);
 
   }
 #endif // TRANSFER
 
-  if (calculate_cooling_time(&grackle_units, &my_fields, cool_rate) == FAIL) {
+  gr_float *cool_rate_ptr = buf_cool_rate.prepare(cool_rate, size, false);
+
+  if (calculate_cooling_time(&grackle_units, &my_fields, cool_rate_ptr) == FAIL) {
     ENZO_FAIL("Error in Grackle calculate_cooling_time.\n");
   }
+  buf_cool_rate.copy_back();
 
   // Code units
   for (i = 0; i < size; i++) {

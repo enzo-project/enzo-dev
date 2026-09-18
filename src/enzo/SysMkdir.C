@@ -10,7 +10,7 @@
  
 #define MAX_TOKEN 512
  
-int SysMkdir (char *startDir, char *directory)
+int SysMkdir (const char *startDir, const char *directory)
 {
     int status;
     int startLen;
@@ -74,7 +74,7 @@ int main ()
   int ierr;
  
   ierr=SysMkdir ("/tmp", "/tmp/a/b/c/d");
-  printf("ierr=%"ISYM", dir=(/tmp/a/b/c/d)\n",  ierr);
+  printf("ierr=%" ISYM", dir=(/tmp/a/b/c/d)\n",  ierr);
   return(ierr);
 }
 */

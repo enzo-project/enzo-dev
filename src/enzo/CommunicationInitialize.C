@@ -60,7 +60,7 @@ int CommunicationInitialize(Eint32 *argc, char **argv[])
   NumberOfProcessors = mpi_size;
  
   if (MyProcessorNumber == ROOT_PROCESSOR)
-    printf("MPI_Init: NumberOfProcessors = %"ISYM"\n", NumberOfProcessors);
+    printf("MPI_Init: NumberOfProcessors = %" ISYM"\n", NumberOfProcessors);
  
 #else /* USE_MPI */
  
@@ -84,9 +84,9 @@ void CommunicationErrorHandlerFn(MPI_Comm *comm, MPI_Arg *err, ...)
   if (*err != MPI_ERR_OTHER) {
       MPI_Error_class(*err, &error_class);
       MPI_Error_string(error_class, error_string, &length);
-      fprintf(stderr, "P%"ISYM": %s\n", MyProcessorNumber, error_string);
+      fprintf(stderr, "P%" ISYM": %s\n", MyProcessorNumber, error_string);
       MPI_Error_string(*err, error_string, &length);
-      fprintf(stderr, "P%"ISYM": %s\n", MyProcessorNumber, error_string);
+      fprintf(stderr, "P%" ISYM": %s\n", MyProcessorNumber, error_string);
       ENZO_FAIL("MPI communication error.");
   } // ENDIF MPI_ERROR
   return;

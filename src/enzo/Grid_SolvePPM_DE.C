@@ -40,7 +40,6 @@ int grid::SolvePPM_DE(int CycleNumber, int NumberOfSubgrids,
               float MinimumSupportEnergyCoefficient)
 {
 
-  int DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum;
   
 
 
@@ -92,7 +91,7 @@ int grid::SolvePPM_DE(int CycleNumber, int NumberOfSubgrids,
 	  if (this->xEulerSweep(k, NumberOfSubgrids, SubgridFluxes, 
 				GridGlobalStart, CellWidthTemp, GravityOn, 
 				NumberOfColours, colnum, Pressure) == FAIL) {
-	    ENZO_VFAIL("Error in xEulerSweep.  k = %d\n", k)
+	    ENZO_VFAIL("Error in xEulerSweep.  k = %" ISYM "\n", k)
 	      }
 	} // ENDFOR k
       else {
@@ -111,7 +110,7 @@ int grid::SolvePPM_DE(int CycleNumber, int NumberOfSubgrids,
 	  if (this->yEulerSweep(i, NumberOfSubgrids, SubgridFluxes, 
 				GridGlobalStart, CellWidthTemp, GravityOn, 
 				NumberOfColours, colnum, Pressure) == FAIL) {
-	    ENZO_VFAIL("Error in yEulerSweep.  i = %d\n", i)
+	    ENZO_VFAIL("Error in yEulerSweep.  i = %" ISYM "\n", i)
 	      }
 	} // ENDFOR i
       else {
@@ -130,7 +129,7 @@ int grid::SolvePPM_DE(int CycleNumber, int NumberOfSubgrids,
 	  if (this->zEulerSweep(j, NumberOfSubgrids, SubgridFluxes, 
 				GridGlobalStart, CellWidthTemp, GravityOn, 
 				NumberOfColours, colnum, Pressure) == FAIL) {
-	    ENZO_VFAIL("Error in zEulerSweep.  j = %d\n", j)
+	    ENZO_VFAIL("Error in zEulerSweep.  j = %" ISYM "\n", j)
 
 	      }
 	} // ENDFOR j

@@ -40,7 +40,7 @@
 #include "CosmologyParameters.h"
 #include "Gadget.h"
 
-void GadgetReadIonizeParams(char *fname)
+void GadgetReadIonizeParams(const char *fname)
 {
 
   int i;
@@ -49,14 +49,14 @@ void GadgetReadIonizeParams(char *fname)
   if(!(fdcool = fopen(fname, "r")))
     {
       fprintf(stderr," Cannot read ionization table in file `%s'\n", fname);
-      /*  endrun(456); */  /* need to add appropriate exit/error checking stuff */
+      /*  endrun(456); */   /* need to add appropriate exit/error checking stuff */
     }
 
   for(i = 0; i < TABLESIZE; i++)
     gH0[i] = 0;
 
   for(i = 0; i < TABLESIZE; i++)
-    if(fscanf(fdcool, "%"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM,
+    if(fscanf(fdcool, "%" FSYM" %" FSYM" %" FSYM" %" FSYM" %" FSYM" %" FSYM" %" FSYM,
 	      &inlogz[i], &gH0[i], &gHe[i], &gHep[i], &eH0[i], &eHe[i], &eHep[i]) == EOF)
       break;
 
@@ -74,9 +74,9 @@ void GadgetReadIonizeParams(char *fname)
 
   if (MyProcessorNumber == ROOT_PROCESSOR){
 
-    printf("GadgetReadIonizeParams: read ionization table with %"ISYM" entries in file `%s'.\n\n", nheattab, fname);
+    printf("GadgetReadIonizeParams: read ionization table with %" ISYM" entries in file `%s'.\n\n", nheattab, fname);
     for(i=0; i < TABLESIZE ; i++)
-      //      printf("%"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM,
+      //      printf("%" FSYM" %" FSYM" %" FSYM" %" FSYM" %" FSYM" %" FSYM" %" FSYM,
       printf("%e %e %e %e %e %e %e\n",
 	     inlogz[i], gH0[i], gHe[i], gHep[i], eH0[i], eHe[i], eHep[i]);
     fflush(stdout);

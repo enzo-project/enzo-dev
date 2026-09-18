@@ -27,8 +27,8 @@ class ealFloat{
   float GlobalMax();
 
   void Bcast(int FromProcessor);
-  void Print(const char *fmt="%6.3"FSYM, FILE *stream=NULL);
-  void PrintWithIndex(const char *fmt="%"ISYM"  %6.3"FSYM, FILE *stream=NULL);
+  void Print(const char *fmt="%6.3" FSYM, FILE *stream=NULL);
+  void PrintWithIndex(const char *fmt="%" ISYM"  %6.3" FSYM, FILE *stream=NULL);
   float *Array;
  
   float &operator[](int);

@@ -161,8 +161,7 @@ int grid::MHDSourceTerms(float **dU, float min_coeff)
   }
 
   if (Coordinate == Cylindrical) {
-    float rho, etot, eint, vx, vy, vz, v2, e, h, cs, p, 
-      dpdrho, dpde, coty, Bx, By, Bz, B2;
+    float rho, etot, eint, vx, vy, vz, v2, h, cs, p, dpdrho, dpde, Bx, By, Bz, B2;
     FLOAT x, dtxinv;
     int n = 0, igrid;
     for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
@@ -203,7 +202,7 @@ int grid::MHDSourceTerms(float **dU, float min_coeff)
   if (UseConstantAcceleration) {
     int igrid;
     float rho, gx, gy, gz;
-    float vx, vy, vz, vx_old, vy_old, vz_old;
+    float vx, vy, vz;
     int n = 0;
     for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
       for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
@@ -224,7 +223,7 @@ int grid::MHDSourceTerms(float **dU, float min_coeff)
 	  dU[iEtot][n] += dtFixed*rho*(gx*vx + gy*vy + gz*vz);
 
 	if (i==3 && j==3 && k==4 && GridLeftEdge[0]==0.0 && GridLeftEdge[1]==1.0)
-	  printf("StermStart4 old %"GSYM" \n", dU[iS2][n])  ;
+	  printf("StermStart4 old %" GSYM" \n", dU[iS2][n])  ;
 	}
       }
     }
@@ -233,7 +232,7 @@ int grid::MHDSourceTerms(float **dU, float min_coeff)
   if ((UseGasDrag != 0) && (GasDragCoefficient != 0.)) {
     int igrid;
     float rho;
-    float vx, vy, vz, vx_old, vy_old, vz_old;
+    float vx, vy, vz;
     int n = 0;
     for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
       for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
@@ -253,7 +252,7 @@ int grid::MHDSourceTerms(float **dU, float min_coeff)
 				       GasDragCoefficient*vz*vz);
 
 	if (i==3 && j==3 && k==4 && GridLeftEdge[0]==0.0 && GridLeftEdge[1]==1.0)
-	  printf("StermStart4 old %"GSYM" \n", dU[iS2][n])  ;
+	  printf("StermStart4 old %" GSYM" \n", dU[iS2][n])  ;
 	}
       }
     }
@@ -263,7 +262,7 @@ int grid::MHDSourceTerms(float **dU, float min_coeff)
   if ((SelfGravity) || ExternalGravity || UniformGravity || PointSourceGravity) {
     int igrid;
     float rho, gx, gy, gz;
-    float vx, vy, vz, vx_old, vy_old, vz_old;
+    float vx, vy, vz;
     int n = 0;
     for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
       for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
@@ -293,7 +292,7 @@ int grid::MHDSourceTerms(float **dU, float min_coeff)
   if (ComovingCoordinates == 1) { // add some B related cosmological expansion terms here
 
     int igrid;
-    float rho, coef=0.;
+    float coef=0.;
     int n = 0;
     coef = -0.5*dadt/a;
     for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
@@ -301,7 +300,6 @@ int grid::MHDSourceTerms(float **dU, float min_coeff)
 	for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, n++) {
 	  igrid = i+(j+k*GridDimension[1])*GridDimension[0];
 	  //	  rho = 0.5*(BaryonField[DensNum][igrid]+OldBaryonField[DensNum][igrid]);
-	  rho = BaryonField[DensNum][igrid];
 	  
 	  dU[iBx  ][n] += dtFixed*coef*BaryonField[B1Num][igrid];
 	  dU[iBy  ][n] += dtFixed*coef*BaryonField[B2Num][igrid];
@@ -422,7 +420,7 @@ int grid::MHDSourceTerms(float **dU, float min_coeff)
 
 
  int igrid;
-    float rho, gx, gy, gz;
+    float rho;
     FLOAT xPos[3];
     float vels[3]; 
     int n = 0;
@@ -486,7 +484,7 @@ int grid::MHDSourceTerms(float **dU, float min_coeff)
  
     int n, active_x, active_y, center_i, center_j, center_k, num_sn_cells_x, num_sn_cells_y, num_sn_cells_z; 
     snsf_source_terms S;
-    float dx, dy, dz, dist_to_sn, magnetic_energy_density;
+    float dx, dy, dz;
     float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits, VelocityUnits;
 
     if (GetUnits(&DensityUnits, &LengthUnits,&TemperatureUnits, &TimeUnits,
@@ -529,7 +527,6 @@ int grid::MHDSourceTerms(float **dU, float min_coeff)
 	      dy = CellWidth[1][0] * (float)(j-center_j);
 	      dz = CellWidth[2][0] * (float)(k-center_k);
 	 
-	      dist_to_sn = sqrt(dx*dx + dy*dy + dz*dz);
 	      S = current_sn->getSourceTerms(dx, dy, dz, Time);
 	    
 	      // solving for index n

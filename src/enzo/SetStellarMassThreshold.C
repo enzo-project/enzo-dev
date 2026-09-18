@@ -34,7 +34,6 @@ int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
 int SetStellarMassThreshold(FLOAT time)
 {
 
-  int timestep, i;
   FLOAT a, dadt, redshift=0.0;
   float early_mass, late_mass, current_mass, float_time=0.0, float_redshift=0.0;
 
@@ -115,7 +114,7 @@ int SetStellarMassThreshold(FLOAT time)
   }
   
   if(debug){
-    printf("SetStellarMassThreshold:  StarMakerMinimumMass set to %"FSYM" at time %"PSYM" (redshift %"PSYM")\n",
+    printf("SetStellarMassThreshold:  StarMakerMinimumMass set to %" FSYM" at time %" PSYM" (redshift %" PSYM")\n",
 	   StarMakerMinimumMass, time, redshift);
   }
   

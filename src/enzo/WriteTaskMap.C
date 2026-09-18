@@ -31,9 +31,8 @@ int WriteTaskMap(FILE *fptr, HierarchyEntry *Grid,
 		 char* base_name, int &GridID, FLOAT WriteTime)
 {
  
-  int OriginalID, NextGridThisLevelID, NextGridNextLevelID;
+  int NextGridThisLevelID, NextGridNextLevelID;
  
-  OriginalID = GridID;
  
   if (Grid->GridData->WriteTaskMap(fptr, base_name, GridID) == FAIL) {
     ENZO_FAIL("Error in grid->WriteTaskMap.\n");

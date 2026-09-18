@@ -22,7 +22,6 @@
 #include <stdio.h>
 #include <math.h>
 #include "ErrorExceptions.h"
-#include "phys_constants.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -33,6 +32,7 @@
 #include "Hierarchy.h"
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
+#include "phys_constants.h"
 
 int j, bin, nvalue;
 float frac, a, b, c, Mass, age;

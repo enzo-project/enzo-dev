@@ -28,24 +28,24 @@ int PoissonSolverTestInitialize(FILE *fptr, FILE *Outfptr,
   if (!UseMHD) 
     ENZO_FAIL("DivergenceCleaning only useful with MHD simulations");
 
-  char *DensName = "Density";
-  char *TEName   = "TotalEnergy";
-  char *GEName   = "GasEnergy";
-  char *Vel1Name = "x-velocity";
-  char *Vel2Name = "y-velocity";
-  char *Vel3Name = "z-velocity";
-  char *BxName = "Bx";
-  char *ByName = "By";
-  char *BzName = "Bz";
-  char *PhiName = "Phi";
-  char *Phi_pName = "Phip";
+  const char *DensName = "Density";
+  const char *TEName   = "TotalEnergy";
+  const char *GEName   = "GasEnergy";
+  const char *Vel1Name = "x-velocity";
+  const char *Vel2Name = "y-velocity";
+  const char *Vel3Name = "z-velocity";
+  const char *BxName = "Bx";
+  const char *ByName = "By";
+  const char *BzName = "Bz";
+  const char *PhiName = "Phi";
+  const char *Phi_pName = "Phip";
   
 
 
   /* declarations */
 
   char  line[MAX_LINE_LENGTH];
-  int   dim, ret, level, sphere, i;
+  int i;
 
   /* set default parameters */
 
@@ -58,13 +58,12 @@ int PoissonSolverTestInitialize(FILE *fptr, FILE *Outfptr,
 
   while (fgets(line, MAX_LINE_LENGTH, fptr) != NULL) {
 
-    ret = 0;
 
     /* read parameters */
 
-    ret += sscanf(line, "PoissonSolverTestType = %d", &TestType);
-    ret += sscanf(line, "PoissonSolverTestGeometryControl = %f", &TestGeometryControl);
-    ret += sscanf(line, "PoissonSolverTestRefineAtStart = %d", &RefineAtStart);
+    sscanf(line, "PoissonSolverTestType = %" ISYM, &TestType);
+    sscanf(line, "PoissonSolverTestGeometryControl = %" FSYM, &TestGeometryControl);
+    sscanf(line, "PoissonSolverTestRefineAtStart = %" ISYM, &RefineAtStart);
     /* if the line is suspicious, issue a warning */
 
   } // end input from parameter file

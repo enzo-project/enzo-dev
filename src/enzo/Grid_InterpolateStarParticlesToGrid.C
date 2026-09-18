@@ -50,7 +50,7 @@ int grid::InterpolateStarParticlesToGrid(int NumberOfSPFields)
  
   /* initialize */
  
-  int dim, i, j, k, size, field;
+  int dim, i, size, field;
   int xindex, yindex, zindex, index;
   int StarDensNum, FormingStarDensNum, SFRDensNum, CreationTimeNum;
   int ActiveDim[MAX_DIMENSION];
@@ -125,7 +125,7 @@ int grid::InterpolateStarParticlesToGrid(int NumberOfSPFields)
       if (xindex < 0 || xindex > GridDimension[0] || 
 	  yindex < 0 || yindex > GridDimension[1] || 
 	  zindex < 0 || zindex > GridDimension[2])
-	fprintf(stdout, "particle out of grid (C level); xind, yind, zind = %d, %d, %d\n",
+	fprintf(stdout, "particle out of grid (C level); xind, yind, zind = %" ISYM ", %" ISYM ", %" ISYM "\n",
 		xindex, yindex, zindex); 
 #endif
 

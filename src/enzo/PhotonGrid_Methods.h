@@ -270,9 +270,9 @@ int ErrorCheckPhotonNumber(int level) {
   for (PP = FinishedPhotonPackages->NextPackage; PP; PP = PP->NextPackage)
     fcount++;
   if (count+fcount != NumberOfPhotonPackages) {
-    printf("level %"ISYM", grid %"ISYM" (%x)\n", level, this->ID, this);
-    printf("-> Mismatch between photon count (%"ISYM", %"ISYM") and "
-	   "NumberOfPhotonPackages (%"ISYM")\n", 
+    printf("level %" ISYM", grid %" ISYM" (%p)\n", level, this->ID, this);
+    printf("-> Mismatch between photon count (%" ISYM", %" ISYM") and "
+	   "NumberOfPhotonPackages (%" ISYM")\n", 
 	   count, fcount, NumberOfPhotonPackages);
     return FAIL;
   }

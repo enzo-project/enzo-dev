@@ -116,7 +116,7 @@ int grid::ProjectToPlane(FLOAT ProjectedFieldLeftEdge[],
  
   start += GridStartIndex[ProjectionDimension];
   stop += GridStartIndex[ProjectionDimension];
-  if (debug) printf("ProjectToGrid: start = %"ISYM"/%"ISYM" (%5.3"FSYM")  stop = %"ISYM"/%"ISYM" (%5.3"FSYM")  GridLeft/Right = %5.3"PSYM"/%5.3"PSYM"\n",
+  if (debug) printf("ProjectToGrid: start = %" ISYM"/%" ISYM" (%5.3" FSYM")  stop = %" ISYM"/%" ISYM" (%5.3" FSYM")  GridLeft/Right = %5.3" PSYM"/%5.3" PSYM"\n",
 		start, GridStartIndex[ProjectionDimension], LeftCellFraction,
 		stop, GridEndIndex[ProjectionDimension], RightCellFraction,
 		    GridLeftEdge[ProjectionDimension],
@@ -255,7 +255,7 @@ int grid::ProjectToPlane(FLOAT ProjectedFieldLeftEdge[],
       Offset[dim] = -nint((GridFarLeftEdge[dim] -
                            GravitatingMassFieldParticlesLeftEdge[dim])/
                           CellWidth[dim][0]);
-//      printf("Offset[%"ISYM"] = %"ISYM"  GFLE = %"GSYM"  GMFPLE = %"GSYM"\n", dim, Offset[dim],
+//      printf("Offset[%" ISYM"] = %" ISYM"  GFLE = %" GSYM"  GMFPLE = %" GSYM"\n", dim, Offset[dim],
 //	     GridFarLeftEdge[dim],GravitatingMassFieldParticlesLeftEdge[dim]);
     }
  
@@ -285,7 +285,7 @@ int grid::ProjectToPlane(FLOAT ProjectedFieldLeftEdge[],
                             &start, &stop,
 			    &LeftCellFraction, &RightCellFraction);
  
-    delete temp;
+    delete [] temp;
   }
  
   /* 4) Temperature weighted by 'X-ray' luminosity */
@@ -333,7 +333,7 @@ int grid::ProjectToPlane(FLOAT ProjectedFieldLeftEdge[],
 		 	     ProjectedFieldCellSize),
 		       ProjectedFieldDims[dim]) - 1;
   }
-  /*  printf("PFStart = %"ISYM" %"ISYM"  PFStop = %"ISYM" %"ISYM", a/bdim = %"ISYM"/%"ISYM" level = %"GSYM"\n",
+  /*  printf("PFStart = %" ISYM" %" ISYM"  PFStop = %" ISYM" %" ISYM", a/bdim = %" ISYM"/%" ISYM" level = %" GSYM"\n",
 	 PFStart[adim], PFStart[bdim], PFStop[adim], PFStop[bdim],
 	 adim, bdim, float(level)); */
  
@@ -391,7 +391,7 @@ int grid::ProjectToPlane(FLOAT ProjectedFieldLeftEdge[],
                           &start, &stop, &LeftCellFraction,&RightCellFraction);
  
  
-    delete sz;
+    delete [] sz;
  
   } // end: SZ effects
  

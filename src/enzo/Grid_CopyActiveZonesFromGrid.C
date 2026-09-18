@@ -67,7 +67,7 @@ int grid::CopyActiveZonesFromGrid(grid *OtherGrid, FLOAT EdgeOffset[MAX_DIMENSIO
 
   /* Compute the left and right edges of this grid (including ghost zones). */
  
-  FLOAT GridLeft[MAX_DIMENSION]; FLOAT GridRight[MAX_DIMENSION];
+  FLOAT GridLeft[MAX_DIMENSION];
   FLOAT ActiveLeft[MAX_DIMENSION]; FLOAT ActiveRight[MAX_DIMENSION];
   FLOAT period[MAX_DIMENSION];
   int *shift;
@@ -95,9 +95,6 @@ int grid::CopyActiveZonesFromGrid(grid *OtherGrid, FLOAT EdgeOffset[MAX_DIMENSIO
         ActiveLeft[dim]  = GridLeftEdge[dim]  + EdgeOffset[dim];
         ActiveRight[dim] = GridRightEdge[dim] + EdgeOffset[dim];
         GridLeft[dim]  = CellLeftEdge[dim][0] + EdgeOffset[dim];
-        GridRight[dim] = CellLeftEdge[dim][GridDimension[dim]-1] +
-          CellWidth[dim][GridDimension[dim]-1]    +
-          EdgeOffset[dim];
       }
 
       overlap = check_overlap(ActiveLeft, ActiveRight,
@@ -114,8 +111,6 @@ int grid::CopyActiveZonesFromGrid(grid *OtherGrid, FLOAT EdgeOffset[MAX_DIMENSIO
         ActiveLeft[dim]  = GridLeftEdge[dim]  + shift_temp;
         ActiveRight[dim] = GridRightEdge[dim] + shift_temp;
         GridLeft[dim]  = CellLeftEdge[dim][0] + shift_temp;
-        GridRight[dim] = CellLeftEdge[dim][GridDimension[dim]-1] +
-          CellWidth[dim][GridDimension[dim]-1] + shift_temp;
       }
 
       /* There is some overlap, so copy overlapping region */
@@ -205,7 +200,7 @@ int grid::CopyActiveZonesFromGrid(grid *OtherGrid, FLOAT EdgeOffset[MAX_DIMENSIO
          the grid. */
      
       if (traceMPI) 
-        fprintf(tracePtr, "CopyZones SendRegion from %"ISYM" to %"ISYM"\n", 
+        fprintf(tracePtr, "CopyZones SendRegion from %" ISYM" to %" ISYM"\n", 
             ProcessorNumber, OtherGrid->ProcessorNumber);
       
       if (ProcessorNumber != OtherGrid->ProcessorNumber) {

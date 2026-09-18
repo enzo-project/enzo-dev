@@ -62,25 +62,12 @@ int grid::ElectronFractionEstimate(float dt)
   /* If using cosmology, get units. */
 
   float TemperatureUnits, DensityUnits, LengthUnits, 
-        VelocityUnits, TimeUnits, aUnits = 1;
-  FLOAT a = 1.0, dadt;
+        VelocityUnits, TimeUnits;
 
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, Time) == FAIL) {
     ENZO_FAIL("Error in GetUnits.\n");
   }
-
-  if (ComovingCoordinates) {
-
-    if (CosmologyComputeExpansionFactor(Time, &a, &dadt) == FAIL) {
-      ENZO_FAIL("Error in CosmologyComputeExpansionFactors.\n");
-    }
-
-    aUnits = 1.0/(1.0 + InitialRedshift);
-
-  }
-
-  float afloat = float(a);
 
   /* For cells with photo-ionization rates and low e-fractions (shell
      of HII regions), estimate e-fraction. */
@@ -89,33 +76,10 @@ int grid::ElectronFractionEstimate(float dt)
   alpha_recombination *= (TimeUnits * (DensityUnits / mh));
 
   int i, j, k, index;
-  float efrac, t_i, x_eq, x_estimate;
-  float total, total_h, t_frac, new_hii;
+  float efrac, x_eq;
+  float total, total_h, new_hii;
 
-  // Compton cooling
-  float comp1 = 1e-20, comp2 = 1e-20, zr;
-  if (ComovingCoordinates) {
-    zr = 1.0 / (afloat * aUnits) - 1.0;
-    comp1 = CoolData.comp * (1.0 + zr);
-    comp2 = 2.73 * (1.0 + zr);
-  }
 
-  double CoolUnit, xbase1, dbase1;
-  xbase1 = LengthUnits / (afloat * aUnits);
-  dbase1 = DensityUnits * pow((afloat*aUnits), 3);
-  CoolUnit = (pow(aUnits,5) * pow(xbase1,2) * pow(mh,2)) /
-    (pow(TimeUnits,3) * dbase1);
-  float a3 = afloat*afloat*afloat;
-  float dom = DensityUnits * a3 / mh;
-  double rtunits = erg_eV / TimeUnits / CoolUnit;
-
-  float proper_d, proper_de, proper_hi, proper_hii, proper_hei, proper_heii,
-    proper_heiii, pressure, temperature, max_edotplus;
-  float logtem, logtem0, logtem9, dlogtem, t1, t2, tdef;
-  float ceHI, ceHeI, ceHeII, ceHeIII, ciHI, ciHeI, ciHeII, ciHeIS, reHII,
-    reHeII1, reHeII2, reHeIII;
-  float edot, edotplus, brem;
-  int cindex;
 
   for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
     for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
@@ -208,7 +172,7 @@ int grid::ElectronFractionEstimate(float dt)
 	      * proper_de / dom
 	    - brem * (proper_hii + 0.25*proper_heii + proper_heiii) * proper_de;
 
-	  //	  printf("edot[0] = %"GSYM"\n", edot);
+	  //	  printf("edot[0] = %" GSYM"\n", edot);
 
 	  edotplus = CoolData.ipiht * BaryonField[gammaNum][index] * rtunits
 	    * proper_hi / dom;
@@ -216,7 +180,7 @@ int grid::ElectronFractionEstimate(float dt)
 
 	  edot += edotplus;
 
-	  //	  printf("edotplus = %"GSYM" (%"GSYM")\n", edotplus, max_edotplus);
+	  //	  printf("edotplus = %" GSYM" (%" GSYM")\n", edotplus, max_edotplus);
 
 	  if (DualEnergyFormalism)
 
@@ -224,7 +188,7 @@ int grid::ElectronFractionEstimate(float dt)
 	  BaryonField[TENum][index] += edot / proper_d * dt;
 #endif /* UNUSED */
 
-//	  printf("(%"ISYM" %"ISYM" %"ISYM") tem=%.2g, gg=%.2g, edot=%.2g, "
+//	  printf("(%" ISYM" %" ISYM" %" ISYM") tem=%.2g, gg=%.2g, edot=%.2g, "
 //		 "ge=%.2g\n",
 //		 i, j, k, temperature, BaryonField[gammaNum][index],
 //		 edot, BaryonField[GENum][index]);
@@ -233,17 +197,14 @@ int grid::ElectronFractionEstimate(float dt)
 
 	  total = BaryonField[kphHINum][index] + 
 	    (alpha_recombination * BaryonField[DeNum][index]);
-	  t_i = 1.0 / total;
 	  x_eq = BaryonField[kphHINum][index] / total;
-	  t_frac = dt / t_i;
-	  x_estimate = x_eq + (efrac - x_eq) * (1 - exp(-t_frac)) / t_frac;
 
 	  /* Correct electron and hydrogen species for this estimate */
 
 	  total_h = BaryonField[HINum][index] + BaryonField[HIINum][index];
 	  new_hii = x_eq * total_h;
 
-//	  printf("(%"ISYM" %"ISYM" %"ISYM") t_i=%.2g, x_eq=%.2g, t_frac=%.2g, "
+//	  printf("(%" ISYM" %" ISYM" %" ISYM") t_i=%.2g, x_eq=%.2g, t_frac=%.2g, "
 //		 "x_est=%.2g, x0=%.2g, kph=%.2g\n",
 //		 i, j, k, t_i, x_eq, t_frac, x_estimate, efrac, 
 //		 BaryonField[kphHINum][index]);

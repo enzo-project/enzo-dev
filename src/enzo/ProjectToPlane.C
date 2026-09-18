@@ -37,7 +37,7 @@ void my_exit(int status);
  
 // function prototypes
  
-int  WriteStringAttr(hid_t dset_id, char *Alabel, char *String, FILE *log_fptr);
+int  WriteStringAttr(hid_t dset_id, const char *Alabel, const char *String, FILE *log_fptr);
 void WriteListOfFloats(FILE *fptr, int N, float floats[]);
 int  DepositParticleMassField(HierarchyEntry *Grid, FLOAT Time = -1.0);
 int  CopyOverlappingZones(grid* CurrentGrid, TopGridData *MetaData,
@@ -55,21 +55,21 @@ int ProjectToPlane(TopGridData &MetaData, LevelHierarchyEntry *LevelArray[],
 		   int ProjectStartTemp[], int ProjectEndTemp[],
 		   FLOAT ProjectStartCoordinate[],
 		   FLOAT ProjectEndCoordinate[], int ProjectLevel,
-		   int ProjectionDimension, char *ProjectionFileName,
+		   int ProjectionDimension, const char *ProjectionFileName,
 		   int ProjectionSmooth, ExternalBoundary *Exterior)
 {
  
-  int i, j, dim, field, level, ret, size = 1;
+  int i, j, dim, field, level, size = 1;
   int ProjectDim[MAX_DIMENSION];
   float *ProjectedField[NUMBER_OF_PROJECTED_FIELDS], TempCellWidth;
   FLOAT ProjectLeft[MAX_DIMENSION], ProjectRight[MAX_DIMENSION];
  
   FILE *log_fptr;
  
-  char *dset_name;
+  const char *dset_name;
  
   hid_t       file_id, dset_id;
-  hid_t       float_type_id, FLOAT_type_id;
+  hid_t float_type_id;
   hid_t       file_type_id, FILE_type_id;
   hid_t       file_dsp_id;
  
@@ -107,17 +107,14 @@ int ProjectToPlane(TopGridData &MetaData, LevelHierarchyEntry *LevelArray[],
   {
  
     case 4:
-      FLOAT_type_id = HDF5_R4;
       FILE_type_id = HDF5_FILE_R4;
       break;
  
     case 8:
-      FLOAT_type_id = HDF5_R8;
       FILE_type_id = HDF5_FILE_R8;
       break;
  
     case 16:
-      FLOAT_type_id = HDF5_R16;
       FILE_type_id = H5Tcopy(HDF5_FILE_B8);
                      H5Tset_size(FILE_type_id,16);
       break;
@@ -192,14 +189,14 @@ int ProjectToPlane(TopGridData &MetaData, LevelHierarchyEntry *LevelArray[],
   }
  
   if (debug)
-    printf("ProjectToPlane: Left = %"GOUTSYM" %"GOUTSYM" %"GOUTSYM"   Right = %"GOUTSYM" %"GOUTSYM" %"GOUTSYM"\n",
+    printf("ProjectToPlane: Left = %" GOUTSYM" %" GOUTSYM" %" GOUTSYM"   Right = %" GOUTSYM" %" GOUTSYM" %" GOUTSYM"\n",
 	   ProjectLeft[0], ProjectLeft[1], ProjectLeft[2],
 	   ProjectRight[0], ProjectRight[1], ProjectRight[2]);
  
   /* Error check. */
  
   if (ProjectionDimension < 0 || ProjectionDimension > MetaData.TopGridRank) {
-    ENZO_VFAIL("Invalid ProjectionDimension (%"ISYM").\n",ProjectionDimension)
+    ENZO_VFAIL("Invalid ProjectionDimension (%" ISYM").\n",ProjectionDimension)
   }
  
   /* Check to see if the file ProjectParameters exists.  If it does, read
@@ -214,13 +211,13 @@ int ProjectToPlane(TopGridData &MetaData, LevelHierarchyEntry *LevelArray[],
  
   if ((fptr = fopen("ProjectionParameters", "r")) != NULL) {
     while (fgets(line, MAX_LINE_LENGTH, fptr) != NULL) {
-      sscanf(line, "XrayLowerCutoffkeV = %"FSYM, &XrayLowerCutoffkeV);
-      sscanf(line, "XrayUpperCutoffkeV = %"FSYM, &XrayUpperCutoffkeV);
+      sscanf(line, "XrayLowerCutoffkeV = %" FSYM, &XrayLowerCutoffkeV);
+      sscanf(line, "XrayUpperCutoffkeV = %" FSYM, &XrayUpperCutoffkeV);
       sscanf(line, "XrayTableFileName = %s", XrayTableFileName);
     }
     fclose(fptr);
-    printf("XrayLowerCutoffkeV = %"GSYM"\n", XrayLowerCutoffkeV);
-    printf("XrayUpperCutoffkeV = %"GSYM"\n", XrayUpperCutoffkeV);
+    printf("XrayLowerCutoffkeV = %" GSYM"\n", XrayLowerCutoffkeV);
+    printf("XrayUpperCutoffkeV = %" GSYM"\n", XrayUpperCutoffkeV);
     printf("XrayTableFileName = %s\n", XrayTableFileName);
     XrayUseLookupTable = TRUE;
   }
@@ -353,12 +350,12 @@ int ProjectToPlane(TopGridData &MetaData, LevelHierarchyEntry *LevelArray[],
   strcpy(logname, ProjectionFileName);
   strcat(logname, ".log");
   log_fptr = fopen(logname, "a");
-  delete logname;
+  delete [] logname;
  
   if (io_log) fprintf(log_fptr, "H5Fopen with Name = %s\n", ProjectionFileName);
  
   file_id = H5Fcreate(ProjectionFileName, H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
-    if (io_log) fprintf(log_fptr, "H5Fcreate id: %"ISYM"\n", file_id);
+    if (io_log) fprintf(log_fptr, "H5Fcreate id: %ld\n", file_id);
     if( file_id == h5_error ){my_exit(EXIT_FAILURE);}
  
   /* Set dimensions (reversed since this is c and we're using f77 order). */
@@ -410,7 +407,7 @@ int ProjectToPlane(TopGridData &MetaData, LevelHierarchyEntry *LevelArray[],
     /* Write data. */
  
     file_dsp_id = H5Screate_simple((Eint32) 2, OutDims, NULL);
-      if (io_log) fprintf(log_fptr, "H5Screate file_dsp_id: %"ISYM"\n", file_dsp_id);
+      if (io_log) fprintf(log_fptr, "H5Screate file_dsp_id: %ld\n", file_dsp_id);
       if( file_dsp_id == h5_error ){my_exit(EXIT_FAILURE);}
  
     switch(i)
@@ -422,7 +419,7 @@ int ProjectToPlane(TopGridData &MetaData, LevelHierarchyEntry *LevelArray[],
         if (io_log) fprintf(log_fptr, "H5Dcreate with Name = %s\n", dset_name);
  
         dset_id = H5Dcreate(file_id, dset_name, file_type_id, file_dsp_id, H5P_DEFAULT);
-          if (io_log) fprintf(log_fptr, "H5Dcreate id: %"ISYM"\n", dset_id);
+          if (io_log) fprintf(log_fptr, "H5Dcreate id: %ld\n", dset_id);
           if( dset_id == h5_error ){my_exit(EXIT_FAILURE);}
  
         WriteStringAttr(dset_id, "Label", "projected_gas_density", log_fptr);
@@ -437,7 +434,7 @@ int ProjectToPlane(TopGridData &MetaData, LevelHierarchyEntry *LevelArray[],
         if (io_log) fprintf(log_fptr, "H5Dcreate with Name = %s\n", dset_name);
  
         dset_id = H5Dcreate(file_id, dset_name, file_type_id, file_dsp_id, H5P_DEFAULT);
-          if (io_log) fprintf(log_fptr, "H5Dcreate id: %"ISYM"\n", dset_id);
+          if (io_log) fprintf(log_fptr, "H5Dcreate id: %ld\n", dset_id);
           if( dset_id == h5_error ){my_exit(EXIT_FAILURE);}
  
         WriteStringAttr(dset_id, "Label", "projected_x-ray_luminosity_div1e23", log_fptr);
@@ -452,7 +449,7 @@ int ProjectToPlane(TopGridData &MetaData, LevelHierarchyEntry *LevelArray[],
         if (io_log) fprintf(log_fptr, "H5Dcreate with Name = %s\n", dset_name);
  
         dset_id = H5Dcreate(file_id, dset_name, file_type_id, file_dsp_id, H5P_DEFAULT);
-          if (io_log) fprintf(log_fptr, "H5Dcreate id: %"ISYM"\n", dset_id);
+          if (io_log) fprintf(log_fptr, "H5Dcreate id: %ld\n", dset_id);
           if( dset_id == h5_error ){my_exit(EXIT_FAILURE);}
  
         WriteStringAttr(dset_id, "Label", "projected_dm_density", log_fptr);
@@ -467,7 +464,7 @@ int ProjectToPlane(TopGridData &MetaData, LevelHierarchyEntry *LevelArray[],
         if (io_log) fprintf(log_fptr, "H5Dcreate with Name = %s\n", dset_name);
  
         dset_id = H5Dcreate(file_id, dset_name, file_type_id, file_dsp_id, H5P_DEFAULT);
-          if (io_log) fprintf(log_fptr, "H5Dcreate id: %"ISYM"\n", dset_id);
+          if (io_log) fprintf(log_fptr, "H5Dcreate id: %ld\n", dset_id);
           if( dset_id == h5_error ){my_exit(EXIT_FAILURE);}
  
         WriteStringAttr(dset_id, "Label", "projected_x-ray_weighted_temperature", log_fptr);
@@ -482,7 +479,7 @@ int ProjectToPlane(TopGridData &MetaData, LevelHierarchyEntry *LevelArray[],
         if (io_log) fprintf(log_fptr, "H5Dcreate with Name = %s\n", dset_name);
  
         dset_id = H5Dcreate(file_id, dset_name, file_type_id, file_dsp_id, H5P_DEFAULT);
-          if (io_log) fprintf(log_fptr, "H5Dcreate id: %"ISYM"\n", dset_id);
+          if (io_log) fprintf(log_fptr, "H5Dcreate id: %ld\n", dset_id);
           if( dset_id == h5_error ){my_exit(EXIT_FAILURE);}
  
         WriteStringAttr(dset_id, "Label", "projected_level", log_fptr);
@@ -497,7 +494,7 @@ int ProjectToPlane(TopGridData &MetaData, LevelHierarchyEntry *LevelArray[],
         if (io_log) fprintf(log_fptr, "H5Dcreate with Name = %s\n", dset_name);
  
         dset_id = H5Dcreate(file_id, dset_name, file_type_id, file_dsp_id, H5P_DEFAULT);
-          if (io_log) fprintf(log_fptr, "H5Dcreate id: %"ISYM"\n", dset_id);
+          if (io_log) fprintf(log_fptr, "H5Dcreate id: %ld\n", dset_id);
           if( dset_id == h5_error ){my_exit(EXIT_FAILURE);}
  
         WriteStringAttr(dset_id, "Label", "SZ y effect", log_fptr);
@@ -512,7 +509,7 @@ int ProjectToPlane(TopGridData &MetaData, LevelHierarchyEntry *LevelArray[],
         if (io_log) fprintf(log_fptr, "H5Dcreate with Name = %s\n", dset_name);
  
         dset_id = H5Dcreate(file_id, dset_name, file_type_id, file_dsp_id, H5P_DEFAULT);
-          if (io_log) fprintf(log_fptr, "H5Dcreate id: %"ISYM"\n", dset_id);
+          if (io_log) fprintf(log_fptr, "H5Dcreate id: %ld\n", dset_id);
           if( dset_id == h5_error ){my_exit(EXIT_FAILURE);}
  
         WriteStringAttr(dset_id, "Label", "DT/T Doppler effect", log_fptr);
@@ -527,7 +524,7 @@ int ProjectToPlane(TopGridData &MetaData, LevelHierarchyEntry *LevelArray[],
         if (io_log) fprintf(log_fptr, "H5Dcreate with Name = %s\n", dset_name);
  
         dset_id = H5Dcreate(file_id, dset_name, file_type_id, file_dsp_id, H5P_DEFAULT);
-          if (io_log) fprintf(log_fptr, "H5Dcreate id: %"ISYM"\n", dset_id);
+          if (io_log) fprintf(log_fptr, "H5Dcreate id: %ld\n", dset_id);
           if( dset_id == h5_error ){my_exit(EXIT_FAILURE);}
  
         WriteStringAttr(dset_id, "Label", "Metallicity", log_fptr);
@@ -542,7 +539,7 @@ int ProjectToPlane(TopGridData &MetaData, LevelHierarchyEntry *LevelArray[],
         if (io_log) fprintf(log_fptr, "H5Dcreate with Name = %s\n", dset_name);
  
         dset_id = H5Dcreate(file_id, dset_name, file_type_id, file_dsp_id, H5P_DEFAULT);
-          if (io_log) fprintf(log_fptr, "H5Dcreate id: %"ISYM"\n", dset_id);
+          if (io_log) fprintf(log_fptr, "H5Dcreate id: %ld\n", dset_id);
           if( dset_id == h5_error ){my_exit(EXIT_FAILURE);}
  
         WriteStringAttr(dset_id, "Label", "projected_star_density", log_fptr);
@@ -557,7 +554,7 @@ int ProjectToPlane(TopGridData &MetaData, LevelHierarchyEntry *LevelArray[],
         if (io_log) fprintf(log_fptr, "H5Dcreate with Name = %s\n", dset_name);
  
         dset_id = H5Dcreate(file_id, dset_name, file_type_id, file_dsp_id, H5P_DEFAULT);
-          if (io_log) fprintf(log_fptr, "H5Dcreate id: %"ISYM"\n", dset_id);
+          if (io_log) fprintf(log_fptr, "H5Dcreate id: %ld\n", dset_id);
           if( dset_id == h5_error ){my_exit(EXIT_FAILURE);}
  
         WriteStringAttr(dset_id, "Label", "OVII column density", log_fptr);
@@ -573,22 +570,22 @@ int ProjectToPlane(TopGridData &MetaData, LevelHierarchyEntry *LevelArray[],
  
  
     h5_status = H5Dwrite(dset_id, float_type_id, H5S_ALL, H5S_ALL, H5P_DEFAULT, (VOIDP) float_temp);
-      if (io_log) fprintf(log_fptr, "H5Dwrite: %"ISYM"\n", h5_status);
+      if (io_log) fprintf(log_fptr, "H5Dwrite: %d\n", h5_status);
       if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
  
     h5_status = H5Sclose(file_dsp_id);
-      if (io_log) fprintf(log_fptr, "H5Sclose: %"ISYM"\n", h5_status);
+      if (io_log) fprintf(log_fptr, "H5Sclose: %d\n", h5_status);
       if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
  
     h5_status = H5Dclose(dset_id);
-      if (io_log) fprintf(log_fptr, "H5Dclose: %"ISYM"\n", h5_status);
+      if (io_log) fprintf(log_fptr, "H5Dclose: %d\n", h5_status);
       if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
  
   }
   delete [] float_temp;
  
   h5_status = H5Fclose(file_id);
-    if (io_log) fprintf(log_fptr, "H5Fclose: %"ISYM"\n", h5_status);
+    if (io_log) fprintf(log_fptr, "H5Fclose: %d\n", h5_status);
     if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
 
  

@@ -136,7 +136,7 @@ int CommunicationPartitionGrid(HierarchyEntry *Grid, int gridnum)
   }
 
   if (MyProcessorNumber == ROOT_PROCESSOR) {
-    fprintf(stderr, "ENZO_layout %"ISYM" x %"ISYM" x %"ISYM"\n", Layout[0], Layout[1], Layout[2]);
+    fprintf(stderr, "ENZO_layout %" ISYM" x %" ISYM" x %" ISYM"\n", Layout[0], Layout[1], Layout[2]);
   }
 
 #endif /* USE_MPI */
@@ -249,7 +249,7 @@ int CommunicationPartitionGrid(HierarchyEntry *Grid, int gridnum)
     } // ENDELSE ThisLevel == 1
 
     if (ParentGridNum == INT_UNDEFINED) {
-      ENZO_VFAIL("CommunicationPartitionGrid: grid %"ISYM" (%"ISYM"), Parent not found?\n",
+      ENZO_VFAIL("CommunicationPartitionGrid: grid %" ISYM" (%" ISYM"), Parent not found?\n",
 	      gridnum, ThisLevel)
     }
 
@@ -366,25 +366,25 @@ int CommunicationPartitionGrid(HierarchyEntry *Grid, int gridnum)
  
   if (MyProcessorNumber == ROOT_PROCESSOR)
   {
-    printf("PartitionGrid (on all processors): Layout = %"ISYM" %"ISYM" %"ISYM"\n",
+    printf("PartitionGrid (on all processors): Layout = %" ISYM" %" ISYM" %" ISYM"\n",
       Layout[0], Layout[1], Layout[2]);
-    printf("NumberOfNewGrids = %"ISYM"\n",NumberOfNewGrids);
+    printf("NumberOfNewGrids = %" ISYM"\n",NumberOfNewGrids);
  
     for (dim = 0; dim < MAX_DIMENSION; dim++)
     {
-      printf("GridDims[%"ISYM"]: ",dim);
+      printf("GridDims[%" ISYM"]: ",dim);
       for (i = 0; i < Layout[dim]; i++)
       {
-        printf(" %"ISYM,GridDims[dim][i]);
+        printf(" %" ISYM,GridDims[dim][i]);
       }
       printf("\n");
     }
     for (dim = 0; dim < MAX_DIMENSION; dim++)
     {
-      printf("StartIndex[%"ISYM"]: ",dim);
+      printf("StartIndex[%" ISYM"]: ",dim);
       for (i = 0; i < Layout[dim]; i++)
       {
-        printf(" %"ISYM,StartIndex[dim][i]);
+        printf(" %" ISYM,StartIndex[dim][i]);
       }
       printf("\n");
     }
@@ -393,7 +393,7 @@ int CommunicationPartitionGrid(HierarchyEntry *Grid, int gridnum)
 /*
   if ((ProblemType == 30) && (ParallelRootGridIO == 1) && (ParallelParticleIO == 1))
   {
-    printf("Unigrid: %"ISYM"\n", Unigrid);
+    printf("Unigrid: %" ISYM"\n", Unigrid);
     printf("Set Unigrid = 1\n");
     Unigrid = 1;
   }
@@ -413,8 +413,8 @@ int CommunicationPartitionGrid(HierarchyEntry *Grid, int gridnum)
   if (debug) printf("Re-set Unigrid = 0\n");
 */
  
-  if (debug) printf("Grid structure: %"ISYM"\n", (int) (sizeof(grid)));
-  if (debug) printf("SubGrids structure: %"ISYM"\n", (int) ((Layout[0]*Layout[1]*Layout[2])*sizeof(grid)));
+  if (debug) printf("Grid structure: %" ISYM"\n", (int) (sizeof(grid)));
+  if (debug) printf("SubGrids structure: %" ISYM"\n", (int) ((Layout[0]*Layout[1]*Layout[2])*sizeof(grid)));
  
   grid *NewGrid, *OldGrid = Grid->GridData;
   grid **SubGrids = new grid*[Layout[0]*Layout[1]*Layout[2]];
@@ -447,7 +447,7 @@ int CommunicationPartitionGrid(HierarchyEntry *Grid, int gridnum)
  
 	/* Compute grid region. */
  
-//      printf("GC K J I: %"ISYM" %"ISYM" %"ISYM" %"ISYM"\n",gridcounter,k,j,i);
+//      printf("GC K J I: %" ISYM" %" ISYM" %" ISYM" %" ISYM"\n",gridcounter,k,j,i);
  
 	for (dim = 0; dim < MAX_DIMENSION; dim++) {
 	  ijk = (dim == 0) ? i : ((dim == 1) ? j : k);
@@ -459,7 +459,7 @@ int CommunicationPartitionGrid(HierarchyEntry *Grid, int gridnum)
 	  if (dim < Rank)
 	    TempDims[dim] += 2*NumberOfGhostZones;
  
-//        printf("  LeftEdge[%"ISYM"] = %8.4"FSYM"  RightEdge[%"ISYM"] = %8.4"FSYM"\n",
+//        printf("  LeftEdge[%" ISYM"] = %8.4" FSYM"  RightEdge[%" ISYM"] = %8.4" FSYM"\n",
 //               dim, LeftEdge[dim], dim, RightEdge[dim]);
  
 	}
@@ -521,13 +521,13 @@ int CommunicationPartitionGrid(HierarchyEntry *Grid, int gridnum)
 
 	  int IntTemp = NewGrid->ReturnNumberOfParticles();
  
-//          printf("NewGrid->ReturnNumberOfParticles: %"ISYM"\n", IntTemp);
+//          printf("NewGrid->ReturnNumberOfParticles: %" ISYM"\n", IntTemp);
  
 	  CommunicationBroadcastValue(&IntTemp, ROOT_PROCESSOR);
 
 	  NewGrid->SetNumberOfParticles(IntTemp);
 
-//          printf("NG particle number set to %"ISYM"\n", IntTemp);
+//          printf("NG particle number set to %" ISYM"\n", IntTemp);
 
 	}
  
@@ -549,7 +549,6 @@ int CommunicationPartitionGrid(HierarchyEntry *Grid, int gridnum)
 	/* Set processor number of new grid.  Cyclic distribution. */
  
         int NewProc = gridcounter % NumberOfProcessors;
-        int ProcMap = ABS(NewProc - NumberOfProcessors) % NumberOfProcessors;
  
         if(NewGrid->ReturnGridInfo(&Rank, Dims, LeftEdge, RightEdge) == FAIL) {
           ENZO_FAIL("Error in grid->ReturnGridInfo.");
@@ -583,9 +582,9 @@ int CommunicationPartitionGrid(HierarchyEntry *Grid, int gridnum)
 
 	// some debug output
         if (MyProcessorNumber == ROOT_PROCESSOR && debug1) {
-          printf("Grid = %"ISYM", K J I: [%"ISYM",%"ISYM",%"ISYM"] Proc = %"ISYM"\n", gridcounter, k, j, i, NewProc);
+          printf("Grid = %" ISYM", K J I: [%" ISYM",%" ISYM",%" ISYM"] Proc = %" ISYM"\n", gridcounter, k, j, i, NewProc);
           for (dim = 0; dim < Rank; dim++) {
-            printf("  %"ISYM" ::  LeftEdge[%"ISYM"] = %8.4"PSYM"  RightEdge[%"ISYM"] = %8.4"PSYM"\n",
+            printf("  %" ISYM" ::  LeftEdge[%" ISYM"] = %8.4" PSYM"  RightEdge[%" ISYM"] = %8.4" PSYM"\n",
                    NewProc, dim, LeftEdge[dim], dim, RightEdge[dim]);
           }
 	}

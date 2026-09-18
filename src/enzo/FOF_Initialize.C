@@ -45,7 +45,7 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, double *MassUnits, FLOAT Time);
 int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
-int SysMkdir (char *startDir, char *directory);
+int SysMkdir (const char *startDir, const char *directory);
 
 /************************************************************************/
 

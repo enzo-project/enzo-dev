@@ -43,22 +43,22 @@ int FSProb::EnforceBoundary(EnzoVector *u)
 	  &ugh[0][0], &ugh[0][1], &ugh[1][0], 
 	  &ugh[1][1], &ugh[2][0], &ugh[2][1]);
   if (udims[0] != LocDims[0]) {
-    fprintf(stderr,"p%"ISYM" EnforceBC: mismatched x0 dims %"ISYM"!=%"ISYM"\n",
+    fprintf(stderr,"p%" ISYM" EnforceBC: mismatched x0 dims %" ISYM"!=%" ISYM"\n",
 	    MyProcessorNumber,udims[0],LocDims[0]);
     return FAIL;
   }
   if (udims[1] != LocDims[1]) {
-    fprintf(stderr,"p%"ISYM" EnforceBC: mismatched x1 dims %"ISYM"!=%"ISYM"\n",
+    fprintf(stderr,"p%" ISYM" EnforceBC: mismatched x1 dims %" ISYM"!=%" ISYM"\n",
 	    MyProcessorNumber,udims[1],LocDims[1]);
     return FAIL;
   }
   if (udims[2] != LocDims[2]) {
-    fprintf(stderr,"p%"ISYM" EnforceBC: mismatched x2 dims %"ISYM"!=%"ISYM"\n",
+    fprintf(stderr,"p%" ISYM" EnforceBC: mismatched x2 dims %" ISYM"!=%" ISYM"\n",
 	    MyProcessorNumber,udims[2],LocDims[2]);
     return FAIL;
   }
   if (udims[3] != 1) {
-    fprintf(stderr,"p%"ISYM" EnforceBC: mismatched nspecies %"ISYM"!=1\n",
+    fprintf(stderr,"p%" ISYM" EnforceBC: mismatched nspecies %" ISYM"!=1\n",
 	    MyProcessorNumber,udims[3]);
     return FAIL;
   }

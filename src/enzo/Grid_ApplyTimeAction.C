@@ -96,7 +96,7 @@ int grid::ApplyTimeAction(int Type, float Parameter)
  
     /* Type unknown. */
  
-    ENZO_VFAIL("TimeAction Type %"ISYM" unknown.\n", Type)
+    ENZO_VFAIL("TimeAction Type %" ISYM" unknown.\n", Type)
 
   }
  

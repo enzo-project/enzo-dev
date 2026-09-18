@@ -1460,7 +1460,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
     if (NumberOfNewParticles > 0) {
  
       if (debug)
-	printf("Grid_StarParticleHandler: New StarParticles = %"ISYM"\n", NumberOfNewParticles);
+	printf("Grid_StarParticleHandler: New StarParticles = %" ISYM"\n", NumberOfNewParticles);
 
       /* Set the particle numbers.  The correct indices will be assigned in 
 	 CommunicationUpdateStarParticleCount in StarParticleFinalize later.*/
@@ -1706,7 +1706,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
       if (xindex < 0 || xindex > GridDimension[0] || 
 	  yindex < 0 || yindex > GridDimension[1] || 
 	  zindex < 0 || zindex > GridDimension[2])
-	fprintf(stdout, "particle out of grid (C level); xind, yind, zind, level = %d, %d, %d, %d\n",
+	fprintf(stdout, "particle out of grid (C level); xind, yind, zind, level = %" ISYM ", %" ISYM ", %" ISYM ", %" ISYM "\n",
 		xindex, yindex, zindex, level); 
     }
 #endif
@@ -1921,7 +1921,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
       if (xindex < 0 || xindex > GridDimension[0] || 
 	  yindex < 0 || yindex > GridDimension[1] || 
 	  zindex < 0 || zindex > GridDimension[2])
-	fprintf(stdout, "particle out of grid (C level); xind, yind, zind, level = %d, %d, %d, %d\n",
+	fprintf(stdout, "particle out of grid (C level); xind, yind, zind, level = %" ISYM ", %" ISYM ", %" ISYM ", %" ISYM "\n",
 		xindex, yindex, zindex, level); 
     }
 #endif

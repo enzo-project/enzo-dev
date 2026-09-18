@@ -163,8 +163,8 @@ int grid::ComputeCRDiffusion(){
 	  crOld = cr[idx];
   	  cr[idx] += dCRdt[idx]*dtSubcycle;
           if( cr[idx] < 0.0 ){
-            printf("Negative CR (after diff) i,j,k = %"ISYM", %"ISYM", %"ISYM"\n",i,j,k);
-            printf("\t\t>> Old CR: %"ESYM"\n",crOld);
+            printf("Negative CR (after diff) i,j,k = %" ISYM", %" ISYM", %" ISYM"\n",i,j,k);
+            printf("\t\t>> Old CR: %" ESYM"\n",crOld);
           } // end err if
 	} // triple for loop
 
@@ -175,7 +175,7 @@ int grid::ComputeCRDiffusion(){
   } // while(dtSoFar < dtFixed)
 
   if (debug) 
-    printf("Grid::ComputeCRDiffusion:  Nsubcycles = %"ISYM", kappa = %"ESYM", dx=%"ESYM"\n", Nsub, kappa, dx[0]); 
+    printf("Grid::ComputeCRDiffusion:  Nsubcycles = %" ISYM", kappa = %" ESYM", dx=%" ESYM"\n", Nsub, kappa, dx[0]); 
 	
   delete [] dCRdt;
   delete [] kdCRdx;	

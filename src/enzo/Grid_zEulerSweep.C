@@ -45,11 +45,10 @@ int grid::zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
   this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, 
 				   Vel3Num, TENum);
 
-  int nxz, nyz, nzz, ixyz;
+  int nxz, nyz;
 
   nxz = GridEndIndex[0] - GridStartIndex[0] + 1;
   nyz = GridEndIndex[1] - GridStartIndex[1] + 1;
-  nzz = GridEndIndex[2] - GridStartIndex[2] + 1;
 
   float MinimumPressure = tiny_number;
   
@@ -304,8 +303,7 @@ int grid::zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
   /* Check this slice against the list of subgrids (all subgrid
      quantities are zero-based) */
 
-  int jstart, jend, offset, nfi, lface, rface, lindex, rindex, 
-    fistart, fiend, fjstart, fjend, clindex, crindex;
+  int offset, nfi, lface, rface, lindex, rindex, fistart, fiend, fjstart, fjend, clindex, crindex;
   
   for (n = 0; n < NumberOfSubgrids; n++) {
 

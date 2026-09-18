@@ -38,10 +38,9 @@ int grid::CommunicationTransferActiveParticles(grid* Grids[], int NumberOfGrids,
  
   /* Declarations. */
  
-  int i, j, k, dim, grid, proc, grid_num, width, bin, CenterIndex;
+  int i, dim, grid, proc, grid_num, CenterIndex;
   int GridPosition[MAX_DIMENSION];
-  FLOAT r[MAX_DIMENSION];
-  int *ToGrid, *pbin;
+  int *ToGrid;
 
   for (dim = 0; dim < MAX_DIMENSION; dim++)
     GridPosition[dim] = 0;
@@ -158,10 +157,8 @@ int grid::CommunicationTransferActiveParticles(grid* Grids[], int NumberOfGrids,
 
     /* Count up total number. */
  
-    int TotalNumberOfActiveParticles;
     int NumberOfNewActiveParticles = EndIndex - StartIndex;
 
-    TotalNumberOfActiveParticles = NumberOfActiveParticles + NumberOfNewActiveParticles;
  
     /* Copy active particles from buffer */
 

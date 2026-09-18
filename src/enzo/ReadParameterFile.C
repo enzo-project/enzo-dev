@@ -98,114 +98,114 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
     /* read MetaData parameters */
 
-    ret += sscanf(line, "InitialCycleNumber = %"ISYM, &MetaData.CycleNumber);
-    ret += sscanf(line, "InitialTime        = %"PSYM, &MetaData.Time);
+    ret += sscanf(line, "InitialCycleNumber = %" ISYM, &MetaData.CycleNumber);
+    ret += sscanf(line, "InitialTime        = %" PSYM, &MetaData.Time);
     ret += sscanf(line, "InitialCPUTime     = %lf", &MetaData.CPUTime);
-    ret += sscanf(line, "Initialdt          = %"FSYM, Initialdt);
+    ret += sscanf(line, "Initialdt          = %" FSYM, Initialdt);
 
-    ret += sscanf(line, "CheckpointRestart = %"ISYM, &CheckpointRestart);
-    ret += sscanf(line, "StopTime    = %"PSYM, &MetaData.StopTime);
-    ret += sscanf(line, "StopCycle   = %"ISYM, &MetaData.StopCycle);
-    ret += sscanf(line, "StopSteps   = %"ISYM, &MetaData.StopSteps);
-    ret += sscanf(line, "StopCPUTime = %"FSYM, &MetaData.StopCPUTime);
-    ret += sscanf(line, "ResubmitOn  = %"ISYM, &MetaData.ResubmitOn);
+    ret += sscanf(line, "CheckpointRestart = %" ISYM, &CheckpointRestart);
+    ret += sscanf(line, "StopTime    = %" PSYM, &MetaData.StopTime);
+    ret += sscanf(line, "StopCycle   = %" ISYM, &MetaData.StopCycle);
+    ret += sscanf(line, "StopSteps   = %" ISYM, &MetaData.StopSteps);
+    ret += sscanf(line, "StopCPUTime = %" FSYM, &MetaData.StopCPUTime);
+    ret += sscanf(line, "ResubmitOn  = %" ISYM, &MetaData.ResubmitOn);
     if (sscanf(line, "ResubmitCommand = %s", dummy) == 1)
       MetaData.ResubmitCommand = dummy;
 
-    ret += sscanf(line, "MaximumTopGridTimeStep = %"FSYM,
+    ret += sscanf(line, "MaximumTopGridTimeStep = %" FSYM,
 		  &MetaData.MaximumTopGridTimeStep);
 
-    ret += sscanf(line, "TimeLastRestartDump = %"FSYM,
+    ret += sscanf(line, "TimeLastRestartDump = %" FSYM,
 		  &MetaData.TimeLastRestartDump);
-    ret += sscanf(line, "dtRestartDump       = %"FSYM, &MetaData.dtRestartDump);
-    ret += sscanf(line, "TimeLastDataDump    = %"PSYM,
+    ret += sscanf(line, "dtRestartDump       = %" FSYM, &MetaData.dtRestartDump);
+    ret += sscanf(line, "TimeLastDataDump    = %" PSYM,
 		  &MetaData.TimeLastDataDump);
-    ret += sscanf(line, "dtDataDump          = %"PSYM, &MetaData.dtDataDump);
-    ret += sscanf(line, "TimeLastHistoryDump = %"PSYM,
+    ret += sscanf(line, "dtDataDump          = %" PSYM, &MetaData.dtDataDump);
+    ret += sscanf(line, "TimeLastHistoryDump = %" PSYM,
 		  &MetaData.TimeLastHistoryDump);
-    ret += sscanf(line, "dtHistoryDump       = %"PSYM, &MetaData.dtHistoryDump);
+    ret += sscanf(line, "dtHistoryDump       = %" PSYM, &MetaData.dtHistoryDump);
 
-    ret += sscanf(line, "TracerParticleOn  = %"ISYM, &TracerParticleOn);
-    ret += sscanf(line, "TracerParticleOutputVelocity  = %"ISYM, &TracerParticleOutputVelocity);
-    ret += sscanf(line, "WriteGhostZones = %"ISYM, &WriteGhostZones);
-    ret += sscanf(line, "ReadGhostZones = %"ISYM, &ReadGhostZones);
-    ret += sscanf(line, "OutputParticleTypeGrouping = %"ISYM,
+    ret += sscanf(line, "TracerParticleOn  = %" ISYM, &TracerParticleOn);
+    ret += sscanf(line, "TracerParticleOutputVelocity  = %" ISYM, &TracerParticleOutputVelocity);
+    ret += sscanf(line, "WriteGhostZones = %" ISYM, &WriteGhostZones);
+    ret += sscanf(line, "ReadGhostZones = %" ISYM, &ReadGhostZones);
+    ret += sscanf(line, "OutputParticleTypeGrouping = %" ISYM,
                         &OutputParticleTypeGrouping);
-    ret += sscanf(line, "TimeLastTracerParticleDump = %"PSYM,
+    ret += sscanf(line, "TimeLastTracerParticleDump = %" PSYM,
                   &MetaData.TimeLastTracerParticleDump);
-    ret += sscanf(line, "dtTracerParticleDump       = %"PSYM,
+    ret += sscanf(line, "dtTracerParticleDump       = %" PSYM,
                   &MetaData.dtTracerParticleDump);
-    ret += sscanf(line, "TimeLastInterpolatedDataDump    = %"PSYM,
+    ret += sscanf(line, "TimeLastInterpolatedDataDump    = %" PSYM,
 		  &MetaData.TimeLastInterpolatedDataDump);
-    ret += sscanf(line, "dtInterpolatedDataDump          = %"PSYM,
+    ret += sscanf(line, "dtInterpolatedDataDump          = %" PSYM,
 		  &MetaData.dtInterpolatedDataDump);
 
-    ret += sscanf(line, "NewMovieLeftEdge  = %"PSYM" %"PSYM" %"PSYM,
+    ret += sscanf(line, "NewMovieLeftEdge  = %" PSYM" %" PSYM" %" PSYM,
 		  MetaData.NewMovieLeftEdge,
 		  MetaData.NewMovieLeftEdge+1,
 		  MetaData.NewMovieLeftEdge+2);
-    ret += sscanf(line, "NewMovieRightEdge = %"PSYM" %"PSYM" %"PSYM,
+    ret += sscanf(line, "NewMovieRightEdge = %" PSYM" %" PSYM" %" PSYM,
 		  MetaData.NewMovieRightEdge,
 		  MetaData.NewMovieRightEdge+1,
 		  MetaData.NewMovieRightEdge+2);
 
-    ret += sscanf(line, "CycleLastRestartDump = %"ISYM,
+    ret += sscanf(line, "CycleLastRestartDump = %" ISYM,
 		  &MetaData.CycleLastRestartDump);
-    ret += sscanf(line, "CycleSkipRestartDump = %"ISYM,
+    ret += sscanf(line, "CycleSkipRestartDump = %" ISYM,
 		  &MetaData.CycleSkipRestartDump);
-    ret += sscanf(line, "CycleLastDataDump    = %"ISYM,
+    ret += sscanf(line, "CycleLastDataDump    = %" ISYM,
 		  &MetaData.CycleLastDataDump);
-    ret += sscanf(line, "CycleSkipDataDump    = %"ISYM,
+    ret += sscanf(line, "CycleSkipDataDump    = %" ISYM,
 		  &MetaData.CycleSkipDataDump);
-    ret += sscanf(line, "CycleLastHistoryDump = %"ISYM,
+    ret += sscanf(line, "CycleLastHistoryDump = %" ISYM,
 		  &MetaData.CycleLastHistoryDump);
-    ret += sscanf(line, "CycleSkipHistoryDump = %"ISYM,
+    ret += sscanf(line, "CycleSkipHistoryDump = %" ISYM,
 		  &MetaData.CycleSkipHistoryDump);
-    ret += sscanf(line, "CycleSkipGlobalDataDump = %"ISYM, //AK
+    ret += sscanf(line, "CycleSkipGlobalDataDump = %" ISYM, //AK
                   &MetaData.CycleSkipGlobalDataDump);
-    ret += sscanf(line, "OutputFirstTimeAtLevel = %"ISYM,
+    ret += sscanf(line, "OutputFirstTimeAtLevel = %" ISYM,
 		  &MetaData.OutputFirstTimeAtLevel);
-    ret += sscanf(line, "StopFirstTimeAtLevel = %"ISYM,
+    ret += sscanf(line, "StopFirstTimeAtLevel = %" ISYM,
 		  &MetaData.StopFirstTimeAtLevel);
-    ret += sscanf(line, "NumberOfOutputsBeforeExit = %"ISYM,
+    ret += sscanf(line, "NumberOfOutputsBeforeExit = %" ISYM,
 		  &MetaData.NumberOfOutputsBeforeExit);
 
     /* Maximum density directed output */
-    ret += sscanf(line, "OutputOnDensity = %"ISYM,
+    ret += sscanf(line, "OutputOnDensity = %" ISYM,
            &OutputOnDensity);
-    ret += sscanf(line, "StartDensityOutputs = %"FSYM,
+    ret += sscanf(line, "StartDensityOutputs = %" FSYM,
            &StartDensityOutputs);
-    ret += sscanf(line, "CurrentDensityOutput = %"FSYM,
+    ret += sscanf(line, "CurrentDensityOutput = %" FSYM,
            &CurrentDensityOutput);
-    ret += sscanf(line, "IncrementDensityOutput = %"FSYM,
+    ret += sscanf(line, "IncrementDensityOutput = %" FSYM,
            &IncrementDensityOutput);
-    ret += sscanf(line, "StopFirstTimeAtDensity = %"FSYM,
+    ret += sscanf(line, "StopFirstTimeAtDensity = %" FSYM,
            &StopFirstTimeAtDensity);
-    ret += sscanf(line, "StopFirstTimeAtMetalEnrichedDensity = %"FSYM,
+    ret += sscanf(line, "StopFirstTimeAtMetalEnrichedDensity = %" FSYM,
            &StopFirstTimeAtMetalEnrichedDensity);
-    ret += sscanf(line, "EnrichedMetalFraction = %"FSYM,
+    ret += sscanf(line, "EnrichedMetalFraction = %" FSYM,
            &EnrichedMetalFraction);
 
     /* Subcycle directed output */
-    ret += sscanf(line, "SubcycleSkipDataDump = %"ISYM,
+    ret += sscanf(line, "SubcycleSkipDataDump = %" ISYM,
                   &MetaData.SubcycleSkipDataDump);
-    ret += sscanf(line, "SubcycleLastDataDump = %"ISYM,
+    ret += sscanf(line, "SubcycleLastDataDump = %" ISYM,
                   &MetaData.SubcycleLastDataDump);
-    ret += sscanf(line, "SubcycleNumber = %"ISYM,
+    ret += sscanf(line, "SubcycleNumber = %" ISYM,
                   &MetaData.SubcycleNumber);
 
-    ret += sscanf(line,"FileDirectedOutput = %"ISYM,
+    ret += sscanf(line,"FileDirectedOutput = %" ISYM,
 		  &FileDirectedOutput);
 
-    ret += sscanf(line,"HierarchyFileInputFormat = %"ISYM,
+    ret += sscanf(line,"HierarchyFileInputFormat = %" ISYM,
 		  &HierarchyFileInputFormat);
-    ret += sscanf(line,"HierarchyFileOutputFormat = %"ISYM,
+    ret += sscanf(line,"HierarchyFileOutputFormat = %" ISYM,
 		  &HierarchyFileOutputFormat);
 
-    ret += sscanf(line, "RestartDumpNumber = %"ISYM, &MetaData.RestartDumpNumber);
-    ret += sscanf(line, "DataDumpNumber    = %"ISYM, &MetaData.DataDumpNumber);
-    ret += sscanf(line, "HistoryDumpNumber = %"ISYM, &MetaData.HistoryDumpNumber);
-    ret += sscanf(line, "TracerParticleDumpNumber = %"ISYM, &MetaData.TracerParticleDumpNumber);
+    ret += sscanf(line, "RestartDumpNumber = %" ISYM, &MetaData.RestartDumpNumber);
+    ret += sscanf(line, "DataDumpNumber    = %" ISYM, &MetaData.DataDumpNumber);
+    ret += sscanf(line, "HistoryDumpNumber = %" ISYM, &MetaData.HistoryDumpNumber);
+    ret += sscanf(line, "TracerParticleDumpNumber = %" ISYM, &MetaData.TracerParticleDumpNumber);
 
     if (sscanf(line, "RestartDumpName      = %s", dummy) == 1)
       MetaData.RestartDumpName = dummy;
@@ -234,87 +234,87 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     if (sscanf(line, "GlobalDir           = %s", dummy) == 1)
       MetaData.GlobalDir = dummy;
 
-    if (sscanf(line, "CubeDump[%"ISYM"] = %s", &dim, dummy) == 2) {
+    if (sscanf(line, "CubeDump[%" ISYM"] = %s", &dim, dummy) == 2) {
       ret++; CubeDumps[dim] = dummy;
       if (dim >= MAX_CUBE_DUMPS) {
-        ENZO_VFAIL("CubeDump %"ISYM" > maximum allowed.\n", dim)
+        ENZO_VFAIL("CubeDump %" ISYM" > maximum allowed.\n", dim)
       }
     }
 
-    ret += sscanf(line, "NumberOfGhostZones = %"ISYM, &NumberOfGhostZones);
-    ret += sscanf(line, "LoadBalancing = %"ISYM, &LoadBalancing);
-    ret += sscanf(line, "ResetLoadBalancing = %"ISYM, &ResetLoadBalancing);
-    ret += sscanf(line, "LoadBalancingCycleSkip = %"ISYM, &LoadBalancingCycleSkip);
-    ret += sscanf(line, "LoadBalancingMinLevel = %"ISYM, &LoadBalancingMinLevel);
-    ret += sscanf(line, "LoadBalancingMaxLevel = %"ISYM, &LoadBalancingMaxLevel);
+    ret += sscanf(line, "NumberOfGhostZones = %" ISYM, &NumberOfGhostZones);
+    ret += sscanf(line, "LoadBalancing = %" ISYM, &LoadBalancing);
+    ret += sscanf(line, "ResetLoadBalancing = %" ISYM, &ResetLoadBalancing);
+    ret += sscanf(line, "LoadBalancingCycleSkip = %" ISYM, &LoadBalancingCycleSkip);
+    ret += sscanf(line, "LoadBalancingMinLevel = %" ISYM, &LoadBalancingMinLevel);
+    ret += sscanf(line, "LoadBalancingMaxLevel = %" ISYM, &LoadBalancingMaxLevel);
 
-    ret += sscanf(line, "ConductionDynamicRebuildHierarchy = %"ISYM,
+    ret += sscanf(line, "ConductionDynamicRebuildHierarchy = %" ISYM,
                   &ConductionDynamicRebuildHierarchy);
-    ret += sscanf(line, "ConductionDynamicRebuildMinLevel = %"ISYM,
+    ret += sscanf(line, "ConductionDynamicRebuildMinLevel = %" ISYM,
                   &ConductionDynamicRebuildMinLevel);
-    if (sscanf(line, "RebuildHierarchyCycleSkip[%"ISYM"] =", &int_dummy) == 1) {
+    if (sscanf(line, "RebuildHierarchyCycleSkip[%" ISYM"] =", &int_dummy) == 1) {
       if (int_dummy > MAX_DEPTH_OF_HIERARCHY) {
-	ENZO_VFAIL("Cannot set RebuildHierarchyCycleSkip[%"ISYM"], max hierarchy depth = %"ISYM".\n", int_dummy, MAX_DEPTH_OF_HIERARCHY);
+	ENZO_VFAIL("Cannot set RebuildHierarchyCycleSkip[%" ISYM"], max hierarchy depth = %d.\n", int_dummy, MAX_DEPTH_OF_HIERARCHY);
       }
-      ret += sscanf(line, "RebuildHierarchyCycleSkip[%"ISYM"] = %"ISYM,
+      ret += sscanf(line, "RebuildHierarchyCycleSkip[%" ISYM"] = %" ISYM,
 		    &int_dummy, &RebuildHierarchyCycleSkip[int_dummy]);
     }
 
-    if (sscanf(line, "TimeActionType[%"ISYM"] = %"ISYM, &dim, &int_dummy) == 2) {
+    if (sscanf(line, "TimeActionType[%" ISYM"] = %" ISYM, &dim, &int_dummy) == 2) {
       ret++;
       if (dim >= MAX_TIME_ACTIONS-1) {
-	ENZO_VFAIL("Time action %"ISYM" > maximum allowed.\n", dim)
+	ENZO_VFAIL("Time action %" ISYM" > maximum allowed.\n", dim)
       }
       TimeActionType[dim] = int_dummy;
     }
-    if (sscanf(line, "TimeActionRedshift[%"ISYM"] = ", &dim) == 1)
-      ret += sscanf(line, "TimeActionRedshift[%"ISYM"] = %"PSYM, &dim,
+    if (sscanf(line, "TimeActionRedshift[%" ISYM"] = ", &dim) == 1)
+      ret += sscanf(line, "TimeActionRedshift[%" ISYM"] = %" PSYM, &dim,
 		    TimeActionRedshift+dim);
-    if (sscanf(line, "TimeActionTime[%"ISYM"] = ", &dim) == 1)
-      ret += sscanf(line, "TimeActionTime[%"ISYM"] = %"PSYM, &dim,
+    if (sscanf(line, "TimeActionTime[%" ISYM"] = ", &dim) == 1)
+      ret += sscanf(line, "TimeActionTime[%" ISYM"] = %" PSYM, &dim,
 		    TimeActionTime+dim);
-    if (sscanf(line, "TimeActionParameter[%"ISYM"] = ", &dim) == 1)
-      ret += sscanf(line, "TimeActionParameter[%"ISYM"] = %"FSYM, &dim,
+    if (sscanf(line, "TimeActionParameter[%" ISYM"] = ", &dim) == 1)
+      ret += sscanf(line, "TimeActionParameter[%" ISYM"] = %" FSYM, &dim,
 		    TimeActionParameter+dim);
 
-    ret += sscanf(line, "StaticHierarchy = %"ISYM, &MetaData.StaticHierarchy);
+    ret += sscanf(line, "StaticHierarchy = %" ISYM, &MetaData.StaticHierarchy);
 
-    ret += sscanf(line, "TopGridRank       = %"ISYM, &MetaData.TopGridRank);
-    ret += sscanf(line, "TopGridDimensions = %"ISYM" %"ISYM" %"ISYM, MetaData.TopGridDims,
+    ret += sscanf(line, "TopGridRank       = %" ISYM, &MetaData.TopGridRank);
+    ret += sscanf(line, "TopGridDimensions = %" ISYM" %" ISYM" %" ISYM, MetaData.TopGridDims,
 		  MetaData.TopGridDims+1, MetaData.TopGridDims+2);
 
-    ret += sscanf(line, "TopGridGravityBoundary = %"ISYM,
+    ret += sscanf(line, "TopGridGravityBoundary = %" ISYM,
 		  &MetaData.GravityBoundary);
 
 #ifdef TRANSFER
     if (sscanf(line, "RadHydroParamfile = %s", dummy) == 1)
       MetaData.RadHydroParameterFname = dummy;
 #endif
-    ret += sscanf(line, "ImplicitProblem = %"ISYM, &ImplicitProblem);
-    ret += sscanf(line, "RadiativeTransferFLD   = %"ISYM, &RadiativeTransferFLD);
+    ret += sscanf(line, "ImplicitProblem = %" ISYM, &ImplicitProblem);
+    ret += sscanf(line, "RadiativeTransferFLD   = %" ISYM, &RadiativeTransferFLD);
 #ifdef EMISSIVITY
-    ret += sscanf(line, "StarMakerEmissivityField = %"ISYM,
+    ret += sscanf(line, "StarMakerEmissivityField = %" ISYM,
 		  &StarMakerEmissivityField);
-    ret += sscanf(line, "uv_param = %"FSYM, &uv_param);
+    ret += sscanf(line, "uv_param = %" FSYM, &uv_param);
 #endif
 
-    ret += sscanf(line, "ParticleBoundaryType   = %"ISYM,
+    ret += sscanf(line, "ParticleBoundaryType   = %" ISYM,
 		  &MetaData.ParticleBoundaryType);
-    ret += sscanf(line, "NumberOfParticles      = %"PISYM,
+    ret += sscanf(line, "NumberOfParticles      = %" PISYM,
 		  &MetaData.NumberOfParticles);
 
-    ret += sscanf(line, "CourantSafetyNumber    = %"FSYM,
+    ret += sscanf(line, "CourantSafetyNumber    = %" FSYM,
 		  &MetaData.CourantSafetyNumber);
-    ret += sscanf(line, "PPMFlatteningParameter = %"ISYM,
+    ret += sscanf(line, "PPMFlatteningParameter = %" ISYM,
 		  &MetaData.PPMFlatteningParameter);
-    ret += sscanf(line, "PPMDiffusionParameter  = %"ISYM,
+    ret += sscanf(line, "PPMDiffusionParameter  = %" ISYM,
 		  &MetaData.PPMDiffusionParameter);
-    ret += sscanf(line, "PPMSteepeningParameter = %"ISYM,
+    ret += sscanf(line, "PPMSteepeningParameter = %" ISYM,
 		  &MetaData.PPMSteepeningParameter);
 
     /* read global Parameters */
 
-    ret += sscanf(line, "ProblemType            = %"ISYM, &ProblemType);
+    ret += sscanf(line, "ProblemType            = %" ISYM, &ProblemType);
 #ifdef NEW_PROBLEM_TYPES
     if (sscanf(line, "ProblemTypeName = %s", dummy) == 1) {
       ProblemTypeName = dummy;
@@ -322,132 +322,132 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
       ret = 1;
     }
 #endif
-    ret += sscanf(line, "HydroMethod            = %"ISYM, &HydroMethod);
+    ret += sscanf(line, "HydroMethod            = %" ISYM, &HydroMethod);
 
-    ret += sscanf(line, "huge_number            = %"FSYM, &huge_number);
-    ret += sscanf(line, "tiny_number            = %"FSYM, &tiny_number);
-    ret += sscanf(line, "Gamma                  = %"FSYM, &Gamma);
-    ret += sscanf(line, "PressureFree           = %"ISYM, &PressureFree);
+    ret += sscanf(line, "huge_number            = %" FSYM, &huge_number);
+    ret += sscanf(line, "tiny_number            = %" FSYM, &tiny_number);
+    ret += sscanf(line, "Gamma                  = %" FSYM, &Gamma);
+    ret += sscanf(line, "PressureFree           = %" ISYM, &PressureFree);
 
 /* FDM: read FDM parameters */
-    ret += sscanf(line, "QuantumPressure          = %"ISYM, &QuantumPressure);
-    ret += sscanf(line, "FDMCollapseAbsorbingBoundary          = %"ISYM, &FDMCollapseAbsorbingBoundary);
-    ret += sscanf(line, "FDMMass          = %"FSYM, &FDMMass);
+    ret += sscanf(line, "QuantumPressure          = %" ISYM, &QuantumPressure);
+    ret += sscanf(line, "FDMCollapseAbsorbingBoundary          = %" ISYM, &FDMCollapseAbsorbingBoundary);
+    ret += sscanf(line, "FDMMass          = %" FSYM, &FDMMass);
 
-    ret += sscanf(line, "RefineBy               = %"ISYM, &RefineBy);
-    ret += sscanf(line, "MaximumRefinementLevel = %"ISYM,
+    ret += sscanf(line, "RefineBy               = %" ISYM, &RefineBy);
+    ret += sscanf(line, "MaximumRefinementLevel = %" ISYM,
 		  &MaximumRefinementLevel);
-    ret += sscanf(line, "MaximumGravityRefinementLevel = %"ISYM,
+    ret += sscanf(line, "MaximumGravityRefinementLevel = %" ISYM,
 		  &MaximumGravityRefinementLevel);
-    ret += sscanf(line, "MaximumParticleRefinementLevel = %"ISYM,
+    ret += sscanf(line, "MaximumParticleRefinementLevel = %" ISYM,
 		  &MaximumParticleRefinementLevel);
-    ret += sscanf(line, "CellFlaggingMethod     = %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM,
+    ret += sscanf(line, "CellFlaggingMethod     = %" ISYM" %" ISYM" %" ISYM" %" ISYM" %" ISYM" %" ISYM" %" ISYM,
 	     CellFlaggingMethod+0, CellFlaggingMethod+1, CellFlaggingMethod+2,
 	     CellFlaggingMethod+3, CellFlaggingMethod+4, CellFlaggingMethod+5,
 	     CellFlaggingMethod+6);
-    ret += sscanf(line, "FluxCorrection         = %"ISYM, &FluxCorrection);
-    ret += sscanf(line, "UseCoolingTimestep     = %"ISYM, &UseCoolingTimestep);
-    ret += sscanf(line, "CoolingTimestepSafetyFactor = %"FSYM, &CoolingTimestepSafetyFactor);
-    ret += sscanf(line, "InterpolationMethod    = %"ISYM, &InterpolationMethod);
-    ret += sscanf(line, "ConservativeInterpolation = %"ISYM,
+    ret += sscanf(line, "FluxCorrection         = %" ISYM, &FluxCorrection);
+    ret += sscanf(line, "UseCoolingTimestep     = %" ISYM, &UseCoolingTimestep);
+    ret += sscanf(line, "CoolingTimestepSafetyFactor = %" FSYM, &CoolingTimestepSafetyFactor);
+    ret += sscanf(line, "InterpolationMethod    = %" ISYM, &InterpolationMethod);
+    ret += sscanf(line, "ConservativeInterpolation = %" ISYM,
 		  &ConservativeInterpolation);
-    ret += sscanf(line, "MinimumEfficiency      = %"FSYM, &MinimumEfficiency);
-    ret += sscanf(line, "SubgridSizeAutoAdjust  = %"ISYM, &SubgridSizeAutoAdjust);
-    ret += sscanf(line, "OptimalSubgridsPerProcessor = %"ISYM,
+    ret += sscanf(line, "MinimumEfficiency      = %" FSYM, &MinimumEfficiency);
+    ret += sscanf(line, "SubgridSizeAutoAdjust  = %" ISYM, &SubgridSizeAutoAdjust);
+    ret += sscanf(line, "OptimalSubgridsPerProcessor = %" ISYM,
 		  &OptimalSubgridsPerProcessor);
-    ret += sscanf(line, "MinimumSubgridEdge     = %"ISYM, &MinimumSubgridEdge);
-    ret += sscanf(line, "MaximumSubgridSize     = %"ISYM, &MaximumSubgridSize);
-    ret += sscanf(line, "CriticalGridRatio      = %"FSYM, &CriticalGridRatio);
-    ret += sscanf(line, "NumberOfBufferZones    = %"ISYM, &NumberOfBufferZones);
-    ret += sscanf(line, "FastSiblingLocatorEntireDomain = %"ISYM, &FastSiblingLocatorEntireDomain);
-    ret += sscanf(line, "MustRefineRegionMinRefinementLevel = %"ISYM,
+    ret += sscanf(line, "MinimumSubgridEdge     = %" ISYM, &MinimumSubgridEdge);
+    ret += sscanf(line, "MaximumSubgridSize     = %" ISYM, &MaximumSubgridSize);
+    ret += sscanf(line, "CriticalGridRatio      = %" FSYM, &CriticalGridRatio);
+    ret += sscanf(line, "NumberOfBufferZones    = %" ISYM, &NumberOfBufferZones);
+    ret += sscanf(line, "FastSiblingLocatorEntireDomain = %" ISYM, &FastSiblingLocatorEntireDomain);
+    ret += sscanf(line, "MustRefineRegionMinRefinementLevel = %" ISYM,
 		  &MustRefineRegionMinRefinementLevel);
-    ret += sscanf(line, "MetallicityRefinementMinLevel = %"ISYM,
+    ret += sscanf(line, "MetallicityRefinementMinLevel = %" ISYM,
 		  &MetallicityRefinementMinLevel);
-    ret += sscanf(line, "MetallicityRefinementMinMetallicity = %"FSYM,
+    ret += sscanf(line, "MetallicityRefinementMinMetallicity = %" FSYM,
 		  &MetallicityRefinementMinMetallicity);
-    ret += sscanf(line, "MetallicityRefinementMinDensity = %"FSYM,
+    ret += sscanf(line, "MetallicityRefinementMinDensity = %" FSYM,
 		  &MetallicityRefinementMinDensity);
 
-    ret += sscanf(line, "DomainLeftEdge        = %"PSYM" %"PSYM" %"PSYM, DomainLeftEdge,
+    ret += sscanf(line, "DomainLeftEdge        = %" PSYM" %" PSYM" %" PSYM, DomainLeftEdge,
 		  DomainLeftEdge+1, DomainLeftEdge+2);
-    ret += sscanf(line, "DomainRightEdge       = %"PSYM" %"PSYM" %"PSYM, DomainRightEdge,
+    ret += sscanf(line, "DomainRightEdge       = %" PSYM" %" PSYM" %" PSYM, DomainRightEdge,
 		  DomainRightEdge+1, DomainRightEdge+2);
-    ret += sscanf(line, "GridVelocity          = %"FSYM" %"FSYM" %"FSYM, GridVelocity,
+    ret += sscanf(line, "GridVelocity          = %" FSYM" %" FSYM" %" FSYM, GridVelocity,
 		  GridVelocity+1, GridVelocity+2);
-    ret += sscanf(line, "RefineRegionAutoAdjust = %"ISYM, &RefineRegionAutoAdjust);
-    ret += sscanf(line, "RefineRegionLeftEdge  = %"PSYM" %"PSYM" %"PSYM,
+    ret += sscanf(line, "RefineRegionAutoAdjust = %" ISYM, &RefineRegionAutoAdjust);
+    ret += sscanf(line, "RefineRegionLeftEdge  = %" PSYM" %" PSYM" %" PSYM,
 		  RefineRegionLeftEdge, RefineRegionLeftEdge+1,
 		  RefineRegionLeftEdge+2);
-    ret += sscanf(line, "RefineRegionRightEdge = %"PSYM" %"PSYM" %"PSYM,
+    ret += sscanf(line, "RefineRegionRightEdge = %" PSYM" %" PSYM" %" PSYM,
 		  RefineRegionRightEdge, RefineRegionRightEdge+1,
 		  RefineRegionRightEdge+2);
-    ret += sscanf(line, "MustRefineRegionLeftEdge  = %"PSYM" %"PSYM" %"PSYM,
+    ret += sscanf(line, "MustRefineRegionLeftEdge  = %" PSYM" %" PSYM" %" PSYM,
 		  MustRefineRegionLeftEdge, MustRefineRegionLeftEdge+1,
 		  MustRefineRegionLeftEdge+2);
-    ret += sscanf(line, "MustRefineRegionRightEdge  = %"PSYM" %"PSYM" %"PSYM,
+    ret += sscanf(line, "MustRefineRegionRightEdge  = %" PSYM" %" PSYM" %" PSYM,
 		  MustRefineRegionRightEdge, MustRefineRegionRightEdge+1,
 		  MustRefineRegionRightEdge+2);
 
     /* Parameters for the MultiRefineRegion mechanics */
 
-    ret += sscanf(line, "MultiRefineRegionMaximumOuterLevel  = %"ISYM, &MultiRefineRegionMaximumOuterLevel);
-    ret += sscanf(line, "MultiRefineRegionMinimumOuterLevel  = %"ISYM, &MultiRefineRegionMinimumOuterLevel);
-    if (sscanf(line, "MultiRefineRegionMaximumLevel[%"ISYM"] = %"ISYM, &dim, &int_dummy) == 2)
+    ret += sscanf(line, "MultiRefineRegionMaximumOuterLevel  = %" ISYM, &MultiRefineRegionMaximumOuterLevel);
+    ret += sscanf(line, "MultiRefineRegionMinimumOuterLevel  = %" ISYM, &MultiRefineRegionMinimumOuterLevel);
+    if (sscanf(line, "MultiRefineRegionMaximumLevel[%" ISYM"] = %" ISYM, &dim, &int_dummy) == 2)
       {
 	if (dim > MAX_STATIC_REGIONS-1)
-	  ENZO_VFAIL("MultiRefineRegion number %"ISYM" (MAX_STATIC_REGIONS) > MAX allowed\n", dim);
+	  ENZO_VFAIL("MultiRefineRegion number %" ISYM" (MAX_STATIC_REGIONS) > MAX allowed\n", dim);
 	ret++;
 	MultiRefineRegionMaximumLevel[dim] = int_dummy;
       }
-    if (sscanf(line, "MultiRefineRegionGeometry[%"ISYM"] = %"ISYM, &dim, &int_dummy) == 2){
+    if (sscanf(line, "MultiRefineRegionGeometry[%" ISYM"] = %" ISYM, &dim, &int_dummy) == 2){
       ret++;
       MultiRefineRegionGeometry[dim] = int_dummy;
     }
-    if (sscanf(line, "MultiRefineRegionMinimumLevel[%"ISYM"] = %"ISYM, &dim, &int_dummy) == 2){
+    if (sscanf(line, "MultiRefineRegionMinimumLevel[%" ISYM"] = %" ISYM, &dim, &int_dummy) == 2){
       ret++;
       MultiRefineRegionMinimumLevel[dim] = int_dummy;
     }
-    if (sscanf(line, "MultiRefineRegionRadius[%"ISYM"] = %"PSYM, &dim, &float_dummy) == 2){
+    if (sscanf(line, "MultiRefineRegionRadius[%" ISYM"] = %" PSYM, &dim, &float_dummy) == 2){
       ret++;
       MultiRefineRegionRadius[dim] = float_dummy;
     }
-    if (sscanf(line, "MultiRefineRegionWidth[%"ISYM"] = %"PSYM, &dim, &float_dummy) == 2){
+    if (sscanf(line, "MultiRefineRegionWidth[%" ISYM"] = %" PSYM, &dim, &float_dummy) == 2){
       ret++;
       MultiRefineRegionWidth[dim] = float_dummy;
     }
-    if (sscanf(line, "MultiRefineRegionStaggeredRefinement[%"ISYM"] = %"PSYM, &dim, &float_dummy) == 2){
+    if (sscanf(line, "MultiRefineRegionStaggeredRefinement[%" ISYM"] = %" PSYM, &dim, &float_dummy) == 2){
       ret++;
       MultiRefineRegionStaggeredRefinement[dim] = float_dummy;
     }
-    if (sscanf(line, "MultiRefineRegionCenter[%"ISYM"] = ", &dim) == 1)
+    if (sscanf(line, "MultiRefineRegionCenter[%" ISYM"] = ", &dim) == 1)
       ret += sscanf(line,
-		    "MultiRefineRegionCenter[%"ISYM"] = %"PSYM" %"PSYM" %"PSYM,
+		    "MultiRefineRegionCenter[%" ISYM"] = %" PSYM" %" PSYM" %" PSYM,
 		    &dim, MultiRefineRegionCenter[dim],
 		    MultiRefineRegionCenter[dim]+1,
 		    MultiRefineRegionCenter[dim]+2);
-    if (sscanf(line, "MultiRefineRegionOrientation[%"ISYM"] = ", &dim) == 1)
+    if (sscanf(line, "MultiRefineRegionOrientation[%" ISYM"] = ", &dim) == 1)
       ret += sscanf(line,
-		    "MultiRefineRegionOrientation[%"ISYM"] = %"PSYM" %"PSYM" %"PSYM,
+		    "MultiRefineRegionOrientation[%" ISYM"] = %" PSYM" %" PSYM" %" PSYM,
 		    &dim, MultiRefineRegionOrientation[dim],
 		    MultiRefineRegionOrientation[dim]+1,
 		    MultiRefineRegionOrientation[dim]+2);
-    if (sscanf(line, "MultiRefineRegionLeftEdge[%"ISYM"] = ", &dim) == 1)
+    if (sscanf(line, "MultiRefineRegionLeftEdge[%" ISYM"] = ", &dim) == 1)
       ret += sscanf(line,
-		    "MultiRefineRegionLeftEdge[%"ISYM"] = %"PSYM" %"PSYM" %"PSYM,
+		    "MultiRefineRegionLeftEdge[%" ISYM"] = %" PSYM" %" PSYM" %" PSYM,
 		    &dim, MultiRefineRegionLeftEdge[dim],
 		    MultiRefineRegionLeftEdge[dim]+1,
 		    MultiRefineRegionLeftEdge[dim]+2);
-    if (sscanf(line, "MultiRefineRegionRightEdge[%"ISYM"] = ", &dim) == 1)
+    if (sscanf(line, "MultiRefineRegionRightEdge[%" ISYM"] = ", &dim) == 1)
       ret += sscanf(line,
-		    "MultiRefineRegionRightEdge[%"ISYM"] = %"PSYM" %"PSYM" %"PSYM,
+		    "MultiRefineRegionRightEdge[%" ISYM"] = %" PSYM" %" PSYM" %" PSYM,
 		    &dim, MultiRefineRegionRightEdge[dim],
 		    MultiRefineRegionRightEdge[dim]+1,
 		    MultiRefineRegionRightEdge[dim]+2);
 
     /* Read evolving RefineRegion */
 
-    ret += sscanf(line, "RefineRegionTimeType = %"ISYM, &RefineRegionTimeType);
+    ret += sscanf(line, "RefineRegionTimeType = %" ISYM, &RefineRegionTimeType);
     if (sscanf(line, "RefineRegionFile = %s", dummy) == 1) {
       RefineRegionFile = dummy;
       ret++;
@@ -455,7 +455,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
     /* Read evolving MustRefineRegion */
 
-    ret += sscanf(line, "MustRefineRegionTimeType = %"ISYM, &MustRefineRegionTimeType);
+    ret += sscanf(line, "MustRefineRegionTimeType = %" ISYM, &MustRefineRegionTimeType);
     if (sscanf(line, "MustRefineRegionFile = %s", dummy) == 1) {
       MustRefineRegionFile = dummy;
       ret++;
@@ -463,17 +463,17 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
     /* cooling refinement region inputs */
 
-    ret += sscanf(line, "UseCoolingRefineRegion        = %"ISYM, &UseCoolingRefineRegion);
-    ret += sscanf(line, "EvolveCoolingRefineRegion     = %"ISYM, &EvolveCoolingRefineRegion);
+    ret += sscanf(line, "UseCoolingRefineRegion        = %" ISYM, &UseCoolingRefineRegion);
+    ret += sscanf(line, "EvolveCoolingRefineRegion     = %" ISYM, &EvolveCoolingRefineRegion);
 
-    ret += sscanf(line, "CoolingRefineRegionLeftEdge  = %"PSYM" %"PSYM" %"PSYM,
+    ret += sscanf(line, "CoolingRefineRegionLeftEdge  = %" PSYM" %" PSYM" %" PSYM,
 		  CoolingRefineRegionLeftEdge, CoolingRefineRegionLeftEdge+1,
 		  CoolingRefineRegionLeftEdge+2);
-    ret += sscanf(line, "CoolingRefineRegionRightEdge  = %"PSYM" %"PSYM" %"PSYM,
+    ret += sscanf(line, "CoolingRefineRegionRightEdge  = %" PSYM" %" PSYM" %" PSYM,
 		  CoolingRefineRegionRightEdge, CoolingRefineRegionRightEdge+1,
 		  CoolingRefineRegionRightEdge+2);
 
-    ret += sscanf(line, "CoolingRefineRegionTimeType = %"ISYM, &CoolingRefineRegionTimeType);
+    ret += sscanf(line, "CoolingRefineRegionTimeType = %" ISYM, &CoolingRefineRegionTimeType);
     if (sscanf(line, "CoolingRefineRegionFile = %s", dummy) == 1) {
       CoolingRefineRegionFile = dummy;
       ret++;
@@ -485,318 +485,318 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
       ret++;
     }
 
-    if (sscanf(line, "DataLabel[%"ISYM"] = %s\n", &dim, dummy) == 2)
+    if (sscanf(line, "DataLabel[%" ISYM"] = %s\n", &dim, dummy) == 2)
       DataLabel[dim] = dummy;
-    if (sscanf(line, "DataUnits[%"ISYM"] = %s\n", &dim, dummy) == 2)
+    if (sscanf(line, "DataUnits[%" ISYM"] = %s\n", &dim, dummy) == 2)
       DataUnits[dim] = dummy;
 
-    ret += sscanf(line, "StoreDomainBoundaryMassFlux  = %"ISYM, &StoreDomainBoundaryMassFlux);
+    ret += sscanf(line, "StoreDomainBoundaryMassFlux  = %" ISYM, &StoreDomainBoundaryMassFlux);
     if (sscanf(line, "BoundaryMassFluxFilename = %s", dummy) == 1) {
       BoundaryMassFluxFilename = dummy;
       ret++;
     }
 
-    if (sscanf(line, "BoundaryMassFluxFieldNumbers[%"ISYM"]     = %"ISYM, &dim, &int_dummy)){
+    if (sscanf(line, "BoundaryMassFluxFieldNumbers[%" ISYM"]     = %" ISYM, &dim, &int_dummy)){
       BoundaryMassFluxFieldNumbers[dim] = int_dummy; ret++;
     }
 
-    if (sscanf(line, "BoundaryMassFluxContainer[%"ISYM"]        = %"FSYM, &dim, &float_dummy)){
+    if (sscanf(line, "BoundaryMassFluxContainer[%" ISYM"]        = %" FSYM, &dim, &float_dummy)){
        BoundaryMassFluxContainer[dim] = float_dummy; ret++;
     }
 
-    ret += sscanf(line, "UniformGravity          = %"ISYM, &UniformGravity);
-    ret += sscanf(line, "UniformGravityDirection = %"ISYM,
+    ret += sscanf(line, "UniformGravity          = %" ISYM, &UniformGravity);
+    ret += sscanf(line, "UniformGravityDirection = %" ISYM,
 		  &UniformGravityDirection);
-    ret += sscanf(line, "UniformGravityConstant  = %"FSYM,
+    ret += sscanf(line, "UniformGravityConstant  = %" FSYM,
 		  &UniformGravityConstant);
 
-    ret += sscanf(line, "PointSourceGravity         = %"ISYM,&PointSourceGravity);
-    ret += sscanf(line, "PointSourceGravityPosition = %"PSYM" %"PSYM" %"PSYM,
+    ret += sscanf(line, "PointSourceGravity         = %" ISYM,&PointSourceGravity);
+    ret += sscanf(line, "PointSourceGravityPosition = %" PSYM" %" PSYM" %" PSYM,
 		  PointSourceGravityPosition, PointSourceGravityPosition+1,
 		  PointSourceGravityPosition+2);
-    ret += sscanf(line, "PointSourceGravityConstant = %"FSYM,
+    ret += sscanf(line, "PointSourceGravityConstant = %" FSYM,
 		  &PointSourceGravityConstant);
-    ret += sscanf(line, "PointSourceGravityCoreRadius = %"FSYM,
+    ret += sscanf(line, "PointSourceGravityCoreRadius = %" FSYM,
 		  &PointSourceGravityCoreRadius);
 
-    ret += sscanf(line, "DiskGravity                        = %"ISYM,&DiskGravity);
-    ret += sscanf(line, "DiskGravityPosition                = %"PSYM" %"PSYM" %"PSYM,
+    ret += sscanf(line, "DiskGravity                        = %" ISYM,&DiskGravity);
+    ret += sscanf(line, "DiskGravityPosition                = %" PSYM" %" PSYM" %" PSYM,
       DiskGravityPosition, DiskGravityPosition+1, DiskGravityPosition+2);
-    ret += sscanf(line, "DiskGravityAngularMomentum         = %"PSYM" %"PSYM" %"PSYM,
+    ret += sscanf(line, "DiskGravityAngularMomentum         = %" PSYM" %" PSYM" %" PSYM,
       DiskGravityAngularMomentum,DiskGravityAngularMomentum+1,
       DiskGravityAngularMomentum+2);
-    ret += sscanf(line, "DiskGravityStellarDiskMass         = %"FSYM,&DiskGravityStellarDiskMass);
-    ret += sscanf(line, "DiskGravityStellarDiskScaleHeightR = %"FSYM,&DiskGravityStellarDiskScaleHeightR);
-    ret += sscanf(line, "DiskGravityStellarDiskScaleHeightz = %"FSYM,&DiskGravityStellarDiskScaleHeightz);
-    ret += sscanf(line, "DiskGravityStellarBulgeMass        = %"FSYM,&DiskGravityStellarBulgeMass);
-    ret += sscanf(line, "DiskGravityStellarBulgeR           = %"FSYM,&DiskGravityStellarBulgeR);
-    ret += sscanf(line, "DiskGravityDarkMatterUseNFW        = %"ISYM,&DiskGravityDarkMatterUseNFW);
-    ret += sscanf(line, "DiskGravityDarkMatterMass          = %"FSYM,&DiskGravityDarkMatterMass);
-    ret += sscanf(line, "DiskGravityDarkMatterConcentration = %"FSYM,&DiskGravityDarkMatterConcentration);
-    ret += sscanf(line, "DiskGravityDarkMatterUseB95        = %"ISYM,&DiskGravityDarkMatterUseB95);
-    ret += sscanf(line, "DiskGravityDarkMatterR             = %"FSYM,&DiskGravityDarkMatterR);
-    ret += sscanf(line, "DiskGravityDarkMatterDensity       = %"FSYM,&DiskGravityDarkMatterDensity);
+    ret += sscanf(line, "DiskGravityStellarDiskMass         = %" FSYM,&DiskGravityStellarDiskMass);
+    ret += sscanf(line, "DiskGravityStellarDiskScaleHeightR = %" FSYM,&DiskGravityStellarDiskScaleHeightR);
+    ret += sscanf(line, "DiskGravityStellarDiskScaleHeightz = %" FSYM,&DiskGravityStellarDiskScaleHeightz);
+    ret += sscanf(line, "DiskGravityStellarBulgeMass        = %" FSYM,&DiskGravityStellarBulgeMass);
+    ret += sscanf(line, "DiskGravityStellarBulgeR           = %" FSYM,&DiskGravityStellarBulgeR);
+    ret += sscanf(line, "DiskGravityDarkMatterUseNFW        = %" ISYM,&DiskGravityDarkMatterUseNFW);
+    ret += sscanf(line, "DiskGravityDarkMatterMass          = %" FSYM,&DiskGravityDarkMatterMass);
+    ret += sscanf(line, "DiskGravityDarkMatterConcentration = %" FSYM,&DiskGravityDarkMatterConcentration);
+    ret += sscanf(line, "DiskGravityDarkMatterUseB95        = %" ISYM,&DiskGravityDarkMatterUseB95);
+    ret += sscanf(line, "DiskGravityDarkMatterR             = %" FSYM,&DiskGravityDarkMatterR);
+    ret += sscanf(line, "DiskGravityDarkMatterDensity       = %" FSYM,&DiskGravityDarkMatterDensity);
 
-    ret += sscanf(line, "ExternalGravity         = %"ISYM,&ExternalGravity);
-    ret += sscanf(line, "ExternalGravityConstant = %"FSYM, &ExternalGravityConstant);
-    ret += sscanf(line, "ExternalGravityRadius   = %"FSYM,&ExternalGravityRadius);
-    ret += sscanf(line, "ExternalGravityDensity  = %"FSYM,&ExternalGravityDensity);
-    ret += sscanf(line, "ExternalGravityPosition = %"PSYM" %"PSYM" %"PSYM,
+    ret += sscanf(line, "ExternalGravity         = %" ISYM,&ExternalGravity);
+    ret += sscanf(line, "ExternalGravityConstant = %" FSYM, &ExternalGravityConstant);
+    ret += sscanf(line, "ExternalGravityRadius   = %" FSYM,&ExternalGravityRadius);
+    ret += sscanf(line, "ExternalGravityDensity  = %" FSYM,&ExternalGravityDensity);
+    ret += sscanf(line, "ExternalGravityPosition = %" PSYM" %" PSYM" %" PSYM,
 		  ExternalGravityPosition, ExternalGravityPosition+1,
 		  ExternalGravityPosition+2);
-    ret += sscanf(line, "ExternalGravityOrientation = %"FSYM" %"FSYM" %"FSYM,
+    ret += sscanf(line, "ExternalGravityOrientation = %" FSYM" %" FSYM" %" FSYM,
 		  ExternalGravityOrientation, ExternalGravityOrientation+1,
 		  ExternalGravityOrientation+2);
 
-    ret += sscanf(line, "SelfGravity           = %"ISYM, &SelfGravity);
-    ret += sscanf(line, "SelfGravityGasOff     = %"ISYM, &SelfGravityGasOff);
-    ret += sscanf(line, "AccretionKernal       = %"ISYM, &AccretionKernal);
-    ret += sscanf(line, "GravitationalConstant = %"FSYM, &GravitationalConstant);
-    ret += sscanf(line, "ComputePotential      = %"ISYM, &ComputePotential);
-    ret += sscanf(line, "PotentialIterations   = %"ISYM, &PotentialIterations);
-    ret += sscanf(line, "WritePotential        = %"ISYM, &WritePotential);
-    ret += sscanf(line, "ParticleSubgridDepositMode  = %"ISYM, &ParticleSubgridDepositMode);
-    ret += sscanf(line, "WriteAcceleration      = %"ISYM, &WriteAcceleration);
+    ret += sscanf(line, "SelfGravity           = %" ISYM, &SelfGravity);
+    ret += sscanf(line, "SelfGravityGasOff     = %" ISYM, &SelfGravityGasOff);
+    ret += sscanf(line, "AccretionKernal       = %" ISYM, &AccretionKernal);
+    ret += sscanf(line, "GravitationalConstant = %" FSYM, &GravitationalConstant);
+    ret += sscanf(line, "ComputePotential      = %" ISYM, &ComputePotential);
+    ret += sscanf(line, "PotentialIterations   = %" ISYM, &PotentialIterations);
+    ret += sscanf(line, "WritePotential        = %" ISYM, &WritePotential);
+    ret += sscanf(line, "ParticleSubgridDepositMode  = %" ISYM, &ParticleSubgridDepositMode);
+    ret += sscanf(line, "WriteAcceleration      = %" ISYM, &WriteAcceleration);
 
-    ret += sscanf(line, "DualEnergyFormalism     = %"ISYM, &DualEnergyFormalism);
-    ret += sscanf(line, "DualEnergyFormalismEta1 = %"FSYM,
+    ret += sscanf(line, "DualEnergyFormalism     = %" ISYM, &DualEnergyFormalism);
+    ret += sscanf(line, "DualEnergyFormalismEta1 = %" FSYM,
 		  &DualEnergyFormalismEta1);
-    ret += sscanf(line, "DualEnergyFormalismEta2 = %"FSYM,
+    ret += sscanf(line, "DualEnergyFormalismEta2 = %" FSYM,
 		  &DualEnergyFormalismEta2);
-    ret += sscanf(line, "ParticleCourantSafetyNumber = %"FSYM,
+    ret += sscanf(line, "ParticleCourantSafetyNumber = %" FSYM,
 		  &ParticleCourantSafetyNumber);
-    ret += sscanf(line, "RootGridCourantSafetyNumber = %"FSYM,
+    ret += sscanf(line, "RootGridCourantSafetyNumber = %" FSYM,
 		  &RootGridCourantSafetyNumber);
-    ret += sscanf(line, "RandomForcing = %"ISYM, &RandomForcing); //AK
-    ret += sscanf(line, "RandomForcingEdot = %"FSYM, &RandomForcingEdot); //AK
-    ret += sscanf(line, "RandomForcingMachNumber = %"FSYM, //AK
+    ret += sscanf(line, "RandomForcing = %" ISYM, &RandomForcing); //AK
+    ret += sscanf(line, "RandomForcingEdot = %" FSYM, &RandomForcingEdot); //AK
+    ret += sscanf(line, "RandomForcingMachNumber = %" FSYM, //AK
                   &RandomForcingMachNumber);
 
-    ret += sscanf(line, "DrivenFlowProfile = %"ISYM, &DrivenFlowProfile);
-    ret += sscanf(line, "DrivenFlowWeight = %"FSYM, &DrivenFlowWeight);
-    ret += sscanf(line, "DrivenFlowAlpha = %"ISYM" %"ISYM" %"ISYM,
+    ret += sscanf(line, "DrivenFlowProfile = %" ISYM, &DrivenFlowProfile);
+    ret += sscanf(line, "DrivenFlowWeight = %" FSYM, &DrivenFlowWeight);
+    ret += sscanf(line, "DrivenFlowAlpha = %" ISYM" %" ISYM" %" ISYM,
                   DrivenFlowAlpha, DrivenFlowAlpha+1, DrivenFlowAlpha+2);
-    ret += sscanf(line, "DrivenFlowSeed = %"ISYM, &DrivenFlowSeed);
-    ret += sscanf(line, "DrivenFlowBandWidth = %"FSYM"%"FSYM"%"FSYM,
+    ret += sscanf(line, "DrivenFlowSeed = %" ISYM, &DrivenFlowSeed);
+    ret += sscanf(line, "DrivenFlowBandWidth = %" FSYM"%" FSYM"%" FSYM,
                   DrivenFlowBandWidth, DrivenFlowBandWidth+1, DrivenFlowBandWidth+2);
-    ret += sscanf(line, "DrivenFlowVelocity = %"FSYM"%"FSYM"%"FSYM,
+    ret += sscanf(line, "DrivenFlowVelocity = %" FSYM"%" FSYM"%" FSYM,
                   DrivenFlowVelocity, DrivenFlowVelocity+1, DrivenFlowVelocity+2);
-    ret += sscanf(line, "DrivenFlowAutoCorrl = %"FSYM"%"FSYM"%"FSYM,
+    ret += sscanf(line, "DrivenFlowAutoCorrl = %" FSYM"%" FSYM"%" FSYM,
                      DrivenFlowAutoCorrl, DrivenFlowAutoCorrl+1, DrivenFlowAutoCorrl+2);
 
-    ret += sscanf(line, "UseSGSModel = %"ISYM, &UseSGSModel);
-    ret += sscanf(line, "SGSFilterStencil = %"ISYM, &SGSFilterStencil);
-    ret += sscanf(line, "SGSFilterWidth = %"FSYM, &SGSFilterWidth);
-    ret += sscanf(line, "SGSFilterWeights = %"FSYM"%"FSYM"%"FSYM"%"FSYM,
+    ret += sscanf(line, "UseSGSModel = %" ISYM, &UseSGSModel);
+    ret += sscanf(line, "SGSFilterStencil = %" ISYM, &SGSFilterStencil);
+    ret += sscanf(line, "SGSFilterWidth = %" FSYM, &SGSFilterWidth);
+    ret += sscanf(line, "SGSFilterWeights = %" FSYM"%" FSYM"%" FSYM"%" FSYM,
         &SGSFilterWeights[0],&SGSFilterWeights[1],&SGSFilterWeights[2],&SGSFilterWeights[3]);
-    ret += sscanf(line, "SGScoeffERS2M2Star = %"FSYM, &SGScoeffERS2M2Star);
-    ret += sscanf(line, "SGScoeffEVStarEnS2Star = %"FSYM, &SGScoeffEVStarEnS2Star);
-    ret += sscanf(line, "SGScoeffEnS2StarTrace = %"FSYM, &SGScoeffEnS2StarTrace);
-    ret += sscanf(line, "SGScoeffNLemfCompr = %"FSYM, &SGScoeffNLemfCompr);
-    ret += sscanf(line, "SGScoeffNLu = %"FSYM, &SGScoeffNLu);
-    ret += sscanf(line, "SGScoeffNLuNormedEnS2Star = %"FSYM, &SGScoeffNLuNormedEnS2Star);
-    ret += sscanf(line, "SGScoeffNLb =%"FSYM, &SGScoeffNLb);
-    ret += sscanf(line, "SGScoeffSSu = %"FSYM, &SGScoeffSSu);
-    ret += sscanf(line, "SGScoeffSSb =%"FSYM, &SGScoeffSSb);
-    ret += sscanf(line, "SGScoeffSSemf = %"FSYM, &SGScoeffSSemf);
+    ret += sscanf(line, "SGScoeffERS2M2Star = %" FSYM, &SGScoeffERS2M2Star);
+    ret += sscanf(line, "SGScoeffEVStarEnS2Star = %" FSYM, &SGScoeffEVStarEnS2Star);
+    ret += sscanf(line, "SGScoeffEnS2StarTrace = %" FSYM, &SGScoeffEnS2StarTrace);
+    ret += sscanf(line, "SGScoeffNLemfCompr = %" FSYM, &SGScoeffNLemfCompr);
+    ret += sscanf(line, "SGScoeffNLu = %" FSYM, &SGScoeffNLu);
+    ret += sscanf(line, "SGScoeffNLuNormedEnS2Star = %" FSYM, &SGScoeffNLuNormedEnS2Star);
+    ret += sscanf(line, "SGScoeffNLb =%" FSYM, &SGScoeffNLb);
+    ret += sscanf(line, "SGScoeffSSu = %" FSYM, &SGScoeffSSu);
+    ret += sscanf(line, "SGScoeffSSb =%" FSYM, &SGScoeffSSb);
+    ret += sscanf(line, "SGScoeffSSemf = %" FSYM, &SGScoeffSSemf);
 
 
-    ret += sscanf(line, "RadiativeCooling = %"ISYM, &RadiativeCooling);
-    ret += sscanf(line, "RadiativeCoolingModel = %"ISYM, &RadiativeCoolingModel);
-    ret += sscanf(line, "GadgetEquilibriumCooling = %"ISYM, &GadgetEquilibriumCooling);
-    ret += sscanf(line, "MultiSpecies = %"ISYM, &MultiSpecies);
-    ret += sscanf(line, "CIECooling = %"ISYM, &CIECooling);
-    ret += sscanf(line, "H2OpticalDepthApproximation = %"ISYM, &H2OpticalDepthApproximation);
-    ret += sscanf(line, "ThreeBodyRate = %"ISYM, &ThreeBodyRate);
-    ret += sscanf(line, "H2FormationOnDust = %"ISYM, &H2FormationOnDust);
+    ret += sscanf(line, "RadiativeCooling = %" ISYM, &RadiativeCooling);
+    ret += sscanf(line, "RadiativeCoolingModel = %" ISYM, &RadiativeCoolingModel);
+    ret += sscanf(line, "GadgetEquilibriumCooling = %" ISYM, &GadgetEquilibriumCooling);
+    ret += sscanf(line, "MultiSpecies = %" ISYM, &MultiSpecies);
+    ret += sscanf(line, "CIECooling = %" ISYM, &CIECooling);
+    ret += sscanf(line, "H2OpticalDepthApproximation = %" ISYM, &H2OpticalDepthApproximation);
+    ret += sscanf(line, "ThreeBodyRate = %" ISYM, &ThreeBodyRate);
+    ret += sscanf(line, "H2FormationOnDust = %" ISYM, &H2FormationOnDust);
     if (sscanf(line, "CloudyCoolingGridFile = %s", dummy) == 1) {
       CloudyCoolingData.CloudyCoolingGridFile = dummy;
       ret++;
     }
-    ret += sscanf(line, "IncludeCloudyHeating = %"ISYM, &CloudyCoolingData.IncludeCloudyHeating);
-    ret += sscanf(line, "CMBTemperatureFloor = %"ISYM, &CloudyCoolingData.CMBTemperatureFloor);
-    ret += sscanf(line, "CloudyElectronFractionFactor = %"FSYM,&CloudyCoolingData.CloudyElectronFractionFactor);
-    ret += sscanf(line, "MetalCooling = %"ISYM"", &MetalCooling);
+    ret += sscanf(line, "IncludeCloudyHeating = %" ISYM, &CloudyCoolingData.IncludeCloudyHeating);
+    ret += sscanf(line, "CMBTemperatureFloor = %" ISYM, &CloudyCoolingData.CMBTemperatureFloor);
+    ret += sscanf(line, "CloudyElectronFractionFactor = %" FSYM,&CloudyCoolingData.CloudyElectronFractionFactor);
+    ret += sscanf(line, "MetalCooling = %" ISYM"", &MetalCooling);
     if (sscanf(line, "MetalCoolingTable = %s", dummy) == 1) {
       MetalCoolingTable = dummy;
       ret++;
     }
 
-    ret += sscanf(line, "CRModel = %"ISYM, &CRModel);
-    ret += sscanf(line, "CRDiffusion = %"ISYM, &CRDiffusion);
-    ret += sscanf(line, "CRHeating = %"ISYM, &CRHeating);
-    ret += sscanf(line, "CRStreaming = %"ISYM, &CRStreaming);
-    ret += sscanf(line, "CRStreamVelocityFactor = %"FSYM, &CRStreamVelocityFactor);
-    ret += sscanf(line, "CRStreamStabilityFactor = %"FSYM, &CRStreamStabilityFactor);
-    ret += sscanf(line, "CRkappa = %"FSYM, &CRkappa);
-    ret += sscanf(line, "CRCourantSafetyNumber = %"FSYM, &CRCourantSafetyNumber);
-    ret += sscanf(line, "CRFeedback = %"FSYM, &CRFeedback);
-    ret += sscanf(line, "CRdensFloor = %"FSYM, &CRdensFloor);
-    ret += sscanf(line, "CRmaxSoundSpeed = %"FSYM, &CRmaxSoundSpeed);
-    ret += sscanf(line, "CRgamma = %"FSYM, &CRgamma);
-    ret += sscanf(line, "CosmologySimulationUniformCR = %"FSYM, &CosmologySimulationUniformCR); // FIXME  
+    ret += sscanf(line, "CRModel = %" ISYM, &CRModel);
+    ret += sscanf(line, "CRDiffusion = %" ISYM, &CRDiffusion);
+    ret += sscanf(line, "CRHeating = %" ISYM, &CRHeating);
+    ret += sscanf(line, "CRStreaming = %" ISYM, &CRStreaming);
+    ret += sscanf(line, "CRStreamVelocityFactor = %" FSYM, &CRStreamVelocityFactor);
+    ret += sscanf(line, "CRStreamStabilityFactor = %" FSYM, &CRStreamStabilityFactor);
+    ret += sscanf(line, "CRkappa = %" FSYM, &CRkappa);
+    ret += sscanf(line, "CRCourantSafetyNumber = %" FSYM, &CRCourantSafetyNumber);
+    ret += sscanf(line, "CRFeedback = %" FSYM, &CRFeedback);
+    ret += sscanf(line, "CRdensFloor = %" FSYM, &CRdensFloor);
+    ret += sscanf(line, "CRmaxSoundSpeed = %" FSYM, &CRmaxSoundSpeed);
+    ret += sscanf(line, "CRgamma = %" FSYM, &CRgamma);
+    ret += sscanf(line, "CosmologySimulationUniformCR = %" FSYM, &CosmologySimulationUniformCR); // FIXME  
 
-    ret += sscanf(line, "ShockMethod = %"ISYM, &ShockMethod);
-    ret += sscanf(line, "ShockTemperatureFloor = %"FSYM, &ShockTemperatureFloor);
-    ret += sscanf(line, "StorePreShockFields = %"ISYM, &StorePreShockFields);
-    ret += sscanf(line, "FindShocksOnlyOnOutput = %"ISYM, &FindShocksOnlyOnOutput);
+    ret += sscanf(line, "ShockMethod = %" ISYM, &ShockMethod);
+    ret += sscanf(line, "ShockTemperatureFloor = %" FSYM, &ShockTemperatureFloor);
+    ret += sscanf(line, "StorePreShockFields = %" ISYM, &StorePreShockFields);
+    ret += sscanf(line, "FindShocksOnlyOnOutput = %" ISYM, &FindShocksOnlyOnOutput);
 
-    ret += sscanf(line, "RadiationFieldType = %"ISYM, &RadiationFieldType);
-    ret += sscanf(line, "RadiationFieldRedshift = %"FSYM, &RadiationFieldRedshift);
-    ret += sscanf(line, "TabulatedLWBackground = %"ISYM, &TabulatedLWBackground);
-    ret += sscanf(line, "AdjustUVBackground = %"ISYM, &AdjustUVBackground);
-    ret += sscanf(line, "AdjustUVBackgroundHighRedshift = %"ISYM, &AdjustUVBackgroundHighRedshift);
-    ret += sscanf(line, "SetUVBAmplitude = %"FSYM, &SetUVBAmplitude);
-    ret += sscanf(line, "SetHeIIHeatingScale = %"FSYM, &SetHeIIHeatingScale);
-    ret += sscanf(line, "RadiationFieldLevelRecompute = %"ISYM, &RadiationFieldLevelRecompute);
-    ret += sscanf(line, "RadiationShield = %"ISYM, &RadiationData.RadiationShield);
-    ret += sscanf(line, "RadiationSpectrumNormalization = %"FSYM, &CoolData.f3);
-    ret += sscanf(line, "RadiationSpectrumSlope = %"FSYM, &CoolData.alpha0);
-    ret += sscanf(line, "CoolDataf0to3 = %"FSYM, &CoolData.f0to3);
-    ret += sscanf(line, "RadiationRedshiftOn = %"FSYM, &CoolData.RadiationRedshiftOn);
-    ret += sscanf(line, "RadiationRedshiftOff = %"FSYM, &CoolData.RadiationRedshiftOff);
-    ret += sscanf(line, "RadiationRedshiftFullOn = %"FSYM, &CoolData.RadiationRedshiftFullOn);
-    ret += sscanf(line, "RadiationRedshiftDropOff = %"FSYM, &CoolData.RadiationRedshiftDropOff);
-    ret += sscanf(line, "HydrogenFractionByMass = %"FSYM, &CoolData.HydrogenFractionByMass);
-    ret += sscanf(line, "DeuteriumToHydrogenRatio = %"FSYM, &CoolData.DeuteriumToHydrogenRatio);
-    ret += sscanf(line, "SolarMetalFractionByMass = %"FSYM, &CoolData.SolarMetalFractionByMass);
-    ret += sscanf(line, "NumberOfTemperatureBins = %"ISYM, &CoolData.NumberOfTemperatureBins);
-    ret += sscanf(line, "CoolDataIh2co = %"ISYM, &CoolData.ih2co);
-    ret += sscanf(line, "CoolDataIpiht = %"ISYM, &CoolData.ipiht);
-    ret += sscanf(line, "TemperatureStart = %"FSYM, &CoolData.TemperatureStart);
-    ret += sscanf(line, "TemperatureEnd = %"FSYM, &CoolData.TemperatureEnd);
-    ret += sscanf(line, "CoolDataCompXray = %"FSYM, &CoolData.comp_xray);
-    ret += sscanf(line, "CoolDataTempXray = %"FSYM, &CoolData.temp_xray);
-    ret += sscanf(line, "RateDataCaseBRecombination = %"ISYM, &RateData.CaseBRecombination);
-    ret += sscanf(line, "NumberOfDustTemperatureBins = %"ISYM, &RateData.NumberOfDustTemperatureBins);
-    ret += sscanf(line, "DustTemperatureStart = %"FSYM, &RateData.DustTemperatureStart);
-    ret += sscanf(line, "DustTemperatureEnd = %"FSYM, &RateData.DustTemperatureEnd);
-    ret += sscanf(line, "PhotoelectricHeating  = %"ISYM, &PhotoelectricHeating);
-    ret += sscanf(line, "PhotoelectricHeatingRate = %"FSYM, &PhotoelectricHeatingRate);
+    ret += sscanf(line, "RadiationFieldType = %" ISYM, &RadiationFieldType);
+    ret += sscanf(line, "RadiationFieldRedshift = %" FSYM, &RadiationFieldRedshift);
+    ret += sscanf(line, "TabulatedLWBackground = %" ISYM, &TabulatedLWBackground);
+    ret += sscanf(line, "AdjustUVBackground = %" ISYM, &AdjustUVBackground);
+    ret += sscanf(line, "AdjustUVBackgroundHighRedshift = %" ISYM, &AdjustUVBackgroundHighRedshift);
+    ret += sscanf(line, "SetUVBAmplitude = %" FSYM, &SetUVBAmplitude);
+    ret += sscanf(line, "SetHeIIHeatingScale = %" FSYM, &SetHeIIHeatingScale);
+    ret += sscanf(line, "RadiationFieldLevelRecompute = %" ISYM, &RadiationFieldLevelRecompute);
+    ret += sscanf(line, "RadiationShield = %" ISYM, &RadiationData.RadiationShield);
+    ret += sscanf(line, "RadiationSpectrumNormalization = %" FSYM, &CoolData.f3);
+    ret += sscanf(line, "RadiationSpectrumSlope = %" FSYM, &CoolData.alpha0);
+    ret += sscanf(line, "CoolDataf0to3 = %" FSYM, &CoolData.f0to3);
+    ret += sscanf(line, "RadiationRedshiftOn = %" FSYM, &CoolData.RadiationRedshiftOn);
+    ret += sscanf(line, "RadiationRedshiftOff = %" FSYM, &CoolData.RadiationRedshiftOff);
+    ret += sscanf(line, "RadiationRedshiftFullOn = %" FSYM, &CoolData.RadiationRedshiftFullOn);
+    ret += sscanf(line, "RadiationRedshiftDropOff = %" FSYM, &CoolData.RadiationRedshiftDropOff);
+    ret += sscanf(line, "HydrogenFractionByMass = %" FSYM, &CoolData.HydrogenFractionByMass);
+    ret += sscanf(line, "DeuteriumToHydrogenRatio = %" FSYM, &CoolData.DeuteriumToHydrogenRatio);
+    ret += sscanf(line, "SolarMetalFractionByMass = %" FSYM, &CoolData.SolarMetalFractionByMass);
+    ret += sscanf(line, "NumberOfTemperatureBins = %" ISYM, &CoolData.NumberOfTemperatureBins);
+    ret += sscanf(line, "CoolDataIh2co = %" ISYM, &CoolData.ih2co);
+    ret += sscanf(line, "CoolDataIpiht = %" ISYM, &CoolData.ipiht);
+    ret += sscanf(line, "TemperatureStart = %" FSYM, &CoolData.TemperatureStart);
+    ret += sscanf(line, "TemperatureEnd = %" FSYM, &CoolData.TemperatureEnd);
+    ret += sscanf(line, "CoolDataCompXray = %" FSYM, &CoolData.comp_xray);
+    ret += sscanf(line, "CoolDataTempXray = %" FSYM, &CoolData.temp_xray);
+    ret += sscanf(line, "RateDataCaseBRecombination = %" ISYM, &RateData.CaseBRecombination);
+    ret += sscanf(line, "NumberOfDustTemperatureBins = %" ISYM, &RateData.NumberOfDustTemperatureBins);
+    ret += sscanf(line, "DustTemperatureStart = %" FSYM, &RateData.DustTemperatureStart);
+    ret += sscanf(line, "DustTemperatureEnd = %" FSYM, &RateData.DustTemperatureEnd);
+    ret += sscanf(line, "PhotoelectricHeating  = %" ISYM, &PhotoelectricHeating);
+    ret += sscanf(line, "PhotoelectricHeatingRate = %" FSYM, &PhotoelectricHeatingRate);
 
-    ret += sscanf(line, "OutputCoolingTime = %"ISYM, &OutputCoolingTime);
-    ret += sscanf(line, "OutputTemperature = %"ISYM, &OutputTemperature);
-    ret += sscanf(line, "OutputDustTemperature = %"ISYM, &OutputDustTemperature);
+    ret += sscanf(line, "OutputCoolingTime = %" ISYM, &OutputCoolingTime);
+    ret += sscanf(line, "OutputTemperature = %" ISYM, &OutputTemperature);
+    ret += sscanf(line, "OutputDustTemperature = %" ISYM, &OutputDustTemperature);
 
-    ret += sscanf(line, "OutputSmoothedDarkMatter = %"ISYM,
+    ret += sscanf(line, "OutputSmoothedDarkMatter = %" ISYM,
 		  &OutputSmoothedDarkMatter);
-    ret += sscanf(line, "SmoothedDarkMatterNeighbors = %"ISYM,
+    ret += sscanf(line, "SmoothedDarkMatterNeighbors = %" ISYM,
 		  &SmoothedDarkMatterNeighbors);
-    ret += sscanf(line, "OutputGriddedStarParticle = %"ISYM,
+    ret += sscanf(line, "OutputGriddedStarParticle = %" ISYM,
 		  &OutputGriddedStarParticle);
 
-    ret += sscanf(line, "ZEUSQuadraticArtificialViscosity = %"FSYM,
+    ret += sscanf(line, "ZEUSQuadraticArtificialViscosity = %" FSYM,
 		  &ZEUSQuadraticArtificialViscosity);
-    ret += sscanf(line, "ZEUSLinearArtificialViscosity = %"FSYM,
+    ret += sscanf(line, "ZEUSLinearArtificialViscosity = %" FSYM,
 		  &ZEUSLinearArtificialViscosity);
 
-    ret += sscanf(line, "UseMinimumPressureSupport = %"ISYM,
+    ret += sscanf(line, "UseMinimumPressureSupport = %" ISYM,
 		  &UseMinimumPressureSupport);
-    ret += sscanf(line, "MinimumPressureSupportParameter = %"FSYM,
+    ret += sscanf(line, "MinimumPressureSupportParameter = %" FSYM,
 		  &MinimumPressureSupportParameter);
-    ret += sscanf(line, "RefineByJeansLengthSafetyFactor = %"FSYM,
+    ret += sscanf(line, "RefineByJeansLengthSafetyFactor = %" FSYM,
 		  &RefineByJeansLengthSafetyFactor);
-    ret += sscanf(line, "JeansRefinementColdTemperature = %"FSYM,
+    ret += sscanf(line, "JeansRefinementColdTemperature = %" FSYM,
 		  &JeansRefinementColdTemperature);
     ret += sscanf(line, "RefineByResistiveLengthSafetyFactor = %" FSYM,
 		  &RefineByResistiveLengthSafetyFactor);
-    ret += sscanf(line, "MustRefineParticlesRefineToLevel = %"ISYM,
+    ret += sscanf(line, "MustRefineParticlesRefineToLevel = %" ISYM,
                   &MustRefineParticlesRefineToLevel);
-    ret += sscanf(line, "MustRefineParticlesCreateParticles = %"ISYM,
+    ret += sscanf(line, "MustRefineParticlesCreateParticles = %" ISYM,
                   &MustRefineParticlesCreateParticles);
-    ret += sscanf(line, "MustRefineParticlesLeftEdge  = %"PSYM" %"PSYM" %"PSYM,
+    ret += sscanf(line, "MustRefineParticlesLeftEdge  = %" PSYM" %" PSYM" %" PSYM,
                   MustRefineParticlesLeftEdge, MustRefineParticlesLeftEdge+1,
                   MustRefineParticlesLeftEdge+2);
-    ret += sscanf(line, "MustRefineParticlesRightEdge = %"PSYM" %"PSYM" %"PSYM,
+    ret += sscanf(line, "MustRefineParticlesRightEdge = %" PSYM" %" PSYM" %" PSYM,
                   MustRefineParticlesRightEdge, MustRefineParticlesRightEdge+1,
                   MustRefineParticlesRightEdge+2);
-    ret += sscanf(line, "MustRefineParticlesRefineToLevelAutoAdjust = %"ISYM,
+    ret += sscanf(line, "MustRefineParticlesRefineToLevelAutoAdjust = %" ISYM,
                   &MustRefineParticlesRefineToLevelAutoAdjust);
-    ret += sscanf(line, "MustRefineParticlesMinimumMass = %"FSYM,
+    ret += sscanf(line, "MustRefineParticlesMinimumMass = %" FSYM,
                   &MustRefineParticlesMinimumMass);
-    ret += sscanf(line, "ParticleTypeInFile = %"ISYM,
+    ret += sscanf(line, "ParticleTypeInFile = %" ISYM,
                   &ParticleTypeInFile);
 
-    if (sscanf(line, "AvoidRefineRegionLevel[%"ISYM"] = %"ISYM,&dim,&int_dummy) == 2){
+    if (sscanf(line, "AvoidRefineRegionLevel[%" ISYM"] = %" ISYM,&dim,&int_dummy) == 2){
       if (dim > MAX_STATIC_REGIONS-1) {
-        ENZO_VFAIL("AvoidRegion number %"ISYM" (MAX_STATIC_REGIONS) > MAX allowed\n", dim)
+        ENZO_VFAIL("AvoidRegion number %" ISYM" (MAX_STATIC_REGIONS) > MAX allowed\n", dim)
       }
       ret++;
       AvoidRefineRegionLevel[dim] = int_dummy;
     }
-    if (sscanf(line, "AvoidRefineRegionLeftEdge[%"ISYM"] = ", &dim) == 1)
+    if (sscanf(line, "AvoidRefineRegionLeftEdge[%" ISYM"] = ", &dim) == 1)
       ret += sscanf(line,
-		    "AvoidRefineRegionLeftEdge[%"ISYM"] = %"PSYM" %"PSYM" %"PSYM,
+		    "AvoidRefineRegionLeftEdge[%" ISYM"] = %" PSYM" %" PSYM" %" PSYM,
 		    &dim, AvoidRefineRegionLeftEdge[dim],
 		    AvoidRefineRegionLeftEdge[dim]+1,
 		    AvoidRefineRegionLeftEdge[dim]+2);
-    if (sscanf(line, "AvoidRefineRegionRightEdge[%"ISYM"] = ", &dim) == 1)
+    if (sscanf(line, "AvoidRefineRegionRightEdge[%" ISYM"] = ", &dim) == 1)
       ret += sscanf(line,
-		    "AvoidRefineRegionRightEdge[%"ISYM"] = %"PSYM" %"PSYM" %"PSYM,
+		    "AvoidRefineRegionRightEdge[%" ISYM"] = %" PSYM" %" PSYM" %" PSYM,
 		    &dim, AvoidRefineRegionRightEdge[dim],
 		    AvoidRefineRegionRightEdge[dim]+1,
 		    AvoidRefineRegionRightEdge[dim]+2);
 
-    if (sscanf(line, "StaticRefineRegionLevel[%"ISYM"] = %"ISYM,&dim,&int_dummy) == 2){
+    if (sscanf(line, "StaticRefineRegionLevel[%" ISYM"] = %" ISYM,&dim,&int_dummy) == 2){
       if (dim > MAX_STATIC_REGIONS-1) {
-        ENZO_VFAIL("StaticRegion number %"ISYM" > MAX allowed\n", dim)
+        ENZO_VFAIL("StaticRegion number %" ISYM" > MAX allowed\n", dim)
       }
       ret++;
       StaticRefineRegionLevel[dim] = int_dummy;
     }
-    if (sscanf(line, "StaticRefineRegionLeftEdge[%"ISYM"] = ", &dim) == 1)
+    if (sscanf(line, "StaticRefineRegionLeftEdge[%" ISYM"] = ", &dim) == 1)
       ret += sscanf(line,
-		    "StaticRefineRegionLeftEdge[%"ISYM"] = %"PSYM" %"PSYM" %"PSYM,
+		    "StaticRefineRegionLeftEdge[%" ISYM"] = %" PSYM" %" PSYM" %" PSYM,
 		    &dim, StaticRefineRegionLeftEdge[dim],
 		    StaticRefineRegionLeftEdge[dim]+1,
 		    StaticRefineRegionLeftEdge[dim]+2);
-    if (sscanf(line, "StaticRefineRegionRightEdge[%"ISYM"] = ", &dim) == 1)
+    if (sscanf(line, "StaticRefineRegionRightEdge[%" ISYM"] = ", &dim) == 1)
       ret += sscanf(line,
-		    "StaticRefineRegionRightEdge[%"ISYM"] = %"PSYM" %"PSYM" %"PSYM,
+		    "StaticRefineRegionRightEdge[%" ISYM"] = %" PSYM" %" PSYM" %" PSYM,
 		    &dim, StaticRefineRegionRightEdge[dim],
 		    StaticRefineRegionRightEdge[dim]+1,
 		    StaticRefineRegionRightEdge[dim]+2);
 
-    ret += sscanf(line, "ParallelRootGridIO = %"ISYM, &ParallelRootGridIO);
+    ret += sscanf(line, "ParallelRootGridIO = %" ISYM, &ParallelRootGridIO);
 
-    ret += sscanf(line, "ParallelParticleIO = %"ISYM, &ParallelParticleIO);
+    ret += sscanf(line, "ParallelParticleIO = %" ISYM, &ParallelParticleIO);
 
-    ret += sscanf(line, "Unigrid = %"ISYM, &Unigrid);
-    ret += sscanf(line, "UnigridTranspose = %"ISYM, &UnigridTranspose);
-    ret += sscanf(line, "NumberOfRootGridTilesPerDimensionPerProcessor = %"ISYM, &NumberOfRootGridTilesPerDimensionPerProcessor);
-    ret += sscanf(line, "UserDefinedRootGridLayout = %"ISYM" %"ISYM" %"ISYM, &UserDefinedRootGridLayout[0],
+    ret += sscanf(line, "Unigrid = %" ISYM, &Unigrid);
+    ret += sscanf(line, "UnigridTranspose = %" ISYM, &UnigridTranspose);
+    ret += sscanf(line, "NumberOfRootGridTilesPerDimensionPerProcessor = %" ISYM, &NumberOfRootGridTilesPerDimensionPerProcessor);
+    ret += sscanf(line, "UserDefinedRootGridLayout = %" ISYM" %" ISYM" %" ISYM, &UserDefinedRootGridLayout[0],
                   &UserDefinedRootGridLayout[1], &UserDefinedRootGridLayout[2]);
 
-    ret += sscanf(line, "PartitionNestedGrids = %"ISYM, &PartitionNestedGrids);
+    ret += sscanf(line, "PartitionNestedGrids = %" ISYM, &PartitionNestedGrids);
 
-    ret += sscanf(line, "ExtractFieldsOnly = %"ISYM, &ExtractFieldsOnly);
+    ret += sscanf(line, "ExtractFieldsOnly = %" ISYM, &ExtractFieldsOnly);
 
-    ret += sscanf(line, "CubeDumpEnabled = %"ISYM, &CubeDumpEnabled);
+    ret += sscanf(line, "CubeDumpEnabled = %" ISYM, &CubeDumpEnabled);
 
-    ret += sscanf(line, "Debug1 = %"ISYM, &debug1);
+    ret += sscanf(line, "Debug1 = %" ISYM, &debug1);
 
-    ret += sscanf(line, "Debug2 = %"ISYM, &debug2);
+    ret += sscanf(line, "Debug2 = %" ISYM, &debug2);
 
-    ret += sscanf(line, "MemoryLimit = %lld", &MemoryLimit);
+    ret += sscanf(line, "MemoryLimit = %" ISYM, &MemoryLimit);
 
 #ifdef STAGE_INPUT
-    ret += sscanf(line, "StageInput = %"ISYM, &StageInput);
+    ret += sscanf(line, "StageInput = %" ISYM, &StageInput);
 #endif
 
 #ifdef OOC_BOUNDARY
 
-    ret += sscanf(line, "ExternalBoundaryIO = %"ISYM, &ExternalBoundaryIO);
+    ret += sscanf(line, "ExternalBoundaryIO = %" ISYM, &ExternalBoundaryIO);
 
-    ret += sscanf(line, "ExternalBoundaryTypeIO = %"ISYM, &ExternalBoundaryTypeIO);
+    ret += sscanf(line, "ExternalBoundaryTypeIO = %" ISYM, &ExternalBoundaryTypeIO);
 
-    ret += sscanf(line, "ExternalBoundaryValueIO = %"ISYM, &ExternalBoundaryValueIO);
+    ret += sscanf(line, "ExternalBoundaryValueIO = %" ISYM, &ExternalBoundaryValueIO);
 
-    ret += sscanf(line, "SimpleConstantBoundary = %"ISYM, &SimpleConstantBoundary);
+    ret += sscanf(line, "SimpleConstantBoundary = %" ISYM, &SimpleConstantBoundary);
 
 #endif
 
     ret += sscanf(line, "SlopeFlaggingFields = "
-		  " %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM,
+		  " %" ISYM" %" ISYM" %" ISYM" %" ISYM" %" ISYM" %" ISYM" %" ISYM,
 		  SlopeFlaggingFields+0,
 		  SlopeFlaggingFields+1,
 		  SlopeFlaggingFields+2,
@@ -806,7 +806,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  SlopeFlaggingFields+6);
 
     ret += sscanf(line, "MinimumSlopeForRefinement = "
-		  " %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM,
+		  " %" FSYM" %" FSYM" %" FSYM" %" FSYM" %" FSYM" %" FSYM" %" FSYM,
 
 		  MinimumSlopeForRefinement+0,
 		  MinimumSlopeForRefinement+1,
@@ -817,7 +817,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  MinimumSlopeForRefinement+6);
 
      ret += sscanf(line, "SecondDerivativeFlaggingFields = "
-		  " %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM,
+		  " %" ISYM" %" ISYM" %" ISYM" %" ISYM" %" ISYM" %" ISYM" %" ISYM,
 		  SecondDerivativeFlaggingFields+0,
 		  SecondDerivativeFlaggingFields+1,
 		  SecondDerivativeFlaggingFields+2,
@@ -827,7 +827,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  SecondDerivativeFlaggingFields+6);
 
     ret += sscanf(line, "MinimumSecondDerivativeForRefinement = "
-		  " %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM,
+		  " %" FSYM" %" FSYM" %" FSYM" %" FSYM" %" FSYM" %" FSYM" %" FSYM,
 
 		  MinimumSecondDerivativeForRefinement+0,
 		  MinimumSecondDerivativeForRefinement+1,
@@ -837,11 +837,11 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  MinimumSecondDerivativeForRefinement+5,
 		  MinimumSecondDerivativeForRefinement+6);
 
-    ret += sscanf(line, "SecondDerivativeEpsilon  = %"FSYM,
+    ret += sscanf(line, "SecondDerivativeEpsilon  = %" FSYM,
 		  &SecondDerivativeEpsilon);
 
     ret += sscanf(line, "MinimumOverDensityForRefinement  = "
-		  " %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM,
+		  " %" FSYM" %" FSYM" %" FSYM" %" FSYM" %" FSYM" %" FSYM" %" FSYM,
 		  MinimumOverDensityForRefinement+0,
 		  MinimumOverDensityForRefinement+1,
 		  MinimumOverDensityForRefinement+2,
@@ -851,7 +851,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  MinimumOverDensityForRefinement+6);
 
     ret += sscanf(line, "MinimumMassForRefinement  = "
-		  " %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM,
+		  " %" FSYM" %" FSYM" %" FSYM" %" FSYM" %" FSYM" %" FSYM" %" FSYM,
 		  MinimumMassForRefinement+0,
 		  MinimumMassForRefinement+1,
 		  MinimumMassForRefinement+2,
@@ -861,7 +861,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  MinimumMassForRefinement+6);
 
     ret += sscanf(line, "MinimumMassForRefinementLevelExponent = "
-		  " %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM,
+		  " %" FSYM" %" FSYM" %" FSYM" %" FSYM" %" FSYM" %" FSYM" %" FSYM,
 		  MinimumMassForRefinementLevelExponent+0,
 		  MinimumMassForRefinementLevelExponent+1,
 		  MinimumMassForRefinementLevelExponent+2,
@@ -870,41 +870,41 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  MinimumMassForRefinementLevelExponent+5,
 		  MinimumMassForRefinementLevelExponent+6);
 
-    ret += sscanf(line, "MinimumPressureJumpForRefinement = %"FSYM,
+    ret += sscanf(line, "MinimumPressureJumpForRefinement = %" FSYM,
 		  &MinimumPressureJumpForRefinement);
-    ret += sscanf(line, "OldShearMethod = %"ISYM,
+    ret += sscanf(line, "OldShearMethod = %" ISYM,
 		  &OldShearMethod);
-    ret += sscanf(line, "MinimumShearForRefinement = %"FSYM,
+    ret += sscanf(line, "MinimumShearForRefinement = %" FSYM,
 		  &MinimumShearForRefinement);
-    ret += sscanf(line, "MinimumEnergyRatioForRefinement = %"FSYM,
+    ret += sscanf(line, "MinimumEnergyRatioForRefinement = %" FSYM,
 		  &MinimumEnergyRatioForRefinement);
-    ret += sscanf(line, "ShockwaveRefinementMinMach = %"FSYM,
+    ret += sscanf(line, "ShockwaveRefinementMinMach = %" FSYM,
                  &ShockwaveRefinementMinMach);
-    ret += sscanf(line, "ShockwaveRefinementMinVelocity = %"FSYM,
+    ret += sscanf(line, "ShockwaveRefinementMinVelocity = %" FSYM,
                  &ShockwaveRefinementMinVelocity);
-    ret += sscanf(line, "ShockwaveRefinementMaxLevel = %"ISYM,
+    ret += sscanf(line, "ShockwaveRefinementMaxLevel = %" ISYM,
                  &ShockwaveRefinementMaxLevel);
-    ret += sscanf(line, "ComovingCoordinates = %"ISYM,&ComovingCoordinates);
-    ret += sscanf(line, "StarParticleCreation = %"ISYM, &StarParticleCreation);
-    ret += sscanf(line, "BigStarFormation = %"ISYM, &BigStarFormation);
-    ret += sscanf(line, "BigStarFormationDone = %"ISYM, &BigStarFormationDone);
-    ret += sscanf(line, "BigStarSeparation = %"FSYM, &BigStarSeparation);
+    ret += sscanf(line, "ComovingCoordinates = %" ISYM,&ComovingCoordinates);
+    ret += sscanf(line, "StarParticleCreation = %" ISYM, &StarParticleCreation);
+    ret += sscanf(line, "BigStarFormation = %" ISYM, &BigStarFormation);
+    ret += sscanf(line, "BigStarFormationDone = %" ISYM, &BigStarFormationDone);
+    ret += sscanf(line, "BigStarSeparation = %" FSYM, &BigStarSeparation);
     ret += sscanf(line, "SimpleQ = %lf", &SimpleQ);
-    ret += sscanf(line, "SimpleRampTime = %"FSYM, &SimpleRampTime);
-    ret += sscanf(line, "StarFormationOncePerRootGridTimeStep = %"ISYM, &StarFormationOncePerRootGridTimeStep);
-    ret += sscanf(line, "StarParticleFeedback = %"ISYM, &StarParticleFeedback);
-    ret += sscanf(line, "StarParticleRadiativeFeedback = %"ISYM, &StarParticleRadiativeFeedback);
-    ret += sscanf(line, "NumberOfParticleAttributes = %"ISYM,
+    ret += sscanf(line, "SimpleRampTime = %" FSYM, &SimpleRampTime);
+    ret += sscanf(line, "StarFormationOncePerRootGridTimeStep = %" ISYM, &StarFormationOncePerRootGridTimeStep);
+    ret += sscanf(line, "StarParticleFeedback = %" ISYM, &StarParticleFeedback);
+    ret += sscanf(line, "StarParticleRadiativeFeedback = %" ISYM, &StarParticleRadiativeFeedback);
+    ret += sscanf(line, "NumberOfParticleAttributes = %" ISYM,
 		  &NumberOfParticleAttributes);
 
     /* read data which defines the boundary conditions */
 
-    ret += sscanf(line, "LeftFaceBoundaryCondition  = %"ISYM" %"ISYM" %"ISYM,
+    ret += sscanf(line, "LeftFaceBoundaryCondition  = %" ISYM" %" ISYM" %" ISYM,
 		  MetaData.LeftFaceBoundaryCondition,
 		  MetaData.LeftFaceBoundaryCondition+1,
 		  MetaData.LeftFaceBoundaryCondition+2);
 
-     ret += sscanf(line, "RightFaceBoundaryCondition = %"ISYM" %"ISYM" %"ISYM,
+     ret += sscanf(line, "RightFaceBoundaryCondition = %" ISYM" %" ISYM" %" ISYM,
  		  MetaData.RightFaceBoundaryCondition,
  		  MetaData.RightFaceBoundaryCondition+1,
  		  MetaData.RightFaceBoundaryCondition+2);
@@ -931,7 +931,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
     /* Check version number. */
 
-    if (sscanf(line, "VersionNumber = %"FSYM, &TempFloat) == 1) {
+    if (sscanf(line, "VersionNumber = %" FSYM, &TempFloat) == 1) {
       ret++;
       if (fabs(TempFloat - VERSION) >= 1.0e-3 &&
 	  MyProcessorNumber == ROOT_PROCESSOR)
@@ -940,236 +940,236 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
     /* Read Galaxy Simulation Wind Boundary Variabels */
 
-     ret += sscanf(line, "GalaxySimulationRPSWind = %"ISYM,&GalaxySimulationRPSWind);
-     ret += sscanf(line, "GalaxySimulationRPSWindShockSpeed = %"FSYM,&GalaxySimulationRPSWindShockSpeed);
-     ret += sscanf(line, "GalaxySimulationRPSWindDelay = %"FSYM,&GalaxySimulationRPSWindDelay);
-     ret += sscanf(line, "GalaxySimulationRPSWindDensity = %"FSYM,&GalaxySimulationRPSWindDensity);
-     ret += sscanf(line, "GalaxySimulationRPSWindTotalEnergy = %"FSYM,&GalaxySimulationRPSWindTotalEnergy);
-     ret += sscanf(line, "GalaxySimulationRPSWindPressure = %"FSYM,&GalaxySimulationRPSWindPressure);
-     ret += sscanf(line, "GalaxySimulationRPSWindVelocity = %"PSYM" %"PSYM" %"PSYM,
+     ret += sscanf(line, "GalaxySimulationRPSWind = %" ISYM,&GalaxySimulationRPSWind);
+     ret += sscanf(line, "GalaxySimulationRPSWindShockSpeed = %" FSYM,&GalaxySimulationRPSWindShockSpeed);
+     ret += sscanf(line, "GalaxySimulationRPSWindDelay = %" FSYM,&GalaxySimulationRPSWindDelay);
+     ret += sscanf(line, "GalaxySimulationRPSWindDensity = %" FSYM,&GalaxySimulationRPSWindDensity);
+     ret += sscanf(line, "GalaxySimulationRPSWindTotalEnergy = %" FSYM,&GalaxySimulationRPSWindTotalEnergy);
+     ret += sscanf(line, "GalaxySimulationRPSWindPressure = %" FSYM,&GalaxySimulationRPSWindPressure);
+     ret += sscanf(line, "GalaxySimulationRPSWindVelocity = %" PSYM" %" PSYM" %" PSYM,
       GalaxySimulationRPSWindVelocity, GalaxySimulationRPSWindVelocity+1, GalaxySimulationRPSWindVelocity+2);
-     ret += sscanf(line, "GalaxySimulationPreWindDensity = %"FSYM,&GalaxySimulationPreWindDensity);
-     ret += sscanf(line, "GalaxySimulationPreWindTotalEnergy = %"FSYM,&GalaxySimulationPreWindTotalEnergy);
-     ret += sscanf(line, "GalaxySimulationPreWindVelocity = %"PSYM" %"PSYM" %"PSYM,
+     ret += sscanf(line, "GalaxySimulationPreWindDensity = %" FSYM,&GalaxySimulationPreWindDensity);
+     ret += sscanf(line, "GalaxySimulationPreWindTotalEnergy = %" FSYM,&GalaxySimulationPreWindTotalEnergy);
+     ret += sscanf(line, "GalaxySimulationPreWindVelocity = %" PSYM" %" PSYM" %" PSYM,
          GalaxySimulationPreWindVelocity,GalaxySimulationPreWindVelocity+1,GalaxySimulationPreWindVelocity+2);
 
     /* Read star particle parameters. */
 
-    ret += sscanf(line, "StarMakerTypeIaSNe = %"ISYM,
+    ret += sscanf(line, "StarMakerTypeIaSNe = %" ISYM,
 		  &StarMakerTypeIaSNe);
-    ret += sscanf(line, "StarMakerTypeIISNeMetalField = %"ISYM,
+    ret += sscanf(line, "StarMakerTypeIISNeMetalField = %" ISYM,
 		  &StarMakerTypeIISNeMetalField);
-    ret += sscanf(line, "StarMakerPlanetaryNebulae = %"ISYM,
+    ret += sscanf(line, "StarMakerPlanetaryNebulae = %" ISYM,
 		  &StarMakerPlanetaryNebulae);
-    ret += sscanf(line, "StarMakerOverDensityThreshold = %"FSYM,
+    ret += sscanf(line, "StarMakerOverDensityThreshold = %" FSYM,
 		  &StarMakerOverDensityThreshold);
-    ret += sscanf(line, "StarMakerUseOverDensityThreshold = %"ISYM,
+    ret += sscanf(line, "StarMakerUseOverDensityThreshold = %" ISYM,
           &StarMakerUseOverDensityThreshold);
-    ret += sscanf(line, "StarMakerMaximumFractionCell = %"FSYM,
+    ret += sscanf(line, "StarMakerMaximumFractionCell = %" FSYM,
           &StarMakerMaximumFractionCell);
-    ret += sscanf(line, "StarMakerSHDensityThreshold = %"FSYM,
+    ret += sscanf(line, "StarMakerSHDensityThreshold = %" FSYM,
 		  &StarMakerSHDensityThreshold);
-    ret += sscanf(line, "StarMakerTimeIndependentFormation = %"ISYM,
+    ret += sscanf(line, "StarMakerTimeIndependentFormation = %" ISYM,
 		  &StarMakerTimeIndependentFormation);
-    ret += sscanf(line, "StarMakerMassEfficiency = %"FSYM,
+    ret += sscanf(line, "StarMakerMassEfficiency = %" FSYM,
 		  &StarMakerMassEfficiency);
-    ret += sscanf(line, "StarMakerMinimumMass = %"FSYM, &StarMakerMinimumMass);
-    ret += sscanf(line, "StarMakerMinimumDynamicalTime = %"FSYM,
+    ret += sscanf(line, "StarMakerMinimumMass = %" FSYM, &StarMakerMinimumMass);
+    ret += sscanf(line, "StarMakerMinimumDynamicalTime = %" FSYM,
       &StarMakerMinimumDynamicalTime);
-    ret += sscanf(line, "StarMakerVelDivCrit = %"ISYM,
+    ret += sscanf(line, "StarMakerVelDivCrit = %" ISYM,
       &StarMakerVelDivCrit);
-    ret += sscanf(line, "StarMakerSelfBoundCrit = %"ISYM,
+    ret += sscanf(line, "StarMakerSelfBoundCrit = %" ISYM,
       &StarMakerSelfBoundCrit);
-    ret += sscanf(line, "StarMakerThermalCrit = %"ISYM,
+    ret += sscanf(line, "StarMakerThermalCrit = %" ISYM,
       &StarMakerThermalCrit);
-    ret += sscanf(line, "StarMakerUseJeansMass = %"ISYM,
+    ret += sscanf(line, "StarMakerUseJeansMass = %" ISYM,
 		  &StarMakerUseJeansMass);
-    ret += sscanf(line, "StarMakerH2Crit = %"ISYM,
+    ret += sscanf(line, "StarMakerH2Crit = %" ISYM,
       &StarMakerH2Crit);
-    ret += sscanf(line, "StarMakerTemperatureThreshold = %"FSYM,
+    ret += sscanf(line, "StarMakerTemperatureThreshold = %" FSYM,
       &StarMakerTemperatureThreshold);
-    ret += sscanf(line, "StarMassEjectionFraction = %"FSYM,
+    ret += sscanf(line, "StarMassEjectionFraction = %" FSYM,
 		  &StarMassEjectionFraction);
-    ret += sscanf(line, "StarMetalYield = %"FSYM, &StarMetalYield);
-    ret += sscanf(line, "StarEnergyToThermalFeedback = %"FSYM,
+    ret += sscanf(line, "StarMetalYield = %" FSYM, &StarMetalYield);
+    ret += sscanf(line, "StarEnergyToThermalFeedback = %" FSYM,
 		  &StarEnergyToThermalFeedback);
-    ret += sscanf(line, "StarEnergyToStellarUV = %"FSYM, &StarEnergyToStellarUV);
-    ret += sscanf(line, "StarEnergyToQuasarUV = %"FSYM, &StarEnergyToQuasarUV);
-    ret += sscanf(line, "StarFeedbackKineticFraction = %"FSYM,
+    ret += sscanf(line, "StarEnergyToStellarUV = %" FSYM, &StarEnergyToStellarUV);
+    ret += sscanf(line, "StarEnergyToQuasarUV = %" FSYM, &StarEnergyToQuasarUV);
+    ret += sscanf(line, "StarFeedbackKineticFraction = %" FSYM,
     	&StarFeedbackKineticFraction);
-    ret += sscanf(line, "StarMakerExplosionDelayTime = %"FSYM,
+    ret += sscanf(line, "StarMakerExplosionDelayTime = %" FSYM,
     	&StarMakerExplosionDelayTime);
-    ret += sscanf(line, "StarFeedbackDistRadius = %"ISYM, &StarFeedbackDistRadius);
-    ret += sscanf(line, "StarFeedbackDistCellStep = %"ISYM, &StarFeedbackDistCellStep);
+    ret += sscanf(line, "StarFeedbackDistRadius = %" ISYM, &StarFeedbackDistRadius);
+    ret += sscanf(line, "StarFeedbackDistCellStep = %" ISYM, &StarFeedbackDistCellStep);
 
-    ret += sscanf(line, "StarClusterUseMetalField = %"ISYM,
+    ret += sscanf(line, "StarClusterUseMetalField = %" ISYM,
 		  &StarClusterUseMetalField);
-    ret += sscanf(line, "StarClusterMinDynamicalTime = %"FSYM,
+    ret += sscanf(line, "StarClusterMinDynamicalTime = %" FSYM,
 		  &StarClusterMinDynamicalTime);
-    ret += sscanf(line, "StarClusterHeliumIonization = %"ISYM,
+    ret += sscanf(line, "StarClusterHeliumIonization = %" ISYM,
 		  &StarClusterHeliumIonization);
-    ret += sscanf(line, "StarClusterUnresolvedModel = %"ISYM,
+    ret += sscanf(line, "StarClusterUnresolvedModel = %" ISYM,
 		  &StarClusterUnresolvedModel);
     ret += sscanf(line, "StarClusterIonizingLuminosity = %lf",
 		  &StarClusterIonizingLuminosity);
     ret += sscanf(line, "StarClusterSNEnergy = %lf", &StarClusterSNEnergy);
-    ret += sscanf(line, "StarClusterSNRadius = %"FSYM, &StarClusterSNRadius);
-    ret += sscanf(line, "StarClusterFormEfficiency = %"FSYM,
+    ret += sscanf(line, "StarClusterSNRadius = %" FSYM, &StarClusterSNRadius);
+    ret += sscanf(line, "StarClusterFormEfficiency = %" FSYM,
 		  &StarClusterFormEfficiency);
-    ret += sscanf(line, "StarClusterMinimumMass = %"FSYM,
+    ret += sscanf(line, "StarClusterMinimumMass = %" FSYM,
 		  &StarClusterMinimumMass);
-    ret += sscanf(line, "StarClusterCombineRadius = %"FSYM,
+    ret += sscanf(line, "StarClusterCombineRadius = %" FSYM,
 		  &StarClusterCombineRadius);
-    ret += sscanf(line, "StarClusterRegionLeftEdge = %"FSYM" %"FSYM" %"FSYM,
+    ret += sscanf(line, "StarClusterRegionLeftEdge = %" FSYM" %" FSYM" %" FSYM,
 		  StarClusterRegionLeftEdge, StarClusterRegionLeftEdge+1,
 		  StarClusterRegionLeftEdge+2);
-    ret += sscanf(line, "StarClusterRegionRightEdge = %"FSYM" %"FSYM" %"FSYM,
+    ret += sscanf(line, "StarClusterRegionRightEdge = %" FSYM" %" FSYM" %" FSYM,
 		  StarClusterRegionRightEdge, StarClusterRegionRightEdge+1,
 		  StarClusterRegionRightEdge+2);
 
-    ret += sscanf(line, "PopIIIStarMass = %"FSYM, &PopIIIStarMass);
-    ret += sscanf(line, "PopIIIInitialMassFunction = %"ISYM,
+    ret += sscanf(line, "PopIIIStarMass = %" FSYM, &PopIIIStarMass);
+    ret += sscanf(line, "PopIIIInitialMassFunction = %" ISYM,
 		  &PopIIIInitialMassFunction);
-    ret += sscanf(line, "PopIIIInitialMassFunctionSeed = %"ISYM,
+    ret += sscanf(line, "PopIIIInitialMassFunctionSeed = %" ISYM,
 		  &PopIIIInitialMassFunctionSeed);
-    ret += sscanf(line, "PopIIIInitialMassFunctionCalls = %"ISYM,
+    ret += sscanf(line, "PopIIIInitialMassFunctionCalls = %" ISYM,
 		  &PopIIIInitialMassFunctionCalls);
-    ret += sscanf(line, "PopIIIMassRange = %"FSYM" %"FSYM,
+    ret += sscanf(line, "PopIIIMassRange = %" FSYM" %" FSYM,
 		  &PopIIILowerMassCutoff, &PopIIIUpperMassCutoff);
-    ret += sscanf(line, "PopIIIInitialMassFunctionSlope = %"FSYM,
+    ret += sscanf(line, "PopIIIInitialMassFunctionSlope = %" FSYM,
 		  &PopIIIInitialMassFunctionSlope);
-    ret += sscanf(line, "PopIIIBlackHoles = %"ISYM, &PopIIIBlackHoles);
-    ret += sscanf(line, "PopIIIBHLuminosityEfficiency = %"FSYM,
+    ret += sscanf(line, "PopIIIBlackHoles = %" ISYM, &PopIIIBlackHoles);
+    ret += sscanf(line, "PopIIIBHLuminosityEfficiency = %" FSYM,
 		  &PopIIIBHLuminosityEfficiency);
-    ret += sscanf(line, "PopIIIOverDensityThreshold = %"FSYM,
+    ret += sscanf(line, "PopIIIOverDensityThreshold = %" FSYM,
 		  &PopIIIOverDensityThreshold);
-    ret += sscanf(line, "PopIIIH2CriticalFraction = %"FSYM,
+    ret += sscanf(line, "PopIIIH2CriticalFraction = %" FSYM,
 		  &PopIIIH2CriticalFraction);
-    ret += sscanf(line, "PopIIIMetalCriticalFraction = %"FSYM,
+    ret += sscanf(line, "PopIIIMetalCriticalFraction = %" FSYM,
 		  &PopIIIMetalCriticalFraction);
-    ret += sscanf(line, "PopIIISupernovaRadius = %"FSYM, &PopIIISupernovaRadius);
-    ret += sscanf(line, "PopIIISupernovaUseColour = %"ISYM,
+    ret += sscanf(line, "PopIIISupernovaRadius = %" FSYM, &PopIIISupernovaRadius);
+    ret += sscanf(line, "PopIIISupernovaUseColour = %" ISYM,
 		  &PopIIISupernovaUseColour);
-    ret += sscanf(line, "PopIIISupernovaMustRefine = %"ISYM,
+    ret += sscanf(line, "PopIIISupernovaMustRefine = %" ISYM,
 		  &PopIIISupernovaMustRefine);
-    ret += sscanf(line, "PopIIISupernovaMustRefineResolution = %"ISYM,
+    ret += sscanf(line, "PopIIISupernovaMustRefineResolution = %" ISYM,
 		  &PopIIISupernovaMustRefineResolution);
-    ret += sscanf(line, "PopIIIHeliumIonization = %"ISYM,
+    ret += sscanf(line, "PopIIIHeliumIonization = %" ISYM,
 		  &PopIIIHeliumIonization);
 
-    ret += sscanf(line, "PopIIIColorDensityThreshold = %"FSYM,
+    ret += sscanf(line, "PopIIIColorDensityThreshold = %" FSYM,
 		  &PopIIIColorDensityThreshold);
-    ret += sscanf(line, "PopIIIColorMass = %"FSYM,
+    ret += sscanf(line, "PopIIIColorMass = %" FSYM,
 		  &PopIIIColorMass);
-    ret += sscanf(line, "PopIIIUseHypernova = %"ISYM,
+    ret += sscanf(line, "PopIIIUseHypernova = %" ISYM,
 		  &PopIIIUseHypernova);
-    ret += sscanf(line, "PopIIISupernovaExplosions = %"ISYM,
+    ret += sscanf(line, "PopIIISupernovaExplosions = %" ISYM,
 		  &PopIIISupernovaExplosions);
-    ret += sscanf(line, "PopIIIOutputOnFeedback = %"ISYM,
+    ret += sscanf(line, "PopIIIOutputOnFeedback = %" ISYM,
 		  &PopIIIOutputOnFeedback);
 
-    ret += sscanf(line, "MBHAccretion = %"ISYM, &MBHAccretion);
-    ret += sscanf(line, "MBHAccretionRadius = %"FSYM, &MBHAccretionRadius);
-    ret += sscanf(line, "MBHAccretingMassRatio = %"FSYM, &MBHAccretingMassRatio);
-    ret += sscanf(line, "MBHAccretionFixedTemperature = %"FSYM, &MBHAccretionFixedTemperature);
-    ret += sscanf(line, "MBHAccretionFixedRate = %"FSYM, &MBHAccretionFixedRate);
-    ret += sscanf(line, "MBHTurnOffStarFormation = %"ISYM, &MBHTurnOffStarFormation);
-    ret += sscanf(line, "MBHCombineRadius = %"FSYM, &MBHCombineRadius);
-    ret += sscanf(line, "MBHMinDynamicalTime = %"FSYM, &MBHMinDynamicalTime);
-    ret += sscanf(line, "MBHMinimumMass = %"FSYM, &MBHMinimumMass);
+    ret += sscanf(line, "MBHAccretion = %" ISYM, &MBHAccretion);
+    ret += sscanf(line, "MBHAccretionRadius = %" FSYM, &MBHAccretionRadius);
+    ret += sscanf(line, "MBHAccretingMassRatio = %" FSYM, &MBHAccretingMassRatio);
+    ret += sscanf(line, "MBHAccretionFixedTemperature = %" FSYM, &MBHAccretionFixedTemperature);
+    ret += sscanf(line, "MBHAccretionFixedRate = %" FSYM, &MBHAccretionFixedRate);
+    ret += sscanf(line, "MBHTurnOffStarFormation = %" ISYM, &MBHTurnOffStarFormation);
+    ret += sscanf(line, "MBHCombineRadius = %" FSYM, &MBHCombineRadius);
+    ret += sscanf(line, "MBHMinDynamicalTime = %" FSYM, &MBHMinDynamicalTime);
+    ret += sscanf(line, "MBHMinimumMass = %" FSYM, &MBHMinimumMass);
 
-    ret += sscanf(line, "MBHFeedback = %"ISYM, &MBHFeedback);
-    ret += sscanf(line, "MBHFeedbackRadiativeEfficiency = %"FSYM, &MBHFeedbackRadiativeEfficiency);
-    ret += sscanf(line, "MBHFeedbackEnergyCoupling = %"FSYM, &MBHFeedbackEnergyCoupling);
-    ret += sscanf(line, "MBHFeedbackMassEjectionFraction = %"FSYM, &MBHFeedbackMassEjectionFraction);
-    ret += sscanf(line, "MBHFeedbackMetalYield = %"FSYM, &MBHFeedbackMetalYield);
-    ret += sscanf(line, "MBHFeedbackThermalRadius = %"FSYM, &MBHFeedbackThermalRadius);
-    ret += sscanf(line, "MBHFeedbackJetsThresholdMass = %"FSYM, &MBHFeedbackJetsThresholdMass);
+    ret += sscanf(line, "MBHFeedback = %" ISYM, &MBHFeedback);
+    ret += sscanf(line, "MBHFeedbackRadiativeEfficiency = %" FSYM, &MBHFeedbackRadiativeEfficiency);
+    ret += sscanf(line, "MBHFeedbackEnergyCoupling = %" FSYM, &MBHFeedbackEnergyCoupling);
+    ret += sscanf(line, "MBHFeedbackMassEjectionFraction = %" FSYM, &MBHFeedbackMassEjectionFraction);
+    ret += sscanf(line, "MBHFeedbackMetalYield = %" FSYM, &MBHFeedbackMetalYield);
+    ret += sscanf(line, "MBHFeedbackThermalRadius = %" FSYM, &MBHFeedbackThermalRadius);
+    ret += sscanf(line, "MBHFeedbackJetsThresholdMass = %" FSYM, &MBHFeedbackJetsThresholdMass);
 
-    ret += sscanf(line, "MBHParticleIO = %"ISYM,
+    ret += sscanf(line, "MBHParticleIO = %" ISYM,
 		  &MBHParticleIO);
     if (sscanf(line, "MBHParticleIOFilename = %s", dummy) == 1)
       MBHParticleIOFilename = dummy;
     if (sscanf(line, "MBHInsertLocationFilename = %s", dummy) == 1)
       MBHInsertLocationFilename = dummy;
 
-    ret += sscanf(line, "H2StarMakerEfficiency = %"FSYM,
+    ret += sscanf(line, "H2StarMakerEfficiency = %" FSYM,
 		  &H2StarMakerEfficiency);
-    ret += sscanf(line, "H2StarMakerNumberDensityThreshold = %"FSYM,
+    ret += sscanf(line, "H2StarMakerNumberDensityThreshold = %" FSYM,
 		  &H2StarMakerNumberDensityThreshold);
-    ret += sscanf(line, "H2StarMakerMinimumMass = %"FSYM,
+    ret += sscanf(line, "H2StarMakerMinimumMass = %" FSYM,
 		  &H2StarMakerMinimumMass);
-    ret += sscanf(line, "H2StarMakerMinimumH2FractionForStarFormation = %"FSYM,
+    ret += sscanf(line, "H2StarMakerMinimumH2FractionForStarFormation = %" FSYM,
 		  &H2StarMakerMinimumH2FractionForStarFormation);
-    ret += sscanf(line, "H2StarMakerStochastic = %"ISYM,
+    ret += sscanf(line, "H2StarMakerStochastic = %" ISYM,
 		  &H2StarMakerStochastic);
-    ret += sscanf(line, "H2StarMakerUseSobolevColumn = %"ISYM,
+    ret += sscanf(line, "H2StarMakerUseSobolevColumn = %" ISYM,
 		  &H2StarMakerUseSobolevColumn);
-    ret += sscanf(line, "H2StarMakerSigmaOverR = %"FSYM,
+    ret += sscanf(line, "H2StarMakerSigmaOverR = %" FSYM,
 		  &H2StarMakerSigmaOverR);
-    ret += sscanf(line, "H2StarMakerAssumeColdWarmPressureBalance = %"ISYM,
+    ret += sscanf(line, "H2StarMakerAssumeColdWarmPressureBalance = %" ISYM,
 		  &H2StarMakerAssumeColdWarmPressureBalance);
-    ret += sscanf(line, "H2StarMakerH2DissociationFlux_MW = %"FSYM,
+    ret += sscanf(line, "H2StarMakerH2DissociationFlux_MW = %" FSYM,
 		  &H2StarMakerH2DissociationFlux_MW);
-    ret += sscanf(line, "H2StarMakerH2FloorInColdGas = %"FSYM,
+    ret += sscanf(line, "H2StarMakerH2FloorInColdGas = %" FSYM,
 		  &H2StarMakerH2FloorInColdGas);
-    ret += sscanf(line, "H2StarMakerColdGasTemperature = %"FSYM,
+    ret += sscanf(line, "H2StarMakerColdGasTemperature = %" FSYM,
 		  &H2StarMakerColdGasTemperature);
 
-    ret += sscanf(line, "StarMakerMinimumMassRamp = %"ISYM,
+    ret += sscanf(line, "StarMakerMinimumMassRamp = %" ISYM,
 		  &StarMakerMinimumMassRamp);
-    ret += sscanf(line, "StarMakerMinimumMassRampStartTime = %"FSYM,
+    ret += sscanf(line, "StarMakerMinimumMassRampStartTime = %" FSYM,
 		  &StarMakerMinimumMassRampStartTime);
-    ret += sscanf(line, "StarMakerMinimumMassRampStartMass = %"FSYM,
+    ret += sscanf(line, "StarMakerMinimumMassRampStartMass = %" FSYM,
 		  &StarMakerMinimumMassRampStartMass);
-    ret += sscanf(line, "StarMakerMinimumMassRampEndTime = %"FSYM,
+    ret += sscanf(line, "StarMakerMinimumMassRampEndTime = %" FSYM,
 		  &StarMakerMinimumMassRampEndTime);
-    ret += sscanf(line, "StarMakerMinimumMassRampEndMass = %"FSYM,
+    ret += sscanf(line, "StarMakerMinimumMassRampEndMass = %" FSYM,
 		  &StarMakerMinimumMassRampEndMass);
 
-    ret += sscanf(line, "StarFeedbackThermalEfficiencyRamp = %"ISYM,
+    ret += sscanf(line, "StarFeedbackThermalEfficiencyRamp = %" ISYM,
 		  &StarFeedbackThermalEfficiencyRamp);
-    ret += sscanf(line, "StarFeedbackThermalEfficiencyRampStartTime = %"FSYM,
+    ret += sscanf(line, "StarFeedbackThermalEfficiencyRampStartTime = %" FSYM,
 		  &StarFeedbackThermalEfficiencyRampStartTime);
-    ret += sscanf(line, "StarFeedbackThermalEfficiencyRampStartValue = %"FSYM,
+    ret += sscanf(line, "StarFeedbackThermalEfficiencyRampStartValue = %" FSYM,
 		  &StarFeedbackThermalEfficiencyRampStartValue);
-    ret += sscanf(line, "StarFeedbackThermalEfficiencyRampEndTime = %"FSYM,
+    ret += sscanf(line, "StarFeedbackThermalEfficiencyRampEndTime = %" FSYM,
 		  &StarFeedbackThermalEfficiencyRampEndTime);
-    ret += sscanf(line, "StarFeedbackThermalEfficiencyRampEndValue = %"FSYM,
+    ret += sscanf(line, "StarFeedbackThermalEfficiencyRampEndValue = %" FSYM,
 		  &StarFeedbackThermalEfficiencyRampEndValue);
 
     /* Read Movie Dump parameters */
 
-    ret += sscanf(line, "MovieSkipTimestep = %"ISYM, &MovieSkipTimestep);
-    ret += sscanf(line, "Movie3DVolumes = %"ISYM, &Movie3DVolumes);
-    ret += sscanf(line, "MovieVertexCentered = %"ISYM, &MovieVertexCentered);
-    ret += sscanf(line, "NewMovieParticleOn = %"ISYM, &NewMovieParticleOn);
-    ret += sscanf(line, "MovieDataField = %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM,
+    ret += sscanf(line, "MovieSkipTimestep = %" ISYM, &MovieSkipTimestep);
+    ret += sscanf(line, "Movie3DVolumes = %" ISYM, &Movie3DVolumes);
+    ret += sscanf(line, "MovieVertexCentered = %" ISYM, &MovieVertexCentered);
+    ret += sscanf(line, "NewMovieParticleOn = %" ISYM, &NewMovieParticleOn);
+    ret += sscanf(line, "MovieDataField = %" ISYM" %" ISYM" %" ISYM" %" ISYM" %" ISYM" %" ISYM,
 		  MovieDataField+0, MovieDataField+1, MovieDataField+2,
 		  MovieDataField+3, MovieDataField+4, MovieDataField+5);
-    ret += sscanf(line, "NewMovieDumpNumber = %"ISYM, &NewMovieDumpNumber);
+    ret += sscanf(line, "NewMovieDumpNumber = %" ISYM, &NewMovieDumpNumber);
     if (sscanf(line, "NewMovieName = %s", dummy) == 1)
       NewMovieName = dummy;
-    ret += sscanf(line, "MovieTimestepCounter = %"ISYM, &MetaData.MovieTimestepCounter);
+    ret += sscanf(line, "MovieTimestepCounter = %" ISYM, &MetaData.MovieTimestepCounter);
 
-    ret += sscanf(line, "MultiMetals = %"ISYM, &MultiMetals);
-    ret += sscanf(line, "IsotropicConduction = %"ISYM, &IsotropicConduction);
-    ret += sscanf(line, "AnisotropicConduction = %"ISYM, &AnisotropicConduction);
-    ret += sscanf(line, "IsotropicConductionSpitzerFraction = %"FSYM, &IsotropicConductionSpitzerFraction);
-    ret += sscanf(line, "AnisotropicConductionSpitzerFraction = %"FSYM, &AnisotropicConductionSpitzerFraction);
-    ret += sscanf(line, "ConductionCourantSafetyNumber = %"FSYM, &ConductionCourantSafetyNumber);
-    ret += sscanf(line, "SpeedOfLightTimeStepLimit = %"ISYM, &SpeedOfLightTimeStepLimit);
+    ret += sscanf(line, "MultiMetals = %" ISYM, &MultiMetals);
+    ret += sscanf(line, "IsotropicConduction = %" ISYM, &IsotropicConduction);
+    ret += sscanf(line, "AnisotropicConduction = %" ISYM, &AnisotropicConduction);
+    ret += sscanf(line, "IsotropicConductionSpitzerFraction = %" FSYM, &IsotropicConductionSpitzerFraction);
+    ret += sscanf(line, "AnisotropicConductionSpitzerFraction = %" FSYM, &AnisotropicConductionSpitzerFraction);
+    ret += sscanf(line, "ConductionCourantSafetyNumber = %" FSYM, &ConductionCourantSafetyNumber);
+    ret += sscanf(line, "SpeedOfLightTimeStepLimit = %" ISYM, &SpeedOfLightTimeStepLimit);
 
-    ret += sscanf(line, "RadiativeTransfer = %"ISYM, &RadiativeTransfer);
-    ret += sscanf(line, "RadiationXRaySecondaryIon = %"ISYM, &RadiationXRaySecondaryIon);
-    ret += sscanf(line, "RadiationXRayComptonHeating = %"ISYM, &RadiationXRayComptonHeating);
+    ret += sscanf(line, "RadiativeTransfer = %" ISYM, &RadiativeTransfer);
+    ret += sscanf(line, "RadiationXRaySecondaryIon = %" ISYM, &RadiationXRaySecondaryIon);
+    ret += sscanf(line, "RadiationXRayComptonHeating = %" ISYM, &RadiationXRayComptonHeating);
 
     /* Shearing Box Boundary parameters */
 
-    ret += sscanf(line, "AngularVelocity = %"FSYM, &AngularVelocity);
-    ret += sscanf(line, "VelocityGradient = %"FSYM, &VelocityGradient);
-    ret += sscanf(line, "ShearingVelocityDirection = %"ISYM, &ShearingVelocityDirection);
-    ret += sscanf(line, "ShearingBoxProblemType = %"ISYM, &ShearingBoxProblemType);
+    ret += sscanf(line, "AngularVelocity = %" FSYM, &AngularVelocity);
+    ret += sscanf(line, "VelocityGradient = %" FSYM, &VelocityGradient);
+    ret += sscanf(line, "ShearingVelocityDirection = %" ISYM, &ShearingVelocityDirection);
+    ret += sscanf(line, "ShearingBoxProblemType = %" ISYM, &ShearingBoxProblemType);
 
 
 #ifdef STAGE_INPUT
@@ -1178,204 +1178,204 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 #endif
 
     /* Embedded Python */
-    ret += sscanf(line, "PythonTopGridSkip = %"ISYM, &PythonTopGridSkip);
-    ret += sscanf(line, "PythonSubcycleSkip = %"ISYM, &PythonSubcycleSkip);
-    ret += sscanf(line, "PythonReloadScript = %"ISYM, &PythonReloadScript);
+    ret += sscanf(line, "PythonTopGridSkip = %" ISYM, &PythonTopGridSkip);
+    ret += sscanf(line, "PythonSubcycleSkip = %" ISYM, &PythonSubcycleSkip);
+    ret += sscanf(line, "PythonReloadScript = %" ISYM, &PythonReloadScript);
 #ifdef USE_PYTHON
-    ret += sscanf(line, "NumberOfPythonCalls = %"ISYM, &NumberOfPythonCalls);
-    ret += sscanf(line, "NumberOfPythonTopGridCalls = %"ISYM, &NumberOfPythonTopGridCalls);
-    ret += sscanf(line, "NumberOfPythonSubcycleCalls = %"ISYM, &NumberOfPythonSubcycleCalls);
+    ret += sscanf(line, "NumberOfPythonCalls = %" ISYM, &NumberOfPythonCalls);
+    ret += sscanf(line, "NumberOfPythonTopGridCalls = %" ISYM, &NumberOfPythonTopGridCalls);
+    ret += sscanf(line, "NumberOfPythonSubcycleCalls = %" ISYM, &NumberOfPythonSubcycleCalls);
 #endif
 
 #ifdef USE_LIBYT
-    ret += sscanf(line, "NumberOfLibytCalls = %"ISYM, &NumberOfLibytCalls);
-    ret += sscanf(line, "NumberOfLibytTopGridCalls = %"ISYM, &NumberOfLibytTopGridCalls);
-    ret += sscanf(line, "NumberOfLibytSubcycleCalls = %"ISYM, &NumberOfLibytSubcycleCalls);
+    ret += sscanf(line, "NumberOfLibytCalls = %" ISYM, &NumberOfLibytCalls);
+    ret += sscanf(line, "NumberOfLibytTopGridCalls = %" ISYM, &NumberOfLibytTopGridCalls);
+    ret += sscanf(line, "NumberOfLibytSubcycleCalls = %" ISYM, &NumberOfLibytSubcycleCalls);
     ret += sscanf(line, "libyt_script_name = %s", libyt_script_name);
     ret += sscanf(line, "libyt_fig_basename = %s", libyt_fig_basename);
-    ret += sscanf(line, "CycleSkipLibytCall = %"ISYM, &CycleSkipLibytCall);
-    ret += sscanf(line, "CycleLastLibytCall = %"ISYM, &CycleLastLibytCall);
-    ret += sscanf(line, "dtLibytCall = %"FSYM, &dtLibytCall);
-    ret += sscanf(line, "TimeLastLibytCall = %"FSYM, &TimeLastLibytCall);
+    ret += sscanf(line, "CycleSkipLibytCall = %" ISYM, &CycleSkipLibytCall);
+    ret += sscanf(line, "CycleLastLibytCall = %" ISYM, &CycleLastLibytCall);
+    ret += sscanf(line, "dtLibytCall = %" FSYM, &dtLibytCall);
+    ret += sscanf(line, "TimeLastLibytCall = %" FSYM, &TimeLastLibytCall);
 #endif
 
     /* EnzoTiming Parameters */
-    ret += sscanf(line, "TimingCycleSkip = %"ISYM, &TimingCycleSkip);
+    ret += sscanf(line, "TimingCycleSkip = %" ISYM, &TimingCycleSkip);
 
     /* Inline halo finder */
 
-    ret += sscanf(line, "InlineHaloFinder = %"ISYM, &InlineHaloFinder);
-    ret += sscanf(line, "HaloFinderSubfind = %"ISYM, &HaloFinderSubfind);
-    ret += sscanf(line, "HaloFinderOutputParticleList = %"ISYM,
+    ret += sscanf(line, "InlineHaloFinder = %" ISYM, &InlineHaloFinder);
+    ret += sscanf(line, "HaloFinderSubfind = %" ISYM, &HaloFinderSubfind);
+    ret += sscanf(line, "HaloFinderOutputParticleList = %" ISYM,
 		  &HaloFinderOutputParticleList);
-    ret += sscanf(line, "HaloFinderRunAfterOutput = %"ISYM,
+    ret += sscanf(line, "HaloFinderRunAfterOutput = %" ISYM,
 		  &HaloFinderRunAfterOutput);
-    ret += sscanf(line, "HaloFinderLinkingLength = %"FSYM,
+    ret += sscanf(line, "HaloFinderLinkingLength = %" FSYM,
 		  &HaloFinderLinkingLength);
-    ret += sscanf(line, "HaloFinderMinimumSize = %"ISYM, &HaloFinderMinimumSize);
-    ret += sscanf(line, "HaloFinderCycleSkip = %"ISYM, &HaloFinderCycleSkip);
-    ret += sscanf(line, "HaloFinderTimestep = %"FSYM, &HaloFinderTimestep);
-    ret += sscanf(line, "HaloFinderLastTime = %"PSYM, &HaloFinderLastTime);
+    ret += sscanf(line, "HaloFinderMinimumSize = %" ISYM, &HaloFinderMinimumSize);
+    ret += sscanf(line, "HaloFinderCycleSkip = %" ISYM, &HaloFinderCycleSkip);
+    ret += sscanf(line, "HaloFinderTimestep = %" FSYM, &HaloFinderTimestep);
+    ret += sscanf(line, "HaloFinderLastTime = %" PSYM, &HaloFinderLastTime);
 
     /* This Block for Stanford Hydro */
 
-    ret += sscanf(line, "UseHydro               = %"ISYM, &UseHydro);
+    ret += sscanf(line, "UseHydro               = %" ISYM, &UseHydro);
 
 
     /* Sink particles (for present day star formation) & winds */
-    ret += sscanf(line, "SinkMergeDistance     = %"FSYM, &SinkMergeDistance);
-    ret += sscanf(line, "SinkMergeMass         = %"FSYM, &SinkMergeMass);
-    ret += sscanf(line, "StellarWindFeedback   = %"ISYM, &StellarWindFeedback);
-    ret += sscanf(line, "StellarWindTurnOnMass = %"FSYM, &StellarWindTurnOnMass);
-    ret += sscanf(line, "MSStellarWindTurnOnMass = %"FSYM, &MSStellarWindTurnOnMass);
+    ret += sscanf(line, "SinkMergeDistance     = %" FSYM, &SinkMergeDistance);
+    ret += sscanf(line, "SinkMergeMass         = %" FSYM, &SinkMergeMass);
+    ret += sscanf(line, "StellarWindFeedback   = %" ISYM, &StellarWindFeedback);
+    ret += sscanf(line, "StellarWindTurnOnMass = %" FSYM, &StellarWindTurnOnMass);
+    ret += sscanf(line, "MSStellarWindTurnOnMass = %" FSYM, &MSStellarWindTurnOnMass);
 
-    ret += sscanf(line, "VelAnyl = %"ISYM, &VelAnyl);
-    ret += sscanf(line, "BAnyl = %"ISYM, &BAnyl);
-    ret += sscanf(line, "WriteExternalAccel = %"ISYM, &WriteExternalAccel);
+    ret += sscanf(line, "VelAnyl = %" ISYM, &VelAnyl);
+    ret += sscanf(line, "BAnyl = %" ISYM, &BAnyl);
+    ret += sscanf(line, "WriteExternalAccel = %" ISYM, &WriteExternalAccel);
 
 
     /* Read MHD Paramters */
-    ret += sscanf(line, "UsePoissonDivergenceCleaning = %"ISYM"", &UsePoissonDivergenceCleaning);
-    ret += sscanf(line, "PoissonDivergenceCleaningBoundaryBuffer = %"ISYM"",
+    ret += sscanf(line, "UsePoissonDivergenceCleaning = %" ISYM"", &UsePoissonDivergenceCleaning);
+    ret += sscanf(line, "PoissonDivergenceCleaningBoundaryBuffer = %" ISYM"",
                         &PoissonDivergenceCleaningBoundaryBuffer);
-    ret += sscanf(line, "PoissonDivergenceCleaningThreshold = %"FSYM, &PoissonDivergenceCleaningThreshold);
-    ret += sscanf(line, "PoissonApproximationThreshold = %"FSYM, &PoissonApproximationThreshold);
-    ret += sscanf(line, "PoissonBoundaryType = %"ISYM"", &PoissonBoundaryType);
+    ret += sscanf(line, "PoissonDivergenceCleaningThreshold = %" FSYM, &PoissonDivergenceCleaningThreshold);
+    ret += sscanf(line, "PoissonApproximationThreshold = %" FSYM, &PoissonApproximationThreshold);
+    ret += sscanf(line, "PoissonBoundaryType = %" ISYM"", &PoissonBoundaryType);
     //Read old parameter names for kindness.
-    ret += sscanf(line, "UseDivergenceCleaning = %"ISYM"", &UsePoissonDivergenceCleaning);
-    ret += sscanf(line, "DivergenceCleaningBoundaryBuffer = %"ISYM"", &PoissonDivergenceCleaningBoundaryBuffer);
-    ret += sscanf(line, "DivergenceCleaningThreshold = %"FSYM, &PoissonDivergenceCleaningThreshold);
+    ret += sscanf(line, "UseDivergenceCleaning = %" ISYM"", &UsePoissonDivergenceCleaning);
+    ret += sscanf(line, "DivergenceCleaningBoundaryBuffer = %" ISYM"", &PoissonDivergenceCleaningBoundaryBuffer);
+    ret += sscanf(line, "DivergenceCleaningThreshold = %" FSYM, &PoissonDivergenceCleaningThreshold);
 
 
-    ret += sscanf(line, "AngularVelocity = %"FSYM, &AngularVelocity);
-    ret += sscanf(line, "VelocityGradient = %"FSYM, &VelocityGradient);
-    ret += sscanf(line, "UseDrivingField = %"ISYM"", &UseDrivingField);
-    ret += sscanf(line, "DrivingEfficiency = %"FSYM, &DrivingEfficiency);
+    ret += sscanf(line, "AngularVelocity = %" FSYM, &AngularVelocity);
+    ret += sscanf(line, "VelocityGradient = %" FSYM, &VelocityGradient);
+    ret += sscanf(line, "UseDrivingField = %" ISYM"", &UseDrivingField);
+    ret += sscanf(line, "DrivingEfficiency = %" FSYM, &DrivingEfficiency);
 
-    ret += sscanf(line, "StringKick = %"FSYM, &StringKick);
-    ret += sscanf(line, "StringKickDimension = %"ISYM, &StringKickDimension);
-    ret += sscanf(line, "UsePhysicalUnit = %"ISYM"", &UsePhysicalUnit);
-    ret += sscanf(line, "Theta_Limiter = %"FSYM, &Theta_Limiter);
-    ret += sscanf(line, "UseFloor = %"ISYM"", &UseFloor);
-    ret += sscanf(line, "UseViscosity = %"ISYM"", &UseViscosity);
-    ret += sscanf(line, "ViscosityCoefficient = %"FSYM, &ViscosityCoefficient);
-    ret += sscanf(line, "UseAmbipolarDiffusion = %"ISYM"", &UseAmbipolarDiffusion);
-    ret += sscanf(line, "UseResistivity = %"ISYM"", &UseResistivity);
-    ret += sscanf(line, "SmallRho = %"FSYM, &SmallRho);
-    ret += sscanf(line, "SmallP = %"FSYM, &SmallP);
-    ret += sscanf(line, "SmallT = %"FSYM, &SmallT);
-    ret += sscanf(line, "MaximumAlvenSpeed = %"FSYM, &MaximumAlvenSpeed);
-    ret += sscanf(line, "Coordinate = %"ISYM, &Coordinate);
-    ret += sscanf(line, "RiemannSolver = %"ISYM, &RiemannSolver);
-    ret += sscanf(line, "RiemannSolverFallback = %"ISYM, &RiemannSolverFallback);
-    ret += sscanf(line, "ConservativeReconstruction = %"ISYM, &ConservativeReconstruction);
-    ret += sscanf(line, "PositiveReconstruction = %"ISYM, &PositiveReconstruction);
-    ret += sscanf(line, "ReconstructionMethod = %"ISYM, &ReconstructionMethod);
-    ret += sscanf(line, "MixSpeciesAndColors = %"ISYM"", &MixSpeciesAndColors);
+    ret += sscanf(line, "StringKick = %" FSYM, &StringKick);
+    ret += sscanf(line, "StringKickDimension = %" ISYM, &StringKickDimension);
+    ret += sscanf(line, "UsePhysicalUnit = %" ISYM"", &UsePhysicalUnit);
+    ret += sscanf(line, "Theta_Limiter = %" FSYM, &Theta_Limiter);
+    ret += sscanf(line, "UseFloor = %" ISYM"", &UseFloor);
+    ret += sscanf(line, "UseViscosity = %" ISYM"", &UseViscosity);
+    ret += sscanf(line, "ViscosityCoefficient = %" FSYM, &ViscosityCoefficient);
+    ret += sscanf(line, "UseAmbipolarDiffusion = %" ISYM"", &UseAmbipolarDiffusion);
+    ret += sscanf(line, "UseResistivity = %" ISYM"", &UseResistivity);
+    ret += sscanf(line, "SmallRho = %" FSYM, &SmallRho);
+    ret += sscanf(line, "SmallP = %" FSYM, &SmallP);
+    ret += sscanf(line, "SmallT = %" FSYM, &SmallT);
+    ret += sscanf(line, "MaximumAlvenSpeed = %" FSYM, &MaximumAlvenSpeed);
+    ret += sscanf(line, "Coordinate = %" ISYM, &Coordinate);
+    ret += sscanf(line, "RiemannSolver = %" ISYM, &RiemannSolver);
+    ret += sscanf(line, "RiemannSolverFallback = %" ISYM, &RiemannSolverFallback);
+    ret += sscanf(line, "ConservativeReconstruction = %" ISYM, &ConservativeReconstruction);
+    ret += sscanf(line, "PositiveReconstruction = %" ISYM, &PositiveReconstruction);
+    ret += sscanf(line, "ReconstructionMethod = %" ISYM, &ReconstructionMethod);
+    ret += sscanf(line, "MixSpeciesAndColors = %" ISYM"", &MixSpeciesAndColors);
 
-    ret += sscanf(line, "EOSType = %"ISYM, &EOSType);
-    ret += sscanf(line, "EOSSoundSpeed = %"FSYM, &EOSSoundSpeed);
-    ret += sscanf(line, "EOSCriticalDensity = %"FSYM, &EOSCriticalDensity);
-    ret += sscanf(line, "EOSGamma = %"FSYM, &EOSGamma);
-    ret += sscanf(line, "UseConstantAcceleration = %"ISYM, &UseConstantAcceleration);
-    ret += sscanf(line, "ConstantAcceleration = %"GSYM" %"GSYM" %"GSYM, &ConstantAcceleration[0],
+    ret += sscanf(line, "EOSType = %" ISYM, &EOSType);
+    ret += sscanf(line, "EOSSoundSpeed = %" FSYM, &EOSSoundSpeed);
+    ret += sscanf(line, "EOSCriticalDensity = %" FSYM, &EOSCriticalDensity);
+    ret += sscanf(line, "EOSGamma = %" FSYM, &EOSGamma);
+    ret += sscanf(line, "UseConstantAcceleration = %" ISYM, &UseConstantAcceleration);
+    ret += sscanf(line, "ConstantAcceleration = %" FSYM " %" FSYM " %" FSYM, &ConstantAcceleration[0],
 		  &ConstantAcceleration[1], &ConstantAcceleration[2]);
-    ret += sscanf(line, "Mu = %"FSYM, &Mu);
-    ret += sscanf(line, "DivBDampingLength = %"FSYM, &DivBDampingLength);
-    ret += sscanf(line, "UseCUDA = %"ISYM,&UseCUDA);
-    ret += sscanf(line, "ClusterSMBHFeedback = %"ISYM, &ClusterSMBHFeedback);
-    ret += sscanf(line, "ClusterSMBHJetMdot = %"FSYM, &ClusterSMBHJetMdot);
-    ret += sscanf(line, "ClusterSMBHJetVelocity = %"FSYM, &ClusterSMBHJetVelocity);
-    ret += sscanf(line, "ClusterSMBHJetRadius = %"FSYM, &ClusterSMBHJetRadius);
-    ret += sscanf(line, "ClusterSMBHJetLaunchOffset = %"FSYM, &ClusterSMBHJetLaunchOffset);
-    ret += sscanf(line, "ClusterSMBHStartTime = %"FSYM, &ClusterSMBHStartTime);
-    ret += sscanf(line, "ClusterSMBHTramp = %"FSYM, &ClusterSMBHTramp);
-    ret += sscanf(line, "ClusterSMBHJetOpenAngleRadius = %"FSYM, &ClusterSMBHJetOpenAngleRadius);
-    ret += sscanf(line, "ClusterSMBHFastJetRadius = %"FSYM, &ClusterSMBHFastJetRadius);
-    ret += sscanf(line, "ClusterSMBHFastJetVelocity = %"FSYM, &ClusterSMBHFastJetVelocity);
-    ret += sscanf(line, "ClusterSMBHJetEdot = %"FSYM, &ClusterSMBHJetEdot);
-    ret += sscanf(line, "ClusterSMBHKineticFraction = %"FSYM, &ClusterSMBHKineticFraction);
-    ret += sscanf(line, "ClusterSMBHJetAngleTheta = %"FSYM, &ClusterSMBHJetAngleTheta);
-    ret += sscanf(line, "ClusterSMBHJetAnglePhi = %"FSYM, &ClusterSMBHJetAnglePhi);
-    ret += sscanf(line, "ClusterSMBHJetPrecessionPeriod = %"FSYM, &ClusterSMBHJetPrecessionPeriod);
-    ret += sscanf(line, "ClusterSMBHCalculateGasMass = %"ISYM, &ClusterSMBHCalculateGasMass);
-    ret += sscanf(line, "ClusterSMBHFeedbackSwitch = %"ISYM, &ClusterSMBHFeedbackSwitch);
-    ret += sscanf(line, "ClusterSMBHEnoughColdGas = %"FSYM, &ClusterSMBHEnoughColdGas);
-    ret += sscanf(line, "ClusterSMBHAccretionTime = %"FSYM, &ClusterSMBHAccretionTime);
-    ret += sscanf(line, "ClusterSMBHJetDim = %"ISYM, &ClusterSMBHJetDim);
-    ret += sscanf(line, "ClusterSMBHAccretionEpsilon = %"FSYM, &ClusterSMBHAccretionEpsilon);
-    ret += sscanf(line, "ClusterSMBHDiskRadius = %"FSYM, &ClusterSMBHDiskRadius);
-    ret += sscanf(line, "ClusterSMBHBCG = %"FSYM, &ClusterSMBHBCG);
-    ret += sscanf(line, "ClusterSMBHMass = %"FSYM, &ClusterSMBHMass);
-    ret += sscanf(line, "EllipticalGalaxyRe = %"FSYM, &EllipticalGalaxyRe);
-    ret += sscanf(line, "OldStarFeedbackAlpha = %"FSYM, &OldStarFeedbackAlpha);
-    ret += sscanf(line, "SNIaFeedbackEnergy = %"FSYM, &SNIaFeedbackEnergy);
-    ret += sscanf(line, "StellarWindSpeed = %"FSYM, &StellarWindSpeed);
-    ret += sscanf(line, "StellarWindDensity = %"FSYM, &StellarWindDensity);
-    ret += sscanf(line, "StellarWindRadius = %"FSYM, &StellarWindRadius);
-    ret += sscanf(line, "StellarWindTemperature = %"FSYM, &StellarWindTemperature);
-    ret += sscanf(line, "StellarWindCenterPosition = %"PSYM" %"PSYM" %"PSYM,
+    ret += sscanf(line, "Mu = %" FSYM, &Mu);
+    ret += sscanf(line, "DivBDampingLength = %" FSYM, &DivBDampingLength);
+    ret += sscanf(line, "UseCUDA = %" ISYM,&UseCUDA);
+    ret += sscanf(line, "ClusterSMBHFeedback = %" ISYM, &ClusterSMBHFeedback);
+    ret += sscanf(line, "ClusterSMBHJetMdot = %" FSYM, &ClusterSMBHJetMdot);
+    ret += sscanf(line, "ClusterSMBHJetVelocity = %" FSYM, &ClusterSMBHJetVelocity);
+    ret += sscanf(line, "ClusterSMBHJetRadius = %" FSYM, &ClusterSMBHJetRadius);
+    ret += sscanf(line, "ClusterSMBHJetLaunchOffset = %" FSYM, &ClusterSMBHJetLaunchOffset);
+    ret += sscanf(line, "ClusterSMBHStartTime = %" FSYM, &ClusterSMBHStartTime);
+    ret += sscanf(line, "ClusterSMBHTramp = %" FSYM, &ClusterSMBHTramp);
+    ret += sscanf(line, "ClusterSMBHJetOpenAngleRadius = %" FSYM, &ClusterSMBHJetOpenAngleRadius);
+    ret += sscanf(line, "ClusterSMBHFastJetRadius = %" FSYM, &ClusterSMBHFastJetRadius);
+    ret += sscanf(line, "ClusterSMBHFastJetVelocity = %" FSYM, &ClusterSMBHFastJetVelocity);
+    ret += sscanf(line, "ClusterSMBHJetEdot = %" FSYM, &ClusterSMBHJetEdot);
+    ret += sscanf(line, "ClusterSMBHKineticFraction = %" FSYM, &ClusterSMBHKineticFraction);
+    ret += sscanf(line, "ClusterSMBHJetAngleTheta = %" FSYM, &ClusterSMBHJetAngleTheta);
+    ret += sscanf(line, "ClusterSMBHJetAnglePhi = %" FSYM, &ClusterSMBHJetAnglePhi);
+    ret += sscanf(line, "ClusterSMBHJetPrecessionPeriod = %" FSYM, &ClusterSMBHJetPrecessionPeriod);
+    ret += sscanf(line, "ClusterSMBHCalculateGasMass = %" ISYM, &ClusterSMBHCalculateGasMass);
+    ret += sscanf(line, "ClusterSMBHFeedbackSwitch = %" ISYM, &ClusterSMBHFeedbackSwitch);
+    ret += sscanf(line, "ClusterSMBHEnoughColdGas = %" FSYM, &ClusterSMBHEnoughColdGas);
+    ret += sscanf(line, "ClusterSMBHAccretionTime = %" FSYM, &ClusterSMBHAccretionTime);
+    ret += sscanf(line, "ClusterSMBHJetDim = %" ISYM, &ClusterSMBHJetDim);
+    ret += sscanf(line, "ClusterSMBHAccretionEpsilon = %" FSYM, &ClusterSMBHAccretionEpsilon);
+    ret += sscanf(line, "ClusterSMBHDiskRadius = %" FSYM, &ClusterSMBHDiskRadius);
+    ret += sscanf(line, "ClusterSMBHBCG = %" FSYM, &ClusterSMBHBCG);
+    ret += sscanf(line, "ClusterSMBHMass = %" FSYM, &ClusterSMBHMass);
+    ret += sscanf(line, "EllipticalGalaxyRe = %" FSYM, &EllipticalGalaxyRe);
+    ret += sscanf(line, "OldStarFeedbackAlpha = %" FSYM, &OldStarFeedbackAlpha);
+    ret += sscanf(line, "SNIaFeedbackEnergy = %" FSYM, &SNIaFeedbackEnergy);
+    ret += sscanf(line, "StellarWindSpeed = %" FSYM, &StellarWindSpeed);
+    ret += sscanf(line, "StellarWindDensity = %" FSYM, &StellarWindDensity);
+    ret += sscanf(line, "StellarWindRadius = %" FSYM, &StellarWindRadius);
+    ret += sscanf(line, "StellarWindTemperature = %" FSYM, &StellarWindTemperature);
+    ret += sscanf(line, "StellarWindCenterPosition = %" PSYM" %" PSYM" %" PSYM,
       StellarWindCenterPosition, StellarWindCenterPosition+1, StellarWindCenterPosition+2);
 
-    ret += sscanf(line, "ExtraOutputs = %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM"", ExtraOutputs,
+    ret += sscanf(line, "ExtraOutputs = %" ISYM" %" ISYM" %" ISYM" %" ISYM" %" ISYM" %" ISYM" %" ISYM" %" ISYM" %" ISYM" %" ISYM"", ExtraOutputs,
 		  ExtraOutputs +1,ExtraOutputs +2,ExtraOutputs +3,
 		  ExtraOutputs +4,ExtraOutputs +5,ExtraOutputs +6,
 		  ExtraOutputs +7,ExtraOutputs +8,ExtraOutputs +9);
 
     //MHDCT variables
-    ret += sscanf(line, "MHDCTPowellSource             = %"ISYM, &MHDCTPowellSource);
-    ret += sscanf(line, "MHDCTDualEnergyMethod             = %"ISYM, &MHDCTDualEnergyMethod);
-    ret += sscanf(line, "MHDCTSlopeLimiter             = %"ISYM, &MHDCTSlopeLimiter);
-    ret += sscanf(line, "WriteBoundary          = %"ISYM, &WriteBoundary);
-    ret += sscanf(line,"TracerParticlesAddToRestart = %"ISYM,&TracerParticlesAddToRestart);
-    ret += sscanf(line, "IsothermalSoundSpeed = %"GSYM, &IsothermalSoundSpeed);
+    ret += sscanf(line, "MHDCTPowellSource             = %" ISYM, &MHDCTPowellSource);
+    ret += sscanf(line, "MHDCTDualEnergyMethod             = %" ISYM, &MHDCTDualEnergyMethod);
+    ret += sscanf(line, "MHDCTSlopeLimiter             = %" ISYM, &MHDCTSlopeLimiter);
+    ret += sscanf(line, "WriteBoundary          = %" ISYM, &WriteBoundary);
+    ret += sscanf(line,"TracerParticlesAddToRestart = %" ISYM,&TracerParticlesAddToRestart);
+    ret += sscanf(line, "IsothermalSoundSpeed = %" FSYM, &IsothermalSoundSpeed);
 
-    ret += sscanf(line,"CT_AthenaDissipation = %"FSYM,&CT_AthenaDissipation);
-    ret += sscanf(line,"MHD_WriteElectric = %"ISYM,&MHD_WriteElectric);
+    ret += sscanf(line,"CT_AthenaDissipation = %" FSYM,&CT_AthenaDissipation);
+    ret += sscanf(line,"MHD_WriteElectric = %" ISYM,&MHD_WriteElectric);
 
-    ret += sscanf(line,"tiny_pressure = %"FSYM,&tiny_pressure);
-    ret += sscanf(line,"MHD_CT_Method = %"ISYM,&MHD_CT_Method);
+    ret += sscanf(line,"tiny_pressure = %" FSYM,&tiny_pressure);
+    ret += sscanf(line,"MHD_CT_Method = %" ISYM,&MHD_CT_Method);
 
-    ret += sscanf(line,"NumberOfGhostZones = %"ISYM,&NumberOfGhostZones);
-    ret += sscanf(line,"MHD_ProjectB = %"ISYM,&MHD_ProjectB);
-    ret += sscanf(line,"MHD_ProjectE = %"ISYM,&MHD_ProjectE);
-    ret += sscanf(line,"EquationOfState = %"ISYM,&EquationOfState);
-    if(sscanf(line, "MHDLabel[%"ISYM"] = %s\n", &dim, dummy) == 2)
+    ret += sscanf(line,"NumberOfGhostZones = %" ISYM,&NumberOfGhostZones);
+    ret += sscanf(line,"MHD_ProjectB = %" ISYM,&MHD_ProjectB);
+    ret += sscanf(line,"MHD_ProjectE = %" ISYM,&MHD_ProjectE);
+    ret += sscanf(line,"EquationOfState = %" ISYM,&EquationOfState);
+    if(sscanf(line, "MHDLabel[%" ISYM"] = %s\n", &dim, dummy) == 2)
       MHDLabel[dim] = dummy;
-    if(sscanf(line, "MHDUnits[%"ISYM"] = %s\n", &dim, dummy) == 2)
+    if(sscanf(line, "MHDUnits[%" ISYM"] = %s\n", &dim, dummy) == 2)
       MHDUnits[dim] = dummy;
-    if(sscanf(line, "MHDcLabel[%"ISYM"] = %s\n", &dim, dummy) == 2){
+    if(sscanf(line, "MHDcLabel[%" ISYM"] = %s\n", &dim, dummy) == 2){
         ENZO_FAIL("Looks like you're restarting an OLD MHDCT run. \n Run src/CenteredBremover.py on your dataset.\n");
     }
-    if(sscanf(line, "MHDeLabel[%"ISYM"] = %s\n", &dim, dummy) ==2)
+    if(sscanf(line, "MHDeLabel[%" ISYM"] = %s\n", &dim, dummy) ==2)
       MHDeLabel[dim] = dummy;
-    if(sscanf(line, "MHDeUnits[%"ISYM"] = %s\n", &dim, dummy) == 2)
+    if(sscanf(line, "MHDeUnits[%" ISYM"] = %s\n", &dim, dummy) == 2)
       MHDeUnits[dim] = dummy;
 
-    ret += sscanf(line, "CorrectParentBoundaryFlux             = %"ISYM, &CorrectParentBoundaryFlux);
-    ret += sscanf(line, "MoveParticlesBetweenSiblings = %"ISYM,
+    ret += sscanf(line, "CorrectParentBoundaryFlux             = %" ISYM, &CorrectParentBoundaryFlux);
+    ret += sscanf(line, "MoveParticlesBetweenSiblings = %" ISYM,
 		  &MoveParticlesBetweenSiblings);
-    ret += sscanf(line, "ParticleSplitterIterations = %"ISYM,
+    ret += sscanf(line, "ParticleSplitterIterations = %" ISYM,
 		  &ParticleSplitterIterations);
-    ret += sscanf(line, "ParticleSplitterRandomSeed = %"ISYM,
+    ret += sscanf(line, "ParticleSplitterRandomSeed = %" ISYM,
 		  &ParticleSplitterRandomSeed);
-    ret += sscanf(line, "ParticleSplitterChildrenParticleSeparation = %"FSYM,
+    ret += sscanf(line, "ParticleSplitterChildrenParticleSeparation = %" FSYM,
 		  &ParticleSplitterChildrenParticleSeparation);
-    ret += sscanf(line, "ParticleSplitterMustRefine = %"ISYM,
+    ret += sscanf(line, "ParticleSplitterMustRefine = %" ISYM,
 		  &ParticleSplitterMustRefine);
     if (sscanf(line, "ParticleSplitterMustRefineIDFile = %s", dummy) == 1)
       ParticleSplitterMustRefineIDFile = dummy;
-    ret += sscanf(line, "ParticleSplitterFraction    = %"FSYM" %"FSYM" %"FSYM" %"FSYM"",
+    ret += sscanf(line, "ParticleSplitterFraction    = %" FSYM" %" FSYM" %" FSYM" %" FSYM"",
                   ParticleSplitterFraction+0, ParticleSplitterFraction+1, ParticleSplitterFraction+2,
                   ParticleSplitterFraction+3);
-    ret += sscanf(line, "ParticleSplitterCenter    = %"PSYM" %"PSYM" %"PSYM"",
+    ret += sscanf(line, "ParticleSplitterCenter    = %" PSYM" %" PSYM" %" PSYM"",
                   ParticleSplitterCenter+0, ParticleSplitterCenter+1, ParticleSplitterCenter+2);
-    ret += sscanf(line, "ParticleSplitterCenterRegion  = %"FSYM" %"FSYM" %"FSYM" %"FSYM"",
+    ret += sscanf(line, "ParticleSplitterCenterRegion  = %" FSYM" %" FSYM" %" FSYM" %" FSYM"",
                   ParticleSplitterCenterRegion+0, ParticleSplitterCenterRegion+1,
 		  ParticleSplitterCenterRegion+2, ParticleSplitterCenterRegion+3);
-    ret += sscanf(line, "ResetMagneticField = %"ISYM,
+    ret += sscanf(line, "ResetMagneticField = %" ISYM,
 		  &ResetMagneticField);
-    ret += sscanf(line, "ResetMagneticFieldAmplitude  =  %"GSYM" %"GSYM" %"GSYM,
+    ret += sscanf(line, "ResetMagneticFieldAmplitude  =  %" FSYM " %" FSYM " %" FSYM,
 		  ResetMagneticFieldAmplitude,
 		  ResetMagneticFieldAmplitude+1,
 		  ResetMagneticFieldAmplitude+2);
@@ -1385,33 +1385,33 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
       active_particle_types[active_particles] = dummy;
       active_particles++;
     }
-    ret += sscanf(line, "ActiveParticleDensityThreshold = %"FSYM,
+    ret += sscanf(line, "ActiveParticleDensityThreshold = %" FSYM,
 		  &ActiveParticleDensityThreshold);
-    ret += sscanf(line, "SmartStarAccretion    = %"ISYM, &SmartStarAccretion);
-    ret += sscanf(line, "SmartStarFeedback     = %"ISYM, &SmartStarFeedback);
-    ret += sscanf(line, "SmartStarEddingtonCap = %"ISYM, &SmartStarEddingtonCap);
-    ret += sscanf(line, "SmartStarBHFeedback = %"ISYM, &SmartStarBHFeedback);
-    ret += sscanf(line, "SmartStarBHJetFeedback  = %"ISYM, &SmartStarBHJetFeedback);
-    ret += sscanf(line, "SmartStarBHThermalFeedback  = %"ISYM, &SmartStarBHThermalFeedback);
-    ret += sscanf(line, "SmartStarBHRadiativeFeedback = %"ISYM, &SmartStarBHRadiativeFeedback);
-    ret += sscanf(line, "SmartStarStellarRadiativeFeedback = %"ISYM, &SmartStarStellarRadiativeFeedback);
+    ret += sscanf(line, "SmartStarAccretion    = %" ISYM, &SmartStarAccretion);
+    ret += sscanf(line, "SmartStarFeedback     = %" ISYM, &SmartStarFeedback);
+    ret += sscanf(line, "SmartStarEddingtonCap = %" ISYM, &SmartStarEddingtonCap);
+    ret += sscanf(line, "SmartStarBHFeedback = %" ISYM, &SmartStarBHFeedback);
+    ret += sscanf(line, "SmartStarBHJetFeedback  = %" ISYM, &SmartStarBHJetFeedback);
+    ret += sscanf(line, "SmartStarBHThermalFeedback  = %" ISYM, &SmartStarBHThermalFeedback);
+    ret += sscanf(line, "SmartStarBHRadiativeFeedback = %" ISYM, &SmartStarBHRadiativeFeedback);
+    ret += sscanf(line, "SmartStarStellarRadiativeFeedback = %" ISYM, &SmartStarStellarRadiativeFeedback);
 
-    ret += sscanf(line, "SmartStarFeedbackEnergyCoupling       = %"FSYM, &SmartStarFeedbackEnergyCoupling);
-    ret += sscanf(line, "SmartStarFeedbackJetsThresholdMass    = %"FSYM, &SmartStarFeedbackJetsThresholdMass);
-    ret += sscanf(line, "SmartStarSMSLifetime                  = %"FSYM, &SmartStarSMSLifetime);
-    ret += sscanf(line, "SmartStarSuperEddingtonAdjustment  = %"ISYM, &SmartStarSuperEddingtonAdjustment);
-    ret += sscanf(line, "SmartStarJetVelocity                  = %"FSYM, &SmartStarJetVelocity);
-    ret += sscanf(line, "UseGasDrag = %"ISYM, &UseGasDrag);
-    ret += sscanf(line, "GasDragCoefficient = %"GSYM, &GasDragCoefficient);
+    ret += sscanf(line, "SmartStarFeedbackEnergyCoupling       = %" FSYM, &SmartStarFeedbackEnergyCoupling);
+    ret += sscanf(line, "SmartStarFeedbackJetsThresholdMass    = %" FSYM, &SmartStarFeedbackJetsThresholdMass);
+    ret += sscanf(line, "SmartStarSMSLifetime                  = %" FSYM, &SmartStarSMSLifetime);
+    ret += sscanf(line, "SmartStarSuperEddingtonAdjustment  = %" ISYM, &SmartStarSuperEddingtonAdjustment);
+    ret += sscanf(line, "SmartStarJetVelocity                  = %" FSYM, &SmartStarJetVelocity);
+    ret += sscanf(line, "UseGasDrag = %" ISYM, &UseGasDrag);
+    ret += sscanf(line, "GasDragCoefficient = %" FSYM, &GasDragCoefficient);
 
     // Parameters for magnetic feedback from supernovae
-    ret += sscanf(line, "UseMagneticSupernovaFeedback = %"ISYM, &UseMagneticSupernovaFeedback);
-    ret += sscanf(line,"MagneticSupernovaRadius = %"FSYM, &MagneticSupernovaRadius);
-    ret += sscanf(line,"MagneticSupernovaEnergy = %"FSYM, &MagneticSupernovaEnergy);
-    ret += sscanf(line,"MagneticSupernovaDuration = %"FSYM, &MagneticSupernovaDuration);
+    ret += sscanf(line, "UseMagneticSupernovaFeedback = %" ISYM, &UseMagneticSupernovaFeedback);
+    ret += sscanf(line,"MagneticSupernovaRadius = %" FSYM, &MagneticSupernovaRadius);
+    ret += sscanf(line,"MagneticSupernovaEnergy = %" FSYM, &MagneticSupernovaEnergy);
+    ret += sscanf(line,"MagneticSupernovaDuration = %" FSYM, &MagneticSupernovaDuration);
 
     // Rotating Pop III Models
-    ret += sscanf(line, "PopIIIRotating  = %"ISYM, &PopIIIRotating);
+    ret += sscanf(line, "PopIIIRotating  = %" ISYM, &PopIIIRotating);
 
     /* If the dummy char space was used, then make another. */
 
@@ -1519,7 +1519,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
   for (int ireg = 0; ireg < MAX_STATIC_REGIONS; ireg++)
     if (MultiRefineRegionGeometry[ireg] >= 0)
       if (MultiRefineRegionMaximumLevel[ireg] > MaximumRefinementLevel)
-	ENZO_VFAIL("MultiRefineRegionMaximumLevel[%"ISYM"] = %"ISYM"  > MaximumRefinementLevel\n", ireg, MultiRefineRegionMaximumLevel[ireg]);
+	ENZO_VFAIL("MultiRefineRegionMaximumLevel[%" ISYM"] = %" ISYM"  > MaximumRefinementLevel\n", ireg, MultiRefineRegionMaximumLevel[ireg]);
 
 
 
@@ -1606,11 +1606,12 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
       ReconstructionMethod = PLM;
   }
 
-  else if (HydroMethod == MHD_Li )
+  else if (HydroMethod == MHD_Li ) {
     if (RiemannSolver == INT_UNDEFINED)
         RiemannSolver = HLLD;
     if (ReconstructionMethod == INT_UNDEFINED)
         ReconstructionMethod = PLM;
+  }
 
   if (HydroMethod==MHD_RK) UseMHD = 1;
   if (HydroMethod==MHD_Li) {UseMHDCT = 1; UseMHD = 1;}
@@ -1716,7 +1717,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
     if (SinkMergeDistance > 1.0)
       SinkMergeDistance /= LengthUnits;
-    //printf(" \n SinkMergeDistance = %"FSYM"\n \n", SinkMergeDistance);
+    //printf(" \n SinkMergeDistance = %" FSYM"\n \n", SinkMergeDistance);
     SmallRho /= DensityUnits;
     SmallP /= PressureUnits;
     SmallT /= TemperatureUnits;
@@ -1851,8 +1852,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
   /* Set some star feedback parameters. */
 
-  if ((STARFEED_METHOD(NORMAL_STAR) || STARFEED_METHOD(UNIGRID_STAR)) || 
-      (STARFEED_METHOD(SINGLE_SUPERNOVA) ) &&
+  if (((STARFEED_METHOD(NORMAL_STAR) || STARFEED_METHOD(UNIGRID_STAR)) || 
+       STARFEED_METHOD(SINGLE_SUPERNOVA)) &&
       (StarFeedbackDistRadius > 0)) {
 
     // Calculate number of cells in the shape over which to distribute feedback.
@@ -1872,7 +1873,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
       }
     }
     if (MyProcessorNumber == ROOT_PROCESSOR) {
-      fprintf(stderr,"Total cells for star feedback smoothing: %"ISYM".\n",
+      fprintf(stderr,"Total cells for star feedback smoothing: %" ISYM".\n",
 	      StarFeedbackDistTotalCells);
     }
   }
@@ -2091,7 +2092,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
   }
 
   char *cwd_buffer = new char[MAX_LINE_LENGTH];
-  size_t cwd_buffer_len = MAX_LINE_LENGTH;
 
   if ( (MetaData.GlobalDir == NULL) && (MetaData.LocalDir == NULL) ) {
     /*if(getcwd(cwd_buffer, cwd_buffer_len) == NULL) {
@@ -2120,7 +2120,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     TopGridDx[i]=(DomainRightEdge[i]-DomainLeftEdge[i])/MetaData.TopGridDims[i];
 
  //  for (int i=0; i<MetaData.TopGridRank; i++)
-//      fprintf (stderr, "read  %"ISYM"  %"ISYM" \n",
+//      fprintf (stderr, "read  %" ISYM"  %" ISYM" \n",
 // 	      MetaData.LeftFaceBoundaryCondition[i],
 // 	      MetaData.RightFaceBoundaryCondition[i]);
 

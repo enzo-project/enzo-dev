@@ -60,7 +60,7 @@ int ActiveParticleType_SpringelHernquist::EvaluateFormation
     static_cast<SpringelHernquistGrid *>(thisgrid_orig);
 
   float bmass, tstar;
-  int i, j, k, index, offset_y, offset_z;
+  int i, j, k, index;
   int NumberOfNewParticles = 0;
   float r_float, y, x, pstar, starfraction, usn;
   float msolar=SolarMass, mproton=mh, beta=0.1,
@@ -74,9 +74,6 @@ int ActiveParticleType_SpringelHernquist::EvaluateFormation
   /* Make it pretty */
 
   float *density = tg->BaryonField[supp_data.DensNum];
-  float *velx = tg->BaryonField[supp_data.Vel1Num];
-  float *vely = tg->BaryonField[supp_data.Vel2Num];
-  float *velz = tg->BaryonField[supp_data.Vel3Num];
 
   bool HasMetalField = (supp_data.MetalNum != -1 ||
 			supp_data.ColourNum != -1);
@@ -87,8 +84,6 @@ int ActiveParticleType_SpringelHernquist::EvaluateFormation
 
   // Pre-calculate serialized offsets for the 3D data field.  Used for
   // the divergence.
-  offset_y = tg->GridDimension[0];
-  offset_z = tg->GridDimension[0] * tg->GridDimension[1];
 
   for (k = tg->GridStartIndex[2]; k <= tg->GridEndIndex[2]; k++) {
     for (j = tg->GridStartIndex[1]; j <= tg->GridEndIndex[1]; j++) {

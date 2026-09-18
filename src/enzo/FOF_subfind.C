@@ -27,10 +27,9 @@ void subfind(FOFData &D, int CycleNumber, FLOAT EnzoTime)
   hid_t  file_id, dset_id, dspace_id, group_id;
   hsize_t hdims[2];
 
-  int    i, k, Index, dim, gr, task, head, len, nsubs, offset;
+  int i, k, Index, dim, gr, task, head, len, nsubs;
   int    start=0;
-  int    parent, ntot;
-  char   ctype;
+  int parent;
   float  cm[3], cmv[3], AM[3], mtot, mstars, redshift, spin, vrms;
   float  mvir, rvir;
   float  corner[3];
@@ -38,7 +37,7 @@ void subfind(FOFData &D, int CycleNumber, FLOAT EnzoTime)
   int    *sublen, *suboffset, *bufsublen, *bufsuboffset;
   int    *fsuboffset, *fbufsuboffset;
 
-  char   *FOF_dirname = "FOF";
+  const char *FOF_dirname = "FOF";
   char   catalogue_fname[200];
   char   particle_fname[200];
   char   halo_name[200];
@@ -51,8 +50,8 @@ void subfind(FOFData &D, int CycleNumber, FLOAT EnzoTime)
   MPI_Status status;
 #endif
 
-  sprintf(catalogue_fname, "%s/subgroups_%5.5d.dat", FOF_dirname, CycleNumber);
-  sprintf(particle_fname, "%s/subparticles_%5.5d.h5", FOF_dirname, CycleNumber);
+  sprintf(catalogue_fname, "%s/subgroups_%5.5" ISYM ".dat", FOF_dirname, CycleNumber);
+  sprintf(particle_fname, "%s/subparticles_%5.5" ISYM ".h5", FOF_dirname, CycleNumber);
 
   if (MyProcessorNumber == ROOT_PROCESSOR) {
 
@@ -65,9 +64,9 @@ void subfind(FOFData &D, int CycleNumber, FLOAT EnzoTime)
     // Write header
 
     redshift = 1.0 / D.Time - 1.0;
-    fprintf(fd, "# Time     = %"PSYM"\n", EnzoTime);
-    fprintf(fd, "# Redshift = %"PSYM"\n", redshift);
-    //fprintf(fd, "# Number of subhalos = %"ISYM"\n", AllVars.NgroupsAll);
+    fprintf(fd, "# Time     = %" PSYM"\n", EnzoTime);
+    fprintf(fd, "# Redshift = %" PSYM"\n", redshift);
+    //fprintf(fd, "# Number of subhalos = %" ISYM"\n", AllVars.NgroupsAll);
     fprintf(fd, "#\n");
     fprintf(fd, "# Column 1.  Center of mass (x)\n");
     fprintf(fd, "# Column 2.  Center of mass (y)\n");
@@ -178,7 +177,7 @@ void subfind(FOFData &D, int CycleNumber, FLOAT EnzoTime)
 			   &mvir, &rvir, AM, &vrms, &spin);
 	    msub[i] = mtot;
 
-	    fprintf(fd, "%12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"ISYM" %12"ISYM" %12"ISYM" %12"ISYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM"\n",
+	    fprintf(fd, "%12" GOUTSYM" %12" GOUTSYM" %12" GOUTSYM" %12" ISYM" %12" ISYM" %12" ISYM" %12" ISYM" %12" GOUTSYM" %12" GOUTSYM" %12" GOUTSYM" %12" GOUTSYM" %12" GOUTSYM" %12" GOUTSYM" %12" GOUTSYM" %12" GOUTSYM" %12" GOUTSYM" %12" GOUTSYM"\n",
 		    cm[0], cm[1], cm[2], i, parent, suboffset[i], sublen[i], 
 		    mtot, mstars, cmv[0], cmv[1], cmv[2], vrms, AM[0], 
 		    AM[1], AM[2], spin);
@@ -207,7 +206,7 @@ void subfind(FOFData &D, int CycleNumber, FLOAT EnzoTime)
 	    get_properties(D, Pbuf, len, true, cm, cmv, &mtot, &mstars, &mvir, &rvir, AM,
 			   &vrms, &spin);
 	    
-	    sprintf(halo_name, "Halo%8.8d", parent);
+	    sprintf(halo_name, "Halo%8.8" ISYM, parent);
 	    group_id = H5Gcreate(file_id, halo_name, 0);
 	    writeScalarAttribute(group_id, HDF5_INT, "NumberOfSubhalos", &nsubs);
 	    writeScalarAttribute(group_id, HDF5_REAL, "Total Mass", &mtot);
@@ -314,7 +313,7 @@ void subfind(FOFData &D, int CycleNumber, FLOAT EnzoTime)
 			   cmv, &mtot, &mstars, &mvir, &rvir, AM, &vrms, &spin);
 	    bufmsub[i] = mtot;
 
-	    fprintf(fd, "%12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"ISYM" %12"ISYM" %12"ISYM" %12"ISYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM"\n",
+	    fprintf(fd, "%12" GOUTSYM" %12" GOUTSYM" %12" GOUTSYM" %12" ISYM" %12" ISYM" %12" ISYM" %12" ISYM" %12" GOUTSYM" %12" GOUTSYM" %12" GOUTSYM" %12" GOUTSYM" %12" GOUTSYM" %12" GOUTSYM" %12" GOUTSYM" %12" GOUTSYM" %12" GOUTSYM" %12" GOUTSYM"\n",
 		    cm[0], cm[1], cm[2], i, parent, suboffset[i], sublen[i], 
 		    mtot, mstars, cmv[0], cmv[1], cmv[2], vrms, AM[0], 
 		    AM[1], AM[2], spin);
@@ -334,7 +333,7 @@ void subfind(FOFData &D, int CycleNumber, FLOAT EnzoTime)
 	    get_properties(D, partbuf, len, true, cm, cmv, &mtot, &mstars, &mvir, &rvir, AM,
 			   &vrms, &spin);
 	    
-	    sprintf(halo_name, "Halo%8.8d", parent);
+	    sprintf(halo_name, "Halo%8.8" ISYM, parent);
 	    group_id = H5Gcreate(file_id, halo_name, 0);
 	    writeScalarAttribute(group_id, HDF5_INT, "NumberOfSubhalos", &nsubs);
 	    writeScalarAttribute(group_id, HDF5_REAL, "Total Mass", &mtot);
@@ -464,7 +463,7 @@ void subfind(FOFData &D, int CycleNumber, FLOAT EnzoTime)
   } // ENDIF ROOT_PROCESSOR
 
   if (debug)
-    fprintf(stdout, "FOF: Found %"ISYM" subgroups.\n",
+    fprintf(stdout, "FOF: Found %" ISYM" subgroups.\n",
 	    D.NSubGroupsAll - D.NgroupsAll);
 
 }
@@ -561,7 +560,7 @@ int do_subfind_in_group(FOFData &D, FOF_particle_data *pbuf, int grlen,
   } // ENDFOR
 
 //  if(debug)
-//    printf("---  %"ISYM" subgroups found. ----\n", D.NSubGroups);
+//    printf("---  %" ISYM" subgroups found. ----\n", D.NSubGroups);
   
   if (D.NSubGroups > 0) {
 

@@ -35,20 +35,18 @@
 int TestOrbitInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 			TopGridData &MetaData)
 {
-  char *DensName = "Density";
-  char *TEName   = "TotalEnergy";
-  char *GEName   = "GasEnergy";
-  char *Vel1Name = "x-velocity";
-  char *Vel2Name = "y-velocity";
-  char *Vel3Name = "z-velocity";
-  char *GPotName = "Grav_Potential";
+  const char *DensName = "Density";
+  const char *TEName   = "TotalEnergy";
+  const char *GEName   = "GasEnergy";
+  const char *Vel1Name = "x-velocity";
+  const char *Vel2Name = "y-velocity";
+  const char *Vel3Name = "z-velocity";
+  const char *GPotName = "Grav_Potential";
 
   /* declarations */
 
   char  line[MAX_LINE_LENGTH];
-  int   dim, ret;
-  int   NumberOfSubgridZones[MAX_DIMENSION], SubgridDims[MAX_DIMENSION];
-  FLOAT LeftEdge[MAX_DIMENSION], RightEdge[MAX_DIMENSION];
+  int ret;
 
   /* Error check. */
 
@@ -90,15 +88,15 @@ int TestOrbitInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 
     /* read parameters */
 
-    ret += sscanf(line, "TestOrbitNumberOfParticles = %"ISYM,
+    ret += sscanf(line, "TestOrbitNumberOfParticles = %" ISYM,
 		  &TestOrbitNumberOfParticles);
-    ret += sscanf(line, "TestOrbitRadius = %"PSYM,
+    ret += sscanf(line, "TestOrbitRadius = %" PSYM,
 		  &TestOrbitRadius);
-    ret += sscanf(line, "TestOrbitCentralMass = %"FSYM,
+    ret += sscanf(line, "TestOrbitCentralMass = %" FSYM,
 		  &TestOrbitCentralMass);
-    ret += sscanf(line, "TestOrbitTestMass = %"FSYM,
+    ret += sscanf(line, "TestOrbitTestMass = %" FSYM,
 		  &TestOrbitTestMass);
-    ret += sscanf(line, "TestOrbitUseBaryons = %"ISYM,
+    ret += sscanf(line, "TestOrbitUseBaryons = %" ISYM,
 		  &TestOrbitUseBaryons);
 
     /* if the line is suspicious, issue a warning */
@@ -158,15 +156,15 @@ int TestOrbitInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   
   if (MyProcessorNumber == ROOT_PROCESSOR) {
 
-    fprintf(Outfptr, "TestOrbitNumberOfParticles = %"ISYM"\n",
+    fprintf(Outfptr, "TestOrbitNumberOfParticles = %" ISYM"\n",
 	    TestOrbitNumberOfParticles);
-    fprintf(Outfptr, "TestOrbitRadius            = %"GOUTSYM"\n",
+    fprintf(Outfptr, "TestOrbitRadius            = %" GOUTSYM"\n",
 	    TestOrbitRadius);
-    fprintf(Outfptr, "TestOrbitCentralMass       = %"GOUTSYM"\n",
+    fprintf(Outfptr, "TestOrbitCentralMass       = %" GOUTSYM"\n",
 	    TestOrbitCentralMass);
-    fprintf(Outfptr, "TestOrbitTestMass          = %"GOUTSYM"\n",
+    fprintf(Outfptr, "TestOrbitTestMass          = %" GOUTSYM"\n",
 	    TestOrbitTestMass);
-    fprintf(Outfptr, "TestOrbitUseBaryons        = %"ISYM"\n\n",
+    fprintf(Outfptr, "TestOrbitUseBaryons        = %" ISYM"\n\n",
 	    TestOrbitUseBaryons);
   }
 

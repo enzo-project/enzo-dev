@@ -49,11 +49,11 @@ int CallProblemSpecificRoutines(TopGridData * MetaData, HierarchyEntry *ThisGrid
       ThisGrid->GridData->CalculateAngularMomentum
 	(Center, AM, MeanVelocity, DMVelocity, CenterOfMass, DMCofM);
       fprintf(stdout, 
-	      "level = %"ISYM" %"ISYM" %"ISYM"  "
-	      "Vel %"FSYM" %"FSYM" %"FSYM"  "
-	      "DMVel %"FSYM" %"FSYM" %"FSYM"  "
-	      "CofM %"PSYM" %"PSYM" %"PSYM"  "
-	      "DMCofM %"FSYM" %"FSYM" %"FSYM"\n",
+	      "level = %" ISYM" %" ISYM" %" ISYM"  "
+	      "Vel %" FSYM" %" FSYM" %" FSYM"  "
+	      "DMVel %" FSYM" %" FSYM" %" FSYM"  "
+	      "CofM %" PSYM" %" PSYM" %" PSYM"  "
+	      "DMCofM %" FSYM" %" FSYM" %" FSYM"\n",
 	      level, LevelCycleCount[level], GridNum, MeanVelocity[0],
 	      MeanVelocity[1], MeanVelocity[2],
 	      DMVelocity[0], DMVelocity[1], DMVelocity[2],

@@ -74,8 +74,8 @@ int grid::RegridPausedPhotonPackage(PhotonPackageEntry** PP, grid* ParentGrid,
   } // ENDFOR dim
   (*PP)->SourcePositionDiff = 0.0;
 
-//  printf("before %p: lvl %"ISYM" pix %"ISYM" :: r=%"GSYM", "
-//	 "x=%"GSYM" %"GSYM" %"GSYM"\n", 
+//  printf("before %p: lvl %" ISYM" pix %" ISYM" :: r=%" GSYM", "
+//	 "x=%" GSYM" %" GSYM" %" GSYM"\n", 
 //	 (*PP), (*PP)->level, (*PP)->ipix, (*PP)->Radius,
 //	 new_pos[0], new_pos[1], new_pos[2]);
   
@@ -104,8 +104,8 @@ int grid::RegridPausedPhotonPackage(PhotonPackageEntry** PP, grid* ParentGrid,
     int_pos[dim] = (int) ((new_pos[dim] - this->GridLeftEdge[dim]) * dx_inv + 
 			  GridStartIndex[dim]);
   }
-//  printf("after %p:  lvl %"ISYM" pix %"ISYM" :: r=%"GSYM", "
-//	 "x=%"GSYM" %"GSYM" %"GSYM"\n", 
+//  printf("after %p:  lvl %" ISYM" pix %" ISYM" :: r=%" GSYM", "
+//	 "x=%" GSYM" %" GSYM" %" GSYM"\n", 
 //	 (*PP), (*PP)->level, (*PP)->ipix, (*PP)->Radius,
 //	 new_pos[0], new_pos[1], new_pos[2]);
     

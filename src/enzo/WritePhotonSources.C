@@ -38,25 +38,25 @@ int WritePhotonSources(FILE *fptr, FLOAT CurrentTime)
 
   RS = GlobalRadiationSources->NextSource;
 
-  fprintf(fptr, "PhotonTestNumberOfSources       = %"ISYM"\n", nSources);
+  fprintf(fptr, "PhotonTestNumberOfSources       = %" ISYM"\n", nSources);
   for (i = 0; i < nSources; i++) {
-    fprintf(fptr, "PhotonTestSourceType[%"ISYM"]         = %"ISYM"\n", i, RS->Type);
-    fprintf(fptr, "PhotonTestSourcePosition[%"ISYM"]     = %"GOUTSYM" %"GOUTSYM" %"GOUTSYM"\n",
+    fprintf(fptr, "PhotonTestSourceType[%" ISYM"]         = %" ISYM"\n", i, RS->Type);
+    fprintf(fptr, "PhotonTestSourcePosition[%" ISYM"]     = %" GOUTSYM" %" GOUTSYM" %" GOUTSYM"\n",
 	    i, RS->Position[0], RS->Position[1], RS->Position[2]);
     if (RS->Orientation != NULL) {
-      fprintf(fptr, "PhotonTestSourceOrientation[%"ISYM"]     = %"GSYM" %"GSYM" %"GSYM"\n",
+      fprintf(fptr, "PhotonTestSourceOrientation[%" ISYM"]     = %" GSYM" %" GSYM" %" GSYM"\n",
 	      i, RS->Orientation[0], RS->Orientation[1], RS->Orientation[2]);
     }
-    fprintf(fptr, "PhotonTestSourceLuminosity[%"ISYM"]   = %"GSYM"\n",
+    fprintf(fptr, "PhotonTestSourceLuminosity[%" ISYM"]   = %" GSYM"\n",
 	    i, RS->Luminosity/TimeUnits*pow(LengthUnits,3));
-    fprintf(fptr, "PhotonTestSourceLifeTime[%"ISYM"]     = %"GSYM"\n", i, RS->LifeTime);
-    fprintf(fptr, "PhotonTestSourceCreationTime[%"ISYM"] = %"GSYM"\n", i, 
+    fprintf(fptr, "PhotonTestSourceLifeTime[%" ISYM"]     = %" GSYM"\n", i, RS->LifeTime);
+    fprintf(fptr, "PhotonTestSourceCreationTime[%" ISYM"] = %" GSYM"\n", i, 
 	    RS->CreationTime);
-    fprintf(fptr, "PhotonTestSourceRampTime[%"ISYM"]     = %"GSYM"\n", i, RS->RampTime);
-    fprintf(fptr, "PhotonTestSourceEnergyBins[%"ISYM"]   = %"ISYM"\n", i, RS->EnergyBins);
-    fprintf(fptr, "PhotonTestSourceSED[%"ISYM"]          = ", i);
+    fprintf(fptr, "PhotonTestSourceRampTime[%" ISYM"]     = %" GSYM"\n", i, RS->RampTime);
+    fprintf(fptr, "PhotonTestSourceEnergyBins[%" ISYM"]   = %" ISYM"\n", i, RS->EnergyBins);
+    fprintf(fptr, "PhotonTestSourceSED[%" ISYM"]          = ", i);
     WriteListOfFloats(fptr, RS->EnergyBins, RS->SED);
-    fprintf(fptr, "PhotonTestSourceEnergy[%"ISYM"]       = ", i);
+    fprintf(fptr, "PhotonTestSourceEnergy[%" ISYM"]       = ", i);
     WriteListOfFloats(fptr, RS->EnergyBins, RS->Energy);
     fprintf(fptr, "\n");
     RS = RS->NextSource;

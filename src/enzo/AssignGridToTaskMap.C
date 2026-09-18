@@ -134,7 +134,7 @@ int AssignGridToTaskMap(Eint64 GridIndex[], Eint64 Memory[], int Ntask)
   sscanf(node_name, "s%5d", &node_number);
 #endif
 
-  fprintf(stderr, "MPI Task %"ISYM" of %"ISYM" is on node %s [%"ISYM"] with %lld MBytes free\n", id, nt, node_name, node_number, free);
+  fprintf(stderr, "MPI Task %" ISYM" of %" ISYM" is on node %s [%" ISYM"] with %lld MBytes free\n", id, nt, node_name, node_number, free);
 
   MPI_Barrier(MPI_COMM_WORLD);
 
@@ -156,7 +156,7 @@ int AssignGridToTaskMap(Eint64 GridIndex[], Eint64 Memory[], int Ntask)
 
 
   if ( id == 0 )
-    fprintf(stderr, "Number of nodes %"ISYM"\n", nn);
+    fprintf(stderr, "Number of nodes %" ISYM"\n", nn);
 
   if ( id % MAX_TASKS_PER_NODE == 0 ) {
     node_input[id/MAX_TASKS_PER_NODE] = node_number;
@@ -185,7 +185,7 @@ int AssignGridToTaskMap(Eint64 GridIndex[], Eint64 Memory[], int Ntask)
 
   if ( id == 0 ) 
     for ( n = 0; n < nn; n++) {
-      fprintf(stderr, "Logical Node %3d  Actual Node %5"ISYM"  Initial Memory %6.2lf  Present Memory %6.2lf : ",
+      fprintf(stderr, "Logical Node %3d  Actual Node %5" ISYM"  Initial Memory %6.2lf  Present Memory %6.2lf : ",
                       n, actual_node[n], NodeMem[n], freemem[n]);
       for ( j = 0; j < MAX_TASKS_PER_NODE; j++ ) {
         fprintf(stderr, " %4d", task_table[n][j]);
@@ -213,7 +213,7 @@ int AssignGridToTaskMap(Eint64 GridIndex[], Eint64 Memory[], int Ntask)
 
   if ( id == 0 ) {
     for ( i = 0; i < nt; i++ ) {
-      fprintf(stderr, "%"ISYM"  %"ISYM"  %6.2f\n", i, grid[i], grid_size[i]);
+      fprintf(stderr, "%" ISYM"  %" ISYM"  %6.2f\n", i, grid[i], grid_size[i]);
     }
   }
 
@@ -239,7 +239,7 @@ int AssignGridToTaskMap(Eint64 GridIndex[], Eint64 Memory[], int Ntask)
   if ( id == 0 ) {
     fprintf(stderr, "+++++++++++++++++++++++++++++++++++\n");
     for ( i = 0; i < nt; i++ ) {
-      fprintf(stderr, "%"ISYM"  %"ISYM"  %6.2f\n", i, grid[i], grid_size[i]);
+      fprintf(stderr, "%" ISYM"  %" ISYM"  %6.2f\n", i, grid[i], grid_size[i]);
     }
     fprintf(stderr, "+++++++++++++++++++++++++++++++++++\n");
   }
@@ -279,7 +279,7 @@ int AssignGridToTaskMap(Eint64 GridIndex[], Eint64 Memory[], int Ntask)
 
   if ( id == 0 )
     if ( freemem[mnode] < 0.0 )
-      fprintf(stderr, "memory < 0 task %"ISYM" mnode %"ISYM" freemem %6.2f\n", i, mnode, freemem[mnode]);
+      fprintf(stderr, "memory < 0 task %" ISYM" mnode %" ISYM" freemem %6.2f\n", i, mnode, freemem[mnode]);
 
   }
 
@@ -296,7 +296,7 @@ int AssignGridToTaskMap(Eint64 GridIndex[], Eint64 Memory[], int Ntask)
     task[i] = task_node[i]*MAX_TASKS_PER_NODE + task_counter[task_node[i]];
     task_counter[task_node[i]]++;
 
-    if ( id == 0 ) fprintf(stderr, "Task %"ISYM"  Grid %"ISYM"  Node %"ISYM"  Size %6.2f\n", task[i], grid[i], task_node[i], grid_size[i]);
+    if ( id == 0 ) fprintf(stderr, "Task %" ISYM"  Grid %" ISYM"  Node %" ISYM"  Size %6.2f\n", task[i], grid[i], task_node[i], grid_size[i]);
   }
   if ( id == 0 ) fprintf(stderr, "+++++++++++++++++++++++++++++++++++\n");
 
@@ -329,7 +329,7 @@ int AssignGridToTaskMap(Eint64 GridIndex[], Eint64 Memory[], int Ntask)
 
   if ( id == 0 ) {
     for ( i = 0; i < nt; i++ ) {
-      fprintf(stderr, "Grid %"ISYM"  Task %"ISYM"  Node %"ISYM"  Size %6.2f\n", grid[i], task[i], task_node[i], grid_size[i]);
+      fprintf(stderr, "Grid %" ISYM"  Task %" ISYM"  Node %" ISYM"  Size %6.2f\n", grid[i], task[i], task_node[i], grid_size[i]);
     }
     fprintf(stderr, "+++++++++++++++++++++++++++++++++++\n");
   }
@@ -342,7 +342,7 @@ int AssignGridToTaskMap(Eint64 GridIndex[], Eint64 Memory[], int Ntask)
 
   if ( id == 0 )
   for ( n = 0; n < nn; n++) {
-    fprintf(stderr, "Node %"ISYM"  Memory %8.2f GBytes\n", n, nodemem[n]);
+    fprintf(stderr, "Node %" ISYM"  Memory %8.2f GBytes\n", n, nodemem[n]);
   }
   if ( id == 0 ) fprintf(stderr, "+++++++++++++++++++++++++++++++++++\n");
 

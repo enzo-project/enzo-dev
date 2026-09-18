@@ -26,7 +26,7 @@
 #include "Grid.h"
 #include "SedovBlastGlobalData.h"
 
-int grid::SedovBlastInitializeGrid3D(char * SedovBlastFileName)
+int grid::SedovBlastInitializeGrid3D(const char * SedovBlastFileName)
 {
 
   if (ProcessorNumber != MyProcessorNumber)
@@ -54,9 +54,9 @@ int grid::SedovBlastInitializeGrid3D(char * SedovBlastFileName)
   char line[MAX_LINE_LENGTH];
   if (fgets(line, MAX_LINE_LENGTH, fptr) == NULL)
     ERROR_MESSAGE;
-  sscanf(line, "%"ISYM, &nlines);
+  sscanf(line, "%" ISYM, &nlines);
   if (debug)
-    printf("GSBIG: %"ISYM" lines\n", nlines);
+    printf("GSBIG: %" ISYM" lines\n", nlines);
   fgets(line, MAX_LINE_LENGTH, fptr); // skip variable names
   float * rad = new float[nlines];
   float * den = new float[nlines];
@@ -67,7 +67,7 @@ int grid::SedovBlastInitializeGrid3D(char * SedovBlastFileName)
   while (fgets(line, MAX_LINE_LENGTH, fptr) != NULL) {
     if (nl > nlines)
       ERROR_MESSAGE;
-    sscanf(line, "%"ISYM" %"ISYM" %"ISYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM,
+    sscanf(line, "%" ISYM" %" ISYM" %" ISYM" %" FSYM" %" FSYM" %" FSYM" %" FSYM" %" FSYM,
 	   &idummy, // nt   - skip
 	   &idummy, // l    - skip
 	   &idummy, // lev  - skip
@@ -85,7 +85,7 @@ int grid::SedovBlastInitializeGrid3D(char * SedovBlastFileName)
     pre[nl] *= 2.0259759e-16;
     vel[nl] *= 1.4233680e-8;
     if (debug)
-      printf("%"GSYM" %"GSYM" %"GSYM" %"GSYM"\n", 
+      printf("%" GSYM" %" GSYM" %" GSYM" %" GSYM"\n", 
 	     rad[nl], 
 	     den[nl], 
 	     pre[nl], 

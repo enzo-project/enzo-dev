@@ -191,7 +191,7 @@ int DepositParticleMassFlaggingField(LevelHierarchyEntry* LevelArray[],
     }
 
 //    for (i = 0; i < TotalNumberOfSends; i++)
-//      printf("P%"ISYM" -- BB -- SendList[%"ISYM"]: %"ISYM" %"ISYM"\n", 
+//      printf("P%" ISYM" -- BB -- SendList[%" ISYM"]: %" ISYM" %" ISYM"\n", 
 //	     MyProcessorNumber, i, SendList[i].grid, SendList[i].proc);
 
     // Sort by grid (destination) processor, then replace the
@@ -201,7 +201,7 @@ int DepositParticleMassFlaggingField(LevelHierarchyEntry* LevelArray[],
 #ifdef TIMING
     double t0, t1;
     if (MyProcessorNumber == ROOT_PROCESSOR)
-      printf("--> DPMFF: Before Alltoall, TotalNumberOfSends = %"ISYM"\n",
+      printf("--> DPMFF: Before Alltoall, TotalNumberOfSends = %" ISYM"\n",
 	     TotalNumberOfSends);
     t0 = ReturnWallTime();
 #endif
@@ -230,7 +230,7 @@ int DepositParticleMassFlaggingField(LevelHierarchyEntry* LevelArray[],
 #ifdef TIMING
     t1 = ReturnWallTime();
     if (MyProcessorNumber == ROOT_PROCESSOR)
-      printf("--> DPMFF: After Alltoall, TotalNumberOfRecv = %"ISYM" :: %lg seconds\n",
+      printf("--> DPMFF: After Alltoall, TotalNumberOfRecv = %" ISYM" :: %lg seconds\n",
 	     TotalNumberOfRecv, t1-t0);
 #endif
 
@@ -246,7 +246,7 @@ int DepositParticleMassFlaggingField(LevelHierarchyEntry* LevelArray[],
       SendList[i].proc = MyProcessorNumber;
 
 //    for (i = 0; i < TotalNumberOfSends; i++)
-//      printf("P%"ISYM" -- SendList[%"ISYM"]: %"ISYM" %"ISYM"\n", 
+//      printf("P%" ISYM" -- SendList[%" ISYM"]: %" ISYM" %" ISYM"\n", 
 //	     MyProcessorNumber, i, SendList[i].grid, SendList[i].proc);
 
 #ifdef TIMING
@@ -265,7 +265,7 @@ int DepositParticleMassFlaggingField(LevelHierarchyEntry* LevelArray[],
 #endif
 
 //    for (i = 0; i < TotalNumberOfRecv; i++)
-//      printf("P%"ISYM" -- SharedList[%"ISYM"]: %"ISYM" %"ISYM"\n", 
+//      printf("P%" ISYM" -- SharedList[%" ISYM"]: %" ISYM" %" ISYM"\n", 
 //	     MyProcessorNumber, i, SharedList[i].grid, SharedList[i].proc);
 
     delete [] NumberOfSends;
@@ -305,7 +305,6 @@ int DepositParticleMassFlaggingField(LevelHierarchyEntry* LevelArray[],
 
     int *SendProcs;
     int StartProc, EndProc, nSends;
-    double tt0, tt1;
 
     for (StartProc = 0; StartProc < NumberOfProcessors; 
 	 StartProc += ProcessorsPerLoop) {
@@ -372,8 +371,8 @@ int DepositParticleMassFlaggingField(LevelHierarchyEntry* LevelArray[],
 #ifdef TIMING
 	tt1 = ReturnWallTime();
 	if (MyProcessorNumber == ROOT_PROCESSOR)
-	  printf("DPMFlag: Finished comm. loop from procs %"ISYM" to %"ISYM", "
-		 "grids %"ISYM" to %"ISYM" in %lg seconds.\n", 
+	  printf("DPMFlag: Finished comm. loop from procs %" ISYM" to %" ISYM", "
+		 "grids %" ISYM" to %" ISYM" in %lg seconds.\n", 
 		 StartProc, EndProc-1, StartGrid, EndGrid-1, tt1-tt0);
 #endif
 

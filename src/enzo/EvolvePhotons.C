@@ -78,7 +78,7 @@ int StarParticleFindAll(LevelHierarchyEntry *LevelArray[], Star *&AllStars);
 int SetSubgridMarker(TopGridData &MetaData, 
 		     LevelHierarchyEntry *LevelArray[], int level,
 		     int UpdateReplicatedGridsOnly);
-void PrintMemoryUsage(char *str);
+void PrintMemoryUsage(const char *str);
 void fpcol(Eflt64 *x, int n, int m, FILE *log_fptr);
 double ReturnWallTime();
 
@@ -229,7 +229,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     }
 
     if (debug && LoopTime == TRUE)
-      printf("EvolvePhotons[%"ISYM"]: dt = %"GSYM", Time = %"FSYM", ", 
+      printf("EvolvePhotons[%" ISYM"]: dt = %" GSYM", Time = %" FSYM", ", 
 	     level, dtPhoton, PhotonTime);
       
     /* delete source if we are passed (or before) their lifetime (only
@@ -249,7 +249,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	   DeleteSources) {
 	if (debug) {
 	  fprintf(stdout, "\nEvolvePhotons: Deleted Source on lifetime limit \n");
-	  fprintf(stdout, "EvolvePhotons:  %"GSYM" %"GSYM" %"GSYM" \n",
+	  fprintf(stdout, "EvolvePhotons:  %" GSYM" %" GSYM" %" GSYM" \n",
 		  RS->CreationTime, RS->LifeTime, PhotonTime);
 	}
 	RS = DeleteRadiationSource(RS);
@@ -269,7 +269,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       }
     }
 
-    if (debug) fprintf(stdout, "%"ISYM" SRC(s)\n", NumberOfSources);
+    if (debug) fprintf(stdout, "%" ISYM" SRC(s)\n", NumberOfSources);
 
     if (NumberOfSources == 0) {
       PhotonTime += dtPhoton;
@@ -379,9 +379,8 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     PhotonsToMove->NextPackageToMove = NULL;
 
     int keep_transporting = 1;
-    int local_keep_transporting = 1, last_keep_transporting;
+    int local_keep_transporting = 1;
     int secondary_kt_check = TRUE, iteration = 0;
-    bool initial_call = true;
     char *kt_global = NULL;
 
     HierarchyEntry **Temp0;
@@ -412,7 +411,6 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 #ifndef NONBLOCKING_RT
       InitializePhotonMessages();
 #endif
-      last_keep_transporting = local_keep_transporting;
       keep_transporting = 0;
       PhotonsToMove->NextPackageToMove = NULL;
       START_PERF();
@@ -454,7 +452,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       else
 	keep_transporting = 0;
 
-//    printf("EvoPH[P%"ISYM"]: keep_transporting = %"ISYM", PhotonsToMove = %x\n",
+//    printf("EvoPH[P%" ISYM"]: keep_transporting = %" ISYM", PhotonsToMove = %x\n",
 //	     MyProcessorNumber, keep_transporting, PhotonsToMove->NextPackageToMove);
 
       /* Check if there are any photons leaving this grid.  If so, move them. */
@@ -552,7 +550,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	for (i = 0; i < 4; i++)
 	  TotalEscapedPhotonCount[i] += EscapedPhotonCount[i];
 
-	fprintf(fptr, "%"GOUTSYM" %"GSYM" %"GSYM" %"GSYM" %"GSYM"\n", 
+	fprintf(fptr, "%" GOUTSYM" %" GSYM" %" GSYM" %" GSYM" %" GSYM"\n", 
 		PhotonTime, TotalEscapedPhotonCount[0],
 		TotalEscapedPhotonCount[1] / TotalEscapedPhotonCount[0], 
 		TotalEscapedPhotonCount[2] / TotalEscapedPhotonCount[0], 
@@ -713,7 +711,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     CommunicationBarrier();
     if (MyProcessorNumber == i) {
 
-      printf("P%d:", MyProcessorNumber);
+      printf("P%" ISYM ":", MyProcessorNumber);
       fpcol(PerfCounter, 14, 14, stdout);
       fflush(stdout);
     }
@@ -732,7 +730,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
         if (debug) {
           fprintf(stdout, "\nEvolvePhotons: Deleted Source on lifetime limit \n");
-          fprintf(stdout, "EvolvePhotons:  %"GSYM" %"GSYM" %"GSYM" \n",
+          fprintf(stdout, "EvolvePhotons:  %" GSYM" %" GSYM" %" GSYM" \n",
                                              RS->CreationTime, RS->LifeTime, PhotonTime);
         }
 

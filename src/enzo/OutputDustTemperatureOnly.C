@@ -56,10 +56,6 @@ int OutputDustTemperatureOnly(char *ParameterFile,
 			  )
 {
 
-  int i, level;
-  const float When = 0.5;
-  LevelHierarchyEntry *Temp;
-  HierarchyEntry **Grids;
 
   /* Exit if OutputDustTemperature is already on. */
 

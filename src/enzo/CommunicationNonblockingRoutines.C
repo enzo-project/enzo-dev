@@ -45,7 +45,7 @@ static MPI_Status PH_ListOfStatuses[MAX_PH_RECEIVE_BUFFERS];
 int InitializePhotonCommunication(void)
 {
 #ifdef USE_MPI
-  int i, proc;
+  int i;
 
   /* Receive any orphaned messages from the last RT call, so they
      don't interfere with this cycle. */
@@ -123,7 +123,7 @@ int KeepTransportingInitialize(char* &kt_global, bool initial_call)
 				       KeepTransMessageMaxIndex);
       }
       if (DEBUG)
-	printf("P%"ISYM": Sending KT=%"ISYM" to P%"ISYM"\n", MyProcessorNumber, 
+	printf("P%" ISYM ": Sending KT=%d to P%" ISYM "\n", MyProcessorNumber, 
 	       kt_global[MyProcessorNumber], proc);
       CommunicationBufferedSend(kt_global+MyProcessorNumber, 1, MPI_CHAR, proc,
 				MPI_KEEPTRANSPORTING_TAG, MPI_COMM_WORLD, 1);
@@ -216,7 +216,7 @@ int CommunicationNumberOfPhotonSends(int *nPhoton, int size)
       NumberOfMessages = nPhoton[proc] / size;
       if (nPhoton[proc] % size > 0) NumberOfMessages++;
       if (DEBUG)
-	printf("CRP[%"ISYM"]: Sending %"ISYM" messages, %"ISYM" photons to P%"ISYM"\n", MyProcessorNumber,
+	printf("CRP[%" ISYM "]: Sending %d messages, %" ISYM " photons to P%d\n", MyProcessorNumber,
 	       NumberOfMessages, nPhoton[proc], proc);
       CommunicationBufferedSend(&NumberOfMessages, 1, MPI_INT, proc,
 				MPI_NPHOTON_TAG, MPI_COMM_WORLD, sizeof(Eint32));
@@ -238,8 +238,8 @@ int PostPhotonReceives(Eint32 index, Eint32 proc, int size, MPI_Datatype type)
   NumberOfMessages = PhotonMessageBuffer[index];
   for (i = 0; i < NumberOfMessages; i++) {
     if (DEBUG)
-      printf("CTPh[P%"ISYM"]: Receiving photons from P%"ISYM" "
-	     "(message %"ISYM", %"ISYM"/%"ISYM", index %"ISYM")\n", 
+      printf("CTPh[P%" ISYM "]: Receiving photons from P%d "
+	     "(message %" ISYM", %" ISYM"/%d, index %d)\n", 
 	     MyProcessorNumber, proc, i, i+1, NumberOfMessages,
 	     PH_CommunicationReceiveIndex);
     ReceiveBuffer = new GroupPhotonList[size];
@@ -264,7 +264,7 @@ int PostPhotonReceives(Eint32 index, Eint32 proc, int size, MPI_Datatype type)
 #endif
 
     if (DEBUG)
-      printf("P%d: PHCRIndex/Max = %d/%d\n", MyProcessorNumber, 
+      printf("P%" ISYM ": PHCRIndex/Max = %d/%d\n", MyProcessorNumber, 
 	     PH_CommunicationReceiveIndex, PH_CommunicationReceiveMaxIndex);
 
   } // ENDFOR i (messages)
@@ -281,7 +281,6 @@ int CommunicationFindOpenRequest(MPI_Request *requests, Eint32 last_free,
 {
   int i, count;
   bool FoundOpenRequest = false;
-  MPI_Status status;
 
   max_index = max(max_index, index);
   i = (last_free != NO_HINT) ? last_free : 0;
@@ -295,7 +294,7 @@ int CommunicationFindOpenRequest(MPI_Request *requests, Eint32 last_free,
       i++;
       i = i % nrequests;
       if (count++ > MAX_PH_RECEIVE_BUFFERS)
-	ENZO_VFAIL("Exceeded number (%"ISYM") of comm. buffers MAX_PH_RECEIVE_BUFFERS :: %"ISYM" %"ISYM" %"ISYM" %x", count, last_free, i, nrequests, requests[i]);
+	ENZO_VFAIL("Exceeded number (%" ISYM ") of comm. buffers MAX_PH_RECEIVE_BUFFERS :: %d %" ISYM " %d %p", count, last_free, i, nrequests, (void*)requests[i]);
     }
   } // ENDWHILE
 
@@ -310,11 +309,8 @@ int InitializePhotonReceive(int max_size, bool local_transport,
 			    MPI_Datatype MPI_PhotonType)
 {
 
-  MPI_Status status;
-  MPI_Arg proc, MessageReceived;
-  Eint32 NumberOfMessages, NumberOfReceives;
-  GroupPhotonList *ReceiveBuffer = NULL;
-  int i, j, index, RecvProc;
+  Eint32 NumberOfReceives;
+  int i, index, RecvProc;
 
   /* Receive MPI messages that contain how many messages with the
      actual photon data that we'll be receiving from each process. */
@@ -329,7 +325,7 @@ int InitializePhotonReceive(int max_size, bool local_transport,
   }
 
   if (DEBUG && NumberOfReceives > 0)
-    printf("P%"ISYM": Received %"ISYM" header messages, Index/MaxIndex = %"ISYM"/%"ISYM".\n", 
+    printf("P%" ISYM ": Received %d header messages, Index/MaxIndex = %d/%d.\n", 
 	   MyProcessorNumber, NumberOfReceives, PhotonMessageIndex, 
 	   PhotonMessageMaxIndex);
 
@@ -343,7 +339,7 @@ int InitializePhotonReceive(int max_size, bool local_transport,
     RecvProc = PH_ListOfStatuses[i].MPI_SOURCE;
 
     if (DEBUG)
-      printf("P%"ISYM": Processing header message %"ISYM" (null=%"ISYM") from P%"ISYM".\n", 
+      printf("P%" ISYM ": Processing header message %" ISYM " (null=%d) from P%" ISYM ".\n", 
 	     MyProcessorNumber, index, 
 	     (PhotonMessageRequest[index] == MPI_REQUEST_NULL),
 	     RecvProc);
@@ -388,7 +384,7 @@ int KeepTransportingSend(int keep_transporting)
   for (proc = 0; proc < NumberOfProcessors; proc++)
     if (proc != MyProcessorNumber) {
       if (DEBUG)
-	printf("P%"ISYM": Sending KT=%"ISYM" to P%"ISYM"\n", MyProcessorNumber,
+	printf("P%" ISYM ": Sending KT=%d to P%" ISYM "\n", MyProcessorNumber,
 	       value, proc);
       CommunicationBufferedSend(&value, 1, MPI_CHAR, proc,
 				MPI_KEEPTRANSPORTING_TAG,
@@ -405,19 +401,18 @@ int KeepTransportingCheck(char* &kt_global, int &keep_transporting)
   int i, index, RecvProc;
   char value = keep_transporting;
   char received = RECV_DATA;
-  bool PingRequired, PingReceived, AcceptMessage;
+  bool PingRequired, AcceptMessage;
   MPI_Arg proc, NumberOfReceives, MessageReceived;
-  MPI_Status status;
 
 //  if (DEBUG)
-//    printf("P%"ISYM": keep_transporting(before) = %"ISYM", KTMaxIndex = %"ISYM"\n", 
+//    printf("P%" ISYM": keep_transporting(before) = %" ISYM", KTMaxIndex = %" ISYM"\n", 
 //	   MyProcessorNumber, keep_transporting, KeepTransMessageMaxIndex);
 
   MPI_Testsome(KeepTransMessageMaxIndex, KeepTransMessageRequest,
 	       &NumberOfReceives, PH_ListOfIndices, PH_ListOfStatuses);
 
   if (DEBUG && NumberOfReceives > 0)
-    printf("P%"ISYM": Received %"ISYM" KT messages, Index/MaxIndex = %"ISYM"/%"ISYM".\n", 
+    printf("P%" ISYM ": Received %d KT messages, Index/MaxIndex = %d/%d.\n", 
 	   MyProcessorNumber, NumberOfReceives, KeepTransMessageIndex, 
 	   KeepTransMessageMaxIndex);
 
@@ -444,7 +439,7 @@ int KeepTransportingCheck(char* &kt_global, int &keep_transporting)
       next_kt = 2;
 
     if (DEBUG)
-      printf("P%"ISYM": Primary KT receive, P%"ISYM", = %"ISYM"\n",
+      printf("P%" ISYM ": Primary KT receive, P%" ISYM ", = %d\n",
 	     MyProcessorNumber, RecvProc,
 	     KeepTransMessageBuffer[KeepTransMessageIndex]);
 
@@ -484,7 +479,7 @@ int KeepTransportingCheck(char* &kt_global, int &keep_transporting)
 	  next_kt = 2;
 
 	if (DEBUG)
-	  printf("P%"ISYM": Secondary KT receive, P%"ISYM", Recv %"ISYM", = %"ISYM"\n",
+	  printf("P%" ISYM ": Secondary KT receive, P%" ISYM ", Recv %" ISYM ", = %d\n",
 		 MyProcessorNumber, RecvProc, second_recv,
 		 KeepTransMessageBuffer[KeepTransMessageIndex]);
 	second_recv++;
@@ -505,7 +500,7 @@ int KeepTransportingCheck(char* &kt_global, int &keep_transporting)
       kt_global[RecvProc] = TRANSPORT;
 
     if (DEBUG)
-      printf("P%"ISYM": Setting kt_global[%"ISYM"] = %"ISYM".  %"ISYM" secondary receives\n", 
+      printf("P%" ISYM ": Setting kt_global[%" ISYM "] = %d.  %" ISYM " secondary receives\n", 
 	     MyProcessorNumber, RecvProc, kt_global[RecvProc], second_recv);
 
   } // ENDFOR i (receives)
@@ -526,7 +521,7 @@ int KeepTransportingCheck(char* &kt_global, int &keep_transporting)
     keep_transporting = 1;
 
   if (DEBUG && NumberOfReceives > 0)
-    printf("P%"ISYM": keep_transporting = %"ISYM"/%"ISYM", kt_global = %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM"\n",
+    printf("P%" ISYM ": keep_transporting = %d/%" ISYM ", kt_global = %d %d %d %d %d %d %d %d\n",
 	   MyProcessorNumber, value, keep_transporting, kt_global[0],
 	   kt_global[1], kt_global[2], kt_global[3], kt_global[4], 
 	   kt_global[5], kt_global[6], kt_global[7]);

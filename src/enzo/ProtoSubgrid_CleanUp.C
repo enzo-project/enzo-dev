@@ -48,10 +48,10 @@ int ProtoSubgrid::CleanUp()
  
   int i;
   if (debug1) {
-    printf("ProtoSubgrid: efficiency = %6.1"FSYM"%% (%"ISYM"/%"ISYM") dims=",
+    printf("ProtoSubgrid: efficiency = %6.1" FSYM"%% (%" ISYM"/%" ISYM") dims=",
 	   float(NumberFlagged)/float(size)*100.0, NumberFlagged, size);
     for (i = 0; i < GridRank; i++)
-      printf("%"ISYM" ", (GridDimension[i] - 2*NumberOfGhostZones)/RefineBy);
+      printf("%" ISYM" ", (GridDimension[i] - 2*NumberOfGhostZones)/RefineBy);
     printf("\n");
   }
  

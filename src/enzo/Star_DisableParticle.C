@@ -32,7 +32,7 @@ int GenerateGridArray(LevelHierarchyEntry *LevelArray[], int level,
 int Star::DisableParticle(LevelHierarchyEntry *LevelArray[])
 {
 
-  int i, nPart, NumberOfGrids, changedGrid = INT_UNDEFINED, found = FALSE;
+  int i, NumberOfGrids, changedGrid = INT_UNDEFINED, found = FALSE;
   HierarchyEntry **Grids;
   
   NumberOfGrids = GenerateGridArray(LevelArray, this->level, &Grids);
@@ -55,7 +55,7 @@ int Star::DisableParticle(LevelHierarchyEntry *LevelArray[])
     if (debug)
       this->PrintInfo();
     ENZO_VFAIL("DisableParticle: WARNING -- "
-	       "particle %"ISYM" not found...\n", this->Identifier)
+	       "particle %" ISYM" not found...\n", this->Identifier)
   }
 
   Grids[changedGrid]->GridData->NumberOfStars--;

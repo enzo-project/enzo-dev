@@ -73,7 +73,7 @@ int grid::AddExternalAcceleration()
 	    rcubed = fabs(xpos*xpos*xpos) + fabs(ypos*ypos*ypos) +
 	             fabs(zpos*zpos*zpos);
             if (rcubed < 1.0e-12)
-	       printf("r3 = %"GOUTSYM" pos:%"GOUTSYM" %"GOUTSYM" %"GOUTSYM" Mid:%"GOUTSYM" %"GOUTSYM" %"GOUTSYM"\n", rcubed,
+	       printf("r3 = %" GOUTSYM" pos:%" GOUTSYM" %" GOUTSYM" %" GOUTSYM" Mid:%" GOUTSYM" %" GOUTSYM" %" GOUTSYM"\n", rcubed,
                       xpos, ypos, zpos, SphericalInfallCenter[0],
                       SphericalInfallCenter[1], SphericalInfallCenter[2]);
 	    rcubed = max(rcubed, 1.0e-9);

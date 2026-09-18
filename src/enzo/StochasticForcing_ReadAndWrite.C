@@ -33,7 +33,7 @@ int StochasticForcing::ReadSpectrum(char *fname)
 	for (int dim = 0; dim < SpectralRank; dim++)
 	    for (int m = 0; m < NumNonZeroModes; m++) {
             fgets(line, MAX_LINE_LENGTH, fptr);
-            sscanf(line,"%"FSYM" %"FSYM,&SpectrumEven[dim][m],&SpectrumOdd[dim][m]);
+            sscanf(line,"%" FSYM" %" FSYM,&SpectrumEven[dim][m],&SpectrumOdd[dim][m]);
         }
     
     fclose(fptr);
@@ -57,7 +57,7 @@ int StochasticForcing::WriteSpectrum(char *fname)
 
 	for (int dim = 0; dim < SpectralRank; dim++)
 	    for (int m = 0; m < NumNonZeroModes; m++)
-            fprintf(fptr,"%.16"FSYM" %.16"FSYM"\n",SpectrumEven[dim][m],SpectrumOdd[dim][m]);
+            fprintf(fptr,"%.16" FSYM" %.16" FSYM"\n",SpectrumEven[dim][m],SpectrumOdd[dim][m]);
     
     
     fclose(fptr);
@@ -68,14 +68,14 @@ int StochasticForcing::WriteSpectrum(char *fname)
 
 void StochasticForcing::WriteParameters(FILE *fptr)
 {
-    fprintf(fptr, "DrivenFlowWeight            = %"FSYM"\n", SolenoidalWeight);
-    fprintf(fptr, "DrivenFlowAlpha             = %"ISYM" %"ISYM" %"ISYM"\n", alpha[0], alpha[1], alpha[2]);
-    fprintf(fptr, "DrivenFlowSeed             = %"ISYM"\n", DrivenFlowSeed);
-    fprintf(fptr, "DrivenFlowBandWidth         = %"FSYM" %"FSYM" %"FSYM"\n", 
+    fprintf(fptr, "DrivenFlowWeight            = %" FSYM"\n", SolenoidalWeight);
+    fprintf(fptr, "DrivenFlowAlpha             = %" ISYM" %" ISYM" %" ISYM"\n", alpha[0], alpha[1], alpha[2]);
+    fprintf(fptr, "DrivenFlowSeed             = %" ISYM"\n", DrivenFlowSeed);
+    fprintf(fptr, "DrivenFlowBandWidth         = %" FSYM" %" FSYM" %" FSYM"\n", 
 	    BandWidth[0], BandWidth[1], BandWidth[2]);
-    fprintf(fptr, "DrivenFlowVelocity          = %"FSYM" %"FSYM" %"FSYM"\n", 
+    fprintf(fptr, "DrivenFlowVelocity          = %" FSYM" %" FSYM" %" FSYM"\n", 
 	    IntgrVelocity[0], IntgrVelocity[1], IntgrVelocity[2]);
-    fprintf(fptr, "DrivenFlowAutoCorrl         = %"FSYM" %"FSYM" %"FSYM"\n", 
+    fprintf(fptr, "DrivenFlowAutoCorrl         = %" FSYM" %" FSYM" %" FSYM"\n", 
 	    AutoCorrlTime[0]/IntgrTime[0], AutoCorrlTime[1]/IntgrTime[1], AutoCorrlTime[2]/IntgrTime[2]);
 }
 

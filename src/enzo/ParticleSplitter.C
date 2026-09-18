@@ -90,9 +90,7 @@ int ParticleSplitter(LevelHierarchyEntry *LevelArray[], int ThisLevel,
   if (ParticleSplitterMustRefine &&
       ParticleSplitterMustRefineIDFile != NULL) {
 
-    int NumberOfMustRefineIDs;
     hid_t file_id, dataset_id, dataspace_id;
-    herr_t status;
     hsize_t dims[1], maxdims[1];
     
     file_id = H5Fopen(ParticleSplitterMustRefineIDFile,
@@ -100,13 +98,13 @@ int ParticleSplitter(LevelHierarchyEntry *LevelArray[], int ThisLevel,
     dataset_id = H5Dopen2(file_id, "/particle_identifier", H5P_DEFAULT);
     dataspace_id = H5Dget_space(dataset_id);
     // Get number of particles and allocate variable
-    status = H5Sget_simple_extent_dims(dataspace_id, dims, maxdims);
+    H5Sget_simple_extent_dims(dataspace_id, dims, maxdims);
     MustRefineIDs = new long[dims[0]];
     NumberOfIDs = dims[0];
-    status = H5Dread(dataset_id, H5T_NATIVE_LLONG, H5S_ALL, H5S_ALL, H5P_DEFAULT,
+    H5Dread(dataset_id, H5T_NATIVE_LLONG, H5S_ALL, H5S_ALL, H5P_DEFAULT,
      		     MustRefineIDs);
-    status = H5Dclose(dataset_id);
-    status = H5Fclose(file_id);
+    H5Dclose(dataset_id);
+    H5Fclose(file_id);
     
   }
   
@@ -117,7 +115,7 @@ int ParticleSplitter(LevelHierarchyEntry *LevelArray[], int ThisLevel,
     for (level = 0; level < MAX_DEPTH_OF_HIERARCHY-1; level++) {
 
 #ifdef DEBUG_PS
-      fprintf(stdout, "MetaData->NumberOfParticles when ParticleSplitter [level=%d] starts = %d\n", 
+      fprintf(stdout, "MetaData->NumberOfParticles when ParticleSplitter [level=%" ISYM "] starts = %" ISYM "\n", 
 	      level, MetaData->NumberOfParticles);
 #endif
 
@@ -130,13 +128,13 @@ int ParticleSplitter(LevelHierarchyEntry *LevelArray[], int ThisLevel,
       RecordTotalStarParticleCount(Grids, NumberOfGrids, 
 				   TotalStarParticleCountPrevious);
       //      for (grid1 = 0; grid1 < NumberOfGrids; grid1++) 
-      //	fprintf(stdout, "TotalStarParticleCountPrevious[grid=%d] = %d\n", grid1, 
+      //	fprintf(stdout, "TotalStarParticleCountPrevious[grid=%" ISYM "] = %" ISYM "\n", grid1, 
       //		TotalStarParticleCountPrevious[grid1]);
       
       for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
 
 #ifdef DEBUG_PS
-	fprintf(stdout, "ParticleSplitter [grid->NumberOfParticles=%d] starts. \n", 
+	fprintf(stdout, "ParticleSplitter [grid->NumberOfParticles=%" ISYM "] starts. \n", 
 		Grids[grid1]->GridData->ReturnNumberOfParticles());
 #endif
 	
@@ -171,8 +169,8 @@ int ParticleSplitter(LevelHierarchyEntry *LevelArray[], int ThisLevel,
 
 #ifdef DEBUG_PS
     fprintf(stdout, "ParticleSplitter 1 cycle done!\n");
-    fprintf(stdout, "MetaData->NumberOfParticles = %d\n", MetaData->NumberOfParticles);
-    fprintf(stdout, "NumberOfStarParticles now = %d\n", NumberOfStarParticles);
+    fprintf(stdout, "MetaData->NumberOfParticles = %" ISYM "\n", MetaData->NumberOfParticles);
+    fprintf(stdout, "NumberOfStarParticles now = %" ISYM "\n", NumberOfStarParticles);
 #endif
 
   }  // loop for i

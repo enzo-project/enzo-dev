@@ -40,12 +40,12 @@ int CheckForResubmit(TopGridData &MetaData, int &Stop)
 	     "Executing resubmission script, %s\n", MetaData.ResubmitCommand);
     if (MyProcessorNumber == ROOT_PROCESSOR) {
       if (MetaData.DataDumpDir != NULL)
-	sprintf(cmd, "%s/%s %"ISYM" %s%"CYCLE_TAG_FORMAT""ISYM"/%s%"CYCLE_TAG_FORMAT""ISYM,
+	sprintf(cmd, "%s/%s %" ISYM" %s%" CYCLE_TAG_FORMAT"" ISYM"/%s%" CYCLE_TAG_FORMAT"" ISYM,
 		MetaData.GlobalDir, MetaData.ResubmitCommand, NumberOfProcessors, 
 		MetaData.DataDumpDir, MetaData.DataDumpNumber-1, 
 		MetaData.DataDumpName, MetaData.DataDumpNumber-1);
       else
-	sprintf(cmd, "%s/%s %"ISYM" %s%"CYCLE_TAG_FORMAT""ISYM, 
+	sprintf(cmd, "%s/%s %" ISYM" %s%" CYCLE_TAG_FORMAT"" ISYM, 
 		MetaData.GlobalDir, MetaData.ResubmitCommand, NumberOfProcessors, 
 		MetaData.DataDumpName, MetaData.DataDumpNumber-1);
       printf("command: %s\n", cmd);

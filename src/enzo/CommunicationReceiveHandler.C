@@ -50,7 +50,7 @@ int CommunicationReceiveHandler(fluxes **SubgridFluxesEstimate[],
 
   CommunicationDirection = COMMUNICATION_RECEIVE;
 
-//  printf("P(%"ISYM") in CRH with %"ISYM" requests\n", MyProcessorNumber,
+//  printf("P(%" ISYM") in CRH with %" ISYM" requests\n", MyProcessorNumber,
 //  	 CommunicationReceiveIndex);
 
   MPI_Arg NumberOfCompleteRequests, TotalReceives;
@@ -79,7 +79,7 @@ int CommunicationReceiveHandler(fluxes **SubgridFluxesEstimate[],
 
     MPI_Waitsome(TotalReceives, CommunicationReceiveMPI_Request,
 		 &NumberOfCompleteRequests, ListOfIndices, ListOfStatuses);
-//    printf("MPI: %"ISYM" %"ISYM" %"ISYM"\n", TotalReceives, 
+//    printf("MPI: %" ISYM" %" ISYM" %" ISYM"\n", TotalReceives, 
 //	   ReceivesCompletedToDate, NumberOfCompleteRequests);
 
     CommunicationTime += ReturnWallTime() - time1;
@@ -96,18 +96,18 @@ int CommunicationReceiveHandler(fluxes **SubgridFluxesEstimate[],
     for (index = 0; index < NumberOfCompleteRequests; index++)
       if (ListOfStatuses[index].MPI_ERROR != 0) {
 	if (NoErrorSoFar) {
-	  fprintf(stderr, "MPI Error on processor %"ISYM". "
-		  "Error number %"ISYM" on request %"ISYM"\n",
+	  fprintf(stderr, "MPI Error on processor %" ISYM ". "
+		  "Error number %d on request %" ISYM"\n",
 		  MyProcessorNumber, ListOfStatuses[index].MPI_ERROR, index);
 	  NoErrorSoFar = FALSE;
 	}
-	fprintf(stdout, "P(%"ISYM") index %"ISYM" -- mpi error %"ISYM"\n", 
+	fprintf(stdout, "P(%" ISYM ") index %" ISYM " -- mpi error %d\n", 
 		MyProcessorNumber, index, ListOfStatuses[index].MPI_ERROR);
-	fprintf(stdout, "%"ISYM": Type = %"ISYM", Grid1 = %x, Request = %"ISYM", "
-		"DependsOn = %"ISYM"\n", index, 
+	fprintf(stdout, "%" ISYM": Type = %" ISYM", Grid1 = %p, Request = %p, "
+		"DependsOn = %" ISYM"\n", index, 
 		CommunicationReceiveCallType[index],
 		CommunicationReceiveGridOne[index],
-		CommunicationReceiveMPI_Request[index],
+		(void*)CommunicationReceiveMPI_Request[index],
 		CommunicationReceiveDependsOn[index]);
       }
 
@@ -143,7 +143,7 @@ int CommunicationReceiveHandler(fluxes **SubgridFluxesEstimate[],
       if (CommunicationReceiveGridOne[index] != NULL &&
 	  CommunicationReceiveMPI_Request[index] == MPI_REQUEST_NULL) {
 
-	// fprintf(stdout, "::MPI:: %d %d %d %d %d\n", index, 
+	// fprintf(stdout, "::MPI:: %" ISYM " %" ISYM " %" ISYM " %" ISYM " %" ISYM "\n", index, 
  	// 	CommunicationReceiveCallType[index],
  	// 	CommunicationReceiveGridOne[index],
  	// 	CommunicationReceiveMPI_Request[index],
@@ -305,7 +305,7 @@ int CommunicationReceiveHandler(fluxes **SubgridFluxesEstimate[],
 	  break;
 
 	default:
-	  ENZO_VFAIL("Unrecognized call type %"ISYM"\n", 
+	  ENZO_VFAIL("Unrecognized call type %" ISYM"\n", 
 		  CommunicationReceiveCallType[index])
 
 	} // end: switch on call type
@@ -313,7 +313,7 @@ int CommunicationReceiveHandler(fluxes **SubgridFluxesEstimate[],
 	/* Report error if there has been one in any of the above calls. */
     
 	if (errcode == FAIL) {
-	  ENZO_VFAIL("Error in CommunicationReceiveHandler, method %"ISYM"\n",
+	  ENZO_VFAIL("Error in CommunicationReceiveHandler, method %" ISYM"\n",
                  CommunicationReceiveCallType[index])
         
         }
@@ -347,7 +347,7 @@ int CommunicationReceiveHandler(fluxes **SubgridFluxesEstimate[],
   /* Reset the communication mode. */
 
   CommunicationDirection = COMMUNICATION_SEND_RECEIVE;
-  //  printf("P(%d) out of CRH\n", MyProcessorNumber);
+  //  printf("P(%" ISYM ") out of CRH\n", MyProcessorNumber);
 
 #endif /* USE_MPI */
 

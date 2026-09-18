@@ -42,13 +42,13 @@ void WriteListOfFloats(FILE *fptr, int N, FLOAT floats[]);
 int SphericalInfallInitialize(FILE *fptr, FILE *Outfptr,
 			      HierarchyEntry &TopGrid, TopGridData &MetaData)
 {
-  char *DensName = "Density";
-  char *TEName   = "TotalEnergy";
-  char *GEName   = "GasEnergy";
-  char *Vel1Name = "x-velocity";
-  char *Vel2Name = "y-velocity";
-  char *Vel3Name = "z-velocity";
-  char *GPotName  = "Grav_Potential";
+  const char *DensName = "Density";
+  const char *TEName   = "TotalEnergy";
+  const char *GEName   = "GasEnergy";
+  const char *Vel1Name = "x-velocity";
+  const char *Vel2Name = "y-velocity";
+  const char *Vel3Name = "z-velocity";
+  const char *GPotName  = "Grav_Potential";
 
   /* declarations */
  
@@ -84,25 +84,25 @@ int SphericalInfallInitialize(FILE *fptr, FILE *Outfptr,
  
     /* read parameters */
  
-    ret += sscanf(line, "SphericalInfallInitialPerturbation = %"FSYM,
+    ret += sscanf(line, "SphericalInfallInitialPerturbation = %" FSYM,
 		  &SphericalInfallInitialPerturbation);
-    ret += sscanf(line, "SphericalInfallSubgridLeft = %"PSYM,
+    ret += sscanf(line, "SphericalInfallSubgridLeft = %" PSYM,
 		  &SphericalInfallSubgridLeft);
-    ret += sscanf(line, "SphericalInfallOmegaBaryonNow = %"FSYM,
+    ret += sscanf(line, "SphericalInfallOmegaBaryonNow = %" FSYM,
 		  &SphericalInfallOmegaBaryonNow);
-    ret += sscanf(line, "SphericalInfallOmegaCDMNow = %"FSYM,
+    ret += sscanf(line, "SphericalInfallOmegaCDMNow = %" FSYM,
 		  &SphericalInfallOmegaCDMNow);
-    ret += sscanf(line, "SphericalInfallSubgridRight = %"PSYM,
+    ret += sscanf(line, "SphericalInfallSubgridRight = %" PSYM,
 		  &SphericalInfallSubgridRight);
-    ret += sscanf(line, "SphericalInfallUseBaryons = %"ISYM,
+    ret += sscanf(line, "SphericalInfallUseBaryons = %" ISYM,
 		  &SphericalInfallUseBaryons);
-    ret += sscanf(line, "SphericalInfallSubgridIsStatic = %"ISYM,
+    ret += sscanf(line, "SphericalInfallSubgridIsStatic = %" ISYM,
 		  &SphericalInfallSubgridIsStatic);
-    ret += sscanf(line, "SphericalInfallFixedAcceleration = %"ISYM,
+    ret += sscanf(line, "SphericalInfallFixedAcceleration = %" ISYM,
 		  &SphericalInfallFixedAcceleration);
-    ret += sscanf(line, "SphericalInfallFixedMass = %"FSYM,
+    ret += sscanf(line, "SphericalInfallFixedMass = %" FSYM,
 		  &SphericalInfallFixedMass);
-    ret += sscanf(line, "SphericalInfallCenter = %"PSYM" %"PSYM" %"PSYM,
+    ret += sscanf(line, "SphericalInfallCenter = %" PSYM" %" PSYM" %" PSYM,
 		  SphericalInfallCenter, SphericalInfallCenter+1,
 
 		  SphericalInfallCenter+2);
@@ -259,25 +259,25 @@ int SphericalInfallInitialize(FILE *fptr, FILE *Outfptr,
  
   if (MyProcessorNumber == ROOT_PROCESSOR) {
 
-    fprintf(Outfptr, "SphericalInfallInitialPerturbation = %"GSYM"\n",
+    fprintf(Outfptr, "SphericalInfallInitialPerturbation = %" GSYM"\n",
 	    SphericalInfallInitialPerturbation);
-    fprintf(Outfptr, "SphericalInfallSubgridLeft         = %"GOUTSYM"\n",
+    fprintf(Outfptr, "SphericalInfallSubgridLeft         = %" GOUTSYM"\n",
 	    SphericalInfallSubgridLeft);
-    fprintf(Outfptr, "SphericalInfallSubgridRight        = %"GOUTSYM"\n",
+    fprintf(Outfptr, "SphericalInfallSubgridRight        = %" GOUTSYM"\n",
 	    SphericalInfallSubgridRight);
-    fprintf(Outfptr, "SphericalInfallOmegaBaryonNow      = %"GSYM"\n",
+    fprintf(Outfptr, "SphericalInfallOmegaBaryonNow      = %" GSYM"\n",
 	    SphericalInfallOmegaBaryonNow);
-    fprintf(Outfptr, "SphericalInfallOmegaCDMNow         = %"GSYM"\n",
+    fprintf(Outfptr, "SphericalInfallOmegaCDMNow         = %" GSYM"\n",
 	    SphericalInfallOmegaCDMNow);
-    fprintf(Outfptr, "SphericalInfallUseBaryons          = %"ISYM"\n",
+    fprintf(Outfptr, "SphericalInfallUseBaryons          = %" ISYM"\n",
 	    SphericalInfallUseBaryons);
-    fprintf(Outfptr, "SphericalInfallSubgridIsStatic     = %"ISYM"\n",
+    fprintf(Outfptr, "SphericalInfallSubgridIsStatic     = %" ISYM"\n",
 	    SphericalInfallSubgridIsStatic);
-    fprintf(Outfptr, "SphericalInfallFixedAcceleration   = %"ISYM"\n",
+    fprintf(Outfptr, "SphericalInfallFixedAcceleration   = %" ISYM"\n",
 	    SphericalInfallFixedAcceleration);
     fprintf(Outfptr, "SphericalInfallCenter              = ");
     WriteListOfFloats(Outfptr, MetaData.TopGridRank, SphericalInfallCenter);
-    fprintf(Outfptr, "SphericalInfallFixedMass           = %"GSYM"\n\n",
+    fprintf(Outfptr, "SphericalInfallFixedMass           = %" GSYM"\n\n",
 	    SphericalInfallFixedMass);
   }
  

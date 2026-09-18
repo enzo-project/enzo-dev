@@ -249,10 +249,10 @@ EXTERN float GridVelocity[MAX_DIMENSION];
 
 /* HDF names for labels and scales. */
 
-EXTERN char *DimUnits[MAX_DIMENSION];
-EXTERN char *DimLabels[MAX_DIMENSION];
-EXTERN char *DataLabel[MAX_NUMBER_OF_BARYON_FIELDS];
-EXTERN char *DataUnits[MAX_NUMBER_OF_BARYON_FIELDS];
+EXTERN const char *DimUnits[MAX_DIMENSION];
+EXTERN const char *DimLabels[MAX_DIMENSION];
+EXTERN const char *DataLabel[MAX_NUMBER_OF_BARYON_FIELDS];
+EXTERN const char *DataUnits[MAX_NUMBER_OF_BARYON_FIELDS];
 
 /* Region in which refinement is allowed (in problem space). */
 
@@ -776,7 +776,7 @@ EXTERN int   SimpleConstantBoundary;
 EXTERN int   StoreDomainBoundaryMassFlux;
 EXTERN int   BoundaryMassFluxFieldNumbers[MAX_NUMBER_OF_BARYON_FIELDS];
 EXTERN float BoundaryMassFluxContainer[MAX_NUMBER_OF_BARYON_FIELDS];
-EXTERN char *BoundaryMassFluxFilename;
+EXTERN const char *BoundaryMassFluxFilename;
 
 EXTERN Eint64 TaskMemory[MAX_NUMBER_OF_TASKS];
 EXTERN int    TaskMap[MAX_NUMBER_OF_TASKS];
@@ -1199,10 +1199,10 @@ EXTERN int MHD_ProjectB;// Should always be FALSE for the evoloution. May be use
 EXTERN int MHD_ProjectE;// Should always be TRUE for the evoloution
 EXTERN int UseMHDCT;
 EXTERN int EquationOfState;
-EXTERN char *MHDLabel[3];
-EXTERN char *MHDUnits[3];
-EXTERN char *MHDeLabel[3];
-EXTERN char *MHDeUnits[3];
+EXTERN const char *MHDLabel[3];
+EXTERN const char *MHDUnits[3];
+EXTERN const char *MHDeLabel[3];
+EXTERN const char *MHDeUnits[3];
 
 /* For the database */
 EXTERN char *DatabaseLocation;

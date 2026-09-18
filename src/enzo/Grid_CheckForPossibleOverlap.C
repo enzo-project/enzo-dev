@@ -40,7 +40,6 @@ int grid::CheckForPossibleOverlap(grid *OtherGrid,
  
   /* Check all 26 neighbours. */
  
-  int FullPeriod = TRUE;
  
   /* Always overlap with self. */
 

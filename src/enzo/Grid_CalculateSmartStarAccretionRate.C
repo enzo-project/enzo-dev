@@ -58,7 +58,7 @@ float grid::CalculateSmartStarAccretionRate(ActiveParticleType* ThisParticle,
   };
   int cindex = (GridEndIndex[0] - GridStartIndex[0])/2 + GridStartIndex[0];
   int cgindex = GRIDINDEX_NOGHOST(cindex,cindex,cindex);
-  float rhocell = 0.0, mcell = 0.0, CellVolume = 1.0;
+  float CellVolume = 1.0;
   /* Calculate cell volume */
   for (int dim = 0; dim < GridRank; dim++)
   {
@@ -68,14 +68,11 @@ float grid::CalculateSmartStarAccretionRate(ActiveParticleType* ThisParticle,
   ActiveParticleType_SmartStar* SS;
   SS = static_cast<ActiveParticleType_SmartStar*>(ThisParticle);
   SS->mass_in_accretion_sphere = 0.0;
-  float eta_disk = SS->eta_disk;
   float WeightedSum = 0, AverageDensity = 0, RhoInfinity = 0.0;
   float AverageT=0, TotalGasMass = 0;
   float lambda_c = 0.25*exp(1.5);
   FLOAT radius2 = 0.0;
-  float SmallRhoFac = 1e10, Weight = 0.0, SmallEFac = 10., SmEint = 0,  AccretedMomentum[3],
-    vgas[3], etot, eint, ke,  maccreted, etotnew, rhonew, eintnew,
-    kenew, mnew = 0;
+  float Weight = 0.0;
   /* Find the Bondi-Hoyle radius */
   int size = this->GetGridSize();
   float *Temperature = new float[size]();
@@ -94,22 +91,18 @@ float grid::CalculateSmartStarAccretionRate(ActiveParticleType* ThisParticle,
   /* Set the units. */
  
   float DensityUnits = 1, LengthUnits = 1, TemperatureUnits = 1,
-    TimeUnits = 1, VelocityUnits = 1,
-    PressureUnits = 0, GEUnits = 0, VelUnits = 0;
+    TimeUnits = 1, VelocityUnits = 1, VelUnits = 0;
+#ifdef DEBUG_AP
   double MassUnits = 1;
+#endif
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, Time) == FAIL) {
         ENZO_FAIL("Error in GetUnits.");
   }
-  PressureUnits = DensityUnits * POW(LengthUnits,2) / POW(TimeUnits,2);
-  GEUnits = POW(LengthUnits,2) / POW(TimeUnits, 2);
   VelUnits = LengthUnits/(TimeUnits*1e5); //convert to km/s
+#ifdef DEBUG_AP
   MassUnits = DensityUnits * POW(LengthUnits,3);
- 
-  SmEint = max(
-    SmallP * PressureUnits / ((Gamma - 1)*SmallRho),
-    1.5 * kboltz * SmallT / (Mu*mh)
-    ) / GEUnits;
+#endif
   /* Estimate the relative velocity */
   float vInfinity = sqrt(pow(vparticle[0] - BaryonField[Vel1Num][cgindex],2) +
 			 pow(vparticle[1] - BaryonField[Vel2Num][cgindex],2) +
@@ -147,7 +140,7 @@ float grid::CalculateSmartStarAccretionRate(ActiveParticleType* ThisParticle,
 	  POW((CellLeftEdge[2][k] + 0.5*CellWidth[2][k]) - xparticle[2],2);
 	
 	if ((AccretionRadius*AccretionRadius) > radius2) {
-	  //printf("Grid:index = %d\n", index);
+	  //printf("Grid:index = %" ISYM "\n", index);
 	  WeightedSum += BaryonField[DensNum][index]*
 	    exp(-radius2/((*KernelRadius)*(*KernelRadius)));
 	  (*SumOfWeights) += exp(-radius2/((*KernelRadius)*(*KernelRadius)));
@@ -181,7 +174,7 @@ float grid::CalculateSmartStarAccretionRate(ActiveParticleType* ThisParticle,
   if(SmartStarAccretion == SPHERICAL_BONDI_HOYLE_FORMALISM ||
      SmartStarAccretion == SPHERICAL_BONDI_HOYLE_FORMALISM_WITH_VORTICITY) {
 #ifdef DEBUG_AP
-    printf("Doing SPHERICAL_BONDI_HOYLE_FORMALISM, SmartStarAccretion = %d\n", SmartStarAccretion);
+    printf("Doing SPHERICAL_BONDI_HOYLE_FORMALISM, SmartStarAccretion = %" ISYM "\n", SmartStarAccretion);
 #endif
     RhoInfinity = AverageDensity /
       bondi_alpha(1.2*CellWidth[0][0] / BondiHoyleRadius);
@@ -192,7 +185,7 @@ float grid::CalculateSmartStarAccretionRate(ActiveParticleType* ThisParticle,
     /* Include Vorticity component if specified */
     if(SPHERICAL_BONDI_HOYLE_FORMALISM_WITH_VORTICITY == SmartStarAccretion) {
 #ifdef DEBUG_AP
-      printf("Doing SPHERICAL_BONDI_HOYLE_FORMALISM_WIDTH_VORTICITY, SmartStarAccretion = %d\n",
+      printf("Doing SPHERICAL_BONDI_HOYLE_FORMALISM_WIDTH_VORTICITY, SmartStarAccretion = %" ISYM "\n",
 	     SmartStarAccretion);
 #endif
       /* Include Vorticity Component */
@@ -217,7 +210,7 @@ float grid::CalculateSmartStarAccretionRate(ActiveParticleType* ThisParticle,
    */
   if(SmartStarAccretion == VISCOUS_ANGULAR_MOMENTUM_TRANSPORT) {
 #ifdef DEBUG_AP
-    printf("Doing VISCOUS_ANGULAR_MOMENTUM_TRANSPORT, SmartStarAccretion = %d\n", SmartStarAccretion);
+    printf("Doing VISCOUS_ANGULAR_MOMENTUM_TRANSPORT, SmartStarAccretion = %" ISYM "\n", SmartStarAccretion);
 #endif
   float alpha = 0.1;
   float c_s = sqrt(Gamma * kboltz * AverageT / (Mu * mh)) /
@@ -236,7 +229,7 @@ float grid::CalculateSmartStarAccretionRate(ActiveParticleType* ThisParticle,
    */
   if(SmartStarAccretion == ALPHA_DISK_CEN_2012) {
 #ifdef DEBUG_AP
-     printf("Doing ALPHA_DISK_CEN_2012, SmartStarAccretion = %d\n", SmartStarAccretion);
+     printf("Doing ALPHA_DISK_CEN_2012, SmartStarAccretion = %" ISYM "\n", SmartStarAccretion);
 #endif
     AccretionRate = CenAccretionRate(AverageDensity, AccretionRadius,
 				     xparticle, vparticle, mparticle);
@@ -249,7 +242,7 @@ float grid::CalculateSmartStarAccretionRate(ActiveParticleType* ThisParticle,
    */
   if(SmartStarAccretion == ANGULAR_MOMENTUM_LIMITED_ACCRETION) {
 #ifdef DEBUG_AP
-    printf("Doing ANGULAR_MOMENTUM_LIMITED_ACCRETION, SmartStarAccretion = %d\n", SmartStarAccretion);
+    printf("Doing ANGULAR_MOMENTUM_LIMITED_ACCRETION, SmartStarAccretion = %" ISYM "\n", SmartStarAccretion);
 #endif
     float c_s = sqrt(Gamma * kboltz * AverageT / (Mu * mh))*TimeUnits/LengthUnits;
     float V_phi = CalculateCirculisationSpeed(Vel1Num, AccretionRadius, xparticle, vparticle);
@@ -276,7 +269,7 @@ float grid::CalculateSmartStarAccretionRate(ActiveParticleType* ThisParticle,
    */
   if(SmartStarAccretion ==  CONVERGING_MASS_FLOW) {
 #ifdef DEBUG_AP
-    printf("Doing CONVERGING_MASS_FLOW, SmartStarAccretion = %d\n", SmartStarAccretion);
+    printf("Doing CONVERGING_MASS_FLOW, SmartStarAccretion = %" ISYM "\n", SmartStarAccretion);
 #endif
     AccretionRate = ConvergentMassFlow(DensNum, Vel1Num, AccretionRadius, xparticle, vparticle, 
 				       mparticle, Gcode, GENum);
@@ -294,16 +287,14 @@ int grid::GetVorticityComponent(FLOAT *pos, FLOAT *vorticity)
 {
   if (GridRank != 3) 
     ENZO_FAIL("Devised only for three dimension.");
-  int igrid[MAX_DIMENSION], dim, index, size = 1;
+  int igrid[MAX_DIMENSION], index;
   float curl_x, curl_y, curl_z;
-  float curl[3] = {0,0,0};
   int index_yp1, index_ym1, index_zp1, index_zm1;
   
   FLOAT dx = CellWidth[0][0], 
     dy = CellWidth[1][0], 
     dz = CellWidth[2][0];
   for (int dim = 0; dim < MAX_DIMENSION; dim++) {
-    size *= GridDimension[dim];
     igrid[dim] = (int) ((pos[dim] - GridLeftEdge[dim]) / CellWidth[0][0]);
   }
   int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
@@ -314,7 +305,10 @@ int grid::GetVorticityComponent(FLOAT *pos, FLOAT *vorticity)
     ENZO_FAIL("Error in IdentifyPhysicalQuantities.\n");
   }
 
-  
+  index = 
+    ((igrid[2] + GridStartIndex[2]) * GridDimension[1] + 
+     igrid[1] + GridStartIndex[1]) * GridDimension[0] + 
+    igrid[0] + GridStartIndex[0];
   index_yp1 = 
     ((igrid[2] + GridStartIndex[2]) * GridDimension[1] + 
      igrid[1] + 1 + GridStartIndex[1]) * GridDimension[0] + 
@@ -354,29 +348,25 @@ float grid::CenAccretionRate(float density, FLOAT AccretionRadius,
 			     FLOAT *pos, float *vel, float mparticle)
 {
   int index_L = 0;
-  int igrid[MAX_DIMENSION], dim = 0, size = 1;
+  int igrid[MAX_DIMENSION], dim = 0;
   double alpha  = 0.1, kappa  = 0.4, lambda;
   double gas_angmom[] = {0.0, 0.0, 0.0}, total_gas_mass = 0.0, gas_mass = 0.0;
   float mdot = 0.0;
-  FLOAT CellVolume = 1, BoxSize = 1, DensityConversion = 1, VelocityConversion = 1;
-  FLOAT a = 1, dadt;
+  FLOAT CellVolume = 1;
   FLOAT delx, dely, delz, velx, vely, velz;
   const double sigma_SB = 5.67e-5;
 
   for (int dim = 0; dim < MAX_DIMENSION; dim++) {
-    size *= GridDimension[dim];
     igrid[dim] = (int) ((pos[dim] - GridLeftEdge[dim]) / CellWidth[0][0]);
   }
   /* Set the units. */
   float DensityUnits = 1, LengthUnits = 1, TemperatureUnits = 1,
-    TimeUnits = 1, VelocityUnits = 1,
-    PressureUnits = 0, GEUnits = 0, VelUnits = 0;
+    TimeUnits = 1, VelocityUnits = 1;
   double MassUnits = 1;
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, Time) == FAIL) {
     ENZO_FAIL("Error in GetUnits.");
   }
-  VelUnits = LengthUnits/(TimeUnits*1e5); //convert to km/s
   MassUnits = DensityUnits * POW(LengthUnits,3);
   int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
   /* Find fields: density, total energy, velocity1-3. */
@@ -389,7 +379,6 @@ float grid::CenAccretionRate(float density, FLOAT AccretionRadius,
   float Gcode = GravConst*DensityUnits*TimeUnits*TimeUnits;
   for (dim = 0; dim < MAX_DIMENSION; dim++) 
     CellVolume *= CellWidth[0][0]; // in code units
-  float MassConversion = CellVolume*MassUnits;
   /* Find angular momentum in 27 cells */
   int numcells = 0;
   float relvel = 0.0, sq_relvel = 0.0;
@@ -461,8 +450,8 @@ float grid::CenAccretionRate(float density, FLOAT AccretionRadius,
     AccretionRadius*LengthUnits * pow(lambda, -7.0/3.0);
   
   //    if (mdot > 0.0) {
-  // 	fprintf(stdout, "BH Accretion[%"ISYM"]: time = %"FSYM", mdot = %"GSYM" Msun/yr, "
-  // 		"M_BH = %lf Msun, rho = %"GSYM" g/cm3, c_s = %"GSYM" cm/s, T = %"GSYM" K\n",
+  // 	fprintf(stdout, "BH Accretion[%" ISYM"]: time = %" FSYM", mdot = %" GSYM" Msun/yr, "
+  // 		"M_BH = %lf Msun, rho = %" GSYM" g/cm3, c_s = %" GSYM" cm/s, T = %" GSYM" K\n",
   // 		Identifier, time, mdot*yr, Mass, density*DensityUnits, c_s, temperature[index]);
   //	this->PrintInfo();  
   //    }
@@ -479,15 +468,15 @@ float grid::CenAccretionRate(float density, FLOAT AccretionRadius,
 float grid::ConvergentMassFlow(int DensNum, int Vel1Num, FLOAT AccretionRadius,
 			       FLOAT *pos, float *vel, float SSmass, float Gcode, int GENum)
 {
+#ifdef DEBUG_AP
   int numincells = 0, numoutcells = 0;
+#endif
   float mdot = 0.0;
   float epsilon = AccretionRadius*0.1;
   float *density = BaryonField[DensNum];
   float *gasvelx = BaryonField[Vel1Num];
   float *gasvely = BaryonField[Vel1Num++];
   float *gasvelz = BaryonField[Vel1Num++];
-  float div = 0.0, divx = 0.0, divy = 0.0, divz = 0.0;
-  const int offset[] = {1, GridDimension[0], GridDimension[0]*GridDimension[1]};
   for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
     for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
       int index = GRIDINDEX_NOGHOST(GridStartIndex[0],j,k);
@@ -530,11 +519,15 @@ float grid::ConvergentMassFlow(int DensNum, int Vel1Num, FLOAT AccretionRadius,
 	      continue;
 	    }
 #endif
+#ifdef DEBUG_AP
 	    numincells++;
+#endif
 	    accrate = density[index]*relposmag*relposmag*radialvelocity;
 	  }
+#ifdef DEBUG_AP
 	  else
 	    numoutcells++;
+#endif
 	  //mdot += density[index]*relposmag*relposmag*radialvelocity;
 	  //float accrate = density[index] * pow(AccretionRadius, 2.0) * div;
 	  //printf("%s: Accretion Rate = %g\n", __FUNCTION__, accrate*4.0*M_PI);
@@ -546,7 +539,7 @@ float grid::ConvergentMassFlow(int DensNum, int Vel1Num, FLOAT AccretionRadius,
   // mdot = -4*pi*rho*R^2*V_radial
   mdot = fabs(4*M_PI*mdot); //return the accretion rate as a positive quantity
 #ifdef DEBUG_AP
-  printf("%s: Num InFlow cells = %d\t Num OutflowCells = %d\t mdot = %e\n", __FUNCTION__, numincells,
+  printf("%s: Num InFlow cells = %" ISYM "\t Num OutflowCells = %" ISYM "\t mdot = %e\n", __FUNCTION__, numincells,
 	 numoutcells, mdot);
 #endif
   return mdot;
@@ -560,30 +553,18 @@ float grid::CalculateCirculisationSpeed(int Vel1Num, FLOAT AccretionRadius,
 					FLOAT *pos, float *vel)
 {
   int numcells = 0;
-  float tang_vel = 0.0;
   FLOAT total_vorticity[3] = {0.0, 0.0, 0.0};
   float epsilon = AccretionRadius*0.02;
-  float *gasvelx = BaryonField[Vel1Num];
-  float *gasvely = BaryonField[Vel1Num++];
-  float *gasvelz = BaryonField[Vel1Num++];
   for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
     for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
-      int index = GRIDINDEX_NOGHOST(GridStartIndex[0],j,k);
-      for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, index++) {
+      for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++) {
 	FLOAT relx = (CellLeftEdge[0][i] + 0.5*CellWidth[0][i]) - pos[0];
 	FLOAT rely = (CellLeftEdge[1][j] + 0.5*CellWidth[1][j]) - pos[1];
 	FLOAT relz = (CellLeftEdge[2][k] + 0.5*CellWidth[2][k]) - pos[2];
 	FLOAT radius2 = POW(relx,2) + POW(rely,2) + POW(relz,2);
 	if ((AccretionRadius*AccretionRadius) > radius2 &&
 	    ((AccretionRadius-epsilon)*(AccretionRadius-epsilon)) < radius2) {
-	  FLOAT relposmag = sqrt(relx*relx + rely*rely + relz*relz);
-	  FLOAT relpos[3] = { relx/relposmag, rely/relposmag, relz/relposmag};
-	  FLOAT vrel[3] = {vel[0] - gasvelx[index],
-			   vel[1] - gasvely[index],
-			   vel[2] - gasvelz[index]};
-	  FLOAT radialvelocity = fabs(vrel[0]*relpos[0] +
-					   vrel[1]*relpos[1] +
-					   vrel[2]*relpos[2] );
+
 	  /* Tangential velocity = (v x r)/|r^2| */
 	  FLOAT cellpos[3] = {pos[0] + relx, pos[1] + rely, pos[2] + relz};
 	  FLOAT vorticity[3] = {0.0, 0.0, 0.0};
@@ -592,7 +573,7 @@ float grid::CalculateCirculisationSpeed(int Vel1Num, FLOAT AccretionRadius,
 	  //		  radialvelocity*radialvelocity);
 	  total_vorticity[0] += vorticity[0];total_vorticity[1] += vorticity[1];total_vorticity[2] += vorticity[2]; 
 	  numcells++;
-	  //printf("%s: numcells = %d\t relpos = (%g, %g, %g)\n", __FUNCTION__, numcells, relpos[0], relpos[1], relpos[2]);
+	  //printf("%s: numcells = %" ISYM "\t relpos = (%g, %g, %g)\n", __FUNCTION__, numcells, relpos[0], relpos[1], relpos[2]);
 	  //printf("%s: vorticty = (%g, %g, %g)\n", __FUNCTION__, vorticity[0], vorticity[1], vorticity[2]);
 	}
       }
@@ -614,17 +595,11 @@ FLOAT grid::CalculateBondiHoyleRadius(float mparticle, float *vparticle, float *
   int cindex = (GridEndIndex[0] - GridStartIndex[0])/2 + GridStartIndex[0];
   int cgindex = GRIDINDEX_NOGHOST(cindex,cindex,cindex);
   float DensityUnits = 1, LengthUnits = 1, TemperatureUnits = 1,
-    TimeUnits = 1, VelocityUnits = 1, 
-    PressureUnits = 0, GEUnits = 0, VelUnits = 0;
-  double MassUnits = 1;
+    TimeUnits = 1, VelocityUnits = 1;
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, Time) == FAIL) {
     ENZO_FAIL("Error in GetUnits.");
   }
-  PressureUnits = DensityUnits * POW(LengthUnits,2) / POW(TimeUnits,2);
-  GEUnits = POW(LengthUnits,2) / POW(TimeUnits, 2);
-  VelUnits = LengthUnits/(TimeUnits*1e5); //convert to km/s
-  MassUnits = DensityUnits * POW(LengthUnits,3);
   /* Get indices in BaryonField for density, internal energy, thermal energy,
    * velocity */
   int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;

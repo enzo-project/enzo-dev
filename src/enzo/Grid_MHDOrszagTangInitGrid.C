@@ -63,7 +63,7 @@ int grid::MHDOrszagTangInitGrid(float DensityIn,float Pressure, float V0, float 
     return SUCCESS;
 
   float X, Y, Vx, Vy, GasEnergy=Pressure/(Gamma-1), TotalEnergy=0; 
-  int index, size=1, i,j,k, field;
+  int index, i, j, k, field;
   float Scale[3];
 
   //In order to ensure a good comparison, we use the MHD-CT initialization
@@ -77,15 +77,14 @@ int grid::MHDOrszagTangInitGrid(float DensityIn,float Pressure, float V0, float 
   this->AllocateGrids();  
 
   for(i=0;i<GridRank;i++){
-    size*=GridDimension[i];
     Scale[i]=(GridRightEdge[i]-GridLeftEdge[i])/(GridDimension[i]-2*NumberOfGhostZones);
   }
 
   int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, B1Num, B2Num, B3Num;
   IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum, B1Num, B2Num, B3Num);
 
-  fprintf(stderr,"Density %"FSYM" Pressure %"FSYM" V0 %"FSYM" B0 %"FSYM" \n", DensityIn,Pressure,V0,B0);
-  fprintf(stderr,"Scale: %"FSYM" %"FSYM" %"FSYM"\n", Scale[0],Scale[1],Scale[2]);
+  fprintf(stderr,"Density %" FSYM" Pressure %" FSYM" V0 %" FSYM" B0 %" FSYM" \n", DensityIn,Pressure,V0,B0);
+  fprintf(stderr,"Scale: %" FSYM" %" FSYM" %" FSYM"\n", Scale[0],Scale[1],Scale[2]);
   
   //Vector Potential. 
   //Due to the similarity in centering, and lack of foresight in naming,

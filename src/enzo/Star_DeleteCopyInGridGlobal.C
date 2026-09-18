@@ -32,7 +32,7 @@ int GenerateGridArray(LevelHierarchyEntry *LevelArray[], int level,
 int Star::DeleteCopyInGridGlobal(LevelHierarchyEntry *LevelArray[])
 {
 
-  int i, nPart, n, NumberOfGrids, changedGrid = INT_UNDEFINED, found = FALSE;
+  int i, NumberOfGrids, changedGrid = INT_UNDEFINED;
   HierarchyEntry **Grids;
   
   NumberOfGrids = GenerateGridArray(LevelArray, this->level, &Grids);
@@ -50,7 +50,7 @@ int Star::DeleteCopyInGridGlobal(LevelHierarchyEntry *LevelArray[])
   if (changedGrid == INT_UNDEFINED) {
     if (debug)
       fprintf(stdout, "Star::DeleteCopyInGridGlobal: WARNING -- "
-	      "star %"ISYM" not found...\n", this->Identifier);
+	      "star %" ISYM" not found...\n", this->Identifier);
     delete [] Grids;
     return SUCCESS;
   }

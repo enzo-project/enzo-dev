@@ -45,7 +45,7 @@ static const double inv_halfpi=0.6366197723675813430755350534900574;
 static void util_fail_ (const char *file, int line, const char *func,
   const char *msg)
   {
-  fprintf(stderr,"%s, %i (%s):\n%s\n",file,line,func,msg);
+  fprintf(stderr,"%s, %" ISYM " (%s):\n%s\n",file,line,func,msg);
   exit(1);
   }
 
@@ -63,7 +63,7 @@ static void util_fail_ (const char *file, int line, const char *func,
 #define DEALLOC(ptr) \
   do { util_free_(ptr); (ptr)=NULL; } while(0)
 
-static void *util_malloc_ (size_t sz)
+static inline void *util_malloc_ (size_t sz)
   {
   void *res;
   if (sz==0) return NULL;
@@ -71,7 +71,7 @@ static void *util_malloc_ (size_t sz)
   UTIL_ASSERT(res,"malloc() failed");
   return res;
   }
-static void util_free_ (void *ptr)
+static inline void util_free_ (void *ptr)
   { if ((ptr)!=NULL) free(ptr); }
 
 /*! Returns the remainder of the division \a v1/v2.
@@ -948,7 +948,7 @@ static void setCoordSysHP(char coordsys,char *coordsys9)
   else if (coordsys=='E')
     strcpy (coordsys9,"E       ");
   else if ((coordsys!='C')&&(coordsys!='Q'))
-    fprintf(stderr, "%s (%d): System Cordinates are not correct"
+    fprintf(stderr, "%s (%" ISYM "): System Cordinates are not correct"
                     "(Galactic,Ecliptic,Celestial=Equatorial). "
                     " Celestial system was set.\n", __FILE__, __LINE__);
   }

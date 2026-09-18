@@ -52,8 +52,6 @@ int grid::CommunicationSendSubgridMarker(grid *ToGrid, int ToProcessor)
     return SUCCESS;
 
   int i, dim, size, level, marker_level, MarkerRefinement;
-  int Zero[] = {0, 0, 0};
-  FLOAT FZero[] = {0.0, 0.0, 0.0};
   Eint32 *buffer;
   
   /* Calculate the grid size and level */

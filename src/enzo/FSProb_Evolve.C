@@ -57,7 +57,7 @@ int FSProb::Evolve(HierarchyEntry *ThisGrid, float deltat)
   MPI_Arg MPI_id;
   MPI_Comm_rank(MPI_COMM_WORLD, &MPI_id);
   if (MyProcessorNumber != MPI_id) {
-    fprintf(stderr, "ERROR: Enzo PID %"ISYM" doesn't match MPI ID %"ISYM"\n", 
+    fprintf(stderr, "ERROR: Enzo PID %" ISYM" doesn't match MPI ID %" ISYM"\n", 
 	    MyProcessorNumber, int(MPI_id));
     ENZO_FAIL(" ");
   }
@@ -313,7 +313,7 @@ int FSProb::Evolve(HierarchyEntry *ThisGrid, float deltat)
   HYPRE_StructPFMGGetNumIterations(preconditioner, &Pits);
   totIters += Sits;
   if (debug)
-    printf("    lin resid = %.1e (tol = %.1e, init = %.1e), its = (%i,%i)\n",
+    printf("    lin resid = %.1e (tol = %.1e, init = %.1e), its = (%" ISYM ",%" ISYM ")\n",
 	   finalresid*rhsnorm, sol_tolerance, rhsnorm, Sits, Pits);
   if ((sol_tolerance != 0.0) || (finalresid != finalresid)) {
     // if the final actual residual is too large, or is nan, quit

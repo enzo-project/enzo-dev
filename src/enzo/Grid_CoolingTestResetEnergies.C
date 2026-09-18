@@ -57,8 +57,7 @@ int grid::CoolingTestResetEnergies()
   float temperatureSlope;
   float mu;
 
-  float TemperatureUnits = 1, DensityUnits = 1, LengthUnits = 1,
-    VelocityUnits = 1, TimeUnits = 1, aUnits = 1;
+  float TemperatureUnits = 1, DensityUnits = 1, LengthUnits = 1, VelocityUnits = 1, TimeUnits = 1;
 
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, Time) == FAIL) {

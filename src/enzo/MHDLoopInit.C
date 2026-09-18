@@ -27,16 +27,16 @@ int MHDLoopInit(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   for(int dim =0;dim<3;dim++)
     Center[dim] = 0.5*(DomainLeftEdge[dim]+DomainRightEdge[dim]);
 
-  char *DensName = "Density";
-  char *TEName = "TotalEnergy";
-  char *GEName   = "GasEnergy";
-  char *Vel1Name = "x-velocity";
-  char *Vel2Name = "y-velocity";
-  char *Vel3Name = "z-velocity";
-  char *BxName = "Bx";
-  char *ByName = "By";
-  char *BzName = "Bz";
-  char *PhiName = "Phi";
+  const char *DensName = "Density";
+  const char *TEName = "TotalEnergy";
+  const char *GEName   = "GasEnergy";
+  const char *Vel1Name = "x-velocity";
+  const char *Vel2Name = "y-velocity";
+  const char *Vel3Name = "z-velocity";
+  const char *BxName = "Bx";
+  const char *ByName = "By";
+  const char *BzName = "Bz";
+  const char *PhiName = "Phi";
   int i=0;
   
     DataLabel[i++] = DensName;
@@ -86,19 +86,17 @@ int MHDLoopInit(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 
   
   char line[MAX_LINE_LENGTH];
-  int ret=0;
 
   while (fgets(line, MAX_LINE_LENGTH, fptr) != NULL) {
-    ret = 0;
-    ret += sscanf(line, "MHDLoopDensity = %"PSYM, &Density);
-    ret += sscanf(line, "MHDLoopPressure = %"PSYM, &Pressure);
-    ret += sscanf(line, "MHDLoopVx = %"PSYM, &Vx);
-    ret += sscanf(line, "MHDLoopVy = %"PSYM, &Vy);
-    ret += sscanf(line, "MHDLoopVz = %"PSYM, &Vz);
-    ret += sscanf(line, "MHDLoopB0 = %"PSYM, &B0);
-    ret += sscanf(line, "MHDLoopR0 = %"PSYM, &R0);
-    ret += sscanf(line, "MHDLoopCurrentAxis = %d", &CurrentAxis);
-    ret += sscanf(line, "MHDLoopCenter = %"PSYM" %"PSYM" %"PSYM, 
+    sscanf(line, "MHDLoopDensity = %" PSYM, &Density);
+    sscanf(line, "MHDLoopPressure = %" PSYM, &Pressure);
+    sscanf(line, "MHDLoopVx = %" PSYM, &Vx);
+    sscanf(line, "MHDLoopVy = %" PSYM, &Vy);
+    sscanf(line, "MHDLoopVz = %" PSYM, &Vz);
+    sscanf(line, "MHDLoopB0 = %" PSYM, &B0);
+    sscanf(line, "MHDLoopR0 = %" PSYM, &R0);
+    sscanf(line, "MHDLoopCurrentAxis = %" ISYM, &CurrentAxis);
+    sscanf(line, "MHDLoopCenter = %" PSYM " %" PSYM " %" PSYM, 
 		  Center, Center+1, Center+2);
     
   }  

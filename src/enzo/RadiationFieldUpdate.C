@@ -301,11 +301,11 @@ int RadiationFieldUpdate(LevelHierarchyEntry *LevelArray[], int level,
   if (MyProcessorNumber == ROOT_PROCESSOR) {
     FILE *fptr = fopen("RadiationField.out", "a");
  
-    fprintf(fptr, "# Redshift = %"GOUTSYM"   Time = %"GOUTSYM"    X-ray energy/temp = %"GSYM" %"GSYM"   Justburn = %"GSYM"   Densities = %"GSYM" %"GSYM" %"GSYM"\n", 1.0/a - 1.0, Time, RadiationData.ComptonXrayEnergyDensity, RadiationData.ComptonXrayTemperature, RadiationData.IntegratedStarFormation,
+    fprintf(fptr, "# Redshift = %" GOUTSYM"   Time = %" GOUTSYM"    X-ray energy/temp = %" GSYM" %" GSYM"   Justburn = %" GSYM"   Densities = %" GSYM" %" GSYM" %" GSYM"\n", 1.0/a - 1.0, Time, RadiationData.ComptonXrayEnergyDensity, RadiationData.ComptonXrayTemperature, RadiationData.IntegratedStarFormation,
  
 *HIMeanDensitySum, *HeIMeanDensitySum, *HeIIMeanDensitySum);
     if (RadiationFieldType == 11)
-      fprintf(fptr, "# Averaged CrossSections = %"GSYM" %"GSYM" %"GSYM"   %"GSYM" %"GSYM" %"GSYM"\n",
+      fprintf(fptr, "# Averaged CrossSections = %" GSYM" %" GSYM" %" GSYM"   %" GSYM" %" GSYM" %" GSYM"\n",
 	    RadiationData.HIAveragePhotoionizationCrossSection,
 	    RadiationData.HeIAveragePhotoionizationCrossSection,
 	    RadiationData.HeIIAveragePhotoionizationCrossSection,
@@ -313,7 +313,7 @@ int RadiationFieldUpdate(LevelHierarchyEntry *LevelArray[], int level,
 	    RadiationData.HeIAveragePhotoHeatingCrossSection,
 	    RadiationData.HeIIAveragePhotoHeatingCrossSection);
     for (i = 0; i < RadiationData.NumberOfFrequencyBins; i++)
-      fprintf(fptr, "%"GSYM"   %"GSYM" %"GSYM" %"GSYM" %"GSYM"    %"GSYM" %"GSYM" %"GSYM" %"GSYM"\n",
+      fprintf(fptr, "%" GSYM"   %" GSYM" %" GSYM" %" GSYM" %" GSYM"    %" GSYM" %" GSYM" %" GSYM" %" GSYM"\n",
 	    POW(10, RadiationData.FrequencyBinWidth*i),
 	    RadiationData.Spectrum[0][i], RadiationData.Spectrum[1][i],
 	    RadiationData.Spectrum[2][i], RadiationData.Spectrum[3][i],

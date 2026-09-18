@@ -92,73 +92,73 @@ int RadiativeTransferReadParameters(FILE *fptr)
 
     /* read parameters */
     
-    ret += sscanf(line, "RadiativeTransferRadiationPressure = %"ISYM, 
+    ret += sscanf(line, "RadiativeTransferRadiationPressure = %" ISYM, 
 		  &RadiationPressure);
-    ret += sscanf(line, "RadiativeTransferRadiationPressureScale = %"FSYM, 
+    ret += sscanf(line, "RadiativeTransferRadiationPressureScale = %" FSYM, 
 		  &RadiationPressureScale);
-    ret += sscanf(line, "RadiativeTransferSourceRadius = %"FSYM, 
+    ret += sscanf(line, "RadiativeTransferSourceRadius = %" FSYM, 
 		  &RadiativeTransferSourceRadius);
-    ret += sscanf(line, "RadiativeTransferPropagationSpeedFraction = %"FSYM, 
+    ret += sscanf(line, "RadiativeTransferPropagationSpeedFraction = %" FSYM, 
 		  &RadiativeTransferPropagationSpeedFraction);
-    ret += sscanf(line, "RadiativeTransferPropagationDistance = %"FSYM, 
+    ret += sscanf(line, "RadiativeTransferPropagationDistance = %" FSYM, 
 		  &RadiativeTransferPropagationDistance);
-    ret += sscanf(line, "RadiativeTransferCoupledRateSolver = %"ISYM, 
+    ret += sscanf(line, "RadiativeTransferCoupledRateSolver = %" ISYM, 
 		  &RadiativeTransferCoupledRateSolver);
-    ret += sscanf(line, "RadiativeTransferOpticallyThinH2 = %"ISYM, 
+    ret += sscanf(line, "RadiativeTransferOpticallyThinH2 = %" ISYM, 
 		  &RadiativeTransferOpticallyThinH2);
-    ret += sscanf(line, "RadiativeTransferOpticallyThinH2CharLength = %"FSYM, 
+    ret += sscanf(line, "RadiativeTransferOpticallyThinH2CharLength = %" FSYM, 
 		  &RadiativeTransferOpticallyThinH2CharLength);
-    ret += sscanf(line, "RadiativeTransferPeriodicBoundary = %"ISYM, 
+    ret += sscanf(line, "RadiativeTransferPeriodicBoundary = %" ISYM, 
 		  &RadiativeTransferPeriodicBoundary);
-    ret += sscanf(line, "RadiativeTransferSplitPhotonRadius = %"FSYM, 
+    ret += sscanf(line, "RadiativeTransferSplitPhotonRadius = %" FSYM, 
 		  &RadiativeTransferSplitPhotonRadius);
-    ret += sscanf(line, "RadiativeTransferFluxBackgroundLimit = %"FSYM, 
+    ret += sscanf(line, "RadiativeTransferFluxBackgroundLimit = %" FSYM, 
 		  &RadiativeTransferFluxBackgroundLimit);
-    ret += sscanf(line, "RadiativeTransferRaysPerCell = %"FSYM, 
+    ret += sscanf(line, "RadiativeTransferRaysPerCell = %" FSYM, 
 		  &RadiativeTransferRaysPerCell);
-    ret += sscanf(line, "RadiativeTransferTimestepVelocityLimit = %"FSYM, 
+    ret += sscanf(line, "RadiativeTransferTimestepVelocityLimit = %" FSYM, 
 		  &RadiativeTransferTimestepVelocityLimit);
-    ret += sscanf(line, "RadiativeTransferTimestepVelocityLevel = %"ISYM, 
+    ret += sscanf(line, "RadiativeTransferTimestepVelocityLevel = %" ISYM, 
 		  &RadiativeTransferTimestepVelocityLevel);
-    ret += sscanf(line, "RadiativeTransferInitialHEALPixLevel = %"ISYM, 
+    ret += sscanf(line, "RadiativeTransferInitialHEALPixLevel = %" ISYM, 
 		  &RadiativeTransferInitialHEALPixLevel);
-    ret += sscanf(line, "RadiativeTransferPhotonEscapeRadius = %"FSYM, 
+    ret += sscanf(line, "RadiativeTransferPhotonEscapeRadius = %" FSYM, 
 		  &RadiativeTransferPhotonEscapeRadius);
-    ret += sscanf(line, "RadiativeTransferInterpolateField = %"ISYM, 
+    ret += sscanf(line, "RadiativeTransferInterpolateField = %" ISYM, 
 		  &RadiativeTransferInterpolateField);
-    ret += sscanf(line, "RadiativeTransferSourceClustering = %"ISYM, 
+    ret += sscanf(line, "RadiativeTransferSourceClustering = %" ISYM, 
 		  &RadiativeTransferSourceClustering);
-    ret += sscanf(line, "RadiativeTransferOpticallyThinSourceClustering = %"ISYM,
+    ret += sscanf(line, "RadiativeTransferOpticallyThinSourceClustering = %" ISYM,
                   &RadiativeTransferOpticallyThinSourceClustering);
-    ret += sscanf(line, "RadiativeTransferPhotonMergeRadius = %"FSYM, 
+    ret += sscanf(line, "RadiativeTransferPhotonMergeRadius = %" FSYM, 
 		  &RadiativeTransferPhotonMergeRadius);
-    ret += sscanf(line, "RadiativeTransferFLDCallOnLevel = %"ISYM, 
+    ret += sscanf(line, "RadiativeTransferFLDCallOnLevel = %" ISYM, 
 		  &RadiativeTransferFLDCallOnLevel);
-    ret += sscanf(line, "RadiativeTransferSourceBeamAngle = %"FSYM, 
+    ret += sscanf(line, "RadiativeTransferSourceBeamAngle = %" FSYM, 
 		  &RadiativeTransferSourceBeamAngle);
-    ret += sscanf(line, "RadiativeTransferHIIRestrictedTimestep = %"ISYM, 
+    ret += sscanf(line, "RadiativeTransferHIIRestrictedTimestep = %" ISYM, 
 		  &RadiativeTransferHIIRestrictedTimestep);
-    ret += sscanf(line, "RadiativeTransferAdaptiveTimestep = %"ISYM, 
+    ret += sscanf(line, "RadiativeTransferAdaptiveTimestep = %" ISYM, 
 		  &RadiativeTransferAdaptiveTimestep);
-    ret += sscanf(line, "RadiativeTransferHydrogenOnly = %"ISYM, 
+    ret += sscanf(line, "RadiativeTransferHydrogenOnly = %" ISYM, 
 		  &RadiativeTransferHydrogenOnly);
-    ret += sscanf(line, "RadiativeTransferH2ShieldType = %"ISYM, 
+    ret += sscanf(line, "RadiativeTransferH2ShieldType = %" ISYM, 
 		  &RadiativeTransferH2ShieldType);
-    ret += sscanf(line, "RadiativeTransferH2IIDiss = %"ISYM, 
+    ret += sscanf(line, "RadiativeTransferH2IIDiss = %" ISYM, 
 		  &RadiativeTransferH2IIDiss);
-    ret += sscanf(line, "RadiativeTransferUseH2Shielding = %"ISYM, 
+    ret += sscanf(line, "RadiativeTransferUseH2Shielding = %" ISYM, 
 		  &RadiativeTransferUseH2Shielding);
-    ret += sscanf(line, "RadiativeTransferTraceSpectrum = %"ISYM, 
+    ret += sscanf(line, "RadiativeTransferTraceSpectrum = %" ISYM, 
 		  &RadiativeTransferTraceSpectrum);
-    ret += sscanf(line, "RadiativeTransferLoadBalance = %"ISYM, 
+    ret += sscanf(line, "RadiativeTransferLoadBalance = %" ISYM, 
 		  &RadiativeTransferLoadBalance);
-    ret += sscanf(line, "RadiativeTransferRayMaximumLength = %"FSYM, 
+    ret += sscanf(line, "RadiativeTransferRayMaximumLength = %" FSYM, 
 		  &RadiativeTransferRayMaximumLength);
-    ret += sscanf(line, "RadiativeTransferHubbleTimeFraction = %"FSYM, 
+    ret += sscanf(line, "RadiativeTransferHubbleTimeFraction = %" FSYM, 
 		  &RadiativeTransferHubbleTimeFraction);
     if (sscanf(line, "RadiativeTransferTraceSpectrumTable = %s", dummy) == 1)
       RadiativeTransferTraceSpectrumTable = dummy;  
-    ret += sscanf(line, "dtPhoton = %"FSYM, &dtPhoton);
+    ret += sscanf(line, "dtPhoton = %" FSYM, &dtPhoton);
 
     /* If the dummy char space was used, then make another. */
  
@@ -199,8 +199,8 @@ int RadiativeTransferReadParameters(FILE *fptr)
 
   if (RadiativeTransferFLDCallOnLevel < 0) {
     if (MyProcessorNumber == ROOT_PROCESSOR)
-      fprintf(stderr, "Warning: RadiativeTransferFLDCallOnLevel = %"ISYM
-	      " cannot be negative!  Setting to 0.\n");
+      fprintf(stderr, "Warning: RadiativeTransferFLDCallOnLevel = %" ISYM
+	      " cannot be negative!  Setting to 0.\n", RadiativeTransferFLDCallOnLevel);
     RadiativeTransferFLDCallOnLevel = 0;
   }
 

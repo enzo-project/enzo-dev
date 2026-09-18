@@ -74,7 +74,7 @@ void StochasticForcing::Inject(void)
     if (MyProcessorNumber == ROOT_PROCESSOR) {
 
 	int i, j, k, n, dim;
-	float a, b, contr, div;
+	float a, b, contr;
 
 	/* compute Gaussian deviates */
 

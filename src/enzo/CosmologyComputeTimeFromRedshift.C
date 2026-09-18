@@ -30,8 +30,6 @@ int CosmologyComputeTimeFromRedshift(FLOAT Redshift, FLOAT *TimeCodeUnits)
  
   /* Find Omega due to curvature. */
  
-  float OmegaCurvatureNow = 1 - OmegaMatterNow -
-    OmegaLambdaNow - OmegaRadiationNow;
 
   /* Interpolate from a(t) table. */
  

@@ -105,16 +105,16 @@ int MHDBlastInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   // Labels and Units.  (For IO.)
   // 
   
-  char *DensName = "Density";
-  char *TEName = "TotalEnergy";
-  char *Vel1Name = "x-velocity";
-  char *Vel2Name = "y-velocity";
-  char *Vel3Name = "z-velocity";
-  char *GPotName = "GravPotential";
-  char *BxName = "Bx";
-  char *ByName = "By";
-  char *BzName = "Bz";
-  char *PhiName = "Phi";
+  const char *DensName = "Density";
+  const char *TEName = "TotalEnergy";
+  const char *Vel1Name = "x-velocity";
+  const char *Vel2Name = "y-velocity";
+  const char *Vel3Name = "z-velocity";
+  const char *GPotName = "GravPotential";
+  const char *BxName = "Bx";
+  const char *ByName = "By";
+  const char *BzName = "Bz";
+  const char *PhiName = "Phi";
   
   
 
@@ -123,8 +123,7 @@ int MHDBlastInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 
   // Parameters and their defaults.
   char line[MAX_LINE_LENGTH];
-  int ret = 0, GasFlag = 0, Pflag=0, TotalFlag=0;
-  int ObsFlag = 0;
+  int GasFlag = 0, Pflag=0, TotalFlag=0;
   int RefineOnStartup = FALSE;
   int UseMetal = FALSE, metal_ret=0;
   float MetalOffsetInX = 0;
@@ -137,12 +136,10 @@ int MHDBlastInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
     TotalEnergyB = 1.0;
 
   float MetalDensityA = 0.0, MetalDensityB=0.0;
-  float PressureA, PressureB;
   float VelocityA[3] = {0.666, 0.666, 0.666};
   float VelocityB[3] = {0.3666, 0.3666, 0.3666};
   float BA[3]  = {0.5, 0.0, 0.0};
   float BB[3]  = {0.5, 0.0, 0.0};
-  float EnergyA, EnergyB;
   float Radius = 4.0;
   int InitStyle = 0, PerturbMethod = -1;
   float MHDBlastCenter[3] = {0.5,0.5,0.5};
@@ -154,8 +151,7 @@ int MHDBlastInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   
   //Obsolete variable names.
   float Pressure0, Pressure1;
-  float B0[3],B1[3],Energy0, Energy1;
-  float Density0,Density1, GasEnergy0, GasEnergy1, TotalEnergy0,TotalEnergy1;
+  float Energy0, Energy1;
     
   //
   // Read Parameter File.
@@ -163,61 +159,58 @@ int MHDBlastInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 
   while (fgets(line, MAX_LINE_LENGTH, fptr) != NULL) {
 
-    ret = 0;
 
     //I changed some nomenclature, to make things easier on myself
     //This checks for old nominclature.
-    ObsFlag = 0;
     
-    ret += sscanf(line, "MHDBlastDA = %"PSYM, &DensityA);
-    ret += sscanf(line, "MHDBlastDB = %"PSYM, &DensityB);
+    sscanf(line, "MHDBlastDA = %" PSYM, &DensityA);
+    sscanf(line, "MHDBlastDB = %" PSYM, &DensityB);
 
-    ret += sscanf(line, "MHDBlastBA = %"PSYM" %"PSYM" %"PSYM, BA, BA+1, BA+2);
-    ret += sscanf(line, "MHDBlastBB = %"PSYM" %"PSYM" %"PSYM, BB, BB+1, BB+2);
+    sscanf(line, "MHDBlastBA = %" PSYM" %" PSYM" %" PSYM, BA, BA+1, BA+2);
+    sscanf(line, "MHDBlastBB = %" PSYM" %" PSYM" %" PSYM, BB, BB+1, BB+2);
 
-    ret += sscanf(line, "MHDBlastVelocityA = %"PSYM" %"PSYM" %"PSYM,
+    sscanf(line, "MHDBlastVelocityA = %" PSYM" %" PSYM" %" PSYM,
 		  VelocityA, VelocityA+1,VelocityA+2);
-    ret += sscanf(line, "MHDBlastVelocityB = %"PSYM" %"PSYM" %"PSYM,
+    sscanf(line, "MHDBlastVelocityB = %" PSYM" %" PSYM" %" PSYM,
 		  VelocityB, VelocityB+1,VelocityB+2);
     
-    Pflag += sscanf(line, "MHDBlastPA = %"PSYM, &Pressure0);
-    Pflag += sscanf(line, "MHDBlastPB = %"PSYM, &Pressure1);
+    Pflag += sscanf(line, "MHDBlastPA = %" PSYM, &Pressure0);
+    Pflag += sscanf(line, "MHDBlastPB = %" PSYM, &Pressure1);
 
-    GasFlag += sscanf(line, "MHDBlastGasEnergyA = %"PSYM, &GasEnergyA);
-    GasFlag += sscanf(line, "MHDBlastGasEnergyB = %"PSYM, &GasEnergyB);
+    GasFlag += sscanf(line, "MHDBlastGasEnergyA = %" PSYM, &GasEnergyA);
+    GasFlag += sscanf(line, "MHDBlastGasEnergyB = %" PSYM, &GasEnergyB);
 
-    TotalFlag += sscanf(line, "MHDBlastTotalEnergyA = %"PSYM, &TotalEnergyA);
-    TotalFlag += sscanf(line, "MHDBlastTotalEnergyB = %"PSYM, &TotalEnergyB);
+    TotalFlag += sscanf(line, "MHDBlastTotalEnergyA = %" PSYM, &TotalEnergyA);
+    TotalFlag += sscanf(line, "MHDBlastTotalEnergyB = %" PSYM, &TotalEnergyB);
     
-    metal_ret += sscanf(line, "MHDBlastMetalDensityA = %"PSYM, &MetalDensityA);
-    metal_ret += sscanf(line, "MHDBlastMetalDensityB = %"PSYM, &MetalDensityB);
-    ret += sscanf(line, "MHDBlastMetalOffsetInX = %"PSYM, &MetalOffsetInX); 
+    metal_ret += sscanf(line, "MHDBlastMetalDensityA = %" PSYM, &MetalDensityA);
+    metal_ret += sscanf(line, "MHDBlastMetalDensityB = %" PSYM, &MetalDensityB);
+    sscanf(line, "MHDBlastMetalOffsetInX = %" PSYM, &MetalOffsetInX); 
     //shift the metal density by this fraction of the box.
     if( metal_ret > 0){
-        ret++;
         UseMetal = TRUE;
     }
     
     ////
 
-    ret += sscanf(line, "MHDBlastRadius = %"PSYM, &Radius);
+    sscanf(line, "MHDBlastRadius = %" PSYM, &Radius);
 
-    ret += sscanf(line, "MHDBlastInitStyle = %"ISYM"", &InitStyle);
+    sscanf(line, "MHDBlastInitStyle = %" ISYM"", &InitStyle);
 
-    ret += sscanf(line, "MHDBlastCenter = %"PSYM" %"PSYM" %"PSYM,
+    sscanf(line, "MHDBlastCenter = %" PSYM" %" PSYM" %" PSYM,
 		  MHDBlastCenter, MHDBlastCenter+1,MHDBlastCenter+2);
 
-    ret += sscanf(line, "MHDBlastSubgridLeft  = %"PSYM" %"PSYM" %"PSYM,
+    sscanf(line, "MHDBlastSubgridLeft  = %" PSYM" %" PSYM" %" PSYM,
 		  MHDBlastSubgridLeft, MHDBlastSubgridLeft +1 , MHDBlastSubgridLeft +2);
-    ret += sscanf(line, "MHDBlastSubgridRight = %"PSYM" %"PSYM" %"PSYM,
+    sscanf(line, "MHDBlastSubgridRight = %" PSYM" %" PSYM" %" PSYM,
 		  MHDBlastSubgridRight, MHDBlastSubgridRight +1 , MHDBlastSubgridRight +2);
 
-    ret += sscanf(line, "MHDBlastPerturbAmplitude      = %"PSYM, &PerturbAmplitude);
-    ret += sscanf(line, "MHDBlastPerturbMethod         = %"ISYM"", &PerturbMethod);
-    ret += sscanf(line, "MHDBlastPerturbWavelength      = %"PSYM" %"PSYM" %"PSYM,
+    sscanf(line, "MHDBlastPerturbAmplitude      = %" PSYM, &PerturbAmplitude);
+    sscanf(line, "MHDBlastPerturbMethod         = %" ISYM"", &PerturbMethod);
+    sscanf(line, "MHDBlastPerturbWavelength      = %" PSYM" %" PSYM" %" PSYM,
                   PerturbWavelength,PerturbWavelength+1,PerturbWavelength+2);
 
-    ret += sscanf(line, "MHDBlastRefineOnStartup  = %"ISYM"", &RefineOnStartup);
+    sscanf(line, "MHDBlastRefineOnStartup  = %" ISYM"", &RefineOnStartup);
 
   }//line loop
 
@@ -244,9 +237,9 @@ int MHDBlastInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   }
 
   if( RefineOnStartup == 1 ){
-    fprintf(stderr,"Subgrid Left %"GSYM" %"GSYM" %"GSYM"\n", MHDBlastSubgridLeft[0], MHDBlastSubgridLeft[1], MHDBlastSubgridLeft[2]);
-    fprintf(stderr,"Subgrid Right %"GSYM" %"GSYM" %"GSYM"\n",MHDBlastSubgridRight[0],MHDBlastSubgridRight[1],MHDBlastSubgridRight[2]);
-    fprintf(stderr,"nCells %"ISYM" %"ISYM" %"ISYM"\n", nCells[0], nCells[1], nCells[2]);
+    fprintf(stderr,"Subgrid Left %" GSYM" %" GSYM" %" GSYM"\n", MHDBlastSubgridLeft[0], MHDBlastSubgridLeft[1], MHDBlastSubgridLeft[2]);
+    fprintf(stderr,"Subgrid Right %" GSYM" %" GSYM" %" GSYM"\n",MHDBlastSubgridRight[0],MHDBlastSubgridRight[1],MHDBlastSubgridRight[2]);
+    fprintf(stderr,"nCells %" ISYM" %" ISYM" %" ISYM"\n", nCells[0], nCells[1], nCells[2]);
   }
 
   // Long Dimension is used to convert the radius from Physical units to Grid Units;
@@ -332,7 +325,7 @@ int MHDBlastInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
       for (dim = 0; dim < MetaData.TopGridRank; dim++)
 	NumberOfSubgridZones[dim] = nCells[dim]*POW(RefineBy, lev + 1);
       
-      fprintf(stderr,"uncle MHDBlast:: Level[%"ISYM"]: NumberOfSubgridZones[0] = %"ISYM"\n", lev+1, 
+      fprintf(stderr,"uncle MHDBlast:: Level[%" ISYM"]: NumberOfSubgridZones[0] = %" ISYM"\n", lev+1, 
 	      NumberOfSubgridZones[0]);
       
       if (NumberOfSubgridZones[0] > 0) {
@@ -439,7 +432,7 @@ int MHDBlastInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 
 
   if(DualEnergyFormalism ){
-    char *GEName = "GasEnergy";
+    const char *GEName = "GasEnergy";
     DataLabel[i++] = GEName;
     DataUnits[j++] = NULL;   
   }

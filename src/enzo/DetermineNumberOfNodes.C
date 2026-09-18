@@ -32,13 +32,13 @@ int DetermineNumberOfNodes(void)
     return NumberOfProcessors;
   }
 
-  int i, j, err, NumberOfNodes = 0;
+  int i, j, NumberOfNodes = 0;
   char *AllHosts, *UniqueHosts, hostname[MAX_LINE_LENGTH];
   char host1[MAX_LINE_LENGTH], host2[MAX_LINE_LENGTH];
   bool unique;
 
   hostname[MAX_LINE_LENGTH-1] = '\0';
-  err = gethostname(hostname, MAX_LINE_LENGTH-1);
+  gethostname(hostname, MAX_LINE_LENGTH-1);
 
   if (MyProcessorNumber == ROOT_PROCESSOR) {
     AllHosts = new char[NumberOfProcessors * MAX_LINE_LENGTH];
@@ -59,7 +59,7 @@ int DetermineNumberOfNodes(void)
       // Extract hostname from array
       memcpy(host1, AllHosts+i*MAX_LINE_LENGTH, MAX_LINE_LENGTH);
 
-      //printf("%"ISYM" :: %s\n", i, host1);
+      //printf("%" ISYM" :: %s\n", i, host1);
       unique = true;
       for (j = 0; j < NumberOfNodes; j++) {
 	memcpy(host2, UniqueHosts+j*MAX_LINE_LENGTH, MAX_LINE_LENGTH);
@@ -78,7 +78,7 @@ int DetermineNumberOfNodes(void)
 
 //    for (i = 0; i < NumberOfNodes; i++) {
 //      memcpy(host1, UniqueHosts+i*MAX_LINE_LENGTH, MAX_LINE_LENGTH);
-//      printf("Node %"ISYM" :: %s\n", i, host1);
+//      printf("Node %" ISYM" :: %s\n", i, host1);
 //    }
     
     delete [] UniqueHosts;
@@ -90,7 +90,7 @@ int DetermineNumberOfNodes(void)
   CoresPerNode = NumberOfProcessors / NumberOfNodes;
 
   if (debug)
-    printf("DetermineNumberOfNodes: %"ISYM" nodes, %"ISYM" cores per node\n", 
+    printf("DetermineNumberOfNodes: %" ISYM" nodes, %" ISYM" cores per node\n", 
 	   NumberOfNodes, CoresPerNode);
 
   return NumberOfNodes;

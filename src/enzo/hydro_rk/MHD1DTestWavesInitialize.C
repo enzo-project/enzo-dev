@@ -39,23 +39,21 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 int MHD1DTestWavesInitialize(FILE *fptr, FILE *Outfptr, 
                              HierarchyEntry &TopGrid, TopGridData &MetaData) 
 {
-  char *DensName = "Density";
-  char *PresName = "Pressure";
-  char *TEName   = "TotalEnergy";
-  char *GEName   = "GasEnergy";
-  char *Vel1Name = "x-velocity";
-  char *Vel2Name = "y-velocity";
-  char *Vel3Name = "z-velocity";
-  char *ColourName = "colour";
-  char *BxName = "Bx";
-  char *ByName = "By";
-  char *BzName = "Bz";
-  char *PhiName = "Phi";
+  const char *DensName = "Density";
+  const char *TEName   = "TotalEnergy";
+  const char *GEName   = "GasEnergy";
+  const char *Vel1Name = "x-velocity";
+  const char *Vel2Name = "y-velocity";
+  const char *Vel3Name = "z-velocity";
+  const char *BxName = "Bx";
+  const char *ByName = "By";
+  const char *BzName = "Bz";
+  const char *PhiName = "Phi";
 
   /* declarations */
 
   char  line[MAX_LINE_LENGTH];
-  int   dim, ret, level, sphere, i;
+  int ret, level, i;
 
   /* set default parameters */
 
@@ -77,23 +75,23 @@ int MHD1DTestWavesInitialize(FILE *fptr, FILE *Outfptr,
     ret = 0;
 
     /* read parameters */
-    ret += sscanf(line, "RefineAtStart = %"ISYM, 
+    ret += sscanf(line, "RefineAtStart = %" ISYM, 
 		  &RefineAtStart);
-    ret += sscanf(line, "VelocityXPert = %"FSYM,
+    ret += sscanf(line, "VelocityXPert = %" FSYM,
 		  &VelocityXPert);
-    ret += sscanf(line, "VelocityYPert = %"FSYM,
+    ret += sscanf(line, "VelocityYPert = %" FSYM,
 		  &VelocityYPert);
-    ret += sscanf(line, "VelocityZPert = %"FSYM,
+    ret += sscanf(line, "VelocityZPert = %" FSYM,
 		  &VelocityZPert);
-    ret += sscanf(line, "EtotPert = %"FSYM, 
+    ret += sscanf(line, "EtotPert = %" FSYM, 
 		  &EtotPert);
-    ret += sscanf(line, "DensityPert = %"FSYM, 
+    ret += sscanf(line, "DensityPert = %" FSYM, 
 		  &DensityPert);
-    ret += sscanf(line, "BxPert = %"FSYM,
+    ret += sscanf(line, "BxPert = %" FSYM,
 		  &BxPert);
-    ret += sscanf(line, "ByPert = %"FSYM,
+    ret += sscanf(line, "ByPert = %" FSYM,
 		  &ByPert);
-    ret += sscanf(line, "BzPert = %"FSYM,
+    ret += sscanf(line, "BzPert = %" FSYM,
 		  &BzPert);
     /* if the line is suspicious, issue a warning */
 
@@ -113,7 +111,7 @@ int MHD1DTestWavesInitialize(FILE *fptr, FILE *Outfptr,
   double PressureUnits = DensityUnits*pow(VelocityUnits,2);
   double MagneticUnits = sqrt(4.0*M_PI*PressureUnits);
 
-  printf("DensityUnits=%"GSYM",VelocityUnits=%"GSYM",LengthUnits=%"GSYM",TimeUnits=%"GSYM" (%"GSYM" yr),PressureUnits=%"GSYM"\n", 
+  printf("DensityUnits=%" GSYM",VelocityUnits=%" GSYM",LengthUnits=%" GSYM",TimeUnits=%" GSYM" (%" GSYM" yr),PressureUnits=%" GSYM"\n", 
 	 DensityUnits, VelocityUnits, LengthUnits, TimeUnits, TimeUnits/3.1558e7, PressureUnits);
 
   if (UsePhysicalUnit) {
@@ -166,7 +164,7 @@ int MHD1DTestWavesInitialize(FILE *fptr, FILE *Outfptr,
        and re-initialize the level after it is created. */
 
     for (level = 0; level < MaximumRefinementLevel; level++) {
-      printf("In level %"ISYM"\n", level);
+      printf("In level %" ISYM"\n", level);
       if (RebuildHierarchy(&MetaData, LevelArray, level) == FAIL) {
 	fprintf(stderr, "Error in RebuildHierarchy.\n");
 	return FAIL;
@@ -233,23 +231,23 @@ int MHD1DTestWavesInitialize(FILE *fptr, FILE *Outfptr,
   /* Write parameters to parameter output file */
 
   if (MyProcessorNumber == ROOT_PROCESSOR) {
-    fprintf(Outfptr, "RefineAtStart      = %"ISYM"\n",
+    fprintf(Outfptr, "RefineAtStart      = %" ISYM"\n",
 	    RefineAtStart);
-    fprintf(Outfptr, "DensityPert       = %"FSYM"\n",
+    fprintf(Outfptr, "DensityPert       = %" FSYM"\n",
 	    DensityPert);
-    fprintf(Outfptr, "VelocityXPert = %"FSYM"\n",
+    fprintf(Outfptr, "VelocityXPert = %" FSYM"\n",
 	    VelocityXPert);
-    fprintf(Outfptr, "VelocityYPert = %"FSYM"\n",
+    fprintf(Outfptr, "VelocityYPert = %" FSYM"\n",
 	    VelocityYPert);
-    fprintf(Outfptr, "VelocityZPert = %"FSYM"\n",
+    fprintf(Outfptr, "VelocityZPert = %" FSYM"\n",
 	    VelocityZPert);
-    fprintf(Outfptr, "BxPert = %"FSYM"\n",
+    fprintf(Outfptr, "BxPert = %" FSYM"\n",
 	    BxPert);
-    fprintf(Outfptr, "ByPert = %"FSYM"\n",
+    fprintf(Outfptr, "ByPert = %" FSYM"\n",
 	    ByPert);
-    fprintf(Outfptr, "BzPert = %"FSYM"\n",
+    fprintf(Outfptr, "BzPert = %" FSYM"\n",
 	    BzPert);
-    fprintf(Outfptr, "EtotPert = %"FSYM"\n",
+    fprintf(Outfptr, "EtotPert = %" FSYM"\n",
             EtotPert);
   }
   //return FAIL;

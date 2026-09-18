@@ -126,12 +126,6 @@ int grid::RotatingSphereInitializeGrid(float RotatingSphereNFWMass,
       fflush(stdout);
       }
  
-   // Figure out grid quantities and how to access fields 
-   int size = 1;
-
-   for (int dim = 0; dim < GridRank; dim++)
-      size *= GridDimension[dim];
-
    int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
    int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
       DINum, DIINum, HDINum, MetalNum;
@@ -141,8 +135,6 @@ int grid::RotatingSphereInitializeGrid(float RotatingSphereNFWMass,
       ENZO_FAIL("Error in IdentifyPhysicalQuantities.\n");
       }
 
-   int MetallicityField = FALSE;
-
    if (MultiSpecies) {
       if (IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum,
                       HMNum, H2INum, H2IINum, DINum, DIINum, HDINum) == FAIL) {
@@ -150,10 +142,7 @@ int grid::RotatingSphereInitializeGrid(float RotatingSphereNFWMass,
          }
       }
 
-   if ((MetalNum = FindField(Metallicity, FieldType, NumberOfBaryonFields))
-         != -1)
-      MetallicityField = TRUE;
-   else
+   if ((MetalNum = FindField(Metallicity, FieldType, NumberOfBaryonFields)) == -1)
       MetalNum = 0;
 
    // Get the units
@@ -171,7 +160,7 @@ int grid::RotatingSphereInitializeGrid(float RotatingSphereNFWMass,
 
    // Set up the NFW halo.
    float g_code, nfw_mvir_code, critical_density_code, c, nfw_scale_density, nfw_scale_radius;
-   float nfw_v_circular, nfw_temp, nfw_cs;
+   float nfw_v_circular, nfw_cs;
 
    g_code = GravConst * DensityUnits * pow(TimeUnits, 2.0);
 
@@ -334,7 +323,7 @@ int grid::RotatingSphereInitializeGrid(float RotatingSphereNFWMass,
          
          if (line[0] != '#') {
             if (lines_read == 0) {
-               sscanf(line, "%i", &pert_dim);
+               sscanf(line, "%" ISYM, &pert_dim);
                lines_read ++;
                }
 
@@ -349,7 +338,7 @@ int grid::RotatingSphereInitializeGrid(float RotatingSphereNFWMass,
       pert_size_y = atoi(pert_dim_y_s);
       pert_size_z = atoi(pert_dim_z_s);
 
-      printf("Reading in a %i dim perturbation grid of size %i x %i x %i\n", pert_dim, pert_size_x, pert_size_y, pert_size_z);
+      printf("Reading in a %" ISYM " dim perturbation grid of size %" ISYM " x %" ISYM " x %" ISYM "\n", pert_dim, pert_size_x, pert_size_y, pert_size_z);
 
       // Create an array to hold the turbulence
       turbulence_field_vx = new float**[pert_size_z];
@@ -506,7 +495,7 @@ int grid::RotatingSphereInitializeGrid(float RotatingSphereNFWMass,
                pert_index[2] = floor((float)pert_size_z * (z - DomainLeftEdge[2]) / (DomainRightEdge[2] - DomainLeftEdge[2]));
 
                //printf("x, y, z: %e %e %e\n", x, y, z);
-               //printf("size x, size y, size z: %i %i %i\n", pert_size_x, pert_size_y, pert_size_z);
+               //printf("size x, size y, size z: %" ISYM " %" ISYM " %" ISYM "\n", pert_size_x, pert_size_y, pert_size_z);
 
                if (pert_index[0] < 0)
                   pert_index[0] = 0;
@@ -522,7 +511,7 @@ int grid::RotatingSphereInitializeGrid(float RotatingSphereNFWMass,
                if (pert_index[2] > pert_size_z - 1)
                   pert_index[2] = pert_size_z - 1;
 
-               //printf("pert x, pert y, pert z: %i %i %i\n", pert_index[0], pert_index[1], pert_index[2]);
+               //printf("pert x, pert y, pert z: %" ISYM " %" ISYM " %" ISYM "\n", pert_index[0], pert_index[1], pert_index[2]);
 
                BaryonField[Vel1Num][cell_index] += turbulence_field_vx[pert_index[2]][pert_index[1]][pert_index[0]];
                BaryonField[Vel2Num][cell_index] += turbulence_field_vy[pert_index[2]][pert_index[1]][pert_index[0]];
@@ -799,7 +788,7 @@ float dTdr(float r, float T, float core_radius, float core_density, float core_e
    // Get the units
    float DensityUnits, LengthUnits, TemperatureUnits = 1, TimeUnits, VelocityUnits; 
    double MassUnits;
-   FLOAT Time;
+   FLOAT Time = 0.0;
    
    GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	    &TimeUnits, &VelocityUnits, &MassUnits, Time);
@@ -833,7 +822,7 @@ float get_grav_accel(float r) {
    // Get the units
    float DensityUnits, LengthUnits, TemperatureUnits = 1, TimeUnits, VelocityUnits; 
    double MassUnits;
-   FLOAT Time;
+   FLOAT Time = 0.0;
    
    GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	    &TimeUnits, &VelocityUnits, &MassUnits, Time);
@@ -861,7 +850,7 @@ float get_critical_density(float redshift) {
    // Get the units
    float DensityUnits, LengthUnits, TemperatureUnits = 1, TimeUnits, VelocityUnits; 
    double MassUnits;
-   FLOAT Time;
+   FLOAT Time = 0.0;
    
    GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	    &TimeUnits, &VelocityUnits, &MassUnits, Time);
@@ -1045,7 +1034,7 @@ float* mass_energy_derivs(float r,
    // Get the units
    float DensityUnits, LengthUnits, TemperatureUnits = 1, TimeUnits, VelocityUnits; 
    double MassUnits;
-   FLOAT Time;
+   FLOAT Time = 0.0;
    
    GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	    &TimeUnits, &VelocityUnits, &MassUnits, Time);

@@ -101,10 +101,9 @@ int grid::ZeldovichPancakeInitializeGrid(int  ZeldovichPancakeDirection,
  
   /* Determine the size of the fields. */
  
-  int size = 1, activesize = 1;
+  int size = 1;
   for (dim = 0; dim < GridRank; dim++) {
     size *= GridDimension[dim];
-    activesize *= GridEndIndex[dim] - GridStartIndex[dim] + 1;
   }
  
   /* Allocate space for the fields. */

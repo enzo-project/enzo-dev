@@ -65,10 +65,9 @@ int grid::ProjectSolutionToParentGrid(grid &ParentGrid)
  
   /* compute size of current grid fields */
  
-  int ParentSize = 1, Size = 1;
+  int Size = 1;
   for (dim = 0; dim < GridRank; dim++) {
     Size *= GridDimension[dim];
-    ParentSize *= ParentGrid.GridDimension[dim];
     ParentDim[dim] = ParentGrid.GridDimension[dim];
     Dim[dim] = GridEndIndex[dim] - GridStartIndex[dim] + 1;
   }
@@ -131,7 +130,6 @@ int grid::ProjectSolutionToParentGrid(grid &ParentGrid)
       ParentStartIndex[dim] = 0;
       ParentDim[dim]        = Dim[dim]/Refinement[dim];
       ParentEndIndex[dim]   = ParentDim[dim] - 1;
-      ParentSize *= ParentDim[dim];
     }
     for (field = 0; field < NumberOfBaryonFields; field++) {
       delete [] ParentGrid.BaryonField[field];
@@ -270,7 +268,7 @@ int grid::ProjectSolutionToParentGrid(grid &ParentGrid)
 
       if(MHD_ProjectB == TRUE){
 
-	fprintf(stderr, "PROJB my proc %"ISYM" parent proc %"ISYM"\n", MyProcessorNumber, ParentGrid.ReturnProcessorNumber());
+	fprintf(stderr, "PROJB my proc %" ISYM" parent proc %" ISYM"\n", MyProcessorNumber, ParentGrid.ReturnProcessorNumber());
 	int MHDDim[3][3], MHDParentDim[3][3], MHDParentSize[3]={1,1,1};
 	
 	for(field=0;field<3;field++){

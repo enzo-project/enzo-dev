@@ -111,7 +111,7 @@ void polint(double xa[],double ya[],int n,double x,double *y,double *dy);
 static FLOAT r2;
 
 static float DensityUnits, LengthUnits, TemperatureUnits = 1,
-             TimeUnits, VelocityUnits, MassUnits;
+             TimeUnits, VelocityUnits;
 
 double gScaleHeightR, gScaleHeightz, densicm, MgasScale, Picm,
        TruncRadius, SmoothRadius, SmoothLength,Ticm;
@@ -188,7 +188,7 @@ int grid::GalaxySimulationInitializeGrid(double DiskRadius,
 {
   /* declarations */
 
-  int dim, i, j, k, m, field, disk, size, MetalNum, MetalIaNum, vel;
+  int dim, i, j, k, MetalNum, MetalIaNum, vel;
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum,
     H2IINum, DINum, DIINum, HDINum, B1Num, B2Num, B3Num, PhiNum;
   double DiskDensity, DiskVelocityMag;
@@ -286,15 +286,12 @@ int grid::GalaxySimulationInitializeGrid(double DiskRadius,
 
   /* Set various units. */
 
-  double CriticalDensity = 1, BoxLength = 1;
   FLOAT a, dadt, ExpansionFactor = 1;
   if (ComovingCoordinates) {
     CosmologyComputeExpansionFactor(Time, &a, &dadt);
     ExpansionFactor = a/(1.0+InitialRedshift);
     CosmologyGetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 		      &TimeUnits, &VelocityUnits, Time);
-    CriticalDensity = 2.78e11*POW(HubbleConstantNow, 2); // in Msolar/Mpc_cm^3
-    BoxLength = ComovingBoxSize*ExpansionFactor/HubbleConstantNow;  // in Mpc_cm
   } else if( PointSourceGravity ){
     ENZO_FAIL("ERROR IN GALAXY SIM GRID INITIALIZE: non-cosmology units not supported for point source gravity");
   } else {
@@ -308,7 +305,7 @@ int grid::GalaxySimulationInitializeGrid(double DiskRadius,
   if( UniformDensity < 1.0E-10 ){
     UniformDensity /= DensityUnits;
     if( debug && MyProcessorNumber == ROOT_PROCESSOR ) 
-      fprintf(stdout,"Converting GalaxySimulationUniformDensity = %"GSYM" from CGS to code units\n",UniformDensity);
+      fprintf(stdout,"Converting GalaxySimulationUniformDensity = %" GSYM" from CGS to code units\n",UniformDensity);
   } // end uniform density if
 
   /* Set up inflow */
@@ -352,9 +349,7 @@ int grid::GalaxySimulationInitializeGrid(double DiskRadius,
   //   printf("%g %g %g %g\n", CGM_data.rad[i], CGM_data.n_rad[i], CGM_data.T_rad[i], CGM_data.press[i]);
   
   /* compute size of fields */
-  size = 1;
   for (dim = 0; dim < GridRank; dim++)
-    size *= GridDimension[dim];
 
   /* allocate fields */
   this->AllocateGrids();
@@ -372,7 +367,7 @@ int grid::GalaxySimulationInitializeGrid(double DiskRadius,
   double halo_vmag, disk_vel[MAX_DIMENSION], Velocity[MAX_DIMENSION];
   double temperature, disk_temp, init_temp, initial_metallicity;
   FLOAT r_sph, x, y = 0, z = 0;
-  int n = 0, iter;
+  int n = 0;
 
   for (k = 0; k < GridDimension[2]; k++)
     for (j = 0; j < GridDimension[1]; j++)
@@ -414,7 +409,7 @@ int grid::GalaxySimulationInitializeGrid(double DiskRadius,
 	temperature = init_temp = HaloGasTemperature(r_sph, CGM_data);
   disk_temp = DiskTemperature;
 	
-	FLOAT xpos, ypos, zpos, rsph, zheight, theta; 
+	FLOAT xpos, ypos, zpos, zheight, theta;
 	double CellMass;
 	FLOAT rp_hat[3];
 	FLOAT yhat[3];
@@ -625,7 +620,7 @@ int grid::GalaxySimulationInitializeGrid(double DiskRadius,
 	    BaryonField[1][n] += 0.5*POW(BaryonField[vel+dim][n], 2);
 
 	if (BaryonField[1][n] <= 0.0)
-	  printf("G_GSIC: negative or zero energy  n = %"ISYM"  temp = %"FSYM"   e = %"FSYM"\n",
+	  printf("G_GSIC: negative or zero energy  n = %" ISYM"  temp = %" FSYM"   e = %" FSYM"\n",
 		 n, temperature, BaryonField[1][n]);
 
 
@@ -813,7 +808,6 @@ double gasvel(FLOAT radius, double DiskDensity, FLOAT ExpansionFactor,
 
   float DensityUnits=1, LengthUnits=1, VelocityUnits=1, TimeUnits=1,
     TemperatureUnits=1;
-  double MassUnits=1;
 
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
          &TimeUnits, &VelocityUnits, Time) == FAIL) {
@@ -981,8 +975,7 @@ void DiskForceBalance(FLOAT cellwidth, FLOAT z, double density, struct CGMdata& 
   double PDMComp1(double zint);          // (density times dark matter halo force)
   double PDMComp2(double zint);          // same but for r2 (3D distance plane)
 
-  double Pressure,Pressure2,zicm,zicm2,zicmf=0.0,zsmall=0.0,
-    zicm2f=0.0,zint,FdPdR,FtotR,denuse,rsph,vrot,bulgeComp,rsph_icm;
+  double Pressure, Pressure2, zicm, zicm2, zicmf=0.0, zsmall=0.0, FdPdR, FtotR, denuse, rsph, vrot, bulgeComp, rsph_icm;
 
   /* Distances in cgs */
   r2 = (rcyl+0.01*cellwidth)*LengthUnits;  // in plane radius
@@ -1043,7 +1036,7 @@ void DiskForceBalance(FLOAT cellwidth, FLOAT z, double density, struct CGMdata& 
   denuse = density*DensityUnits; 
 
   if (Pressure < 0.0 && fabs(rcyl)*LengthUnits/Mpc_cm <= TruncRadius && fabs(z) <= fabs(zicm)) {
-    fprintf(stderr,"neg pressure:  P = %"FSYM", z = %"FSYM", r = %"FSYM"\n", Pressure, z/Mpc_cm, rcyl*LengthUnits/Mpc_cm);
+    fprintf(stderr,"neg pressure:  P = %" FSYM", z = %" FSYM", r = %" FSYM"\n", Pressure, z/Mpc_cm, rcyl*LengthUnits/Mpc_cm);
   }
   if (fabs(rcyl)*LengthUnits/Mpc_cm >= TruncRadius || fabs(zicm) <= fabs(z)){
     Pressure = 0.0;
@@ -1061,7 +1054,7 @@ void DiskForceBalance(FLOAT cellwidth, FLOAT z, double density, struct CGMdata& 
     denuse = HaloGasDensity(rsph/LengthUnits, CGM_data);
   }
   if (denuse < HaloGasDensity(rsph/LengthUnits, CGM_data)) {
-    fprintf(stderr,"denuse small:  %"FSYM"\n", denuse);
+    fprintf(stderr,"denuse small:  %" FSYM"\n", denuse);
   }
   
   rsph_icm = sqrt(rcyl*rcyl+POW(zicm/LengthUnits,2));  // code units
@@ -1095,10 +1088,10 @@ void DiskForceBalance(FLOAT cellwidth, FLOAT z, double density, struct CGMdata& 
   /* Some error checking. */
 
   if (temperature < 0.0) 
-    fprintf(stderr,"G_GSIG: temp = %"FSYM", P = %"FSYM", z = %"FSYM", zicm = %"FSYM", zicmf=%"FSYM", zsmall=%"FSYM", rcyl = %"FSYM"\n", 
+    fprintf(stderr,"G_GSIG: temp = %" FSYM", P = %" FSYM", z = %" FSYM", zicm = %" FSYM", zicmf=%" FSYM", zsmall=%" FSYM", rcyl = %" FSYM"\n", 
       temperature, Pressure, z/Mpc_cm, zicm/Mpc_cm, zicmf, zsmall, rcyl*LengthUnits/Mpc_cm);
   if ((FtotR - FdPdR) > 0.0) { 
-    fprintf(stderr,"G_GSIG: FtotR = %"FSYM", FdPdR = %"FSYM", P = %"FSYM",P2 = %"FSYM", Picm = %"FSYM", dr = %"FSYM", rcyl = %"FSYM", z = %"FSYM"\n", 
+    fprintf(stderr,"G_GSIG: FtotR = %" FSYM", FdPdR = %" FSYM", P = %" FSYM",P2 = %" FSYM", Picm = %" FSYM", dr = %" FSYM", rcyl = %" FSYM", z = %" FSYM"\n", 
       FtotR, FdPdR, Pressure, Pressure2, Picm, r2-rcyl*LengthUnits, rcyl*LengthUnits/Mpc_cm, z/Mpc_cm);
     FdPdR = 0.0;
   } // end FtotR - FdPdr > 0.0 if
@@ -1305,8 +1298,8 @@ double qromb(double (*func)(double), double a, double b)
   }
   /* Print bug report and exit */
   fprintf(stderr,"Too many steps in routine QROMB\n");
-  fprintf(stderr,"\t>> rcyl = %"FSYM", z = %"FSYM", z_icm = %"FSYM"\n", rcyl*LengthUnits/Mpc_cm, a/Mpc_cm, b/Mpc_cm);
-  fprintf(stderr,"\t>> ss = %"FSYM", dss = %"FSYM"\n", ss, dss);
+  fprintf(stderr,"\t>> rcyl = %" FSYM", z = %" FSYM", z_icm = %" FSYM"\n", rcyl*LengthUnits/Mpc_cm, a/Mpc_cm, b/Mpc_cm);
+  fprintf(stderr,"\t>> ss = %" FSYM", dss = %" FSYM"\n", ss, dss);
   ENZO_FAIL("FAILED IN QROMB IN GRID_GALAXYSIMULATIONINIALIZE\n");
   return -1.0;
 }
@@ -1686,7 +1679,7 @@ double HaloGasDensity(FLOAT R, struct CGMdata& CGM_data){
     /* assumes entropy is a power-law function of radius OR a cored power-law function
        of radius and gas is in hydrostatic equilibrium w/the NFW halo.  */
 
-    double this_radius_cgs, Rstart;
+    double this_radius_cgs;
     int index;
 
     this_radius_cgs = R*LengthUnits;  // radius in CGS
@@ -2107,13 +2100,12 @@ double halo_S_of_r(FLOAT r, grid* Grid){
    Input is radius in CGS units; output is entropy gradient in CGS units (Kelvin*cm) */
 double halo_dSdr(FLOAT r, double n){
 
-  double Tvir, alpha, n0, r0, Smin, S0;
+  double Tvir, n0, r0, S0;
 
   // calculate a bunch of things based on user inputs
   Tvir = GalaxySimulationGasHaloTemperature;  // in Kelvin
   n0 = GalaxySimulationGasHaloDensity / (mu*mh);  // convert from density to electron number density (cm^-3)
   r0 = GalaxySimulationGasHaloScaleRadius*Mpc_cm;  // scale radius in CGS
-  Smin = GalaxySimulationGasHaloCoreEntropy/8.621738e-8;  // given in keV cm^2, converted to Kelvin cm^2
   S0 = Tvir / POW(n0,Gamma-1);  // entropy at scale radius, in units of Kelvin cm^2
 
   if(GalaxySimulationGasHalo == 4 || GalaxySimulationGasHalo == 5){
@@ -2174,6 +2166,7 @@ double halo_g_of_r(FLOAT r){
               +log(1.0+POW(r/DMRad/Mpc_cm,2))
               );
   }
+  return 0.0;
 }
 
 double halo_mod_g_of_r(FLOAT r){

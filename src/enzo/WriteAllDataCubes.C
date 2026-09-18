@@ -34,7 +34,7 @@ void my_exit(int status);
  
 // function prototypes
  
-int SysMkdir(char *startdir, char *directory);
+int SysMkdir(const char *startdir, const char *directory);
  
 int WriteDataCubes(HierarchyEntry *TopGrid, int TDdims[], char *gridbasename, int &GridID, FLOAT WriteTime);
  
@@ -54,7 +54,6 @@ int WriteAllDataCubes(char *basename, int filenumber,
   char cycle_id[9];
   char name[MAX_LINE_LENGTH];
  
-  int GridID = 1;
   int GridJD = 1;
 
   /* If this is an interpolated time step, then temporary replace  the time
@@ -64,11 +63,11 @@ int WriteAllDataCubes(char *basename, int filenumber,
   MetaData.Time = (WriteTime < 0) ? MetaData.Time : WriteTime;
 
   //  cycle number
-  sprintf(cycle_id, "%8.8"ISYM, MetaData.CycleNumber);
+  sprintf(cycle_id, "%8.8" ISYM, MetaData.CycleNumber);
  
   strcpy(name, "TS");
   strcat(name, cycle_id);
-  //  fprintf(stderr, "Dump cycle: %"ISYM"  %s\n", MetaData.CycleNumber, name);
+  //  fprintf(stderr, "Dump cycle: %" ISYM"  %s\n", MetaData.CycleNumber, name);
  
   //  Start I/O timing
  

@@ -201,7 +201,7 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
   }
 
   if (debug1)
-    printf("DepositMRPs[%"ISYM"]: %"ISYM" flagged cells\n", 
+    printf("DepositMRPs[%" ISYM"]: %" ISYM" flagged cells\n", 
 	   level,NumberOfFlaggedCells);
 
   /* If refining region before supernova, change particle type back to

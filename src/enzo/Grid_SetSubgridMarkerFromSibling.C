@@ -36,7 +36,7 @@ int grid::SetSubgridMarkerFromSibling(grid *Sibling,
 
   /* declarations */
     
-  int i, j, k, dim, field, index, size;
+  int i, j, k, dim, index, size;
   FLOAT GridLeft[MAX_DIMENSION], GridRight[MAX_DIMENSION];
   FLOAT Left[MAX_DIMENSION], Right[MAX_DIMENSION];
   int Start[MAX_DIMENSION], End[MAX_DIMENSION];

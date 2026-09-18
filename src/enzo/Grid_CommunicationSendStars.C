@@ -47,7 +47,7 @@ void DeleteStarList(Star * &Node);
 int grid::CommunicationSendStars(grid *ToGrid, int ToProcessor)
 {
 
-  int i, j, dim, index, TransferSize;
+  int TransferSize;
   StarBuffer *buffer = NULL;
   Star *RecvStars = NULL;
   Star *cstar;
@@ -91,10 +91,9 @@ int grid::CommunicationSendStars(grid *ToGrid, int ToProcessor)
     }
 
     MPI_Status status;
-    MPI_Arg PCount, Count = TransferSize;
+    MPI_Arg Count = TransferSize;
     MPI_Arg Source = ProcessorNumber;
     MPI_Arg Dest = ToProcessor;
-    MPI_Arg stat;
 
 #ifdef MPI_INSTRUMENTATION
     starttime = MPI_Wtime();

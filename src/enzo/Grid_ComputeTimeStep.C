@@ -83,11 +83,10 @@ float grid::ComputeTimeStep()
   float dtCR           = huge_number;
   float dtGasDrag      = huge_number;
   float dtCooling      = huge_number;
-  int dim, i, j, k, index, result;
+  int dim, i, j, k, index;
   float dtQuantum        = huge_number;  //FDM
 
-  float TemperatureUnits, DensityUnits, LengthUnits, 
-    VelocityUnits, TimeUnits, aUnits = 1;
+  float TemperatureUnits, DensityUnits, LengthUnits, VelocityUnits, TimeUnits;
 
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, Time) == FAIL) {
@@ -288,12 +287,11 @@ float grid::ComputeTimeStep()
     FLOAT dxinv = 1.0 / CellWidth[0][0]/a;
     FLOAT dyinv = (GridRank > 1) ? 1.0 / CellWidth[1][0]/a : 0.0;
     FLOAT dzinv = (GridRank > 2) ? 1.0 / CellWidth[2][0]/a : 0.0;
-    float vxm, vym, vzm, Bm, rhom;
     float dt_temp = 1.e-20, dt_ltemp, dt_x, dt_y, dt_z;
     float rho, p, vx, vy, vz, v2, eint, etot, h, cs, cs2, dpdrho, dpde,
       v_signal_x, v_signal_y, v_signal_z, cf, cf2, temp1, Bx, By, Bz, B2, ca2, Pcr;
     int n = 0;
-    float rho_dt, B_dt, v_dt;
+    float v_dt;
     for (k = 0; k < GridDimension[2]; k++) {
       for (j = 0; j < GridDimension[1]; j++) {
 	for (i = 0; i < GridDimension[0]; i++, n++) {
@@ -354,8 +352,6 @@ float grid::ComputeTimeStep()
 
 	  if (dt_ltemp > dt_temp) {
 	    dt_temp = dt_ltemp;
-	    rho_dt = rho;
-	    B_dt = sqrt(Bx*Bx+By*By+Bz*Bz);
 	    v_dt = max(fabs(vx), fabs(vy));
 	    v_dt = max(v_dt, fabs(vz));
 	  }
@@ -523,7 +519,6 @@ float grid::ComputeTimeStep()
   /* 8) If using radiation pressure, calculate minimum dt */
 
   float dtRadPressure = huge_number;
-  float absVel, absAccel;
 
   if (RadiationPressure && RadiativeTransfer) {
 
@@ -566,29 +561,29 @@ float grid::ComputeTimeStep()
   /* Debugging info. */
   
   if (debug1) {
-    printf("ComputeTimeStep = %"ESYM" (", dt);
+    printf("ComputeTimeStep = %" ESYM" (", dt);
     if (HydroMethod != MHD_RK && HydroMethod != MHD_Li && NumberOfBaryonFields > 0)
-      printf("Bar = %"ESYM" ", dtBaryons);
+      printf("Bar = %" ESYM" ", dtBaryons);
     if (HydroMethod == MHD_RK || HydroMethod == MHD_Li)
-      printf("dtMHD = %"ESYM" ", dtMHD);
+      printf("dtMHD = %" ESYM" ", dtMHD);
     if (CRModel)
-      printf("dtCR = %"ESYM" ", dtCR);
+      printf("dtCR = %" ESYM" ", dtCR);
     if (HydroMethod == Zeus_Hydro)
-      printf("Vis = %"ESYM" ", dtViscous);
+      printf("Vis = %" ESYM" ", dtViscous);
     if (ComovingCoordinates)
-      printf("Exp = %"ESYM" ", dtExpansion);
+      printf("Exp = %" ESYM" ", dtExpansion);
     if (dtAcceleration != huge_number)
-      printf("Acc = %"ESYM" ", dtAcceleration);
+      printf("Acc = %" ESYM" ", dtAcceleration);
     if (NumberOfParticles)
-      printf("Part = %"ESYM" ", dtParticles);
+      printf("Part = %" ESYM" ", dtParticles);
     if (UseCoolingTimestep)
-      printf("Cool = %"ESYM" ", dtCooling);
+      printf("Cool = %" ESYM" ", dtCooling);
     if (IsotropicConduction || AnisotropicConduction)
-      printf("Cond = %"ESYM" ",(dtConduction));
+      printf("Cond = %" ESYM" ",(dtConduction));
     if (UseGasDrag)
-      printf("Drag = %"ESYM" ",(dtGasDrag));
+      printf("Drag = %" ESYM" ",(dtGasDrag));
     if (QuantumPressure)
-      printf("Quantum = %"ESYM" ",(dtQuantum));//FDM
+      printf("Quantum = %" ESYM" ",(dtQuantum));//FDM
     printf(")\n");
   }
  

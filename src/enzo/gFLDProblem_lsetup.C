@@ -60,7 +60,7 @@ int gFLDProblem::lsetup(EnzoVector *u)
     ENZO_FAIL("lsetup error: x2 vector sizes do not match");
 
   // clear Jacobian data arrays
-  int i, j, k, ns, outidx;
+  int i, j, ns;
   for (ns=0; ns<(2+Nchem); ns++)
     L[ns]->constant(0.0);
 

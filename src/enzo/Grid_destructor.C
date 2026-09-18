@@ -42,7 +42,7 @@ grid::~grid()
  
 #ifdef UNUSED
   if (NumberOfParticles > 0) {
-    fprintf(stderr, "warning: destroying live particles (%"ISYM").\n",
+    fprintf(stderr, "warning: destroying live particles (%" ISYM").\n",
 	    NumberOfParticles);
   /* exit(EXIT_FAILURE); */
   }

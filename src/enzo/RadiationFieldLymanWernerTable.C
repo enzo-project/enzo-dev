@@ -52,10 +52,10 @@ int RadiationFieldLymanWernerTable(float Redshift,float *J21)
   *J21 = (Redshift - RadiationData.LymanWerner_redshift[index]) * slope +
     RadiationData.LymanWerner_J21[index];
 
-//   fprintf(stderr,"Tabulated J21 redshift: %"ESYM" >= %"ESYM" >= %"ESYM".\n",
+//   fprintf(stderr,"Tabulated J21 redshift: %" ESYM" >= %" ESYM" >= %" ESYM".\n",
 // 	  RadiationData.LymanWerner_redshift[index],Redshift,
 // 	  RadiationData.LymanWerner_redshift[index+1]);
-//   fprintf(stderr,"Tabulated J21: %"ESYM" <= %"ESYM" <= %"ESYM".\n",
+//   fprintf(stderr,"Tabulated J21: %" ESYM" <= %" ESYM" <= %" ESYM".\n",
 // 	  RadiationData.LymanWerner_J21[index],*J21,
 // 	  RadiationData.LymanWerner_J21[index+1]);
 

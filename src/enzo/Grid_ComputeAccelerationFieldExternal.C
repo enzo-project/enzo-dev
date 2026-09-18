@@ -62,14 +62,15 @@ int grid::ComputeAccelerationFieldExternal()
  
   /* Check if acceleration field exists.  If not create it and zero it. */
  
-  if (AccelerationField[0] == NULL)
+  if (AccelerationField[0] == NULL) {
     for (dim = 0; dim < GridRank; dim++) {
       AccelerationField[dim] = new float[size];
       for (i = 0; i < size; i++)
         AccelerationField[dim][i] = 0;
 
     }
-    if( SelfGravity == 0 ){
+  }
+  if( SelfGravity == 0 ){
       for (dim = 0; dim < GridRank; dim++) {
         for (i = 0; i < size; i++){
           AccelerationField[dim][i] = 0;
@@ -110,8 +111,7 @@ int grid::ComputeAccelerationFieldExternal()
  
   if (PointSourceGravity > 0) {
  
-    FLOAT a = 1.0, accel, dadt, radius, rcubed, rsquared, 
-      xpos, ypos = 0.0, zpos = 0.0, rcore,x ;
+    FLOAT a = 1.0, accel, dadt, radius, rsquared, xpos, ypos = 0.0, zpos = 0.0, rcore;
  
     /* Compute adot/a at time = t+1/2dt (time-centered). */
  
@@ -149,7 +149,6 @@ int grid::ComputeAccelerationFieldExternal()
 	    /* Compute distance from center. */
  
 	    rsquared = xpos*xpos + ypos*ypos + zpos*zpos;
-	    rcubed = POW(rsquared, 1.5);
  
 	    if (PointSourceGravity == 1) {
 		
@@ -351,7 +350,7 @@ int grid::ComputeAccelerationFieldExternal()
 
   if (DiskGravity > 0) {
 
-    double accel, radius, rsquared, xpos, ypos = 0, zpos = 0, rcore,rcyl;
+    double radius, rsquared, xpos, ypos = 0, zpos = 0, rcyl;
     FLOAT dadt, a = 1;
     double AngularMomentumx, AngularMomentumy, AngularMomentumz;
     double MSDisk, SDiskScaleHeightR, SDiskScaleHeightz, MBulge, rBulge,

@@ -59,7 +59,7 @@ int PutSinkRestartInitialize(FILE *fptr, FILE *Outfptr,
   /* declarations */
  
   char line[MAX_LINE_LENGTH];
-  int dim, level, ret;
+  int level, ret;
   float dummyf;
   /* Set default supernova parameters. */
  
@@ -87,17 +87,17 @@ int PutSinkRestartInitialize(FILE *fptr, FILE *Outfptr,
  
     /* Read parameters */
  
-//     ret += sscanf(line, "SupernovaRestartEjectaMass = %"FSYM,
+//     ret += sscanf(line, "SupernovaRestartEjectaMass = %" FSYM,
 // 		  &SupernovaRestartEjectaMass);
-//     ret += sscanf(line, "SupernovaRestartEjectaRadius = %"FSYM,
+//     ret += sscanf(line, "SupernovaRestartEjectaRadius = %" FSYM,
 // 		  &SupernovaRestartEjectaRadius);
-//     ret += sscanf(line, "SupernovaRestartEjectaEnergy = %"FSYM,
+//     ret += sscanf(line, "SupernovaRestartEjectaEnergy = %" FSYM,
 // 		  &SupernovaRestartEjectaEnergy);
-//     ret += sscanf(line, "SupernovaRestartEjectaCenter = %"PSYM" %"PSYM" %"PSYM,
+//     ret += sscanf(line, "SupernovaRestartEjectaCenter = %" PSYM" %" PSYM" %" PSYM,
 // 		  SupernovaRestartEjectaCenter,
 // 		  SupernovaRestartEjectaCenter+1,
 // 		  SupernovaRestartEjectaCenter+2);
-//     ret += sscanf(line, "SupernovaRestartColourField = %"ISYM,
+//     ret += sscanf(line, "SupernovaRestartColourField = %" ISYM,
 // 		  &SupernovaRestartColourField);
  
     if (sscanf(line, "PutSinkRestartName = %s", dummy) == 1)
@@ -165,7 +165,6 @@ int PutSinkRestartInitialize(FILE *fptr, FILE *Outfptr,
      radius in pc, and energy in 10^51 erg; otherwise do no conversion.*/
  
  
-  double MassConversion = 1, LengthConversion = 1, EnergyConversion = 1;
   float DensityUnits = 1, LengthUnits = 1, VelocityUnits = 1, TimeUnits = 1,
     TemperatureUnits = 1;
  
@@ -177,9 +176,6 @@ int PutSinkRestartInitialize(FILE *fptr, FILE *Outfptr,
  
   if (ComovingCoordinates) {
  
-    LengthConversion = pc_cm;     // pc
-    MassConversion   = SolarMass;        // solar masses
-    EnergyConversion = 1.0e51;      // 10^51 erg
  
   }
  
@@ -194,10 +190,10 @@ int PutSinkRestartInitialize(FILE *fptr, FILE *Outfptr,
 //   EjectaThermalEnergy /= VelocityUnits*VelocityUnits;
  
 //   if (debug) {
-//     printf("PutSinkRestart: initial T = %"GSYM" K\n",
+//     printf("PutSinkRestart: initial T = %" GSYM" K\n",
 // 	   EjectaThermalEnergy*TemperatureUnits*(Gamma-1.0)*0.6);
-//     printf("PutSinkRestart: r (code units) = %"GSYM"\n", EjectaRadius);
-//     printf("PutSinkRestart: density (code units) = %"GSYM"\n", EjectaDensity);
+//     printf("PutSinkRestart: r (code units) = %" GSYM"\n", EjectaRadius);
+//     printf("PutSinkRestart: density (code units) = %" GSYM"\n", EjectaDensity);
 //   }
  
   /* -------------------------------------------------------------------- */
@@ -220,7 +216,7 @@ int PutSinkRestartInitialize(FILE *fptr, FILE *Outfptr,
  
   }
   if (debug)
-    printf("PutSinkRestart: NumberOfCellsSet = %"ISYM"\n", NumberOfCellsSet);
+    printf("PutSinkRestart: NumberOfCellsSet = %" ISYM"\n", NumberOfCellsSet);
  
   /* -------------------------------------------------------------------- */
   /* Loop over grid and project solution to parent to maintain consistency. */
@@ -244,16 +240,16 @@ int PutSinkRestartInitialize(FILE *fptr, FILE *Outfptr,
  
   if (MyProcessorNumber == ROOT_PROCESSOR) {
 
-//     fprintf(Outfptr, "SupernovaRestartEjectaMass   = %"FSYM"\n",
+//     fprintf(Outfptr, "SupernovaRestartEjectaMass   = %" FSYM"\n",
 // 	    SupernovaRestartEjectaMass);
-//     fprintf(Outfptr, "SupernovaRestartEjectaRadius = %"FSYM"\n",
+//     fprintf(Outfptr, "SupernovaRestartEjectaRadius = %" FSYM"\n",
 // 	    SupernovaRestartEjectaRadius);
-//     fprintf(Outfptr, "SupernovaRestartEjectaEnergy = %"FSYM"\n",
+//     fprintf(Outfptr, "SupernovaRestartEjectaEnergy = %" FSYM"\n",
 // 	    SupernovaRestartEjectaEnergy);
 //     fprintf(Outfptr, "SupernovaRestartEjectaCenter = ");
 //     WriteListOfFloats(Outfptr, MetaData.TopGridRank,
 // 		      SupernovaRestartEjectaCenter);
-//     fprintf(Outfptr, "SupernovaRestartColourField  = %"ISYM"\n",
+//     fprintf(Outfptr, "SupernovaRestartColourField  = %" ISYM"\n",
 // 	    SupernovaRestartColourField);
     fprintf(Outfptr, "PutSinkRestartName         = %s\n",
 	    PutSinkRestartName);

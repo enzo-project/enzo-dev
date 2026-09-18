@@ -41,7 +41,6 @@ int HydroLine(float **Prim, float **priml, float **primr,
 	      float dtdx, char direc, int ij, int ik, int fallback)
 {
 
-  double time1 = ReturnWallTime();
 
   if (fallback > 0) {
     if (LLF_Zero(Prim, priml, primr, species, colors, FluxLine, ActiveSize, direc, ij, ik) == FAIL) {

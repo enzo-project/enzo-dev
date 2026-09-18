@@ -86,7 +86,10 @@ void get_properties(struct particle_data *p, int len, float *pcm, float *pmtot,
       }
       radius[i] = sqrt(radius[i]);
     }
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wstringop-overflow"
     indexx(len, radius-1, pindex-1);
+#pragma GCC diagnostic pop
 
     // Convert one-based (from indexx) to zero-based.
     for (i = 0; i < len; i++)

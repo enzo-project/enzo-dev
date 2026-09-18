@@ -71,7 +71,7 @@ int Star::Accrete(void)
   /* [2] For Star Formation, 
      We can still do this in approximate way (JHW, Jan10) */
 
-  double ratio1, ratio2, new_vel;
+  double ratio1, ratio2;
 
   if (type != MBH || type != BlackHole) {
     ratio2 = DeltaMass / Mass;
@@ -107,10 +107,10 @@ int Star::Accrete(void)
 
   if (n > 0)  last_accretion_rate = accretion_rate[n-1]; 
 
-  fprintf(stdout, "star::Accrete:  last_accretion_rate = %"GOUTSYM
-	  " SolarMass/yr, time = %"GOUTSYM", "
-	  "accretion_time[0] = %"GOUTSYM", this_dt = %"GOUTSYM
-	  ", DeltaMass = %"GOUTSYM", Mass = %lf\n",
+  fprintf(stdout, "star::Accrete:  last_accretion_rate = %" GOUTSYM
+	  " SolarMass/yr, time = %" GOUTSYM", "
+	  "accretion_time[0] = %" GOUTSYM", this_dt = %" GOUTSYM
+	  ", DeltaMass = %" GOUTSYM", Mass = %lf\n",
 	  last_accretion_rate*yr_s, time, accretion_time[0], this_dt, DeltaMass, Mass);
 
   /* Remove these entries in the accretion table */

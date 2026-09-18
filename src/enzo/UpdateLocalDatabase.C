@@ -117,8 +117,8 @@ int UpdateLocalDatabase(TopGridData &MetaData, int CurrentTimeID,
   snprintf(insertion_query, 1023,
            "INSERT INTO simulation_outputs VALUES ('%s',"
            "'EnzoStaticOutput',"
-           "'%s', %"ISYM", %"ISYM", '%s', %"GOUTSYM", %"ESYM","
-           "%"ISYM", %"ISYM", %"ISYM")",
+           "'%s', %" ISYM", %" ISYM", '%s', %" GOUTSYM", %" ESYM","
+           "%" ISYM", %" ISYM", %" ISYM")",
            dset_uuid, Fullpath, CurrentTimeID, CurrentTimeID,
            MetaData.SimulationUUID,
            CurrentRedshift, this_time,

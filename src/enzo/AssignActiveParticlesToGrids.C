@@ -48,10 +48,9 @@ int AssignActiveParticlesToGrids(
     LevelHierarchyEntry *LevelArray[]) 
 {
   int LevelMax, GlobalLevelMax = -1, SavedGrid, NumberOfGrids = -1, i, level, NumberOfLevelGrids = -1, gridnum;
-  int dim, SavedGridOffProc = -1, ProcessorNumber = -1;
+  int dim, SavedGridOffProc = -1;
   HierarchyEntry **LevelGrids = NULL;
   FLOAT* pos, pos1[3];
-  float mass;
   
   FLOAT period[3];
   for (dim = 0; dim < 3; dim++) {
@@ -91,11 +90,10 @@ int AssignActiveParticlesToGrids(
     if (NumberOfProcessors == 1) {
       grid* OldGrid = ParticleList[i]->ReturnCurrentGrid();
       int ID = ParticleList[i]->ReturnID();
-      int foundAP = FALSE;
       NumberOfGrids = GenerateGridArray(LevelArray, LevelMax, &LevelGrids); 
 
       if (SavedGrid != -1) {
-        foundAP = OldGrid->RemoveActiveParticle(ID,LevelGrids[SavedGrid]->
+        OldGrid->RemoveActiveParticle(ID,LevelGrids[SavedGrid]->
             GridData->ReturnProcessorNumber());
       }
       if (LevelGrids[SavedGrid]->GridData->AddActiveParticle(
@@ -107,7 +105,7 @@ int AssignActiveParticlesToGrids(
       /* Find the processor which has the maximum value of
 	  LevelMax and assign the particle to the
 	  SavedGrid on that processor.  */
-      struct { Eint32 value; Eint32 rank; } sendbuf, recvbuf;
+      struct { Eint32 value; Eint32 rank; } sendbuf;
       MPI_Comm_rank(MPI_COMM_WORLD, &sendbuf.rank);
       NumberOfGrids = GenerateGridArray(LevelArray, GlobalLevelMax, &LevelGrids); 
       // We're moving it, make sure that the particle position is fixed (if required).

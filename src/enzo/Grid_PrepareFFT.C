@@ -96,7 +96,7 @@ int grid::PrepareFFT(region *InitialRegion, int Field, int DomainDim[])
     if (Field == POTENTIAL_FIELD)
       FieldPointer = PotentialField;
     if (FieldPointer == NULL) {
-      ENZO_VFAIL("Field type %"ISYM" not recognized.\n", Field)
+      ENZO_VFAIL("Field type %" ISYM" not recognized.\n", Field)
     }
  
     InitialRegion->Data = new float[size];

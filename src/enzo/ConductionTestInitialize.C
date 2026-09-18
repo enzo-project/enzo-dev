@@ -43,8 +43,7 @@ int ConductionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   }
 
   char line[MAX_LINE_LENGTH];
-  float LeftEdge[MAX_DIMENSION], RightEdge[MAX_DIMENSION];
-  int i, j, dim, ret;
+  int i, j, ret;
 
   float ConductionTestDensity = 1.0;
   float ConductionTestTemperature = 1.0;
@@ -63,20 +62,20 @@ int ConductionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   // Read parameters
   while (fgets(line, MAX_LINE_LENGTH, fptr) != NULL) {
     ret = 0;
-    ret += sscanf(line, "ConductionTestPulseHeight = %"FSYM, &ConductionTestPulseHeight);
-    ret += sscanf(line, "ConductionTestTotalEnergy = %"FSYM, &ConductionTestTotalEnergy);
-    ret += sscanf(line, "ConductionTestTemperature = %"FSYM, &ConductionTestTemperature);
-    ret += sscanf(line, "ConductionTestDensity = %"FSYM, &ConductionTestDensity);
-    ret += sscanf(line, "ConductionTestPulseWidth = %"PSYM, &ConductionTestPulseWidth);
-    ret += sscanf(line, "ConductionTestPulseCenter = %"PSYM" %"PSYM" %"PSYM, &ConductionTestPulseCenter[0],
+    ret += sscanf(line, "ConductionTestPulseHeight = %" FSYM, &ConductionTestPulseHeight);
+    ret += sscanf(line, "ConductionTestTotalEnergy = %" FSYM, &ConductionTestTotalEnergy);
+    ret += sscanf(line, "ConductionTestTemperature = %" FSYM, &ConductionTestTemperature);
+    ret += sscanf(line, "ConductionTestDensity = %" FSYM, &ConductionTestDensity);
+    ret += sscanf(line, "ConductionTestPulseWidth = %" PSYM, &ConductionTestPulseWidth);
+    ret += sscanf(line, "ConductionTestPulseCenter = %" PSYM" %" PSYM" %" PSYM, &ConductionTestPulseCenter[0],
 		  &ConductionTestPulseCenter[1], &ConductionTestPulseCenter[2]);
-    ret += sscanf(line, "ConductionTestPulseType = %"ISYM, &ConductionTestPulseType);
-    ret += sscanf(line, "ConductionTestFieldGeometry = %"ISYM, &ConductionTestFieldGeometry);
-    ret += sscanf(line, "ConductionTestPulseBFieldX = %"FSYM,&ConductionTestInitialUniformBField[0]);
-    ret += sscanf(line, "ConductionTestPulseBFieldY = %"FSYM,&ConductionTestInitialUniformBField[1]);
-    ret += sscanf(line, "ConductionTestPulseBFieldZ = %"FSYM,&ConductionTestInitialUniformBField[2]);
-    ret += sscanf(line, "TestProblemUseMetallicityField  = %"ISYM, &TestProblemData.UseMetallicityField);
-    ret += sscanf(line, "TestProblemInitialMetallicityFraction  = %"FSYM, &TestProblemData.MetallicityField_Fraction);
+    ret += sscanf(line, "ConductionTestPulseType = %" ISYM, &ConductionTestPulseType);
+    ret += sscanf(line, "ConductionTestFieldGeometry = %" ISYM, &ConductionTestFieldGeometry);
+    ret += sscanf(line, "ConductionTestPulseBFieldX = %" FSYM,&ConductionTestInitialUniformBField[0]);
+    ret += sscanf(line, "ConductionTestPulseBFieldY = %" FSYM,&ConductionTestInitialUniformBField[1]);
+    ret += sscanf(line, "ConductionTestPulseBFieldZ = %" FSYM,&ConductionTestInitialUniformBField[2]);
+    ret += sscanf(line, "TestProblemUseMetallicityField  = %" ISYM, &TestProblemData.UseMetallicityField);
+    ret += sscanf(line, "TestProblemInitialMetallicityFraction  = %" FSYM, &TestProblemData.MetallicityField_Fraction);
 
     if (ret == 0 && 
 	strstr(line, "=") && strstr(line, "ConductionTest") &&
@@ -178,12 +177,12 @@ int ConductionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   /* Write parameters to parameter output file */
  
   if (MyProcessorNumber == ROOT_PROCESSOR) {
-    fprintf(Outfptr, "ConductionTestPulseHeight = %"FSYM"\n", ConductionTestPulseHeight);
-    fprintf(Outfptr, "ConductionTestPulseWidth = %"PSYM"\n", ConductionTestPulseWidth);
-    fprintf(Outfptr, "ConductionTestPulseType = %"ISYM"\n", ConductionTestPulseType);
+    fprintf(Outfptr, "ConductionTestPulseHeight = %" FSYM"\n", ConductionTestPulseHeight);
+    fprintf(Outfptr, "ConductionTestPulseWidth = %" PSYM"\n", ConductionTestPulseWidth);
+    fprintf(Outfptr, "ConductionTestPulseType = %" ISYM"\n", ConductionTestPulseType);
 
-    fprintf(Outfptr, "TestProblemUseMetallicityField  = %"ISYM"\n", TestProblemData.UseMetallicityField);
-    fprintf(Outfptr, "TestProblemInitialMetallicityFraction  = %"FSYM"\n", TestProblemData.MetallicityField_Fraction);
+    fprintf(Outfptr, "TestProblemUseMetallicityField  = %" ISYM"\n", TestProblemData.UseMetallicityField);
+    fprintf(Outfptr, "TestProblemInitialMetallicityFraction  = %" FSYM"\n", TestProblemData.MetallicityField_Fraction);
 
   }
 

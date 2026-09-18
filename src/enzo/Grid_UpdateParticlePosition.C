@@ -49,7 +49,7 @@ int grid::UpdateParticlePosition(float TimeStep, int OffProcessorUpdate)
   int i, dim;
  
 //  if (debug)
-//    printf("UpdateParticlePosition: moving %"ISYM" particles forward by %"FSYM".\n",
+//    printf("UpdateParticlePosition: moving %" ISYM" particles forward by %" FSYM".\n",
 //	   NumberOfParticles, TimeStep);
  
   /* If using comoving coordinates, divide the acceleration by a(t) first.

@@ -63,9 +63,8 @@ int StarParticlePopIII_IMFInitialize(void)
     mt_init(time(NULL)); //+100*MyProcessorNumber);
   else
     mt_init(PopIIIInitialMassFunctionSeed); //+100*MyProcessorNumber);
-  unsigned_long_int trash;
   for (i = 0; i < 1+PopIIIInitialMassFunctionCalls; i++)
-    trash = mt_random();
+    mt_random();
 
   return SUCCESS;
 

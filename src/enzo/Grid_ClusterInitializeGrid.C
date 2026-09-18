@@ -29,14 +29,7 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
 float gasdev();
 
-static int ClusterParticleCount = 0;
 
-static float CosmologySimulationInitialFractionHII   = 1.2e-5;
-static float CosmologySimulationInitialFractionHeII  = 1.0e-14;
-static float CosmologySimulationInitialFractionHeIII = 1.0e-17;
-static float CosmologySimulationInitialFractionHM    = 2.0e-9;
-static float CosmologySimulationInitialFractionH2I   = 2.0e-20;
-static float CosmologySimulationInitialFractionH2II  = 3.0e-14;
 
 int grid::ClusterInitializeGrid(int NumberOfSpheres,
 			     FLOAT SphereRadius[MAX_SPHERES],
@@ -90,7 +83,6 @@ int grid::ClusterInitializeGrid(int NumberOfSpheres,
       FieldType[HDINum  = NumberOfBaryonFields++] = HDIDensity;
     }
   }
-  int ColourNum = NumberOfBaryonFields;
   if (SphereUseColour)
     FieldType[NumberOfBaryonFields++] = Metallicity; /* fake it with metals */
 
@@ -98,20 +90,16 @@ int grid::ClusterInitializeGrid(int NumberOfSpheres,
 
   const double keV=1.1604e7;
 
-  float DensityUnits, LengthUnits, TemperatureUnits = 1, TimeUnits, 
-    VelocityUnits, CriticalDensity = 1, BoxLength = 1, mu = 0.6;
+  float DensityUnits, LengthUnits, TemperatureUnits = 1, TimeUnits, VelocityUnits, CriticalDensity = 1, mu = 0.6;
   double MassUnits = 1;
-  FLOAT a, dadt, ExpansionFactor = 1;
+  FLOAT a, dadt;
   GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	   &TimeUnits, &VelocityUnits, &MassUnits, Time);
   if (ComovingCoordinates) {
     CosmologyComputeExpansionFactor(Time, &a, &dadt);
-    ExpansionFactor = a/(1.0+InitialRedshift);
     CriticalDensity = 2.78e11*POW(HubbleConstantNow, 2); // in Msolar/Mpc^3
-    BoxLength = ComovingBoxSize*ExpansionFactor/HubbleConstantNow;  // in Mpc
   } else {
     CriticalDensity = 2.78e11*POW(0.74,2); // in Msolar/Mpc^3 for h=0.74
-    BoxLength = LengthUnits / Mpc_cm;
     HubbleConstantNow = 1.0;
     OmegaMatterNow = 1.0;
   }
@@ -121,7 +109,6 @@ int grid::ClusterInitializeGrid(int NumberOfSpheres,
 
   float BaryonMeanDensity = SphereUseParticles ? 0.1 : 1.0;
   if (SphereUseParticles == 2) BaryonMeanDensity = 0.9;
-  float ParticleMeanDensity = 1.0 - BaryonMeanDensity, ParticleCount = 0;
 
   /* Set the point source gravity parameters for the NFW profile. */
   if (PointSourceGravity == 2) {
@@ -131,7 +118,7 @@ printf("begin calculating PointSourceGravityConstant");
                 POW(SphereCoreRadius[0]*LengthUnits, 3) *
                (log(1.0+1.0) - 1.0/(1.0+1.0))/SolarMass;// in Msun. Not Mvir, but Ms.
     BaryonMeanDensity = 0.15; // 15% baryon fraction
-printf("PointSourceGravityConstant= %"GSYM"\n", PointSourceGravityConstant);
+printf("PointSourceGravityConstant= %" GSYM"\n", PointSourceGravityConstant);
   }
   /* Return if this doesn't concern us. */
 
@@ -149,8 +136,7 @@ printf("PointSourceGravityConstant= %"GSYM"\n", PointSourceGravityConstant);
      dispersion. */
 
 #define NFW_POINTS 2000
-  float Allg[NFW_POINTS], NFWg[NFW_POINTS], NFWPressure[NFW_POINTS], NFWTemp[NFW_POINTS], x1,
-        NFWDensity[NFW_POINTS], GasDensity[NFW_POINTS],NFWMass[NFW_POINTS], NFWSigma[NFW_POINTS];
+  float Allg[NFW_POINTS], NFWPressure[NFW_POINTS], NFWTemp[NFW_POINTS], x1, NFWDensity[NFW_POINTS], GasDensity[NFW_POINTS];
   FLOAT NFWRadius[NFW_POINTS];
   double dpdr = 0, dpdr_old, rkpc;
   sphere = 0;
@@ -203,32 +189,25 @@ printf("PointSourceGravityConstant= %"GSYM"\n", PointSourceGravityConstant);
     dpdr = -Allg[i]* GasDensity[i];
     }
     
-  fprintf(fptr, "%"ISYM" %"GSYM" %"GSYM" %"GSYM" %"GSYM" %"GSYM" %"GSYM" \n", i, NFWRadius[i],
+  fprintf(fptr, "%" ISYM" %" GSYM" %" GSYM" %" GSYM" %" GSYM" %" GSYM" %" GSYM" \n", i, NFWRadius[i],
          NFWDensity[i], Allg[i], NFWPressure[i], NFWTemp[i], GasDensity[i]);
 }  //end for
-  fprintf(fptr, "CriticalDensity = %"GSYM" , DensityUnits = %"GSYM", TimeUnits=%"GSYM", LengthUnits= %"GSYM"\n", CriticalDensity, DensityUnits, TimeUnits, LengthUnits);
+  fprintf(fptr, "CriticalDensity = %" GSYM" , DensityUnits = %" GSYM", TimeUnits=%" GSYM", LengthUnits= %" GSYM"\n", CriticalDensity, DensityUnits, TimeUnits, LengthUnits);
   fclose(fptr);
 
   /* Loop over the set-up twice, once to count the particles, the second
      time to initialize them. */
 
-  int SetupLoopCount, npart = 0;
+  int SetupLoopCount;
   for (SetupLoopCount = 0; SetupLoopCount < 1+min(SphereUseParticles, 1);
        SetupLoopCount++) {
 
 
-  /* Set up the baryon field. */
-
-
-  /* allocate fields */
-
-  if (SetupLoopCount == 0)
-      this->AllocateGrids();
+  if (SetupLoopCount == 0) this->AllocateGrids();
 
   /* Loop over the mesh. */
 
-  float density, dens1, Velocity[MAX_DIMENSION],
-    temperature, temp1, sigma, sigma1, colour, gas_density, gas_dens1;
+  float density, dens1, Velocity[MAX_DIMENSION], temperature, temp1, gas_density, gas_dens1;
   FLOAT r, x, y = 0, z = 0;
   int n = 0;
 
@@ -251,11 +230,9 @@ printf("PointSourceGravityConstant= %"GSYM"\n", PointSourceGravityConstant);
         gas_density = density * BaryonMeanDensity;  //Set background gas density
         gas_dens1 = gas_density;                     //for gas
         temperature = temp1 = InitialTemperature;
-        sigma = sigma1 = 0;
-        colour = 1.0e-10;
         for (dim = 0; dim < MAX_DIMENSION; dim++)
           Velocity[dim] = 0;
-        for (sphere = 0; sphere < NumberOfSpheres; sphere++) {
+        for (sphere = 0; sphere < NumberOfSpheres; sphere++) {;
 
           /* Find distance from center. */
 
@@ -266,7 +243,7 @@ printf("PointSourceGravityConstant= %"GSYM"\n", PointSourceGravityConstant);
 
           if (r < SphereRadius[sphere]) {
 
-              FLOAT xpos, ypos, zpos, vc, rz;
+              FLOAT xpos, ypos, vc, rz;
               x1 = r/SphereCoreRadius[sphere];
               dens1 = SphereDensity[sphere]/(x1*(1.0+x1)*(1.0+x1));
             /* 6 Perseus with self-gravity */
@@ -295,7 +272,6 @@ printf("PointSourceGravityConstant= %"GSYM"\n", PointSourceGravityConstant);
 
               xpos = x-SpherePosition[sphere][0] - (dim == 1 ? 0.5*CellWidth[0][0] : 0.0);
               ypos = y-SpherePosition[sphere][1] - (dim == 2 ? 0.5*CellWidth[1][0] : 0.0);
-              zpos = z-SpherePosition[sphere][2] - (dim == 3 ? 0.5*CellWidth[2][0] : 0.0);
 
               vc = ClusterInitialSpinParameter*sqrt(GravConst*PointSourceGravityConstant*SolarMass/(PointSourceGravityCoreRadius)); /*in GCS unit*/
 

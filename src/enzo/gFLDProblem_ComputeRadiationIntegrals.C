@@ -86,7 +86,7 @@ int gFLDProblem::ComputeRadiationIntegrals()
   intSigESigHInu = intSigESigHeInu = intSigESigHeIInu = 0.0;
 
   // initialize quadrature points and values
-  float xl, xm, xr, nu_l, nu_m, nu_r, fl, fm, fr;
+  float xl, xm, xr, nu_m, nu_r, fl, fm, fr;
   float fl_E, fm_E, fr_E, fl_ni, fm_ni, fr_ni, fl_nu, fm_nu, fr_nu;
 
 
@@ -139,7 +139,6 @@ int gFLDProblem::ComputeRadiationIntegrals()
     xm = 0.5*(xl+xr);
 
     //      copy left subinterval function value, location, etc
-    nu_l = nu_r;
     fl_E = fr_E;
     fl_ni = fr_ni;
     fl_nu = fr_nu;
@@ -205,7 +204,6 @@ int gFLDProblem::ComputeRadiationIntegrals()
     xm = 0.5*(xl+xr);
 
     //      copy left subinterval function value, location, etc
-    nu_l = nu_r;
     fl_E = fr_E;
     fl_ni = fr_ni;
     fl_nu = fr_nu;
@@ -265,7 +263,6 @@ int gFLDProblem::ComputeRadiationIntegrals()
     xm = 0.5*(xl+xr);
 
     //      copy left subinterval function value, location, etc
-    nu_l = nu_r;
     fl_E = fr_E;
     fl_ni = fr_ni;
     fl_nu = fr_nu;

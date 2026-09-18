@@ -31,7 +31,7 @@ extern void *LargestAddress;
 #endif /* MEMORY_TRACE */
  
  
-int ReportMemoryUsage(char *header = NULL)
+int ReportMemoryUsage(const char *header = NULL)
 {
  
 #ifdef MEMORY_TRACE
@@ -40,7 +40,7 @@ int ReportMemoryUsage(char *header = NULL)
         Maximum = float(MaximumMemoryUsage),
         Arena   = float(((int *) LargestAddress -
 			 (int *) FirstAddress))*sizeof(int);
-  printf("%s: P(%"ISYM"):CurrentMemoryUsage = %"GSYM"  Max = %"GSYM"  Arena = %"GSYM" (%"GSYM"%%)\n",
+  printf("%s: P(%" ISYM"):CurrentMemoryUsage = %" GSYM"  Max = %" GSYM"  Arena = %" GSYM" (%" GSYM"%%)\n",
 	 header, MyProcessorNumber, Current, Maximum, Arena,
 	 Maximum/Arena*100.0);
  

@@ -15,21 +15,13 @@
 
 void order_subgroups_by_potential(FOFData &D)
 {
-  int    i,j,k,ind,p;
-  int    ii,pp;
+  int i, j, p;
   int    first, last, num;
-  float  *r2list;
-  int    *ngblist;
-  double s[3], dx[3], v[3], dv[3], r2, rmax;
-  int    numinbox;
-  double maxenergy,minenergy,energy,minpot;
-  int    maxindex,minindex;
-  int    headid;
-  int    max_remove_per_step, count_removed;
-  int    iter,flag,newnum;
+  double s[3], dx[3], v[3], dv[3];
+  double minpot;
+  int minindex;
   float  sqa, H_of_a;
   void   sort2_flt_int(unsigned long n, float arr[], int brr[]);
-  float  frac;
   int    subgr;
 
 

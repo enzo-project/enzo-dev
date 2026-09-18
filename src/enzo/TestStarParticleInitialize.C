@@ -33,25 +33,25 @@
 int TestStarParticleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 			       TopGridData &MetaData,float *Initialdt)
 {
-  char *DensName = "Density";
-  char *TEName   = "TotalEnergy";
-  char *GEName   = "GasEnergy";
-  char *Vel1Name = "x-velocity";
-  char *Vel2Name = "y-velocity";
-  char *Vel3Name = "z-velocity";
-  char *MetalName = "Metal_Density";
-  char *ElectronName = "Electron_Density";
-  char *HIName    = "HI_Density";
-  char *HIIName   = "HII_Density";
-  char *HeIName   = "HeI_Density";
-  char *HeIIName  = "HeII_Density";
-  char *HeIIIName = "HeIII_Density";
+  const char *DensName = "Density";
+  const char *TEName   = "TotalEnergy";
+  const char *GEName   = "GasEnergy";
+  const char *Vel1Name = "x-velocity";
+  const char *Vel2Name = "y-velocity";
+  const char *Vel3Name = "z-velocity";
+  const char *MetalName = "Metal_Density";
+  const char *ElectronName = "Electron_Density";
+  const char *HIName    = "HI_Density";
+  const char *HIIName   = "HII_Density";
+  const char *HeIName   = "HeI_Density";
+  const char *HeIIName  = "HeII_Density";
+  const char *HeIIIName = "HeIII_Density";
 
 
   /* declarations */
 
   char  line[MAX_LINE_LENGTH];
-  int dim, ret;
+  int ret;
 
   /* Error check. */
 
@@ -84,31 +84,31 @@ int TestStarParticleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGri
 
     /* read parameters */
 
-    ret += sscanf(line, "TestStarParticleDensity = %"FSYM,
+    ret += sscanf(line, "TestStarParticleDensity = %" FSYM,
 		  &TestStarParticleDensity);
-    ret += sscanf(line, "TestStarParticleEnergy = %"FSYM,
+    ret += sscanf(line, "TestStarParticleEnergy = %" FSYM,
 		  &TestStarParticleEnergy);
-    ret += sscanf(line, "TestStarParticleStarMass = %"FSYM,
+    ret += sscanf(line, "TestStarParticleStarMass = %" FSYM,
 		  &TestStarParticleStarMass);
-    ret += sscanf(line,"TestStarParticleStarVelocity = %"PSYM" %"PSYM" %"PSYM, 
+    ret += sscanf(line,"TestStarParticleStarVelocity = %" PSYM" %" PSYM" %" PSYM, 
 		  &TestStarParticleStarVelocity[0],
 		  &TestStarParticleStarVelocity[1],
 		  &TestStarParticleStarVelocity[2]);
-    ret += sscanf(line,"TestStarParticleStarPosition = %"PSYM" %"PSYM" %"PSYM, 
+    ret += sscanf(line,"TestStarParticleStarPosition = %" PSYM" %" PSYM" %" PSYM, 
 		  &TestStarParticleStarPosition[0],
 		  &TestStarParticleStarPosition[1],
 		  &TestStarParticleStarPosition[2]);
     
 
-    ret += sscanf(line, "TestProblemUseMetallicityField  = %"ISYM, &TestProblemData.UseMetallicityField);
-    ret += sscanf(line, "TestProblemInitialMetallicityFraction  = %"FSYM, &TestProblemData.MetallicityField_Fraction); 
+    ret += sscanf(line, "TestProblemUseMetallicityField  = %" ISYM, &TestProblemData.UseMetallicityField);
+    ret += sscanf(line, "TestProblemInitialMetallicityFraction  = %" FSYM, &TestProblemData.MetallicityField_Fraction); 
 
-    ret += sscanf(line, "TestProblemInitialHIFraction  = %"FSYM, &TestProblemData.HI_Fraction);
-    ret += sscanf(line, "TestProblemInitialHIIFraction  = %"FSYM, &TestProblemData.HII_Fraction);
-    ret += sscanf(line, "TestProblemInitialHeIFraction  = %"FSYM, &TestProblemData.HeI_Fraction);
-    ret += sscanf(line, "TestProblemInitialHeIIFraction  = %"FSYM, &TestProblemData.HeII_Fraction);
-    ret += sscanf(line, "TestProblemInitialHeIIIIFraction  = %"FSYM, &TestProblemData.HeIII_Fraction);
-    ret += sscanf(line, "TestProblemHydrogenFractionByMass = %"FSYM, &TestProblemData.HydrogenFractionByMass);
+    ret += sscanf(line, "TestProblemInitialHIFraction  = %" FSYM, &TestProblemData.HI_Fraction);
+    ret += sscanf(line, "TestProblemInitialHIIFraction  = %" FSYM, &TestProblemData.HII_Fraction);
+    ret += sscanf(line, "TestProblemInitialHeIFraction  = %" FSYM, &TestProblemData.HeI_Fraction);
+    ret += sscanf(line, "TestProblemInitialHeIIFraction  = %" FSYM, &TestProblemData.HeII_Fraction);
+    ret += sscanf(line, "TestProblemInitialHeIIIIFraction  = %" FSYM, &TestProblemData.HeIII_Fraction);
+    ret += sscanf(line, "TestProblemHydrogenFractionByMass = %" FSYM, &TestProblemData.HydrogenFractionByMass);
 
 
     /* if the line is suspicious, issue a warning */
@@ -166,19 +166,19 @@ int TestStarParticleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGri
   
   if (MyProcessorNumber == ROOT_PROCESSOR) {
 
-    fprintf(Outfptr, "TestStarParticleDensity = %"FSYM"\n",
+    fprintf(Outfptr, "TestStarParticleDensity = %" FSYM"\n",
 	    TestStarParticleDensity);
-    fprintf(Outfptr, "TestStarParticleEnergy = %"FSYM"\n",
+    fprintf(Outfptr, "TestStarParticleEnergy = %" FSYM"\n",
 	    TestStarParticleEnergy);
-    fprintf(Outfptr, "MetallicityField_Fraction = %"FSYM"\n",
+    fprintf(Outfptr, "MetallicityField_Fraction = %" FSYM"\n",
             TestProblemData.MetallicityField_Fraction);
   }
 
-  fprintf(stderr, "TestStarParticleDensity = %"FSYM"\n",
+  fprintf(stderr, "TestStarParticleDensity = %" FSYM"\n",
 	  TestStarParticleDensity);
-  fprintf(stderr, "TestStarParticleEnergy = %"FSYM"\n",
+  fprintf(stderr, "TestStarParticleEnergy = %" FSYM"\n",
 	  TestStarParticleEnergy);
-  fprintf(stderr, "MetallicityField_Fraction = %"FSYM"\n",
+  fprintf(stderr, "MetallicityField_Fraction = %" FSYM"\n",
 	  TestProblemData.MetallicityField_Fraction);
 
 

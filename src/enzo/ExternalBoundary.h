@@ -84,7 +84,7 @@ class ExternalBoundary
 //
 // Write an external boundary
 //
-  int WriteExternalBoundary(FILE *fptr, char *hdfname);
+  int WriteExternalBoundary(FILE *fptr, const char *hdfname);
 //
 // Given a pointer to a field and its field type, find the equivalent
 //   field type in the list of boundary's and apply that boundary value/type.

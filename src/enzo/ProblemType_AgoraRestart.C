@@ -54,7 +54,7 @@ int nlines(const char* fname) {
   } while (ch != EOF);
 
   fclose(fptr);
-  if (debug) fprintf(stderr,"Read %"ISYM" lines \n", n);
+  if (debug) fprintf(stderr,"Read %" ISYM" lines \n", n);
   return n;
 }
 
@@ -144,7 +144,7 @@ public:
 
     if (MetaData.TopGridRank != 3)
     {
-      printf("Cannot do AcoraRestart in %"ISYM" dimension(s)\n",
+      printf("Cannot do AcoraRestart in %" ISYM" dimension(s)\n",
 	     MetaData.TopGridRank);
       ENZO_FAIL("Agora Restart simulations must be 3D!");
     }
@@ -178,57 +178,57 @@ public:
     while (fgets(line, MAX_LINE_LENGTH, fptr) != NULL)
     {
       ret = 0;
-      ret += sscanf(line, "AgoraRestartCenterPosition = %"PSYM" %"PSYM" %"PSYM,
+      ret += sscanf(line, "AgoraRestartCenterPosition = %" PSYM" %" PSYM" %" PSYM,
 		    CenterPosition, CenterPosition+1, CenterPosition+2);
-      ret += sscanf(line, "AgoraRestartScaleLength = %"PSYM, &ScaleLength);
-      ret += sscanf(line, "AgoraRestartScaleHeight = %"PSYM, &ScaleHeight);
-      ret += sscanf(line, "AgoraRestartDiskMass = %"FSYM, &DiskMass);
-      ret += sscanf(line, "AgoraRestartGasFraction = %"FSYM, &GasFraction);
-      ret += sscanf(line, "AgoraRestartDiskTemperature = %"FSYM,
+      ret += sscanf(line, "AgoraRestartScaleLength = %" PSYM, &ScaleLength);
+      ret += sscanf(line, "AgoraRestartScaleHeight = %" PSYM, &ScaleHeight);
+      ret += sscanf(line, "AgoraRestartDiskMass = %" FSYM, &DiskMass);
+      ret += sscanf(line, "AgoraRestartGasFraction = %" FSYM, &GasFraction);
+      ret += sscanf(line, "AgoraRestartDiskTemperature = %" FSYM,
 		    &DiskTemperature);
-      ret += sscanf(line, "AgoraRestartDiskMetallicity = %"FSYM,
+      ret += sscanf(line, "AgoraRestartDiskMetallicity = %" FSYM,
 		    &DiskMetallicity);
-      ret += sscanf(line, "AgoraRestartHaloMass = %"FSYM, &HaloMass);
-      ret += sscanf(line, "AgoraRestartHaloTemperature = %"FSYM,
+      ret += sscanf(line, "AgoraRestartHaloMass = %" FSYM, &HaloMass);
+      ret += sscanf(line, "AgoraRestartHaloTemperature = %" FSYM,
 		    &HaloTemperature);
-      ret += sscanf(line, "AgoraRestartHaloMetallicity = %"FSYM,
+      ret += sscanf(line, "AgoraRestartHaloMetallicity = %" FSYM,
                     &HaloMetallicity);
-      ret += sscanf(line, "AgoraRestartMagneticField = %"FSYM" %"FSYM" %"FSYM,
+      ret += sscanf(line, "AgoraRestartMagneticField = %" FSYM" %" FSYM" %" FSYM,
 		    Bfield, Bfield+1, Bfield+2);
 
-      ret += sscanf(line, "AgoraRestartRefineAtStart = %"ISYM,
+      ret += sscanf(line, "AgoraRestartRefineAtStart = %" ISYM,
 		    &RefineAtStart);
-      ret += sscanf(line, "AgoraRestartHydrogenFractionByMass = %"FSYM,
+      ret += sscanf(line, "AgoraRestartHydrogenFractionByMass = %" FSYM,
 		    &TestProblemData.HydrogenFractionByMass);
-      ret += sscanf(line, "AgoraRestartHeliumFractionByMass = %"FSYM,
+      ret += sscanf(line, "AgoraRestartHeliumFractionByMass = %" FSYM,
 		    &TestProblemData.HeliumFractionByMass);
-      ret += sscanf(line, "AgoraRestartMetalFractionByMass = %"FSYM,
+      ret += sscanf(line, "AgoraRestartMetalFractionByMass = %" FSYM,
 		    &TestProblemData.MetalFractionByMass);
-      ret += sscanf(line, "AgoraRestartDeuteriumToHydrogenRatio = %"FSYM,
+      ret += sscanf(line, "AgoraRestartDeuteriumToHydrogenRatio = %" FSYM,
 		    &TestProblemData.DeuteriumToHydrogenRatio);
-      ret += sscanf(line, "AgoraRestartInitialHIFraction  = %"FSYM,
+      ret += sscanf(line, "AgoraRestartInitialHIFraction  = %" FSYM,
 		    &TestProblemData.HI_Fraction);
-      ret += sscanf(line, "AgoraRestartInitialHIIFraction  = %"FSYM,
+      ret += sscanf(line, "AgoraRestartInitialHIIFraction  = %" FSYM,
 		    &TestProblemData.HII_Fraction);
-      ret += sscanf(line, "AgoraRestartInitialHeIFraction  = %"FSYM,
+      ret += sscanf(line, "AgoraRestartInitialHeIFraction  = %" FSYM,
 		    &TestProblemData.HeI_Fraction);
-      ret += sscanf(line, "AgoraRestartInitialHeIIFraction  = %"FSYM,
+      ret += sscanf(line, "AgoraRestartInitialHeIIFraction  = %" FSYM,
 		    &TestProblemData.HeII_Fraction);
-      ret += sscanf(line, "AgoraRestartInitialHeIIIFraction  = %"FSYM,
+      ret += sscanf(line, "AgoraRestartInitialHeIIIFraction  = %" FSYM,
 		    &TestProblemData.HeIII_Fraction);
-      ret += sscanf(line, "AgoraRestartInitialHMFraction  = %"FSYM,
+      ret += sscanf(line, "AgoraRestartInitialHMFraction  = %" FSYM,
 		    &TestProblemData.HM_Fraction);
-      ret += sscanf(line, "AgoraRestartInitialH2IFraction  = %"FSYM,
+      ret += sscanf(line, "AgoraRestartInitialH2IFraction  = %" FSYM,
 		    &TestProblemData.H2I_Fraction);
-      ret += sscanf(line, "AgoraRestartInitialH2IIFraction  = %"FSYM,
+      ret += sscanf(line, "AgoraRestartInitialH2IIFraction  = %" FSYM,
 		    &TestProblemData.H2II_Fraction);
-      ret += sscanf(line, "AgoraRestartInitialDIFraction  = %"FSYM,
+      ret += sscanf(line, "AgoraRestartInitialDIFraction  = %" FSYM,
 		    &TestProblemData.DI_Fraction);
-      ret += sscanf(line, "AgoraRestartInitialDIIFraction  = %"FSYM,
+      ret += sscanf(line, "AgoraRestartInitialDIIFraction  = %" FSYM,
 		    &TestProblemData.DII_Fraction);
-      ret += sscanf(line, "AgoraRestartInitialHDIFraction  = %"FSYM,
+      ret += sscanf(line, "AgoraRestartInitialHDIFraction  = %" FSYM,
 		    &TestProblemData.HDI_Fraction);
-      ret += sscanf(line, "AgoraRestartUseMetallicityField  = %"ISYM,
+      ret += sscanf(line, "AgoraRestartUseMetallicityField  = %" ISYM,
 		    &TestProblemData.UseMetallicityField);
 
 
@@ -363,55 +363,55 @@ public:
     if (MyProcessorNumber == ROOT_PROCESSOR)
     {
       fprintf(Outfptr, "AgoraRestartCenterPosition          = %"
-	      PSYM" %"PSYM" %"PSYM"\n",
+	      PSYM" %" PSYM" %" PSYM"\n",
 	      CenterPosition[0], CenterPosition[1], CenterPosition[2]);
-      fprintf(Outfptr, "AgoraRestartMagneticField           = %"FSYM" %"FSYM" %"FSYM,
+      fprintf(Outfptr, "AgoraRestartMagneticField           = %" FSYM" %" FSYM" %" FSYM,
 		    Bfield[0], Bfield[1], Bfield[2]);
-      fprintf(Outfptr, "AgoraRestartScaleLength             = %"PSYM"\n",
+      fprintf(Outfptr, "AgoraRestartScaleLength             = %" PSYM"\n",
 	      ScaleLength);
-      fprintf(Outfptr, "AgoraRestartScaleHeight             = %"PSYM"\n",
+      fprintf(Outfptr, "AgoraRestartScaleHeight             = %" PSYM"\n",
 	      ScaleHeight);
-      fprintf(Outfptr, "AgoraRestartDiskMass                = %"FSYM"\n",
+      fprintf(Outfptr, "AgoraRestartDiskMass                = %" FSYM"\n",
 	      DiskMass);
-      fprintf(Outfptr, "AgoraRestartGasFraction             = %"FSYM"\n",
+      fprintf(Outfptr, "AgoraRestartGasFraction             = %" FSYM"\n",
 	      GasFraction);
-      fprintf(Outfptr, "AgoraRestartDiskTemperature         = %"FSYM"\n",
+      fprintf(Outfptr, "AgoraRestartDiskTemperature         = %" FSYM"\n",
 	      DiskTemperature);
-      fprintf(Outfptr, "AgoraRestartHaloMass                = %"FSYM"\n",
+      fprintf(Outfptr, "AgoraRestartHaloMass                = %" FSYM"\n",
 	      HaloMass);
-      fprintf(Outfptr, "AgoraRestartHaloTemperature         = %"FSYM"\n",
+      fprintf(Outfptr, "AgoraRestartHaloTemperature         = %" FSYM"\n",
 	      HaloTemperature);
-      fprintf(Outfptr, "AgoraRestartRefineAtStart           = %"ISYM"\n",
+      fprintf(Outfptr, "AgoraRestartRefineAtStart           = %" ISYM"\n",
 	      RefineAtStart);
-      fprintf(Outfptr, "AgoraRestartHydrogenFractionByMass = %"FSYM"\n",
+      fprintf(Outfptr, "AgoraRestartHydrogenFractionByMass = %" FSYM"\n",
 	      TestProblemData.HydrogenFractionByMass);
-      fprintf(Outfptr, "AgoraRestartHeliumFractionByMass = %"FSYM"\n",
+      fprintf(Outfptr, "AgoraRestartHeliumFractionByMass = %" FSYM"\n",
 	      TestProblemData.HeliumFractionByMass);
-      fprintf(Outfptr, "AgoraRestartMetalFractionByMass = %"FSYM"\n",
+      fprintf(Outfptr, "AgoraRestartMetalFractionByMass = %" FSYM"\n",
 	      TestProblemData.MetalFractionByMass);
-      fprintf(Outfptr, "AgoraRestartInitialHIFraction  = %"FSYM"\n",
+      fprintf(Outfptr, "AgoraRestartInitialHIFraction  = %" FSYM"\n",
 	      TestProblemData.HI_Fraction);
-      fprintf(Outfptr, "AgoraRestartInitialHIIFraction  = %"FSYM"\n",
+      fprintf(Outfptr, "AgoraRestartInitialHIIFraction  = %" FSYM"\n",
 	      TestProblemData.HII_Fraction);
-      fprintf(Outfptr, "AgoraRestartInitialHeIFraction  = %"FSYM"\n",
+      fprintf(Outfptr, "AgoraRestartInitialHeIFraction  = %" FSYM"\n",
 	      TestProblemData.HeI_Fraction);
-      fprintf(Outfptr, "AgoraRestartInitialHeIIFraction  = %"FSYM"\n",
+      fprintf(Outfptr, "AgoraRestartInitialHeIIFraction  = %" FSYM"\n",
 	      TestProblemData.HeII_Fraction);
-      fprintf(Outfptr, "AgoraRestartInitialHeIIIIFraction  = %"FSYM"\n",
+      fprintf(Outfptr, "AgoraRestartInitialHeIIIIFraction  = %" FSYM"\n",
 	      TestProblemData.HeIII_Fraction);
-      fprintf(Outfptr, "AgoraRestartInitialHMFraction  = %"FSYM"\n",
+      fprintf(Outfptr, "AgoraRestartInitialHMFraction  = %" FSYM"\n",
 	      TestProblemData.HM_Fraction);
-      fprintf(Outfptr, "AgoraRestartInitialH2IFraction  = %"FSYM"\n",
+      fprintf(Outfptr, "AgoraRestartInitialH2IFraction  = %" FSYM"\n",
 	      TestProblemData.H2I_Fraction);
-      fprintf(Outfptr, "AgoraRestartInitialH2IIFraction  = %"FSYM"\n",
+      fprintf(Outfptr, "AgoraRestartInitialH2IIFraction  = %" FSYM"\n",
 	      TestProblemData.H2II_Fraction);
-      fprintf(Outfptr, "AgoraRestartInitialDIFraction  = %"FSYM"\n",
+      fprintf(Outfptr, "AgoraRestartInitialDIFraction  = %" FSYM"\n",
 	      TestProblemData.DI_Fraction);
-      fprintf(Outfptr, "AgoraRestartInitialDIIFraction  = %"FSYM"\n",
+      fprintf(Outfptr, "AgoraRestartInitialDIIFraction  = %" FSYM"\n",
 	      TestProblemData.DII_Fraction);
-      fprintf(Outfptr, "AgoraRestartInitialHDIFraction  = %"FSYM"\n",
+      fprintf(Outfptr, "AgoraRestartInitialHDIFraction  = %" FSYM"\n",
 	      TestProblemData.HDI_Fraction);
-      fprintf(Outfptr, "AgoraRestartUseMetallicityField  = %"ISYM"\n",
+      fprintf(Outfptr, "AgoraRestartUseMetallicityField  = %" ISYM"\n",
 	      TestProblemData.UseMetallicityField);
     }
  
@@ -716,13 +716,13 @@ public:
     // Determine the number of particles of each type
     int nBulge, nDisk, nHalo, nParticles;
     nBulge = nlines("bulge.dat");
-    if(debug) fprintf(stderr, "InitializeParticles: Number of Bulge Particles %"ISYM"\n", nBulge);
+    if(debug) fprintf(stderr, "InitializeParticles: Number of Bulge Particles %" ISYM"\n", nBulge);
     nDisk = nlines("disk.dat");
-    if(debug) fprintf(stderr, "InitializeParticles: Number of Disk Particles %"ISYM"\n", nDisk);
+    if(debug) fprintf(stderr, "InitializeParticles: Number of Disk Particles %" ISYM"\n", nDisk);
     nHalo = nlines("halo.dat");
-    if(debug) fprintf(stderr, "InitializeParticles: Number of Halo Particles %"ISYM"\n", nHalo);
+    if(debug) fprintf(stderr, "InitializeParticles: Number of Halo Particles %" ISYM"\n", nHalo);
     nParticles = nBulge + nDisk + nHalo;
-    if(debug) fprintf(stderr, "InitializeParticles: Total Number of Particles %"ISYM"\n", nParticles);
+    if(debug) fprintf(stderr, "InitializeParticles: Total Number of Particles %" ISYM"\n", nParticles);
 
 
     // Initialize particle arrays
@@ -762,7 +762,7 @@ public:
     thisgrid->SetParticlePointers(Mass, Number, Type, Position,
 				  Velocity, Attribute);
     MetaData.NumberOfParticles = count;
-    if(debug) fprintf(stderr, "InitializeParticles: Set Number of Particles %"ISYM"\n", count);
+    if(debug) fprintf(stderr, "InitializeParticles: Set Number of Particles %" ISYM"\n", count);
 
   }
 
@@ -815,7 +815,7 @@ public:
 
     while (fgets(line, MAX_LINE_LENGTH, fptr) != NULL)
     {
-      ret += sscanf(line, "%"PSYM" %"FSYM, &rad, &vcirc);
+      ret += sscanf(line, "%" PSYM" %" FSYM, &rad, &vcirc);
       this->VCircRadius[i] = rad*kpc_cm; // 3.08567758e21 = kpc/cm
       this->VCircVelocity[i] = vcirc*1e5; // 1e5 = (km/s)/(cm/s)
       i += 1;
@@ -870,7 +870,7 @@ public:
     {
       ret +=
 	sscanf(line,
-	       "%"PSYM" %"PSYM" %"PSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM,
+	       "%" PSYM" %" PSYM" %" PSYM" %" FSYM" %" FSYM" %" FSYM" %" FSYM,
 	       &x, &y, &z, &vx, &vy, &vz, &mass);
 
       Position[0][c] = x * kpc_cm / LengthUnits + this->CenterPosition[0];

@@ -36,12 +36,12 @@ void WriteListOfFloats(FILE *fptr, int N, float floats[]);
 int GravityEquilibriumTestInitialize(FILE *fptr, FILE *Outfptr,
 			      HierarchyEntry &TopGrid, TopGridData &MetaData)
 {
-  char *DensName = "Density";
-  char *TEName   = "TotalEnergy";
-  char *GEName   = "GasEnergy";
-  char *Vel1Name = "x-velocity";
-  char *Vel2Name = "y-velocity";
-  char *Vel3Name = "z-velocity";
+  const char *DensName = "Density";
+  const char *TEName   = "TotalEnergy";
+  const char *GEName   = "GasEnergy";
+  const char *Vel1Name = "x-velocity";
+  const char *Vel2Name = "y-velocity";
+  const char *Vel3Name = "z-velocity";
  
   /* declarations */
  
@@ -65,7 +65,7 @@ int GravityEquilibriumTestInitialize(FILE *fptr, FILE *Outfptr,
  
     /* read parameters */
  
-    ret += sscanf(line, "GravityEquilibriumTestScaleHeight = %"FSYM,
+    ret += sscanf(line, "GravityEquilibriumTestScaleHeight = %" FSYM,
 		  &GravityEquilibriumTestScaleHeight);
  
     /* if the line is suspicious, issue a warning */
@@ -106,7 +106,7 @@ int GravityEquilibriumTestInitialize(FILE *fptr, FILE *Outfptr,
  
   if (MyProcessorNumber == ROOT_PROCESSOR)
 
-    fprintf(Outfptr, "GravityEquilibriumTestScaleHeight = %"GSYM"\n",
+    fprintf(Outfptr, "GravityEquilibriumTestScaleHeight = %" GSYM"\n",
 	    GravityEquilibriumTestScaleHeight);
  
   return SUCCESS;

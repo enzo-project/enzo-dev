@@ -97,7 +97,7 @@ class ProblemType_RotatingCylinder : public EnzoProblemType
       /* make sure it is 3D */
 
       if (MetaData.TopGridRank != 3) {
-        printf("Cannot do RotatingCylinder in %"ISYM" dimension(s)\n", MetaData.TopGridRank);
+        printf("Cannot do RotatingCylinder in %" ISYM" dimension(s)\n", MetaData.TopGridRank);
         ENZO_FAIL("");
       }
 
@@ -129,25 +129,25 @@ class ProblemType_RotatingCylinder : public EnzoProblemType
 
         /* read parameters specifically for radiating shock problem*/
 
-        ret += sscanf(line, "RotatingCylinderOverdensity  = %"FSYM, &RotatingCylinderOverdensity);
-        ret += sscanf(line, "RotatingCylinderSubgridLeft = %"PSYM,
+        ret += sscanf(line, "RotatingCylinderOverdensity  = %" FSYM, &RotatingCylinderOverdensity);
+        ret += sscanf(line, "RotatingCylinderSubgridLeft = %" PSYM,
             &RotatingCylinderSubgridLeft);
-        ret += sscanf(line, "RotatingCylinderSubgridRight = %"PSYM,
+        ret += sscanf(line, "RotatingCylinderSubgridRight = %" PSYM,
             &RotatingCylinderSubgridRight);
-        ret += sscanf(line, "RotatingCylinderLambda = %"FSYM,
+        ret += sscanf(line, "RotatingCylinderLambda = %" FSYM,
             &RotatingCylinderLambda);
 
-        ret += sscanf(line, "RotatingCylinderTotalEnergy = %"FSYM,
+        ret += sscanf(line, "RotatingCylinderTotalEnergy = %" FSYM,
             &RotatingCylinderTotalEnergy);
 
-        ret += sscanf(line, "RotatingCylinderRadius = %"PSYM,
+        ret += sscanf(line, "RotatingCylinderRadius = %" PSYM,
             &RotatingCylinderRadius);
-        ret += sscanf(line, "RotatingCylinderCenterPosition = %"PSYM" %"PSYM" %"PSYM,
+        ret += sscanf(line, "RotatingCylinderCenterPosition = %" PSYM" %" PSYM" %" PSYM,
             RotatingCylinderCenterPosition, RotatingCylinderCenterPosition+1,
             RotatingCylinderCenterPosition+2);
 
-        ret += sscanf(line, "TestProblemUseMetallicityField  = %"ISYM, &TestProblemData.UseMetallicityField);
-        ret += sscanf(line, "TestProblemInitialMetallicityFraction  = %"FSYM, &TestProblemData.MetallicityField_Fraction);
+        ret += sscanf(line, "TestProblemUseMetallicityField  = %" ISYM, &TestProblemData.UseMetallicityField);
+        ret += sscanf(line, "TestProblemInitialMetallicityFraction  = %" FSYM, &TestProblemData.MetallicityField_Fraction);
 
         /* if the line is suspicious, issue a warning */
 
@@ -190,7 +190,7 @@ class ProblemType_RotatingCylinder : public EnzoProblemType
             *int(POW(RefineBy, lev + 1));
 
         if (debug)
-          printf("RotatingCylinder:: Level[%"ISYM"]: NumberOfSubgridZones[0] = %"ISYM"\n", lev+1,
+          printf("RotatingCylinder:: Level[%" ISYM"]: NumberOfSubgridZones[0] = %" ISYM"\n", lev+1,
               NumberOfSubgridZones[0]);
 
         if (NumberOfSubgridZones[0] > 0) {
@@ -272,15 +272,15 @@ class ProblemType_RotatingCylinder : public EnzoProblemType
       /* Write parameters to parameter output file */
 
       if (MyProcessorNumber == ROOT_PROCESSOR) {
-        fprintf(Outfptr, "RotatingCylinderOverdensity         = %"FSYM"\n"  , RotatingCylinderOverdensity);
-        fprintf(Outfptr, "RotatingCylinderLambda         = %"FSYM"\n"  , RotatingCylinderLambda);
-        fprintf(Outfptr, "RotatingCylinderTotalEnergy         = %"FSYM"\n"  , RotatingCylinderTotalEnergy);
-        fprintf(Outfptr, "RotatingCylinderRadius         = %"PSYM"\n"  , RotatingCylinderRadius);
-        fprintf(Outfptr, "RotatingCylinderCenterPosition = %"PSYM" %"PSYM" %"PSYM"\n",
+        fprintf(Outfptr, "RotatingCylinderOverdensity         = %" FSYM"\n"  , RotatingCylinderOverdensity);
+        fprintf(Outfptr, "RotatingCylinderLambda         = %" FSYM"\n"  , RotatingCylinderLambda);
+        fprintf(Outfptr, "RotatingCylinderTotalEnergy         = %" FSYM"\n"  , RotatingCylinderTotalEnergy);
+        fprintf(Outfptr, "RotatingCylinderRadius         = %" PSYM"\n"  , RotatingCylinderRadius);
+        fprintf(Outfptr, "RotatingCylinderCenterPosition = %" PSYM" %" PSYM" %" PSYM"\n",
             RotatingCylinderCenterPosition, RotatingCylinderCenterPosition+1,
             RotatingCylinderCenterPosition+2);
-        fprintf(Outfptr, "TestProblemUseMetallicityField  = %"ISYM"\n", TestProblemData.UseMetallicityField);
-        fprintf(Outfptr, "TestProblemInitialMetallicityFraction  = %"FSYM"\n", TestProblemData.MetallicityField_Fraction);
+        fprintf(Outfptr, "TestProblemUseMetallicityField  = %" ISYM"\n", TestProblemData.UseMetallicityField);
+        fprintf(Outfptr, "TestProblemInitialMetallicityFraction  = %" FSYM"\n", TestProblemData.MetallicityField_Fraction);
 
       } //   if (MyProcessorNumber == ROOT_PROCESSOR) 
 

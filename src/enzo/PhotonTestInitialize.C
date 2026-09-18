@@ -86,7 +86,7 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
 
   char  line[MAX_LINE_LENGTH];
   char *dummy = new char[MAX_LINE_LENGTH];
-  int   dim, ret, level, sphere, i, source;
+  int dim, ret, level, sphere, i;
   int   TotalRefinement;
   dummy[0] = 0;
 
@@ -173,15 +173,15 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
     ret = 0;
     /* read parameters */
 
-    ret += sscanf(line, "PhotonTestNumberOfSpheres = %"ISYM,
+    ret += sscanf(line, "PhotonTestNumberOfSpheres = %" ISYM,
 		  &PhotonTestNumberOfSpheres);
-    ret += sscanf(line, "PhotonTestRefineAtStart = %"ISYM, 
+    ret += sscanf(line, "PhotonTestRefineAtStart = %" ISYM, 
 		  &PhotonTestRefineAtStart);
-    ret += sscanf(line, "PhotonTestUseParticles = %"ISYM, 
+    ret += sscanf(line, "PhotonTestUseParticles = %" ISYM, 
 		  &PhotonTestUseParticles);
-    ret += sscanf(line, "PhotonTestUseColour = %"ISYM, 
+    ret += sscanf(line, "PhotonTestUseColour = %" ISYM, 
 		  &PhotonTestUseColour);
-    ret += sscanf(line, "PhotonTestInitialTemperature = %"FSYM, 
+    ret += sscanf(line, "PhotonTestInitialTemperature = %" FSYM, 
 		  &PhotonTestInitialTemperature);
     if (sscanf(line, "PhotonTestDensityFilename = %s", dummy) == 1) {
       ret++;
@@ -208,91 +208,91 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
       PhotonTestTemperatureFilename = new char[MAX_LINE_LENGTH];
       strcpy(PhotonTestTemperatureFilename, dummy);
     }
-    ret += sscanf(line, "PhotonTestUniformVelocity = %"FSYM" %"FSYM" %"FSYM, 
+    ret += sscanf(line, "PhotonTestUniformVelocity = %" FSYM" %" FSYM" %" FSYM, 
 		  PhotonTestUniformVelocity, PhotonTestUniformVelocity+1,
 		  PhotonTestUniformVelocity+2);
-    if (sscanf(line, "PhotonTestSphereType[%"ISYM"]", &sphere) > 0)
-      ret += sscanf(line, "PhotonTestSphereType[%"ISYM"] = %"ISYM, &sphere,
+    if (sscanf(line, "PhotonTestSphereType[%" ISYM"]", &sphere) > 0)
+      ret += sscanf(line, "PhotonTestSphereType[%" ISYM"] = %" ISYM, &sphere,
 		    &PhotonTestSphereType[sphere]);
-    if (sscanf(line, "PhotonTestSphereConstantPressure[%"ISYM"]", &sphere) > 0)
-      ret += sscanf(line, "PhotonTestSphereConstantPressure[%"ISYM"] = %"ISYM, &sphere,
+    if (sscanf(line, "PhotonTestSphereConstantPressure[%" ISYM"]", &sphere) > 0)
+      ret += sscanf(line, "PhotonTestSphereConstantPressure[%" ISYM"] = %" ISYM, &sphere,
 		    &PhotonTestSphereConstantPressure[sphere]);
-    if (sscanf(line, "PhotonTestSphereSmoothSurface[%"ISYM"]", &sphere) > 0)
-      ret += sscanf(line, "PhotonTestSphereSmoothSurface[%"ISYM"] = %"ISYM, &sphere,
+    if (sscanf(line, "PhotonTestSphereSmoothSurface[%" ISYM"]", &sphere) > 0)
+      ret += sscanf(line, "PhotonTestSphereSmoothSurface[%" ISYM"] = %" ISYM, &sphere,
 		    &PhotonTestSphereSmoothSurface[sphere]);
-    if (sscanf(line, "PhotonTestSphereSmoothRadius[%"ISYM"]", &sphere) > 0)
-      ret += sscanf(line, "PhotonTestSphereSmoothRadius[%"FSYM"] = %"FSYM, &sphere,
+    if (sscanf(line, "PhotonTestSphereSmoothRadius[%" ISYM"]", &sphere) > 0)
+      ret += sscanf(line, "PhotonTestSphereSmoothRadius[%" ISYM"] = %" FSYM, &sphere,
 		    &PhotonTestSphereSmoothRadius[sphere]);
-    if (sscanf(line, "PhotonTestSphereRadius[%"ISYM"]", &sphere) > 0)
-      ret += sscanf(line, "PhotonTestSphereRadius[%"ISYM"] = %"FSYM, &sphere,
+    if (sscanf(line, "PhotonTestSphereRadius[%" ISYM"]", &sphere) > 0)
+      ret += sscanf(line, "PhotonTestSphereRadius[%" ISYM"] = %" FSYM, &sphere,
 		    &PhotonTestSphereRadius[sphere]);
-    if (sscanf(line, "PhotonTestSphereCoreRadius[%"ISYM"]", &sphere) > 0)
-      ret += sscanf(line, "PhotonTestSphereCoreRadius[%"ISYM"] = %"FSYM, &sphere,
+    if (sscanf(line, "PhotonTestSphereCoreRadius[%" ISYM"]", &sphere) > 0)
+      ret += sscanf(line, "PhotonTestSphereCoreRadius[%" ISYM"] = %" FSYM, &sphere,
 		    &PhotonTestSphereCoreRadius[sphere]);
-    if (sscanf(line, "PhotonTestSphereDensity[%"ISYM"]", &sphere) > 0)
-      ret += sscanf(line, "PhotonTestSphereDensity[%"ISYM"] = %"FSYM, &sphere,
+    if (sscanf(line, "PhotonTestSphereDensity[%" ISYM"]", &sphere) > 0)
+      ret += sscanf(line, "PhotonTestSphereDensity[%" ISYM"] = %" FSYM, &sphere,
 		    &PhotonTestSphereDensity[sphere]);
-    if (sscanf(line, "PhotonTestSphereTemperature[%"ISYM"]", &sphere) > 0)
-      ret += sscanf(line, "PhotonTestSphereTemperature[%"ISYM"] = %"FSYM, &sphere,
+    if (sscanf(line, "PhotonTestSphereTemperature[%" ISYM"]", &sphere) > 0)
+      ret += sscanf(line, "PhotonTestSphereTemperature[%" ISYM"] = %" FSYM, &sphere,
 		    &PhotonTestSphereTemperature[sphere]);
-    if (sscanf(line, "PhotonTestSpherePosition[%"ISYM"]", &sphere) > 0)
-      ret += sscanf(line, "PhotonTestSpherePosition[%"ISYM"] = %"PSYM" %"PSYM" %"PSYM, 
+    if (sscanf(line, "PhotonTestSpherePosition[%" ISYM"]", &sphere) > 0)
+      ret += sscanf(line, "PhotonTestSpherePosition[%" ISYM"] = %" PSYM" %" PSYM" %" PSYM, 
 		    &sphere, &PhotonTestSpherePosition[sphere][0],
 		    &PhotonTestSpherePosition[sphere][1],
 		    &PhotonTestSpherePosition[sphere][2]);
-    if (sscanf(line, "PhotonTestSphereVelocity[%"ISYM"]", &sphere) > 0)
-      ret += sscanf(line, "PhotonTestSphereVelocity[%"ISYM"] = %"FSYM" %"FSYM" %"FSYM, 
+    if (sscanf(line, "PhotonTestSphereVelocity[%" ISYM"]", &sphere) > 0)
+      ret += sscanf(line, "PhotonTestSphereVelocity[%" ISYM"] = %" FSYM" %" FSYM" %" FSYM, 
 		    &sphere, &PhotonTestSphereVelocity[sphere][0],
 		    &PhotonTestSphereVelocity[sphere][1],
 		    &PhotonTestSphereVelocity[sphere][2]);
-    if (sscanf(line, "PhotonTestFracKeplerianRot[%"ISYM"]", &sphere) > 0)
-      ret += sscanf(line, "PhotonTestFracKeplerianRot[%"ISYM"] = %"FSYM, &sphere,
+    if (sscanf(line, "PhotonTestFracKeplerianRot[%" ISYM"]", &sphere) > 0)
+      ret += sscanf(line, "PhotonTestFracKeplerianRot[%" ISYM"] = %" FSYM, &sphere,
                     &PhotonTestFracKeplerianRot[sphere]);
-    if (sscanf(line, "PhotonTestSphereTurbulence[%"ISYM"]", &sphere) > 0)
-      ret += sscanf(line, "PhotonTestSphereTurbulence[%"ISYM"] = %"FSYM, &sphere,
+    if (sscanf(line, "PhotonTestSphereTurbulence[%" ISYM"]", &sphere) > 0)
+      ret += sscanf(line, "PhotonTestSphereTurbulence[%" ISYM"] = %" FSYM, &sphere,
                     &PhotonTestSphereTurbulence[sphere]);
-    if (sscanf(line, "PhotonTestSphereCutOff[%"ISYM"]", &sphere) > 0)
-      ret += sscanf(line, "PhotonTestSphereCutOff[%"ISYM"] = %"FSYM, &sphere,
+    if (sscanf(line, "PhotonTestSphereCutOff[%" ISYM"]", &sphere) > 0)
+      ret += sscanf(line, "PhotonTestSphereCutOff[%" ISYM"] = %" FSYM, &sphere,
                     &PhotonTestSphereCutOff[sphere]);
-    if (sscanf(line, "PhotonTestSphereAng1[%"ISYM"]", &sphere) > 0)
-      ret += sscanf(line, "PhotonTestSphereAng1[%"ISYM"] = %"FSYM, &sphere,
+    if (sscanf(line, "PhotonTestSphereAng1[%" ISYM"]", &sphere) > 0)
+      ret += sscanf(line, "PhotonTestSphereAng1[%" ISYM"] = %" FSYM, &sphere,
                     &PhotonTestSphereAng1[sphere]);
-    if (sscanf(line, "PhotonTestSphereAng2[%"ISYM"]", &sphere) > 0)
-      ret += sscanf(line, "PhotonTestSphereAng2[%"ISYM"] = %"FSYM, &sphere,
+    if (sscanf(line, "PhotonTestSphereAng2[%" ISYM"]", &sphere) > 0)
+      ret += sscanf(line, "PhotonTestSphereAng2[%" ISYM"] = %" FSYM, &sphere,
                     &PhotonTestSphereAng2[sphere]);
-    if (sscanf(line, "PhotonTestSphereNumShells[%"ISYM"]", &sphere) > 0)
-      ret += sscanf(line, "PhotonTestSphereNumShells[%"ISYM"] = %"ISYM, &sphere,
+    if (sscanf(line, "PhotonTestSphereNumShells[%" ISYM"]", &sphere) > 0)
+      ret += sscanf(line, "PhotonTestSphereNumShells[%" ISYM"] = %" ISYM, &sphere,
                     &PhotonTestSphereNumShells[sphere]);
-    if (sscanf(line, "PhotonTestSphereHIIFraction[%"ISYM"]", &sphere) > 0)
-      ret += sscanf(line, "PhotonTestSphereHIIFraction[%"ISYM"] = %"FSYM, &sphere,
+    if (sscanf(line, "PhotonTestSphereHIIFraction[%" ISYM"]", &sphere) > 0)
+      ret += sscanf(line, "PhotonTestSphereHIIFraction[%" ISYM"] = %" FSYM, &sphere,
                     &PhotonTestSphereHIIFraction[sphere]);
-    if (sscanf(line, "PhotonTestSphereHeIIFraction[%"ISYM"]", &sphere) > 0)
-      ret += sscanf(line, "PhotonTestSphereHeIIFraction[%"ISYM"] = %"FSYM, &sphere,
+    if (sscanf(line, "PhotonTestSphereHeIIFraction[%" ISYM"]", &sphere) > 0)
+      ret += sscanf(line, "PhotonTestSphereHeIIFraction[%" ISYM"] = %" FSYM, &sphere,
                     &PhotonTestSphereHeIIFraction[sphere]);
-    if (sscanf(line, "PhotonTestSphereHeIIIFraction[%"ISYM"]", &sphere) > 0)
-      ret += sscanf(line, "PhotonTestSphereHeIIIFraction[%"ISYM"] = %"FSYM, &sphere,
+    if (sscanf(line, "PhotonTestSphereHeIIIFraction[%" ISYM"]", &sphere) > 0)
+      ret += sscanf(line, "PhotonTestSphereHeIIIFraction[%" ISYM"] = %" FSYM, &sphere,
                     &PhotonTestSphereHeIIIFraction[sphere]);
-    if (sscanf(line, "PhotonTestSphereH2IFraction[%"ISYM"]", &sphere) > 0)
-      ret += sscanf(line, "PhotonTestSphereH2IFraction[%"ISYM"] = %"FSYM, &sphere,
+    if (sscanf(line, "PhotonTestSphereH2IFraction[%" ISYM"]", &sphere) > 0)
+      ret += sscanf(line, "PhotonTestSphereH2IFraction[%" ISYM"] = %" FSYM, &sphere,
                     &PhotonTestSphereH2IFraction[sphere]);
 
-    ret += sscanf(line, "PhotonTestRefineAtStart = %"ISYM,
+    ret += sscanf(line, "PhotonTestRefineAtStart = %" ISYM,
 		  &PhotonTestRefineAtStart);
-    ret += sscanf(line, "PhotonTimeStep = %"FSYM,
+    ret += sscanf(line, "PhotonTimeStep = %" FSYM,
 		  &dtPhoton);
-    ret += sscanf(line, "PhotonTestOmegaBaryonNow = %"FSYM,
+    ret += sscanf(line, "PhotonTestOmegaBaryonNow = %" FSYM,
 		  &PhotonTestOmegaBaryonNow);
-    ret += sscanf(line, "PhotonTestInitialFractionHII = %"FSYM,
+    ret += sscanf(line, "PhotonTestInitialFractionHII = %" FSYM,
 		  &PhotonTestInitialFractionHII);
-    ret += sscanf(line, "PhotonTestInitialFractionHeII = %"FSYM,
+    ret += sscanf(line, "PhotonTestInitialFractionHeII = %" FSYM,
 		  &PhotonTestInitialFractionHeII);
-    ret += sscanf(line, "PhotonTestInitialFractionHeIII = %"FSYM,
+    ret += sscanf(line, "PhotonTestInitialFractionHeIII = %" FSYM,
 		  &PhotonTestInitialFractionHeIII);
-    ret += sscanf(line, "PhotonTestInitialFractionHM = %"FSYM,
+    ret += sscanf(line, "PhotonTestInitialFractionHM = %" FSYM,
 		  &PhotonTestInitialFractionHM);
-    ret += sscanf(line, "PhotonTestInitialFractionH2I = %"FSYM,
+    ret += sscanf(line, "PhotonTestInitialFractionH2I = %" FSYM,
 		  &PhotonTestInitialFractionH2I);
-    ret += sscanf(line, "PhotonTestInitialFractionH2II = %"FSYM,
+    ret += sscanf(line, "PhotonTestInitialFractionH2II = %" FSYM,
 		  &PhotonTestInitialFractionH2II);
 
     /* if the line is suspicious, issue a warning */
@@ -301,7 +301,7 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
 	(strstr(line, "PhotonTest") && (strstr(line, "Source") == NULL) 
 	 && line[0] != '#'))
       if (MyProcessorNumber == ROOT_PROCESSOR)
-	fprintf(stderr, "warning0: %"ISYM", the following parameter line was not interpreted:\n%s\n", ret, line);
+	fprintf(stderr, "warning0: %" ISYM", the following parameter line was not interpreted:\n%s\n", ret, line);
     
   } // end input from parameter file
 
@@ -560,61 +560,61 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
 
   if (MyProcessorNumber == ROOT_PROCESSOR) {
 
-    fprintf(Outfptr, "PhotonTestNumberOfSpheres    = %"ISYM"\n",
+    fprintf(Outfptr, "PhotonTestNumberOfSpheres    = %" ISYM"\n",
 	    PhotonTestNumberOfSpheres);
-    fprintf(Outfptr, "PhotonTestRefineAtStart      = %"ISYM"\n",
+    fprintf(Outfptr, "PhotonTestRefineAtStart      = %" ISYM"\n",
 	    PhotonTestRefineAtStart);
-    fprintf(Outfptr, "PhotonTestUseParticles       = %"ISYM"\n",
+    fprintf(Outfptr, "PhotonTestUseParticles       = %" ISYM"\n",
 	    PhotonTestUseParticles);
-    fprintf(Outfptr, "PhotonTestUseColour          = %"ISYM"\n",
+    fprintf(Outfptr, "PhotonTestUseColour          = %" ISYM"\n",
 	    PhotonTestUseColour);
-    fprintf(Outfptr, "PhotonTestInitialTemperature = %"FSYM"\n",
+    fprintf(Outfptr, "PhotonTestInitialTemperature = %" FSYM"\n",
 	    PhotonTestInitialTemperature);
-    fprintf(Outfptr, "PhotonTestUniformVelocity    = %"FSYM" %"FSYM" %"FSYM"\n",
+    fprintf(Outfptr, "PhotonTestUniformVelocity    = %" FSYM" %" FSYM" %" FSYM"\n",
 	    PhotonTestUniformVelocity[0], PhotonTestUniformVelocity[1],
 	    PhotonTestUniformVelocity[2]);
     for (sphere = 0; sphere < PhotonTestNumberOfSpheres; sphere++) {
-      fprintf(Outfptr, "PhotonTestSphereType[%"ISYM"] = %"ISYM"\n", sphere,
+      fprintf(Outfptr, "PhotonTestSphereType[%" ISYM"] = %" ISYM"\n", sphere,
 	      PhotonTestSphereType[sphere]);
-      fprintf(Outfptr, "PhotonTestSphereConstantPressure[%"ISYM"] = %"ISYM"\n", sphere,
+      fprintf(Outfptr, "PhotonTestSphereConstantPressure[%" ISYM"] = %" ISYM"\n", sphere,
 	      PhotonTestSphereConstantPressure[sphere]);
-      fprintf(Outfptr, "PhotonTestSphereSmoothSurface[%"ISYM"] = %"ISYM"\n", sphere,
+      fprintf(Outfptr, "PhotonTestSphereSmoothSurface[%" ISYM"] = %" ISYM"\n", sphere,
 	      PhotonTestSphereSmoothSurface[sphere]);
-      fprintf(Outfptr, "PhotonTestSphereSmoothRadius[%"ISYM"] = %"GOUTSYM"\n", sphere,
+      fprintf(Outfptr, "PhotonTestSphereSmoothRadius[%" ISYM"] = %" GOUTSYM"\n", sphere,
 	      PhotonTestSphereSmoothRadius[sphere]);
-      fprintf(Outfptr, "PhotonTestSphereRadius[%"ISYM"] = %"GOUTSYM"\n", sphere,
+      fprintf(Outfptr, "PhotonTestSphereRadius[%" ISYM"] = %" GOUTSYM"\n", sphere,
 	      PhotonTestSphereRadius[sphere]);
-      fprintf(Outfptr, "PhotonTestSphereCoreRadius[%"ISYM"] = %"GOUTSYM"\n", sphere,
+      fprintf(Outfptr, "PhotonTestSphereCoreRadius[%" ISYM"] = %" GOUTSYM"\n", sphere,
 	      PhotonTestSphereCoreRadius[sphere]);
-      fprintf(Outfptr, "PhotonTestSphereDensity[%"ISYM"] = %"FSYM"\n", sphere,
+      fprintf(Outfptr, "PhotonTestSphereDensity[%" ISYM"] = %" FSYM"\n", sphere,
 	      PhotonTestSphereDensity[sphere]);
-      fprintf(Outfptr, "PhotonTestSphereTemperature[%"ISYM"] = %"FSYM"\n", sphere,
+      fprintf(Outfptr, "PhotonTestSphereTemperature[%" ISYM"] = %" FSYM"\n", sphere,
 	      PhotonTestSphereTemperature[sphere]);
-      fprintf(Outfptr, "PhotonTestSpherePosition[%"ISYM"] = ", sphere);
+      fprintf(Outfptr, "PhotonTestSpherePosition[%" ISYM"] = ", sphere);
       WriteListOfFloats(Outfptr, MetaData.TopGridRank,
 			PhotonTestSpherePosition[sphere]);
-      fprintf(Outfptr, "PhotonTestSphereVelocity[%"ISYM"] = ", sphere);
+      fprintf(Outfptr, "PhotonTestSphereVelocity[%" ISYM"] = ", sphere);
       WriteListOfFloats(Outfptr, MetaData.TopGridRank,
 			PhotonTestSphereVelocity[sphere]);
-      fprintf(Outfptr, "PhotonTestSphereHIIFraction[%"ISYM"] = %"GOUTSYM"\n", sphere,
+      fprintf(Outfptr, "PhotonTestSphereHIIFraction[%" ISYM"] = %" GOUTSYM"\n", sphere,
 	      PhotonTestSphereHIIFraction[sphere]);
-      fprintf(Outfptr, "PhotonTestSphereHeIIFraction[%"ISYM"] = %"GOUTSYM"\n", sphere,
+      fprintf(Outfptr, "PhotonTestSphereHeIIFraction[%" ISYM"] = %" GOUTSYM"\n", sphere,
 	      PhotonTestSphereHeIIFraction[sphere]);
-      fprintf(Outfptr, "PhotonTestSphereHeIIIFraction[%"ISYM"] = %"GOUTSYM"\n", sphere,
+      fprintf(Outfptr, "PhotonTestSphereHeIIIFraction[%" ISYM"] = %" GOUTSYM"\n", sphere,
 	      PhotonTestSphereHeIIIFraction[sphere]);
-      fprintf(Outfptr, "PhotonTestSphereH2IFraction[%"ISYM"] = %"GOUTSYM"\n", sphere,
+      fprintf(Outfptr, "PhotonTestSphereH2IFraction[%" ISYM"] = %" GOUTSYM"\n", sphere,
 	      PhotonTestSphereH2IFraction[sphere]);
-      fprintf(Outfptr, "PhotonTestFracKeplerianRot[%"ISYM"] = %"GOUTSYM"\n", sphere,
+      fprintf(Outfptr, "PhotonTestFracKeplerianRot[%" ISYM"] = %" GOUTSYM"\n", sphere,
               PhotonTestFracKeplerianRot[sphere]);
-      fprintf(Outfptr, "PhotonTestSphereTurbulence[%"ISYM"] = %"GOUTSYM"\n", sphere,
+      fprintf(Outfptr, "PhotonTestSphereTurbulence[%" ISYM"] = %" GOUTSYM"\n", sphere,
               PhotonTestSphereTurbulence[sphere]);
-      fprintf(Outfptr, "PhotonTestSphereCutOff[%"ISYM"] = %"GOUTSYM"\n", sphere,
+      fprintf(Outfptr, "PhotonTestSphereCutOff[%" ISYM"] = %" GOUTSYM"\n", sphere,
               PhotonTestSphereCutOff[sphere]);
-      fprintf(Outfptr, "PhotonTestSphereAng1[%"ISYM"] = %"GOUTSYM"\n", sphere,
+      fprintf(Outfptr, "PhotonTestSphereAng1[%" ISYM"] = %" GOUTSYM"\n", sphere,
               PhotonTestSphereAng1[sphere]);
-      fprintf(Outfptr, "PhotonTestSphereAng2[%"ISYM"] = %"GOUTSYM"\n", sphere,
+      fprintf(Outfptr, "PhotonTestSphereAng2[%" ISYM"] = %" GOUTSYM"\n", sphere,
               PhotonTestSphereAng2[sphere]);
-      fprintf(Outfptr, "PhotonTestSphereNumShells[%"ISYM"] = %"ISYM"\n\n", sphere,
+      fprintf(Outfptr, "PhotonTestSphereNumShells[%" ISYM"] = %" ISYM"\n\n", sphere,
               PhotonTestSphereNumShells[sphere]);
     }
   }

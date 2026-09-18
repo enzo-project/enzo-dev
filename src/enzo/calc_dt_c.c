@@ -200,7 +200,7 @@ int calc_dt_c(int *rank, int *idim, int *jdim,
 			    p_dim2) * p_dim1] != p[i__ + (j + k * p_dim2) * 
 			    p_dim1]) {
 
-		      fprintf(stdout, "calc_dt d,p,i,j,k= %g %g %i %i %i ",
+		      fprintf(stdout, "calc_dt d,p,i,j,k= %g %g %" ISYM " %" ISYM " %" ISYM " ",
 			      d__[i__ + (j + k * d_dim2) * d_dim1],
 			        p[i__ + (j + k * d_dim2) * d_dim1], i__,j,k);
 			      

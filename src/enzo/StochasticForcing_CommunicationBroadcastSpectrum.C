@@ -32,7 +32,7 @@ void StochasticForcing::CommunicationBroadcastSpectrum(void)
 
 #ifdef USE_MPI
 
-  if (debug) printf("Broadcasting spectrum, proc # %"ISYM" \n",MyProcessorNumber);
+  if (debug) printf("Broadcasting spectrum, proc # %" ISYM" \n",MyProcessorNumber);
 
   int dim, m, n;
   int TransferSize = 2*SpectralRank*NumNonZeroModes;

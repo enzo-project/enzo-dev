@@ -94,7 +94,7 @@ int grid::RadHydroPulseTestInitializeGrid(float DensityConstant,
  
   // allocate fields
   if (NewData == TRUE) {
-//     printf("\n  P%"ISYM": Allocating %"ISYM" baryon fields of size %"ISYM" (%"ISYM"x%"ISYM"x%"ISYM")\n",
+//     printf("\n  P%" ISYM": Allocating %" ISYM" baryon fields of size %" ISYM" (%" ISYM"x%" ISYM"x%" ISYM")\n",
 // 	   MyProcessorNumber, NumberOfBaryonFields, size, 
 // 	   GridDimension[0], GridDimension[1], GridDimension[2]);
 
@@ -106,7 +106,6 @@ int grid::RadHydroPulseTestInitializeGrid(float DensityConstant,
     int i, j, k;
 
     float StBz=5.6704e-5;
-    float mH       = 1.66053e-24;
     float RadCon = 4.0*StBz/clight;
 
     float IEConstant = 1.0/(Gamma-1.0)/DEFAULT_MU*sqrt(sqrt((EgConstant/RadCon)));
@@ -127,8 +126,8 @@ int grid::RadHydroPulseTestInitializeGrid(float DensityConstant,
     
     if (debug) {
       fprintf(stdout,"RadHydroPulseTestInitializeGrid:\n");
-      printf("        RadPulseDim = %"ISYM"\n",MyProcessorNumber,RadPulseDim);
-      printf("     MaxRadiationDt = %g\n",MyProcessorNumber,MaxRadiationDt);
+      printf("        RadPulseDim = %" ISYM"\n", RadPulseDim);
+      printf("     MaxRadiationDt = %g\n", MaxRadiationDt);
 
       printf("    DensityConstant = %g\n",DensityConstant);    
       printf("         TEConstant = %g\n",TEConstant);    
@@ -200,7 +199,7 @@ int grid::RadHydroPulseTestInitializeGrid(float DensityConstant,
 	  }
     }
     else {
-      fprintf(stderr,"RHPulseTest Error: illegal dimension = %"ISYM"\n",
+      fprintf(stderr,"RHPulseTest Error: illegal dimension = %" ISYM"\n",
 	      RadPulseDim);
       return FAIL;    
     }

@@ -47,7 +47,7 @@ void my_exit(int status);
  
 void WriteListOfFloats(FILE *fptr, int N, FLOAT floats[]);
 void WriteListOfInts(FILE *fptr, int N, int nums[]);
-int WriteStringAttr(hid_t dset_id, char *Alabel, char *String, FILE *log_fptr);
+int WriteStringAttr(hid_t dset_id, const char *Alabel, const char *String, FILE *log_fptr);
 int FindField(int field, int farray[], int numfields);
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
@@ -60,20 +60,16 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
 {
  
   int i, j, k, dim, field, size, active_size, ActiveDim[MAX_DIMENSION];
-  int file_status;
  
   int WriteStartIndex[MAX_DIMENSION], WriteEndIndex[MAX_DIMENSION];
 
-  float *temp, *temp_VelAnyl;
+  float *temp;
   float *temperature, *dust_temperature,
     *cooling_time;
  
-  FILE *log_fptr;
-  FILE *procmap_fptr;
  
   hid_t       group_id, dset_id;
-  hid_t       float_type_id, FLOAT_type_id;
-  hid_t       file_type_id, FILE_type_id;
+  hid_t file_type_id;
   hid_t       file_dsp_id;
   hid_t       old_fields, acc_node;
  
@@ -93,25 +89,25 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
   if((WriteEverything==TRUE) || (WriteGhostZones == TRUE))
     CopyOnlyActive = FALSE;
  
-  char *ParticlePositionLabel[] =
+  const char *ParticlePositionLabel[] =
      {"particle_position_x", "particle_position_y", "particle_position_z"};
-  char *ParticleVelocityLabel[] =
+  const char *ParticleVelocityLabel[] =
      {"particle_velocity_x", "particle_velocity_y", "particle_velocity_z"};
 #ifdef WINDS
-  char *ParticleAttributeLabel[] =
+  const char *ParticleAttributeLabel[] =
     {"creation_time", "dynamical_time", "metallicity_fraction", "particle_jet_x", 
      "particle_jet_y", "particle_jet_z", "typeia_fraction"};
 #else
-  char *ParticleAttributeLabel[] = 
+  const char *ParticleAttributeLabel[] = 
     {"creation_time", "dynamical_time", "metallicity_fraction", "typeia_fraction"};
 #endif
-  char *SmoothedDMLabel[] = {"Dark_Matter_Density", "Velocity_Dispersion",
+  const char *SmoothedDMLabel[] = {"Dark_Matter_Density", "Velocity_Dispersion",
 			     "Particle_x-velocity", "Particle_y-velocity",
 			     "Particle_z-velocity"};
   /* initialize */
  
   char id[MAX_GROUP_TAG_SIZE];
-  sprintf(id, "%"GROUP_TAG_FORMAT""ISYM, grid_id);
+  sprintf(id, "%" GROUP_TAG_FORMAT"" ISYM, grid_id);
  
   /* make sure quantities defined at least for 3d */
  
@@ -144,10 +140,10 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
   /* 1) Save general grid class data */
 
   char pid[MAX_TASK_TAG_SIZE];
-  sprintf(pid, "%"TASK_TAG_FORMAT""ISYM, MyProcessorNumber);
+  sprintf(pid, "%" TASK_TAG_FORMAT"" ISYM, MyProcessorNumber);
 
   char gpid[MAX_TASK_TAG_SIZE];
-  sprintf(gpid, "%"TASK_TAG_FORMAT""ISYM, ProcessorNumber);
+  sprintf(gpid, "%" TASK_TAG_FORMAT"" ISYM, ProcessorNumber);
 
   char *groupfilename = new char[MAX_LINE_LENGTH];
   strcpy(groupfilename, base_name);
@@ -165,9 +161,9 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
 
   if (MyProcessorNumber == ROOT_PROCESSOR && HierarchyFileOutputFormat > 0) {
 
-    fprintf(fptr, "Task              = %"ISYM"\n", ProcessorNumber);
+    fprintf(fptr, "Task              = %" ISYM"\n", ProcessorNumber);
  
-    fprintf(fptr, "GridRank          = %"ISYM"\n", GridRank);
+    fprintf(fptr, "GridRank          = %" ISYM"\n", GridRank);
  
     fprintf(fptr, "GridDimension     = ");
     WriteListOfInts(fptr, GridRank, GridDimension);
@@ -184,14 +180,14 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
     fprintf(fptr, "GridRightEdge     = ");
     WriteListOfFloats(fptr, GridRank, GridRightEdge);
  
-    fprintf(fptr, "Time              = %"GOUTSYM"\n", Time);
+    fprintf(fptr, "Time              = %" GOUTSYM"\n", Time);
 
     if(WriteEverything == TRUE)
-    fprintf(fptr, "OldTime           = %"GOUTSYM"\n", OldTime);
+    fprintf(fptr, "OldTime           = %" GOUTSYM"\n", OldTime);
  
-    fprintf(fptr, "SubgridsAreStatic = %"ISYM"\n", SubgridsAreStatic);
+    fprintf(fptr, "SubgridsAreStatic = %" ISYM"\n", SubgridsAreStatic);
  
-    fprintf(fptr, "NumberOfBaryonFields = %"ISYM"\n", NumberOfBaryonFields);
+    fprintf(fptr, "NumberOfBaryonFields = %" ISYM"\n", NumberOfBaryonFields);
  
     if (NumberOfBaryonFields > 0) {
       fprintf(fptr, "FieldType = ");
@@ -200,15 +196,15 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
 
       fprintf(fptr, "BaryonFileName = %s\n", procfilename);
 
-      fprintf(fptr, "CourantSafetyNumber    = %"FSYM"\n", CourantSafetyNumber);
-      fprintf(fptr, "PPMFlatteningParameter = %"ISYM"\n", PPMFlatteningParameter);
-      fprintf(fptr, "PPMDiffusionParameter  = %"ISYM"\n", PPMDiffusionParameter);
-      fprintf(fptr, "PPMSteepeningParameter = %"ISYM"\n", PPMSteepeningParameter);
+      fprintf(fptr, "CourantSafetyNumber    = %" FSYM"\n", CourantSafetyNumber);
+      fprintf(fptr, "PPMFlatteningParameter = %" ISYM"\n", PPMFlatteningParameter);
+      fprintf(fptr, "PPMDiffusionParameter  = %" ISYM"\n", PPMDiffusionParameter);
+      fprintf(fptr, "PPMSteepeningParameter = %" ISYM"\n", PPMSteepeningParameter);
 
     }
 
-    fprintf(fptr, "NumberOfParticles   = %"ISYM"\n", NumberOfParticles);
-    fprintf(fptr, "NumberOfActiveParticles = %"ISYM"\n", NumberOfActiveParticles);
+    fprintf(fptr, "NumberOfParticles   = %" ISYM"\n", NumberOfParticles);
+    fprintf(fptr, "NumberOfActiveParticles = %" ISYM"\n", NumberOfActiveParticles);
         // Now write out which kind of active particles we have in this grid.
     fprintf(fptr, "PresentParticleTypes = ");
     if (NumberOfParticles)
@@ -222,10 +218,10 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
     // And their counts
     fprintf(fptr, "ParticleTypeCounts = ");
     if (NumberOfParticles)
-      fprintf(fptr, "%"ISYM" ", NumberOfParticles);
+      fprintf(fptr, "%" ISYM" ", NumberOfParticles);
     for (int i = 0; i<EnabledActiveParticlesCount; i++){
       if (ActiveParticleTypeCount[i] > 0) {
-        fprintf(fptr, "%"ISYM" ", ActiveParticleTypeCount[i]);
+        fprintf(fptr, "%" ISYM" ", ActiveParticleTypeCount[i]);
       }
     }
     fprintf(fptr, "\n");
@@ -234,7 +230,7 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
       fprintf(fptr, "ParticleFileName = %s\n", procfilename); // must be same as above
  
     if (SelfGravity)
-      fprintf(fptr, "GravityBoundaryType = %"ISYM"\n", GravityBoundaryType);
+      fprintf(fptr, "GravityBoundaryType = %" ISYM"\n", GravityBoundaryType);
 
   }
 
@@ -305,7 +301,7 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
         this->write_dataset(GridRank, OutDims, DataLabel[field],
             group_id, file_type_id, (VOIDP) BaryonField[field],
             CopyOnlyActive, temp);
-	//	fprintf(stderr, "%i field\n", field);
+	//	fprintf(stderr, "%" ISYM " field\n", field);
       } else {
 
         this->write_dataset(GridRank, FullOutDims, DataLabel[field],
@@ -337,7 +333,7 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
              the AccelerationField */
 
           for(dim = 0; dim < GridRank; dim++) {
-            snprintf(node_name, 254, "AccelerationField%"ISYM"", dim);
+            snprintf(node_name, 254, "AccelerationField%" ISYM"", dim);
             this->write_dataset(GridRank, FullOutDims, node_name,
                 acc_node, file_type_id, (VOIDP) AccelerationField[dim],
                 FALSE);
@@ -488,7 +484,6 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
       int MHDWriteStartIndex[3], MHDWriteEndIndex[3];
       int BiggieSize = (GridDimension[0]+1)*(GridDimension[1]+1)*(GridDimension[2]+1);
       float *MHDtmp = new float[BiggieSize];
-      int index1, index2;
 
       for(field=0;field<nBfields;field++){
         if( WriteBoundary == TRUE){
@@ -536,7 +531,7 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
                             MHDActive, ElectricDims[field]);
           if( AvgElectricField[field] != NULL ){
             char name[30];
-            sprintf(name, "AvgElec%d",field);
+            sprintf(name, "AvgElec%" ISYM "",field);
             this->write_dataset(GridRank, MHDOutDims, name,
                             group_id, file_type_id, (VOIDP) ElectricField[field],
                             TRUE, MHDtmp, MHDWriteStartIndex, MHDWriteEndIndex, 
@@ -600,7 +595,7 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
       cooling_time = new float[size];
  
       float TemperatureUnits = 1, DensityUnits = 1, LengthUnits = 1,
-	VelocityUnits = 1, TimeUnits = 1, aUnits = 1;
+	VelocityUnits = 1, TimeUnits = 1;
 
       GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, Time);
@@ -732,7 +727,7 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
 
       // Only the active part was calculated, so no copying in the routine
       if (debug1)
-	fprintf(stdout, "DM field = %i\n", field);
+	fprintf(stdout, "DM field = %" ISYM "\n", field);
       this->write_dataset(GridRank, OutDims, SmoothedDMLabel[field],
                     group_id, file_type_id, (VOIDP) InterpolatedField[field], FALSE);
 
@@ -970,7 +965,7 @@ int grid::WriteAllFluxes(hid_t grid_node)
 
     /* Make our group here */
 
-    snprintf(name, 254, "Subgrid%08d", i);
+    snprintf(name, 254, "Subgrid%08" ISYM, i);
 
     subgrid_group = H5Gcreate(fluxes_node, name, 0);
     if(subgrid_group == h5_error)ENZO_VFAIL("IO Problem creating %s", name)
@@ -996,7 +991,7 @@ int grid::WriteFluxGroup(hid_t top_group, fluxes *fluxgroup)
   hid_t h5_error = -1;
   hid_t axis_group = h5_error;
   hid_t left_group, right_group;
-  int i, j, field, dim;
+  int j, field, dim;
   hsize_t size;
 
   char name[255];
@@ -1004,7 +999,7 @@ int grid::WriteFluxGroup(hid_t top_group, fluxes *fluxgroup)
   for (dim = 0; dim < GridRank; dim++) {
     /* compute size (in floats) of flux storage */
 
-    snprintf(name, 254, "Axis%"ISYM, dim);
+    snprintf(name, 254, "Axis%" ISYM, dim);
     axis_group = H5Gcreate(top_group, name, 0);
     if(axis_group == h5_error)ENZO_VFAIL("Can't create %s", name)
 

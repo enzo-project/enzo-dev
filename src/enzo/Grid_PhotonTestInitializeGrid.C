@@ -88,7 +88,7 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
 {
   /* declarations */
 
-  int dim, i, j, k, m, field, sphere, size, active_size, index, cindex;
+  int dim, i, j, k, m, sphere, active_size, index, cindex;
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
     DINum, DIINum, HDINum,  kphHINum, gammaNum, kphHeINum,
     kphHeIINum, kdissH2INum, kdissH2IINum, kphHMNum, RPresNum1, RPresNum2, RPresNum3; 
@@ -221,13 +221,13 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
     NFWSigma[i] = sqrt(kboltz * NFWTemp[i] / (mu * mh));  // in cm/s
     float mean_overdensity = 3.0*SphereDensity[sphere] / (x1*x1*x1) *
         (log(1.0+x1) - x1/(x1+1.0));
-    fprintf(fptr, "%"ISYM" %"GOUTSYM" %"GSYM" %"GSYM" %"GSYM" %"GSYM" %"GSYM" %"GSYM"\n", i, NFWRadius[i], 
+    fprintf(fptr, "%" ISYM" %" GOUTSYM" %" GSYM" %" GSYM" %" GSYM" %" GSYM" %" GSYM" %" GSYM"\n", i, NFWRadius[i], 
 	 NFWDensity[i], NFWMass[i], NFWPressure[i], NFWTemp[i], NFWSigma[i],
          mean_overdensity);
     if (mean_overdensity > 200 && m200 == 0)
       m200 = NFWMass[i];
   }
-  fprintf(fptr, "#m200 = %"GSYM"\n", m200);
+  fprintf(fptr, "#m200 = %" GSYM"\n", m200);
   fclose(fptr);
 
   /* Loop over the set-up twice, once to count the particles, the second
@@ -287,7 +287,7 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
     hid_t file_id;
 
     // Parse DensityFilename into filename and dataset name
-    char *delim = "/";
+    const char *delim = "/";
     data_filename = strtok(DensityFilename, delim);
     dataset_name = strtok(NULL, delim);
 
@@ -374,13 +374,10 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
   float VelocityKep = 0;
   float VelocitySound[MAX_SPHERES];
   double SphereMass, SphereCoreMass, SphereCoreDens;
-  float alpha, beta, theta;
-  float Scale_Factor[MAX_SPHERES];
 
   /* Pre-compute cloud properties before looping over mesh */
 
   for (sphere = 0; sphere < NumberOfSpheres; sphere++) {
-    Scale_Factor[sphere] = SphereCutOff[sphere] / SphereRadius[sphere];
     HydrostaticTemperature[sphere] = (2*pi * GravConst * mh) / 
       (3.0*kboltz) * (SphereDensity[sphere] * DensityUnits) * 
       pow(SphereRadius[sphere] * LengthUnits, 2.0);
@@ -396,13 +393,13 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
 		      pow(SphereRadius[sphere]*LengthUnits, 2) *
 		      ((SphereRadius[sphere] - SphereCoreRadius[sphere]) * 
 		       LengthUnits)) + SphereCoreMass;
-	printf("\nSphere Mass (M_sun): %"FSYM"\n", SphereMass/SolarMass);
+	printf("\nSphere Mass (M_sun): %" FSYM"\n", SphereMass/SolarMass);
       }
       else if (SphereType[sphere] == 1 || SphereType[sphere] == 7) {
 	SphereMass = double(4*pi/3) *
 	  pow((SphereRadius[sphere]*LengthUnits), 3) *
 	  double(SphereDensity[sphere]*DensityUnits);
-	printf("\nSphere Mass (M_sun): %"FSYM"\n", SphereMass/SolarMass);
+	printf("\nSphere Mass (M_sun): %" FSYM"\n", SphereMass/SolarMass);
       } 
       else if (SphereType[sphere] == 6) {
 	VelocitySound[sphere] = sqrt((SphereTemperature[sphere] * Gamma)/mu);
@@ -411,7 +408,7 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
 		(SphereDensity[sphere]))) * 
 	  ph_q(SphereCutOff[sphere]);
 	SphereMass = SphereMass*DensityUnits*pow(LengthUnits,3);
-	printf("\nSphere Mass (M_sun): %"FSYM"\n", SphereMass/SolarMass);
+	printf("\nSphere Mass (M_sun): %" FSYM"\n", SphereMass/SolarMass);
       }
       
       VelocityKep = sqrt(GravConst*SphereMass/(SphereRadius[sphere]*(LengthUnits)));
@@ -419,9 +416,9 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
 	(SphereFracKeplerianRot[sphere]*VelocityKep);
       SphereRotationalPeriod[sphere] = SphereRotationalPeriod[sphere]/(TimeUnits);
 
-      printf("\nKeplerian Rotation Period (s): %"FSYM"\n", SphereRotationalPeriod[sphere] 
+      printf("\nKeplerian Rotation Period (s): %" FSYM"\n", SphereRotationalPeriod[sphere] 
 	     * SphereFracKeplerianRot[sphere]*TimeUnits);
-      printf("\nSphere Rotation Period (s): %"FSYM"\n", SphereRotationalPeriod[sphere]
+      printf("\nSphere Rotation Period (s): %" FSYM"\n", SphereRotationalPeriod[sphere]
 	     * TimeUnits);
     } else
       SphereRotationalPeriod[sphere] = 0.0;
@@ -430,7 +427,7 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
 
     // Calculate speed of sound for this sphere
     VelocitySound[sphere] = sqrt((SphereTemperature[sphere] * Gamma)/mu);
-    printf("\nVelocitySound (cm s^-1): %"FSYM"\n", VelocitySound[sphere] * 
+    printf("\nVelocitySound (cm s^-1): %" FSYM"\n", VelocitySound[sphere] * 
 	   (LengthUnits/TimeUnits));
 
   } // ENDFOR sphere
@@ -499,32 +496,11 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
 
 	    /* Compute Cartesian coordinates for rotational properties */
 
-            FLOAT xpos, ypos, zpos, drad;
+            FLOAT xpos, ypos, zpos;
 
 	    xpos = x-SpherePosition[sphere][0] - (dim == 1 ? 0.5*CellWidth[0][0] : 0.0);
 	    ypos = y-SpherePosition[sphere][1] - (dim == 2 ? 0.5*CellWidth[1][0] : 0.0);
 	    zpos = z-SpherePosition[sphere][2] - (dim == 3 ? 0.5*CellWidth[2][0] : 0.0);
-	    drad = sqrt(xpos*xpos + ypos*ypos + zpos*zpos);
-	    alpha = 2*pi*(FLOAT(rand())/FLOAT(RAND_MAX));
-	    beta = (pi/2)*(((2*FLOAT(rand()))/FLOAT(RAND_MAX)) - 1);
-
-	    /* Compute spherical coordinate theta */
-
-	    if (xpos != 0) {
-	      if (xpos > 0 && ypos >= 0)
-		theta = atan(ypos/xpos);
-	      else if (xpos < 0 && ypos >= 0)
-		theta = pi + atan(ypos/xpos);
-	      else if (xpos < 0 && ypos < 0)
-		theta = pi + atan(ypos/xpos);
-	      else if (xpos > 0 && ypos < 0)
-		theta = 2*pi + atan(ypos/xpos);
-             } else if (xpos == 0 && ypos > 0)
-	      theta = pi / 2.0;
-	    else if (xpos == 0 && ypos < 0)
-	      theta = (3*pi) / 2.0;
-	    else
-	      theta = 0.0;
 
 	    // Find out which shell the cell is in
 	    a = ph_Ang(SphereAng1[sphere],SphereAng2[sphere],SphereRadius[sphere],r);
@@ -598,13 +574,11 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
 	    if (SphereType[sphere] == 6) {
 
 	      const float DensitySlope = 9.0;
-	      double M_ej, E_ej, r_max, v_max, BlastTime, v_core, normalization,
-		speed;
+	      double M_ej, E_ej, v_max, BlastTime, v_core, normalization, speed;
 
 	      M_ej = SphereDensity[sphere] * (4.0*pi/3.0) * 
 		POW(SphereRadius[sphere]*LengthUnits, 3.0) * DensityUnits;
 	      E_ej = M_ej * kboltz * SphereTemperature[sphere] / (mh*mu);
-	      r_max = LengthUnits * SphereRadius[sphere];
 
 	      // Temperature parameter is a proxy for total energy
 	      // (convert to velocity)
@@ -931,9 +905,9 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
 	ci[dim] = int((pos[dim] - GridLeftEdge[dim]) / CellWidth[dim][0]);
       }
 
-      printf("PhotonTest[%"ISYM"]: Left edge = %"FSYM" %"FSYM" %"FSYM"\n", level, GridLeftEdge[0],
+      printf("PhotonTest[%" ISYM"]: Left edge = %" FSYM" %" FSYM" %" FSYM"\n", level, GridLeftEdge[0],
 	     GridLeftEdge[1], GridLeftEdge[2]);
-      printf("PhotonTest[%"ISYM"]: source (%"FSYM" %"FSYM" %"FSYM") in %"ISYM" %"ISYM" %"ISYM"\n", 
+      printf("PhotonTest[%" ISYM"]: source (%" FSYM" %" FSYM" %" FSYM") in %" ISYM" %" ISYM" %" ISYM"\n", 
 	     level, pos[0], pos[1], pos[2], ci[0], ci[1], ci[2]);
 
       if (pos[0] >= GridLeftEdge[0] && pos[0] <= GridRightEdge[0] &&
@@ -943,7 +917,7 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
 	index = GRIDINDEX(ci[0], ci[1], ci[2]);
 	BaryonField[kphHINum][index] = 1;
 
-	printf("PhotonTest[%"ISYM"]: set kphHI in %"ISYM" %"ISYM" %"ISYM" (%"ISYM")\n", 
+	printf("PhotonTest[%" ISYM"]: set kphHI in %" ISYM" %" ISYM" %" ISYM" (%" ISYM")\n", 
 	       level, ci[0], ci[1], ci[2], index);
 
       } /* ENDIF inside grid */
@@ -955,7 +929,7 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
   } /* ENDIF RefineByOpticalDepth */
 
   if (SphereUseParticles && debug)
-    printf("PhotonTestInitialize: DM NumberOfParticles = %"ISYM"\n", 
+    printf("PhotonTestInitialize: DM NumberOfParticles = %" ISYM"\n", 
 	   NumberOfParticles);
 
   delete [] density_field;
@@ -1039,6 +1013,5 @@ double ph_Maxwellian(double c_tilda, double vel_unit, double mu, double gamma)
    double u2 = rand();
    u2 = u2/RAND_MAX;
    double x1 = mean + stdev*sqrt(-2*log(u1))*cos(2*pi*u2);
-   double x2 = mean + stdev*sqrt(-2*log(u1))*sin(2*pi*u2);
    return (x1/vel_unit);
 }
