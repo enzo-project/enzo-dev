@@ -3,6 +3,11 @@ cmake_minimum_required(VERSION 3.20)
 
 project(Enzo LANGUAGES C CXX Fortran)
 
+# Default to an optimized build (the legacy build used CONFIG_OPT=high)
+if (NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+    set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type" FORCE)
+endif()
+
 # Path for custom CMake modules
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 

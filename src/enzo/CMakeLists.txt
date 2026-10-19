@@ -13,6 +13,9 @@ set(ENZO_AUTOGEN_SOURCES
 )
 
 set(ENZO_ALL_LIB_SOURCES ${ENZO_CORE_SOURCES})
+if (ENZO_TRANSFER)
+    list(APPEND ENZO_ALL_LIB_SOURCES ${ENZO_TRANSFER_SOURCES})
+endif()
 if (ENZO_USE_CUDA)
     list(APPEND ENZO_ALL_LIB_SOURCES ${ENZO_CUDA_SOURCES})
 endif()
@@ -71,3 +74,4 @@ target_link_libraries(enzo_lib PUBLIC m dl)
 # Build main enzo executable
 add_executable(enzo enzo.C ${ENZO_AUTOGEN_SOURCES})
 target_link_libraries(enzo PRIVATE enzo_lib)
+add_dependencies(enzo enzo_version)

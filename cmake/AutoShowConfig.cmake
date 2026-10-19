@@ -2,45 +2,23 @@
 # Function to generate auto_show_*.C files for metadata target
 
 function(generate_auto_show_files TARGET_DIR)
-    find_package(Git QUIET)
-    if (GIT_FOUND AND EXISTS "${CMAKE_SOURCE_DIR}/.git")
-        execute_process(
-            COMMAND ${GIT_EXECUTABLE} rev-parse --abbrev-ref HEAD
-            WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
-            OUTPUT_VARIABLE GIT_BRANCH
-            OUTPUT_STRIP_TRAILING_WHITESPACE
-            ERROR_QUIET
-        )
-        execute_process(
-            COMMAND ${GIT_EXECUTABLE} rev-parse HEAD
-            WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
-            OUTPUT_VARIABLE GIT_REVISION
-            OUTPUT_STRIP_TRAILING_WHITESPACE
-            ERROR_QUIET
-        )
-    endif()
+    include(WriteIfDifferent)
 
-    if (NOT GIT_BRANCH)
-        set(GIT_BRANCH "main")
-    endif()
-    if (NOT GIT_REVISION)
-        set(GIT_REVISION "unknown")
-    endif()
-
-    # Generate auto_show_version.C
-    file(WRITE "${TARGET_DIR}/auto_show_version.C"
-"#include <stdio.h>
-void auto_show_version(FILE *fp) {
-   fprintf (fp,\"\\n\");
-   fprintf (fp,\"Git Branch   ${GIT_BRANCH}\\n\");
-   fprintf (fp,\"Git Revision ${GIT_REVISION}\\n\");
-   fprintf (fp,\"\\n\");
-}
-"
-    )
+    # auto_show_version.C is regenerated at build time (see GenerateVersion.cmake)
+    # so the reported git revision tracks commits made after configure.
+    add_custom_target(enzo_version
+        COMMAND ${CMAKE_COMMAND}
+            -DSOURCE_DIR=${CMAKE_SOURCE_DIR}
+            -DOUTPUT_FILE=${TARGET_DIR}/auto_show_version.C
+            -DMODULE_DIR=${CMAKE_SOURCE_DIR}/cmake
+            -P ${CMAKE_SOURCE_DIR}/cmake/GenerateVersion.cmake
+        BYPRODUCTS ${TARGET_DIR}/auto_show_version.C
+        COMMENT "Generating auto_show_version.C"
+        VERBATIM)
+    set_source_files_properties(${TARGET_DIR}/auto_show_version.C PROPERTIES GENERATED TRUE)
 
     # Generate auto_show_config.C
-    file(WRITE "${TARGET_DIR}/auto_show_config.C"
+    write_if_different("${TARGET_DIR}/auto_show_config.C"
 "#include <stdio.h>
 void auto_show_config(FILE *fp) {
    fprintf (fp,\"\\n\");
@@ -64,7 +42,8 @@ void auto_show_config(FILE *fp) {
     )
 
     # Generate auto_show_flags.C
-    file(WRITE "${TARGET_DIR}/auto_show_flags.C"
+    string(TOUPPER "${CMAKE_BUILD_TYPE}" _BT)
+    write_if_different("${TARGET_DIR}/auto_show_flags.C"
 "#include <stdio.h>
 void auto_show_flags(FILE *fp) {
    fprintf (fp,\"\\n\");
@@ -72,9 +51,9 @@ void auto_show_flags(FILE *fp) {
    fprintf (fp,\"CXX = ${CMAKE_CXX_COMPILER}\\n\");
    fprintf (fp,\"FC  = ${CMAKE_Fortran_COMPILER}\\n\");
    fprintf (fp,\"\\n\");
-   fprintf (fp,\"CFLAGS   = ${CMAKE_C_FLAGS}\\n\");
-   fprintf (fp,\"CXXFLAGS = ${CMAKE_CXX_FLAGS}\\n\");
-   fprintf (fp,\"FFLAGS   = ${CMAKE_Fortran_FLAGS}\\n\");
+   fprintf (fp,\"CFLAGS   = ${CMAKE_C_FLAGS} ${CMAKE_C_FLAGS_${_BT}}\\n\");
+   fprintf (fp,\"CXXFLAGS = ${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_${_BT}}\\n\");
+   fprintf (fp,\"FFLAGS   = ${CMAKE_Fortran_FLAGS} ${CMAKE_Fortran_FLAGS_${_BT}}\\n\");
    fprintf (fp,\"\\n\");
 }
 "
