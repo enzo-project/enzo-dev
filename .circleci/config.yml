@@ -110,8 +110,14 @@ commands:
             source $HOME/venv/bin/activate
             if [ ! -e << parameters.skipfile >> ]; then
               git checkout << parameters.tag >>
-              cmake -B build -S . -DCMAKE_PREFIX_PATH="$HOME/local;$HOME/grackle" -DGRACKLE_ROOT="$HOME/local" -DHYPRE_ROOT="$HOME/local" -DCMAKE_BUILD_TYPE=Release -DENZO_INTEGERS=32 -DENZO_PARTICLE_IDS=32 -DENZO_USE_GRACKLE=ON -DENZO_USE_HYPRE=ON
-              cmake --build build --parallel 6
+              if [ -f CMakeLists.txt ]; then
+                cmake -B build -S . -DCMAKE_PREFIX_PATH="$HOME/local;$HOME/grackle" -DGRACKLE_ROOT="$HOME/local" -DHYPRE_ROOT="$HOME/local" -DCMAKE_BUILD_TYPE=Release -DENZO_INTEGERS=32 -DENZO_PARTICLE_IDS=32 -DENZO_USE_GRACKLE=ON -DENZO_USE_HYPRE=ON
+                cmake --build build --parallel 6
+              else
+                # tags that predate the CMake build (e.g. the gold-standard answers) use the legacy Makefiles
+                ./configure
+                (cd src/enzo && make machine-ubuntu && make load-config-test-suite && make clean && make -j 6)
+              fi
               cd run
               python ./test_runner.py --suite=push -o $ENZOTEST_DIR --answer-name=$ANSWER_NAME --local --machine=local_nompi --strict=high --verbose --jrun=4 << parameters.flags >>
             fi
@@ -141,7 +147,8 @@ commands:
             # test 32-bit integers and 32-bit particle IDs
             try_config ints32 -DENZO_INTEGERS=32 -DENZO_PARTICLE_IDS=32
             # test without mpi
-            try_config nompi -DENZO_USE_MPI=OFF
+            # hypre is built against MPI, so it cannot be used without it
+            try_config nompi -DENZO_USE_MPI=OFF -DENZO_USE_HYPRE=OFF
             # test without radiative transfer
             try_config notransfer -DENZO_TRANSFER=OFF
 
