@@ -220,7 +220,7 @@ man_pages = [
 ]
 
 intersphinx_mapping = {'python': ('https://docs.python.org/3', None),
-                       'ipython': ('https://ipython.org/ipython-doc/stable/', None),
+                       'ipython': ('https://ipython.readthedocs.io/en/stable/', None),
                        'scipy': ('https://numpy.org/doc/stable/', None), 
                        'matplotlib': ('https://matplotlib.org/stable/', None)
                        }
