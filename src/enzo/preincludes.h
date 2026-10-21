@@ -26,9 +26,57 @@
 #include "mpi.h"
 #endif
 #ifdef USE_GRACKLE
+#include <cstddef>
 extern "C" {
 #include <grackle.h>
 }
+
+struct GrackleFieldBuffer {
+    gr_float *ptr;
+    void *orig_ptr;
+    int size;
+    bool allocated;
+    void (*copy_back_fn)(void *dest, const gr_float *src, int n);
+
+    GrackleFieldBuffer() : ptr(NULL), orig_ptr(NULL), size(0), allocated(false), copy_back_fn(NULL) {}
+
+    template <typename T>
+    gr_float* prepare(T *src, int n, bool copy_in = true) {
+        orig_ptr = (void*) src;
+        size = n;
+        if (src == NULL) {
+            ptr = NULL;
+            return NULL;
+        }
+        if (sizeof(gr_float) == sizeof(T)) {
+            ptr = (gr_float*) src;
+            allocated = false;
+        } else {
+            ptr = new gr_float[n];
+            allocated = true;
+            if (copy_in) {
+                for (int i = 0; i < n; i++) ptr[i] = (gr_float) src[i];
+            }
+            copy_back_fn = [](void *dest, const gr_float *src_buf, int count) {
+                T *d = (T*) dest;
+                for (int i = 0; i < count; i++) d[i] = (T) src_buf[i];
+            };
+        }
+        return ptr;
+    }
+
+    void copy_back() {
+        if (allocated && ptr && orig_ptr && copy_back_fn) {
+            copy_back_fn(orig_ptr, ptr, size);
+        }
+    }
+
+    ~GrackleFieldBuffer() {
+        if (allocated && ptr) {
+            delete [] ptr;
+        }
+    }
+};
 #endif
 /* #include <stdlib.h> */
 #include <stdio.h>

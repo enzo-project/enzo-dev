@@ -36,9 +36,28 @@ version controlled source, as no support can be provided for archived
 
 Mandatory:
 
-- C/C++ and Fortan90 compiler
+- CMake (>= 3.20)
+- C/C++ and Fortran90 compiler
 - MPI (such as OpenMPI, MPICH, or IntelMPI) for multi-processor parallel jobs
 - [HDF5](https://www.hdfgroup.org/) (serial version) for data outputs
+
+## QUICK START: BUILDING ENZO
+
+To configure and compile Enzo and its associated tools:
+
+```bash
+cd enzo-dev/
+make
+```
+
+Executables will be created in the `bin/` directory (`bin/enzo`, `bin/inits`, `bin/enzohop`, `bin/ring`, `bin/anyl`, `bin/P-GroupFinder`).
+
+To configure custom build options (precision, cooling libraries, solvers):
+
+```bash
+cmake -B build -S . -DENZO_PRECISION=64 -DENZO_USE_GRACKLE=ON
+cmake --build build
+```
 
 Optional:
 

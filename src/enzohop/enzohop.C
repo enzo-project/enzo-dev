@@ -55,7 +55,7 @@ extern "C" void regroup_main(float dens_outer); */
 
 void hop_main(KD kd);
 void regroup_main(float dens_outer);
-void kdInit(KD &kd,int nBucket);
+int kdInit(KD *pkd,int nBucket);
 
 int main(int argc, char *argv[]){
 

@@ -76,10 +76,18 @@ void free_data(Slice *s);
 void free_slice(Slice *s);
 int f77write(FILE *f, void *p, int len);
 int f77read(FILE *f, void *p, int len);
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 float *vector(long nl, long nh);
 int *ivector(long nl, long nh);
 void free_vector(float *v, long nl, long nh);
 void free_ivector(int *v, long nl, long nh);
+
+#ifdef __cplusplus
+}
+#endif
 
 void myerror(char *message);
 void mywarn(char *message);

@@ -92,92 +92,38 @@ In this directory there are several subdirectories:
  * **src** All the Enzo source, along with its affiliated utilities
    (described below) is contained here.
 
-The source for Enzo, specifically, is contained in
-``src/enzo``. Because the Enzo Makefile is the basis for all other
-compilation, we're going to examine that first.
-
-Change into the src/enzo/ directory, and execute the command
-
-::
-
-    $ ls Make.mach.* 
-
-
-
-This will come up with a list of potential Makefiles which have been
-pre-made. If you see one that may be appropriate (for instance, if
-you're on a mac, use Make.mach.darwin) you can execute
-
-
-::
-
-    $ make machine-darwin
-
-
-For other machines, replace darwin with the final segment of the
-Makefile name. If you don't see a Makefile that's appropriate, you
-will want to copy one that is close (good starting points are
-Make.mach.unknown and Make.mach.linux-gnu) to a name that reflects the
-host you're on. You can then edit that Makefile, and you will need to
-set up the appropriate compilation information.
-
-Specifically, despite the fact that there are many variables, for the
-most part they will be straightforward to set; Make.mach.linux-gnu is
-a good reference. However, you will need to examine with care the
-following variables:
-
-
-+ MACH_FFLAGS_INTEGER_32
-+ MACH_FFLAGS_INTEGER_64
-+ MACH_FFLAGS_REAL_32
-+ MACH_FFLAGS_REAL_64
-
-
-These are the source of many issues with compiling Enzo. Enzo uses a
-pre-defined bitsize for all compilation and arithmetic; this is done
-through a #define in the C/C++ code and through Fortran compiler
-arguments in the Fortran code. This leads to a mismatch: while the
-C/C++ code will always have the correct bitwidth, the Fortran code
-must have these variables set properly to ensure the correct bitwidth.
-
-For an example of how to set these with GCC, see the Make.mach.linux-
-gnu Makefile. For an example of how to set these with the Intel
-Compiler, see the Make.mach.triton-intel Makefile. For an example of
-how to set these with the PGI Compiler, see the Make.mach.nics-kraken
-Makefile.
-
-If your compilation fails on the file acml_st1.F , this is the
-problem.
-
-
+The source for Enzo and its tools is contained in ``src/``.
 
 Building Enzo
 -------------
 
-Once you have an Enzo Makefile and have executed the correct make
-machine-something command, execute:
-
-
-::
-
-    $ make show-config
-
-
-This will show the current configuration. make help-config will
-describe how to turn these options on or off. Some ( python-yes ,
-hypre-yes , a few others) will require external libraries.
-
-The default options for Enzo are mostly fine for beginning, although
-it defaults to using opt-debug , which typically means using no
-compiler optimizations. opt-high is supposed to be safe, and opt-
-aggressive is often faster but less reliable. (For instance, at O3,
-some compilers are not guaranteed to be deterministic.) When you are
-satisfied with your configuration options, it is time to build Enzo:
-
+Enzo uses CMake to configure and build all components across platforms.
+To build Enzo with default options (64-bit precision, MPI enabled, HDF5 enabled), change into the top-level repository directory and execute:
 
 ::
 
     $ make
+
+This automatically invokes CMake and compiles all binaries into the ``bin/`` directory (``bin/enzo``, ``bin/inits``, ``bin/enzohop``, etc.).
+
+Customizing Build Options
++++++++++++++++++++++++++
+
+To customize configuration options (precision, external libraries, physics features), use ``cmake -B build -S .`` with ``-DOPTION=VALUE`` flags:
+
+::
+
+    $ cmake -B build -S . -DENZO_PRECISION=64 -DENZO_USE_GRACKLE=ON
+    $ cmake --build build
+
+Common CMake options include:
+
+- ``-DENZO_PRECISION=32|64``: Floating-point precision (default: 64)
+- ``-DENZO_INTEGERS=32|64``: Grid integer size (default: 64)
+- ``-DENZO_USE_MPI=ON|OFF``: Enable/disable MPI (default: ON)
+- ``-DENZO_USE_GRACKLE=ON|OFF``: Enable Grackle cooling library (default: OFF)
+
+For a complete reference of CMake options, see :ref:`CMakeOptions`. For historical notes on the legacy ``Make.mach.*`` Makefile system, see :ref:`LegacyMakeOptions`.
 
 
 If this command fails, checking over the output of out.compile may

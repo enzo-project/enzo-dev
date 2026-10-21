@@ -8,6 +8,9 @@ commands:
           name: "Set environment variables."
           command: |
             echo 'export LD_LIBRARY_PATH=$HOME/local/lib:$LD_LIBRARY_PATH' >> $BASH_ENV
+            echo 'export CMAKE_PREFIX_PATH=$HOME/local:$HOME/grackle:$CMAKE_PREFIX_PATH' >> $BASH_ENV
+            echo 'export GRACKLE_ROOT=$HOME/local' >> $BASH_ENV
+            echo 'export HYPRE_ROOT=$HOME/local' >> $BASH_ENV
             echo 'export ENZOTEST_DIR=$HOME/enzo_test' >> $BASH_ENV
             echo 'export ANSWER_NAME="push_suite"' >> $BASH_ENV
             echo 'export HYPRE=2.20.0' >> $BASH_ENV
@@ -28,20 +31,13 @@ commands:
           command: |
             source $BASH_ENV
             sudo apt-get update
-            sudo apt-get install -y csh libhdf5-serial-dev libopenmpi-dev openmpi-bin gfortran libtool-bin xutils-dev
+            sudo apt-get install -y cmake csh libhdf5-serial-dev libopenmpi-dev openmpi-bin gfortran libtool-bin xutils-dev
             python3 -m venv $HOME/venv
             source $HOME/venv/bin/activate
             pip install --upgrade pip
             pip install --upgrade wheel
             pip install --upgrade setuptools
-            pip install Cython numpy h5py fastcache flake8 nose3 girder-client matplotlib pytest gitpython # yt
-            # Temporary workaround to use updated answer testing from the yt dev repository
-            # instead of pip until next yt point release
-            git clone https://github.com/yt-project/yt
-            cd yt
-            git checkout main
-            pip install -e .
-            cd ..
+            pip install Cython numpy h5py fastcache flake8 nose3 girder-client matplotlib pytest gitpython yt
             pip install yt_astro_analysis
             # Install hypre
             mkdir -p $HOME/local
@@ -114,13 +110,15 @@ commands:
             source $HOME/venv/bin/activate
             if [ ! -e << parameters.skipfile >> ]; then
               git checkout << parameters.tag >>
-              ./configure
-              cd src/enzo
-              make machine-ubuntu
-              make load-config-test-suite
-              make clean
-              make -j 6
-              cd ../../run
+              if [ -f CMakeLists.txt ]; then
+                cmake -B build -S . -DCMAKE_PREFIX_PATH="$HOME/local;$HOME/grackle" -DGRACKLE_ROOT="$HOME/local" -DHYPRE_ROOT="$HOME/local" -DCMAKE_BUILD_TYPE=Release -DENZO_INTEGERS=32 -DENZO_PARTICLE_IDS=32 -DENZO_USE_GRACKLE=ON -DENZO_USE_HYPRE=ON
+                cmake --build build --parallel 6
+              else
+                # tags that predate the CMake build (e.g. the gold-standard answers) use the legacy Makefiles
+                ./configure
+                (cd src/enzo && make machine-ubuntu && make load-config-test-suite && make clean && make -j 6)
+              fi
+              cd run
               python ./test_runner.py --suite=push -o $ENZOTEST_DIR --answer-name=$ANSWER_NAME --local --machine=local_nompi --strict=high --verbose --jrun=4 << parameters.flags >>
             fi
 
@@ -132,49 +130,27 @@ commands:
           command: |
             source $BASH_ENV
             source $HOME/venv/bin/activate
-            ./configure
-            cd src/enzo
-            make machine-ubuntu
+            # each configuration gets its own build dir so cached -D options
+            # from earlier steps cannot leak into later ones
+            try_config() {
+              name=$1; shift
+              cmake -B build-$name -S . -DCMAKE_PREFIX_PATH="$HOME/local;$HOME/grackle" -DGRACKLE_ROOT="$HOME/local" -DHYPRE_ROOT="$HOME/local" -DENZO_USE_GRACKLE=ON -DENZO_USE_HYPRE=ON "$@" || exit 1
+              cmake --build build-$name --parallel 6 || exit 1
+              rm -rf build-$name
+            }
             # test various baryon/particle precisions
             for prec in 32 64
             do for part in 32 128
             do
-            # skip the test-suite configuration
-            if [[ $prec == 64 && $part == 64 ]]; then
-            continue
-            fi
-            make precision-$prec
-            make particles-$part
-            make clean
-            make -j 6 || (make show-config ; exit 1)
+            try_config prec$prec-part$part -DENZO_PRECISION=$prec -DENZO_PARTICLES=$part
             done ; done
-            # return this to default
-            make precision-64
-            make particles-64
-            # test various integer/particle-id precisions
-            for inte in 64
-            do for pids in 64
-            do
-            # skip the test-suite configuration
-            if [[ $inte == 32 && $pids == 32 ]]; then
-            continue
-            fi
-            make integers-$inte
-            make particle-id-$pids
-            make clean
-            make -j 6 || (make show-config ; exit 1)
-            done ; done
-            make integers-64
-            make particle-id-64
+            # test 32-bit integers and 32-bit particle IDs
+            try_config ints32 -DENZO_INTEGERS=32 -DENZO_PARTICLE_IDS=32
             # test without mpi
-            make use-mpi-no
-            make clean
-            make -j 6 || (make show-config ; exit 1)
-            make use-mpi-yes
-            # test ray-tracing
-            make photon-no
-            make clean
-            make -j 6 || (make show-config ; exit 1)
+            # hypre is built against MPI, so it cannot be used without it
+            try_config nompi -DENZO_USE_MPI=OFF -DENZO_USE_HYPRE=OFF
+            # test without radiative transfer
+            try_config notransfer -DENZO_TRANSFER=OFF
 
   build-docs:
     description: "Test the docs build."
@@ -200,17 +176,18 @@ jobs:
 
       - restore_cache:
           name: "Restore dependencies cache."
-          key: dependencies-v5
+          key: dependencies-v6
 
       - install-dependencies
 
       - save_cache:
           name: "Save dependencies cache"
-          key: dependencies-v5
+          key: dependencies-v6
           paths:
             - ~/.cache/pip
             - ~/venv
             - ~/local
+            - ~/grackle
 
       - install-grackle
       - download-test-data
@@ -236,7 +213,7 @@ jobs:
           flags: --clobber
 
       - store_artifacts:
-          path: ~/enzo-dev/src/enzo/out.compile
+          path: ~/enzo-dev/build/CMakeFiles/CMakeOutput.log
 
   test-compile-options:
     docker:
@@ -251,13 +228,13 @@ jobs:
 
       - restore_cache:
           name: "Restore dependencies cache."
-          key: dependencies-v5
+          key: dependencies-v6
 
       - install-dependencies
 
       - save_cache:
           name: "Save dependencies cache"
-          key: dependencies-v5
+          key: dependencies-v6
           paths:
             - ~/.cache/pip
             - ~/venv
@@ -267,7 +244,7 @@ jobs:
       - compile-test
 
       - store_artifacts:
-          path: ~/enzo-dev/src/enzo/out.compile
+          path: ~/enzo-dev/build/CMakeFiles/CMakeOutput.log
 
   docs-build:
     docker:

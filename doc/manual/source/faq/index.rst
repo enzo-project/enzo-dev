@@ -8,32 +8,18 @@ Building Enzo
 **Q: I’m getting a compilation error related to HDF5. What is HDF5 and how to I get it?**
 
 A: HDF5 is a data format with accompanying library for writing very large
-data sets. Enzo uses HFD5 for data output. If you do not have a version of HDF5
+data sets. Enzo uses HDF5 for data output. If you do not have a version of HDF5
 available on your machine, you can download binaries or source code for HDF5
-from https://www.hdfgroup.org/downloads/hdf5/. Once you have a version of HDF5
-installed on your machine, you need to notify Enzo where it is located for the
-build process in the Makefile (eg. ``Make.mach.linux-gnu`` or
-``Make.mach.my-machine``). For example, if HDF5 was installed in
-``/home/enzo-user/local/hdf5/``, you would edit the line
-::
-
-  LOCAL_HDF5_INSTALL = /home/enzo-user/local/hdf5
-
-then run
+from https://www.hdfgroup.org/downloads/hdf5/. CMake will automatically locate HDF5 if installed in standard system locations or module paths. If HDF5 is installed in a custom directory (e.g. ``/home/enzo-user/local/hdf5/``), you can specify its path to CMake:
 :: 
 
-  $ make machine-linux-gnu
-  $ make clean
-  $ make
+  $ cmake -B build -S . -DHDF5_ROOT=/home/enzo-user/local/hdf5
+  $ cmake --build build
 
-to rebuild enzo.exe with your HDF5 installation. When running enzo.exe, make
-sure that the HDF5 library is in ``LD_LIBRARY_PATH``. In this example, if you
-are running bash, run the command
+When running Enzo, make sure that the HDF5 library is in ``LD_LIBRARY_PATH``:
 ::
 
-  $ export LD_LIBRARY_PATH=/home/enzo-user/local/hdf5/lib/:$LD_LIBRARY_PATH 
-
-to put the HDF5 library in the library path before running Enzo.
+  $ export LD_LIBRARY_PATH=/home/enzo-user/local/hdf5/lib/:$LD_LIBRARY_PATH
 
 
 Running Simulations
