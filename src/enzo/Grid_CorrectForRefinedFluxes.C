@@ -82,6 +82,8 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
   //For correction of the Parent Grid (this grid) boundary flux.
   int CorrectLeftBoundaryFlux, CorrectRightBoundaryFlux;
   float CorrectionAmountLeft, CorrectionAmountRight; 
+  //Floor for colour fields, the same as min_color in euler.F
+  const float min_color = 1e-5*tiny_number;
  
   long_int GlobalDim;
  
@@ -542,12 +544,23 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 		      } // else /* if( SUBlingGrid == FALSE ) */
 		    } // if(CorrectRightBaryonField)
 		
-		    if ((FieldTypeIsDensity(FieldType[field]) == TRUE ||
-			 FieldType[field] == TotalEnergy ||
-			 FieldType[field] == InternalEnergy ||
-                         ( FieldType[field] >= ElectronDensity &&
-                           FieldType[field] <= ExtraType1 )
-                         )) {
+		    /* A colour left non-positive by its correction is floored on
+		       its own. Undoing every field of the cell instead would also drop its gas, 
+			   metal and momentum corrections. */
+
+		    if (FieldTypeIsDensity(FieldType[field]) == TRUE &&
+			FieldType[field] != Density) {
+		      if (CorrectLeftBaryonField &&
+			  BaryonField[field][FieldIndex] <= 0)
+			BaryonField[field][FieldIndex] = min_color;
+		      if (CorrectRightBaryonField &&
+			  BaryonField[field][FieldIndex+Offset] <= 0)
+			BaryonField[field][FieldIndex+Offset] = min_color;
+		    }
+
+		    else if (FieldType[field] == Density ||
+			     FieldType[field] == TotalEnergy ||
+			     FieldType[field] == InternalEnergy) {
 
 		      /* If new density & energy is < 0 then undo the
 			 flux correction. */
@@ -641,8 +654,8 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
                 // If the flux correction was already applied, then undo it.
                 if (undoIndex <= index) {
                   BaryonField[ffield][FieldIndex + Offset]
-                    -= (InitialFluxes->RightFluxes[field][dim][FluxIndex]
-                    - RefinedFluxes->LeftFluxes[field][dim][RefinedFluxIndex]);
+                    -= (InitialFluxes->RightFluxes[ffield][dim][FluxIndex]
+                    - RefinedFluxes->LeftFluxes[ffield][dim][RefinedFluxIndex]);
                 }
                 // Set the refined fluxes equal to the initial fluxes, so i
                 // that no further correction will be applied.
