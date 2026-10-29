@@ -32,19 +32,19 @@
 int LightBosonInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 			  TopGridData &MetaData)
 {
-  char *DensName = "Density";
-  char *TEName = "TotalEnergy";
-  char *Vel1Name = "x-velocity";
-  char *Vel2Name = "y-velocity";
-  char *Vel3Name = "z-velocity";
-  char *RePsiName = "RePsi";
-  char *ImPsiName = "ImPsi";
-  char *FDMDensityName = "FDMDensity";
+  const char *DensName = "Density";
+  const char *TEName = "TotalEnergy";
+  const char *Vel1Name = "x-velocity";
+  const char *Vel2Name = "y-velocity";
+  const char *Vel3Name = "z-velocity";
+  const char *RePsiName = "RePsi";
+  const char *ImPsiName = "ImPsi";
+  const char *FDMDensityName = "FDMDensity";
 
   /* declarations */
  
   char line[MAX_LINE_LENGTH];
-  int dim, ret;
+  int ret;
  
   /* set default parameters */
  
@@ -59,8 +59,8 @@ int LightBosonInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
  
     /* read parameters */
  
-    ret += sscanf(line, "LightBosonCenter = %"PSYM, &LightBosonCenter);
-    ret += sscanf(line, "LightBosonProblemType = %"ISYM, &LightBosonProblemType);
+    ret += sscanf(line, "LightBosonCenter = %" PSYM, &LightBosonCenter);
+    ret += sscanf(line, "LightBosonProblemType = %" ISYM, &LightBosonProblemType);
  
     /* if the line is suspicious, issue a warning */
  
@@ -100,8 +100,8 @@ int LightBosonInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   /* Write parameters to parameter output file */
  
   if (MyProcessorNumber == ROOT_PROCESSOR) {
-    fprintf(Outfptr, "LightBosonCenter     = %"PSYM"\n", LightBosonCenter);
-    fprintf(Outfptr, "LightBosonProblemType = %"ISYM"\n", LightBosonProblemType);
+    fprintf(Outfptr, "LightBosonCenter     = %" PSYM"\n", LightBosonCenter);
+    fprintf(Outfptr, "LightBosonProblemType = %" ISYM"\n", LightBosonProblemType);
   }
 
   return SUCCESS;

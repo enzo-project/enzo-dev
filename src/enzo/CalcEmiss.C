@@ -49,8 +49,7 @@ int CalcEmiss(int *nx, int *ny, int *nz,
 	      float *justburn, float *EmissivityArray, float dtLevelAbove) {
 
   int i, j, k, n;
-  float mform, tfactor, uv_energy, 
-        minitial, xv1, xv2, dratio;
+  float mform, uv_energy, minitial, xv1, xv2;
 
   /* disabling clear of Emissivity field until a way to do it in AMR is found 
      in EvolveHierarchy and EvolveLevel.  Instead put the clear here manually
@@ -74,20 +73,20 @@ int CalcEmiss(int *nx, int *ny, int *nz,
     if(EmissivityArray[n]==0)
       n++;
     else {
-      printf("AN ELEMENT IS %"FSYM" at %i \n", EmissivityArray[n], n);
-      printf("dtFixed dtLevelAbove %"FSYM" %"FSYM" \n", *dt, dtLevelAbove);
+      printf("AN ELEMENT IS %" FSYM" at %" ISYM " \n", EmissivityArray[n], n);
+      printf("dtFixed dtLevelAbove %" FSYM" %" FSYM" \n", *dt, dtLevelAbove);
       n = ArraySize+1;
     }
   }
   if(n == ArraySize)
-    printf("ARRAY size %"ISYM" initially ZEROs, n at %i \n", ArraySize, n);
+    printf("ARRAY size %" ISYM" initially ZEROs, n at %" ISYM " \n", ArraySize, n);
   */
 
 
   /* Loop over each star particle that was created to calculate 
      contribution to Emissivity */
   for (n = 0; n < *nmax; n++) {
-    //printf("for loop over n = %"ISYM" \n",n);
+    //printf("for loop over n = %" ISYM" \n",n);
 
     /* check if conditions are right for each particle */
     /* tcp is < 0 for non star particle, and mass has to be positive */
@@ -188,13 +187,13 @@ int CalcEmiss(int *nx, int *ny, int *nz,
 
 
 	    /* update the Emissivity_Array with <UV energy weighted by time> */
-	    /*printf("before %i %i %i was %22.16e\n", EmissivityArray[i + *nx * (j + *ny * k)],i,j,k);*/
+	    /*printf("before %" ISYM " %" ISYM " %" ISYM " was %22.16e\n", EmissivityArray[i + *nx * (j + *ny * k)],i,j,k);*/
 	    EmissivityArray[i + *nx * (j + *ny * k)] += uv_energy;
-	    /*printf("after %i %i %i is %22.16e\n", EmissivityArray[i + *nx * (j + *ny * k)],i,j,k);*/
+	    /*printf("after %" ISYM " %" ISYM " %" ISYM " is %22.16e\n", EmissivityArray[i + *nx * (j + *ny * k)],i,j,k);*/
 	  }
 	}
 	else {
-	  printf("warning star particle out of grid in C %"ISYM", %"ISYM", %"ISYM" \n", i, j, k);
+	  printf("warning star particle out of grid in C %" ISYM", %" ISYM", %" ISYM" \n", i, j, k);
 	}
 
       }

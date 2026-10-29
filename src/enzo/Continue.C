@@ -45,11 +45,11 @@ void ContinueExecution(void)
     con = fopen("ContinueFlag", "r");
 
     if (con != NULL) {
-      fscanf(con, "Continue = %"ISYM, &flag);
+      fscanf(con, "Continue = %" ISYM, &flag);
       fclose(con);
     }
 
-    fprintf(stderr, "Continuation Flag = %"ISYM"\n", flag);
+    fprintf(stderr, "Continuation Flag = %" ISYM"\n", flag);
 
   }
 

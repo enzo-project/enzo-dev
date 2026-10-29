@@ -51,7 +51,7 @@ void grid::Gadgetfind_abundances_and_rates(float logT, float rho, float *ne_gues
 
   float neold, nenew;
   int j, niter;
-  float Tlow, Thi, flow, fhi, t;
+  float flow, fhi, t;
   float necgs;
   float logT_input, rho_input, ne_input;
 
@@ -93,9 +93,7 @@ void grid::Gadgetfind_abundances_and_rates(float logT, float rho, float *ne_gues
   //if(debug) printf("logT:  %lf  Tmin: %lf  deltaT:  %lf\n",logT,Tmin,deltaT);
   t = (logT - Tmin) / deltaT;
   j = (int) t;
-  //if(debug) printf("t:  %lf   j: %i\n",t,j);
-  Tlow = Tmin + deltaT * j;
-  Thi = Tlow + deltaT;
+  //if(debug) printf("t:  %lf   j: %" ISYM "\n",t,j);
   fhi = t - j;
   flow = 1 - fhi;
 
@@ -116,7 +114,7 @@ void grid::Gadgetfind_abundances_and_rates(float logT, float rho, float *ne_gues
     {
       niter++;
       //if(debug) printf("In Gadget_find_abundances_and_rates:7\n");
-      //if(debug) printf("value of j is %i\n",j);
+      //if(debug) printf("value of j is %" ISYM "\n",j);
       aHp = flow * AlphaHp[j] + fhi * AlphaHp[j + 1];
       //if(debug) printf("In Gadget_find_abundances_and_rates:7.05\n");
       aHep = flow * AlphaHep[j] + fhi * AlphaHep[j + 1];
@@ -171,7 +169,7 @@ void grid::Gadgetfind_abundances_and_rates(float logT, float rho, float *ne_gues
 	break;
 
       if(niter > (MAXITER - 10))
-	printf("ne= %e  niter=%"ISYM"\n", ne, niter);
+	printf("ne= %e  niter=%" ISYM"\n", ne, niter);
       //if(debug) printf("In Gadget_find_abundances_and_rates:9\n");
     }
   while(niter < MAXITER);

@@ -42,20 +42,19 @@ int RadHydroPulseTestInitialize(FILE *fptr, FILE *Outfptr,
   if (MyProcessorNumber == ROOT_PROCESSOR)
     fprintf(stdout,"Entering RadHydroPulseTestInitialize routine\n");
 
-  char *DensName  = "Density";
-  char *TEName    = "TotalEnergy";
-  char *IEName    = "Internal_Energy";
-  char *Vel0Name  = "x-velocity";
-  char *Vel1Name  = "y-velocity";
-  char *Vel2Name  = "z-velocity";
-  char *RadName   = "Grey_Radiation_Energy";
+  const char *DensName  = "Density";
+  const char *TEName    = "TotalEnergy";
+  const char *IEName    = "Internal_Energy";
+  const char *Vel0Name  = "x-velocity";
+  const char *Vel1Name  = "y-velocity";
+  const char *Vel2Name  = "z-velocity";
+  const char *RadName   = "Grey_Radiation_Energy";
 
   // local declarations
-  int dim;
 
   // make sure it is 3D
   if (MetaData.TopGridRank != 3) {
-    printf("Cannot do Rad-Hydro Tests in %"ISYM" dimension(s)\n", 
+    printf("Cannot do Rad-Hydro Tests in %" ISYM" dimension(s)\n", 
 	   MetaData.TopGridRank);
     return FAIL;
   }    
@@ -73,16 +72,14 @@ int RadHydroPulseTestInitialize(FILE *fptr, FILE *Outfptr,
 
   // overwrite parameters from RadHydroParamFile file, if it exists
   char line[MAX_LINE_LENGTH];
-  int  ret;
   if (MetaData.RadHydroParameterFname != NULL) {
     FILE *RHfptr;
     if ((RHfptr = fopen(MetaData.RadHydroParameterFname, "r")) != NULL) {
       while (fgets(line, MAX_LINE_LENGTH, RHfptr) != NULL) {
-	ret = 0;
 	// read relevant problem parameters
-	ret += sscanf(line, "RadHydroDensity = %"FSYM, &RadHydroDensity);
-	ret += sscanf(line, "RadHydroRadEnergy = %"FSYM, &RadHydroRadEnergy);
-	ret += sscanf(line, "RadPulseDim = %"ISYM, &RadPulseDim);
+	sscanf(line, "RadHydroDensity = %" FSYM, &RadHydroDensity);
+	sscanf(line, "RadHydroRadEnergy = %" FSYM, &RadHydroRadEnergy);
+	sscanf(line, "RadPulseDim = %" ISYM, &RadPulseDim);
       } // end input from parameter file
       fclose(RHfptr);
     }

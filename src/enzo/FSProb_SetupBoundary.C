@@ -74,11 +74,11 @@ int FSProb::SetupBoundary(int Dim, int Face, int BdryConst, float *BdryData)
 
   // Error check
   if ((Dim < 0) || (Dim >= rank)) {
-    fprintf(stderr, "SetupBoundary: Dim %"ISYM" out of bounds.\n", Dim);
+    fprintf(stderr, "SetupBoundary: Dim %" ISYM" out of bounds.\n", Dim);
     return FAIL;
   }
   if ((Face != 0) && (Face != 1)) {
-    fprintf(stderr, "SetupBoundary: Face %"ISYM" != {0,1}.\n", Face);
+    fprintf(stderr, "SetupBoundary: Face %" ISYM" != {0,1}.\n", Face);
     return FAIL;
   }
 

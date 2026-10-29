@@ -46,7 +46,7 @@ int gFLDProblem::Evolve(HierarchyEntry *ThisGrid, float deltat)
   MPI_Arg MPI_id;
   MPI_Comm_rank(MPI_COMM_WORLD, &MPI_id);
   if (MyProcessorNumber != MPI_id) {
-    fprintf(stderr, "ERROR: Enzo PID %"ISYM" doesn't match MPI ID %"ISYM"\n", 
+    fprintf(stderr, "ERROR: Enzo PID %" ISYM" doesn't match MPI ID %" ISYM"\n", 
 	    MyProcessorNumber, int(MPI_id));
     ENZO_FAIL("Error in gFLDProblem_Evolve");
   }

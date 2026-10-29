@@ -47,16 +47,15 @@ int FSMultiSourceInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   if (MyProcessorNumber == ROOT_PROCESSOR)
     fprintf(stdout,"Entering FSMultiSourceInitialize routine\n");
 
-  char *DensName  = "Density";
-  char *TEName    = "TotalEnergy";
-  char *Vel0Name  = "x-velocity";
-  char *Vel1Name  = "y-velocity";
-  char *Vel2Name  = "z-velocity";
-  char *RadName   = "FS_Radiation";
+  const char *DensName  = "Density";
+  const char *TEName    = "TotalEnergy";
+  const char *Vel0Name  = "x-velocity";
+  const char *Vel1Name  = "y-velocity";
+  const char *Vel2Name  = "z-velocity";
+  const char *RadName   = "FS_Radiation";
 
   // local declarations
   char line[MAX_LINE_LENGTH];
-  int  dim, ret;
 
   // Setup and parameters:
   float Density              = 10.0;
@@ -71,13 +70,12 @@ int FSMultiSourceInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
     FILE *RHfptr;
     if ((RHfptr = fopen(MetaData.RadHydroParameterFname, "r")) != NULL) {
       while (fgets(line, MAX_LINE_LENGTH, RHfptr) != NULL) {
-	ret = 0;
 	// read relevant problem parameters
-	ret += sscanf(line, "FSProbVelocity = %"FSYM" %"FSYM" %"FSYM,
+	sscanf(line, "FSProbVelocity = %" FSYM" %" FSYM" %" FSYM,
 		      &X0Velocity, &X1Velocity, &X2Velocity);
-	ret += sscanf(line, "FSProbDensity = %"FSYM, &Density);
-	ret += sscanf(line, "FSProbTEnergy = %"FSYM, &TEnergy);
-	ret += sscanf(line, "FSProbRadiationEnergy = %"FSYM, 
+	sscanf(line, "FSProbDensity = %" FSYM, &Density);
+	sscanf(line, "FSProbTEnergy = %" FSYM, &TEnergy);
+	sscanf(line, "FSProbRadiationEnergy = %" FSYM, 
 		      &RadiationEnergy);
       } // end input from parameter file
       fclose(RHfptr);
@@ -88,7 +86,7 @@ int FSMultiSourceInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   /* error checking */
   if (Mu != DEFAULT_MU) {
     if (MyProcessorNumber == ROOT_PROCESSOR)
-      fprintf(stderr, "warning: mu =%f assumed in initialization; setting Mu = %f for consistency.\n", DEFAULT_MU);
+      fprintf(stderr, "warning: mu =%f assumed in initialization; setting Mu = %f for consistency.\n", Mu, DEFAULT_MU);
     Mu = DEFAULT_MU;
   }
 

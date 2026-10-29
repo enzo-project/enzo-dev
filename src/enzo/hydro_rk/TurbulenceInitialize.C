@@ -42,53 +42,51 @@ void MHDCTSetupFieldLabels();
 int TurbulenceInitialize(FILE *fptr, FILE *Outfptr, 
 			 HierarchyEntry &TopGrid, TopGridData &MetaData, int SetBaryonFields)
 {
-  char *DensName = "Density";
-  char *TEName   = "TotalEnergy";
-  char *GEName   = "GasEnergy";
-  char *Vel1Name = "x-velocity";
-  char *Vel2Name = "y-velocity";
-  char *Vel3Name = "z-velocity";
-  char *BxName = "Bx";
-  char *ByName = "By";
-  char *BzName = "Bz";
-  char *PhiName = "Phi";
-  char *ColourName = "colour";
-  char *ElectronName = "Electron_Density";
-  char *HIName    = "HI_Density";
-  char *HIIName   = "HII_Density";
-  char *HeIName   = "HeI_Density";
-  char *HeIIName  = "HeII_Density";
-  char *HeIIIName = "HeIII_Density";
-  char *HMName    = "HM_Density";
-  char *H2IName   = "H2I_Density";
-  char *H2IIName  = "H2II_Density";
-  char *DIName    = "DI_Density";
-  char *DIIName   = "DII_Density";
-  char *HDIName   = "HDI_Density";
-  char *kphHIName    = "HI_kph";
-  char *gammaHIName  = "HI_gamma";
-  char *kphHeIName   = "HeI_kph";
-  char *gammaHeIName = "HeI_gamma";
-  char *kphHeIIName  = "HeII_kph";
-  char *gammaHeIIName= "HeII_gamma";
-  char *kdissH2IName = "H2I_kdiss";
-  char *RadAccel1Name = "RadAccel1";
-  char *RadAccel2Name = "RadAccel2";
-  char *RadAccel3Name = "RadAccel3";
-  char *Drive1Name = "DrivingField1";
-  char *Drive2Name = "DrivingField2";
-  char *Drive3Name = "DrivingField3";
-  char *GravPotenName = "PotentialField";
-  char *Acce1Name = "AccelerationField1";
-  char *Acce2Name = "AccelerationField2";
-  char *Acce3Name = "AccelerationField3";
-  char *MetalName = "Metal_Density";
-  char *Phi_pName = "Phip";
+  const char *DensName = "Density";
+  const char *TEName   = "TotalEnergy";
+  const char *GEName   = "GasEnergy";
+  const char *Vel1Name = "x-velocity";
+  const char *Vel2Name = "y-velocity";
+  const char *Vel3Name = "z-velocity";
+  const char *BxName = "Bx";
+  const char *ByName = "By";
+  const char *BzName = "Bz";
+  const char *PhiName = "Phi";
+  const char *ElectronName = "Electron_Density";
+  const char *HIName    = "HI_Density";
+  const char *HIIName   = "HII_Density";
+  const char *HeIName   = "HeI_Density";
+  const char *HeIIName  = "HeII_Density";
+  const char *HeIIIName = "HeIII_Density";
+  const char *HMName    = "HM_Density";
+  const char *H2IName   = "H2I_Density";
+  const char *H2IIName  = "H2II_Density";
+  const char *DIName    = "DI_Density";
+  const char *DIIName   = "DII_Density";
+  const char *HDIName   = "HDI_Density";
+  const char *kphHIName    = "HI_kph";
+  const char *gammaHIName  = "HI_gamma";
+  const char *kphHeIName   = "HeI_kph";
+  const char *gammaHeIName = "HeI_gamma";
+  const char *kphHeIIName  = "HeII_kph";
+  const char *gammaHeIIName= "HeII_gamma";
+  const char *kdissH2IName = "H2I_kdiss";
+  const char *RadAccel1Name = "RadAccel1";
+  const char *RadAccel2Name = "RadAccel2";
+  const char *RadAccel3Name = "RadAccel3";
+  const char *Drive1Name = "DrivingField1";
+  const char *Drive2Name = "DrivingField2";
+  const char *Drive3Name = "DrivingField3";
+  const char *GravPotenName = "PotentialField";
+  const char *Acce1Name = "AccelerationField1";
+  const char *Acce2Name = "AccelerationField2";
+  const char *Acce3Name = "AccelerationField3";
+  const char *Phi_pName = "Phip";
   
   /* declarations */
 
   char  line[MAX_LINE_LENGTH];
-  int   ret, level, i;
+  int level, i;
 
   /* set default parameters */
 
@@ -105,19 +103,18 @@ int TurbulenceInitialize(FILE *fptr, FILE *Outfptr,
 
   while (fgets(line, MAX_LINE_LENGTH, fptr) != NULL) {
 
-    ret = 0;
 
-    ret += sscanf(line, "RefineAtStart = %"ISYM, &RefineAtStart);
-    ret += sscanf(line, "PutSink = %"ISYM, &PutSink);
-    ret += sscanf(line, "Density = %"FSYM, &CloudDensity);
-    ret += sscanf(line, "SoundVelocity = %"FSYM, &CloudSoundSpeed);
-    ret += sscanf(line, "MachNumber = %"FSYM, &CloudMachNumber);
-    ret += sscanf(line, "AngularVelocity = %"FSYM, &CloudAngularVelocity);
-    ret += sscanf(line, "CloudRadius = %"PSYM, &CloudRadius);
-    ret += sscanf(line, "SetTurbulence = %"ISYM, &SetTurbulence);
-    ret += sscanf(line, "RandomSeed = %"ISYM, &RandomSeed);
-    ret += sscanf(line, "InitialBfield = %"FSYM, &InitialBField);
-    ret += sscanf(line, "CloudType = %"ISYM, &CloudType);
+    sscanf(line, "RefineAtStart = %" ISYM, &RefineAtStart);
+    sscanf(line, "PutSink = %" ISYM, &PutSink);
+    sscanf(line, "Density = %" FSYM, &CloudDensity);
+    sscanf(line, "SoundVelocity = %" FSYM, &CloudSoundSpeed);
+    sscanf(line, "MachNumber = %" FSYM, &CloudMachNumber);
+    sscanf(line, "AngularVelocity = %" FSYM, &CloudAngularVelocity);
+    sscanf(line, "CloudRadius = %" PSYM, &CloudRadius);
+    sscanf(line, "SetTurbulence = %" ISYM, &SetTurbulence);
+    sscanf(line, "RandomSeed = %" ISYM, &RandomSeed);
+    sscanf(line, "InitialBfield = %" FSYM, &InitialBField);
+    sscanf(line, "CloudType = %" ISYM, &CloudType);
   }
 
   /* Convert to code units */
@@ -134,12 +131,12 @@ int TurbulenceInitialize(FILE *fptr, FILE *Outfptr,
   InitialBField /= MagneticUnits;
   CloudAngularVelocity *= TimeUnits;
 
-  printf("Magnetic Units=%"GSYM"\n", MagneticUnits);  
-  printf("B field=%"GSYM"\n", InitialBField);  
-printf("Plasma beta=%"GSYM"\n", CloudDensity*CloudSoundSpeed*CloudSoundSpeed/(InitialBField*InitialBField/2.0));
-  printf("DensityUnits=%"GSYM",VelocityUnits=%"GSYM",LengthUnits=%"GSYM",TimeUnits=%"GSYM" (%"GSYM" yr),PressureUnits=%"GSYM"\n", 
+  printf("Magnetic Units=%" GSYM"\n", MagneticUnits);  
+  printf("B field=%" GSYM"\n", InitialBField);  
+printf("Plasma beta=%" GSYM"\n", CloudDensity*CloudSoundSpeed*CloudSoundSpeed/(InitialBField*InitialBField/2.0));
+  printf("DensityUnits=%" GSYM",VelocityUnits=%" GSYM",LengthUnits=%" GSYM",TimeUnits=%" GSYM" (%" GSYM" yr),PressureUnits=%" GSYM"\n", 
 	 DensityUnits, VelocityUnits, LengthUnits, TimeUnits, TimeUnits/3.1558e7, PressureUnits);
-  printf("CloudDensity=%"GSYM", CloudSoundSpeed=%"GSYM", CloudRadius=%"GSYM", CloudAngularVelocity=%"GSYM"\n", 
+  printf("CloudDensity=%" GSYM", CloudSoundSpeed=%" GSYM", CloudRadius=%" GSYM", CloudAngularVelocity=%" GSYM"\n", 
 	 CloudDensity, CloudSoundSpeed, CloudRadius, CloudAngularVelocity);
 
 
@@ -171,14 +168,14 @@ printf("Plasma beta=%"GSYM"\n", CloudDensity*CloudSoundSpeed*CloudSoundSpeed/(In
 	  return FAIL;
 	}
 	CurrentGrid = CurrentGrid->NextGridThisLevel;
-	fprintf(stderr, "v_rms, Volume: %"GSYM"  %"GSYM"\n", v_rms, Volume);
+	fprintf(stderr, "v_rms, Volume: %" GSYM"  %" GSYM"\n", v_rms, Volume);
       }
       
 #ifdef USE_MPI
       CommunicationAllReduceValues(&v_rms, 1, MPI_SUM);
       CommunicationAllReduceValues(&Volume, 1, MPI_SUM);
 #endif
-      fprintf(stderr, "v_rms, Volume: %"GSYM"  %"GSYM"\n", v_rms, Volume);
+      fprintf(stderr, "v_rms, Volume: %" GSYM"  %" GSYM"\n", v_rms, Volume);
       // Carry out the Normalization
       v_rms = sqrt(v_rms/Volume); // actuall v_rms
       fac = CloudSoundSpeed*CloudMachNumber/v_rms;
@@ -359,11 +356,11 @@ printf("Plasma beta=%"GSYM"\n", CloudDensity*CloudSoundSpeed*CloudSoundSpeed/(In
 //       return FAIL;
 //     }
 //     fprintf(header, "MovieVersion = %s\n", movieVersion);
-//     fprintf(header, "RootReso = %"ISYM"\n", MetaData.TopGridDims[0]);
-//     fprintf(header, "FLOATSize = %"ISYM"\n", sizeOfFLOAT);
-//     fprintf(header, "RecordSize = %"ISYM"\n", sizeOfRecord);
-//     fprintf(header, "NumFields = %"ISYM"\n", nMovieFields);
-//     fprintf(header, "NumCPUs = %"ISYM"\n", NumberOfProcessors);
+//     fprintf(header, "RootReso = %" ISYM"\n", MetaData.TopGridDims[0]);
+//     fprintf(header, "FLOATSize = %" ISYM"\n", sizeOfFLOAT);
+//     fprintf(header, "RecordSize = %" ISYM"\n", sizeOfRecord);
+//     fprintf(header, "NumFields = %" ISYM"\n", nMovieFields);
+//     fprintf(header, "NumCPUs = %" ISYM"\n", NumberOfProcessors);
 //     fprintf(header, "FileStem = %s\n", NewMovieName);
 //     fclose(header);
 //   } /* END: write movie header file */

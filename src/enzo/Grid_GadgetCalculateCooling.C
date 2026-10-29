@@ -125,9 +125,9 @@ int grid::GadgetCalculateCooling(float *d, float *e, float *ge,
 
   GadgetIonizeParamsTable(redshift);
 
-  if(GADGETDEBUG) printf("GadgetCalculateCooling: loop from %"ISYM" %"ISYM" %"ISYM" to %"ISYM" %"ISYM" %"ISYM"\n",
+  if(GADGETDEBUG) printf("GadgetCalculateCooling: loop from %" ISYM" %" ISYM" %" ISYM" to %" ISYM" %" ISYM" %" ISYM"\n",
 		   (*is),(*js),(*ks),(*ie),(*je),(*ke) );
-  if(GADGETDEBUG) printf("GadgetCalculateCooling: grid dims %"ISYM" %"ISYM" %"ISYM"\n",
+  if(GADGETDEBUG) printf("GadgetCalculateCooling: grid dims %" ISYM" %" ISYM" %" ISYM"\n",
 		   (*in),(*jn),(*kn));
 
   fflush(stdout);
@@ -146,7 +146,7 @@ int grid::GadgetCalculateCooling(float *d, float *e, float *ge,
     for(j=(*js); j<=(*je);j++){
       for(i=(*is); i<=(*ie); i++){
 	if(i==j && j==k && GADGETDEBUG){
-          printf("Gadget: %"ISYM" %"ISYM" %"ISYM" starting loop!\n",i,j,k);
+          printf("Gadget: %" ISYM" %" ISYM" %" ISYM" starting loop!\n",i,j,k);
 	}
 
 	index = i + (*in)*(j + (*jn)*k);
@@ -167,11 +167,11 @@ int grid::GadgetCalculateCooling(float *d, float *e, float *ge,
 	density=(*(d+index));
 	
 	if(i==j && j==k && GADGETDEBUG){
-	  printf("Gadget:  i,j,k = %"ISYM" %"ISYM" %"ISYM"\n",i,j,k);
+	  printf("Gadget:  i,j,k = %" ISYM" %" ISYM" %" ISYM"\n",i,j,k);
 	  printf("density:  %e  totalenergypermass: %e  gasenergypermass: %e\n",
 		 density,totalenergypermass,gasenergypermass);
 	  printf("vx %e vy %e vz %e\n",vx,vy,vz);
-	  printf("imethod: %"ISYM"  idual:  %"ISYM"\n",(*imethod),(*idual));
+	  printf("imethod: %" ISYM"  idual:  %" ISYM"\n",(*imethod),(*idual));
 	  fflush(stdout);
 	}
 
@@ -252,7 +252,7 @@ int grid::GadgetCalculateCooling(float *d, float *e, float *ge,
 
 	if(i==j && j==k && GADGETDEBUG){
 
-	  printf("Gadget: %"ISYM" %"ISYM" %"ISYM" finishing loop!\n",i,j,k);
+	  printf("Gadget: %" ISYM" %" ISYM" %" ISYM" finishing loop!\n",i,j,k);
 	}
 	
       }  /* for(i=is; i<=ie; i++) */

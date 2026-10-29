@@ -230,8 +230,8 @@ int grid::FlagCellsToBeRefinedByShear()
                   if (GridRank > 1)
                     DelVel1 = BaryonField[Vel1Num+1][index - Offset] -
                               BaryonField[Vel1Num+1][index + Offset];
-                    DelVel2 = BaryonField[Vel1Num][index - Offset] -
-                              BaryonField[Vel1Num][index + Offset];
+                  DelVel2 = BaryonField[Vel1Num][index - Offset] -
+                            BaryonField[Vel1Num][index + Offset];
                   break;
 
                 default:

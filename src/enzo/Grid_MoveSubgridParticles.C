@@ -48,7 +48,7 @@ int start;
   if (FromGrid->NumberOfParticles == 0)
     return SUCCESS;
  
-  int i, j, k, dim;
+  int i, k, dim;
  
   /* To begin, set all particles to move. */
  
@@ -77,7 +77,7 @@ int start;
   /* If there are no particles to move, clean up and exit. */
  
   if (TotalNumberOfParticles == 0) {
-    delete MoveParticle;
+    delete [] MoveParticle;
     return SUCCESS;
   }
  
@@ -89,7 +89,7 @@ int start;
   /* Debugging info. */
  
   if (debug)
-    printf("MoveSubgridParticles: %"ISYM" particles (after: Top = %"ISYM", Sub = %"ISYM").\n",
+    printf("MoveSubgridParticles: %" ISYM" particles (after: Top = %" ISYM", Sub = %" ISYM").\n",
 	   TotalNumberOfParticles, FromNumberOfParticles,
 	   TotalNumberOfParticles + NumberOfParticles);
  
@@ -149,9 +149,8 @@ int start;
   /* Copy FromGrid's particles to new space (starting at NumberOfParticles). */
  
   start = *Counter;
-  printf("Counter %"ISYM"\n",start);
+  printf("Counter %" ISYM"\n",start);
  
-  j = 0;
   for (i = 0; i < FromGrid->NumberOfParticles; i++)
  
     if (MoveParticle[i] == TRUE) {
@@ -183,14 +182,13 @@ int start;
         X_Attribute[k][start] = FromGrid->ParticleAttribute[k][i];
       }
  
-      j++;   // increment moved particle counter
       start++;
  
       FromGrid->ParticleMass[i] = FLOAT_UNDEFINED; // erase old one
  
     }
  
-  printf("Counter %"ISYM"\n",start);
+  printf("Counter %" ISYM"\n",start);
   *Counter = start;
  
   /* Delete this grid's particles (now copied). */
@@ -207,7 +205,7 @@ int start;
  
   /* Clean up. */
  
-  delete MoveParticle;
+  delete [] MoveParticle;
  
   return SUCCESS;
 }

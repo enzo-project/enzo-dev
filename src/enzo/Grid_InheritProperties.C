@@ -39,7 +39,7 @@ void grid::InheritProperties(grid *ParentGrid)
  
   NumberOfBaryonFields = ParentGrid->NumberOfBaryonFields;
  
-//  printf("InheritProperties: NOBF %"ISYM"\n", NumberOfBaryonFields);
+//  printf("InheritProperties: NOBF %" ISYM"\n", NumberOfBaryonFields);
  
   for (int field = 0; field < NumberOfBaryonFields; field++)
     FieldType[field]      = ParentGrid->FieldType[field];

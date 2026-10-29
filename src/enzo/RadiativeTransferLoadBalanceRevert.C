@@ -46,7 +46,7 @@ int RadiativeTransferLoadBalanceRevert(HierarchyEntry **Grids[], int *NumberOfGr
   if (NumberOfProcessors == 1)
     return SUCCESS;
 
-  int i, index, level, temp_proc, ori_proc, nph, GridsMoved, TotalNumberOfGrids;
+  int i, index, level, temp_proc, ori_proc, TotalNumberOfGrids;
 
   /* Send RadiationPresent fields */
 
@@ -89,13 +89,11 @@ int RadiativeTransferLoadBalanceRevert(HierarchyEntry **Grids[], int *NumberOfGr
   CommunicationReceiveCurrentDependsOn = COMMUNICATION_NO_DEPENDENCE;
   CommunicationDirection = COMMUNICATION_POST_RECEIVE;
 
-  GridsMoved = 0;
   for (i = 0; i < NumberOfGrids[level]; i++) {
     ori_proc = Grids[level][i]->GridData->ReturnOriginalProcessorNumber();
     temp_proc = Grids[level][i]->GridData->ReturnProcessorNumber();
     if (ori_proc != temp_proc) {
       Grids[level][i]->GridData->CommunicationMoveGrid(ori_proc, FALSE, FALSE);
-      GridsMoved++;
     }
   }
 
@@ -121,7 +119,7 @@ int RadiativeTransferLoadBalanceRevert(HierarchyEntry **Grids[], int *NumberOfGr
   CommunicationBarrier();
 
 //  if (MyProcessorNumber == ROOT_PROCESSOR && GridsMoved > 0)
-//    printf("RevertPhotonLoadBalance[%d]: Number of grids moved = %"ISYM" out of %"ISYM"\n",
+//    printf("RevertPhotonLoadBalance[%" ISYM "]: Number of grids moved = %" ISYM" out of %" ISYM"\n",
 //	   level, GridsMoved, NumberOfGrids[level]);
 
   } // ENDFOR level

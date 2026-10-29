@@ -49,12 +49,11 @@ int READ_BV(float         *bv_buffer, int field, int dim, int face, int slabsize
  
  
  
-int ExternalBoundary::WriteExternalBoundary(FILE *fptr, char *hdfname)
+int ExternalBoundary::WriteExternalBoundary(FILE *fptr, const char *hdfname)
 {
  
-  int dim, field, i, j, index, ret, size;
+  int dim, field, i, j, index, size;
   int BoundaryValuePresent[MAX_DIMENSION*2], Temp[MAX_DIMENSION];
-  int file_status;
   float32 *buffer;
  
   FILE *log_fptr;
@@ -84,7 +83,6 @@ int ExternalBoundary::WriteExternalBoundary(FILE *fptr, char *hdfname)
   const char *dname_type = "BoundaryDimensionType";
   const char *dname_value = "BoundaryDimensionValue";
 
-  int SimpleConstantBoundaryType = periodic;
 
 #ifdef OOC_BOUNDARY
   boundary_type *bt_buffer;
@@ -126,18 +124,18 @@ int ExternalBoundary::WriteExternalBoundary(FILE *fptr, char *hdfname)
  
   // Save general class data
  
-  fprintf(fptr, "BoundaryRank         = %"ISYM"\n", BoundaryRank);
+  fprintf(fptr, "BoundaryRank         = %" ISYM"\n", BoundaryRank);
   fprintf(fptr, "BoundaryDimension    = ");
  
   WriteListOfInts(fptr, BoundaryRank, BoundaryDimension);
  
   // Save baryon field quantities
  
-  fprintf(fptr, "NumberOfBaryonFields = %"ISYM"\n", NumberOfBaryonFields);
+  fprintf(fptr, "NumberOfBaryonFields = %" ISYM"\n", NumberOfBaryonFields);
  
   // Save particle boundary type
  
-  fprintf(fptr, "ParticleBoundaryType = %"ISYM"\n", ParticleBoundaryType);
+  fprintf(fptr, "ParticleBoundaryType = %" ISYM"\n", ParticleBoundaryType);
  
   if (NumberOfBaryonFields > 0) {
  
@@ -172,7 +170,7 @@ int ExternalBoundary::WriteExternalBoundary(FILE *fptr, char *hdfname)
 	      BoundaryValuePresent[2*dim+i] = TRUE;
 	      fprintf(stderr, "Error You're not writing out the Inflow Conditions.\n");
 	      fprintf(stderr, "You'd better write that\n");
-	      fprintf(stderr, "MagneticBV[0][%d][%d] ",dim,i);
+	      fprintf(stderr, "MagneticBV[0][%" ISYM "][%" ISYM "] ",dim,i);
 	      return FAIL;
 	    }
 	}
@@ -185,7 +183,7 @@ int ExternalBoundary::WriteExternalBoundary(FILE *fptr, char *hdfname)
       buffer2 = new int[6];
 
       for(int field=0;field<3;field++){
-	fprintf(fptr, "MagneticBoundaryType %d      = ", field+1);
+	fprintf(fptr, "MagneticBoundaryType %" ISYM "      = ", field+1);
 	for(int face=0;face<2;face++)
 	  for(int axis=0;axis<3;axis++){
 	    buffer2[index2++]=(int)MagneticBoundaryType[field][axis][face];
@@ -203,18 +201,18 @@ int ExternalBoundary::WriteExternalBoundary(FILE *fptr, char *hdfname)
     delete [] logname;
  
     if (io_log) fprintf(log_fptr, "WriteEB start\n");
-    if (io_log) fprintf(log_fptr, "  NumberOfBaryonFields %"ISYM"\n", NumberOfBaryonFields);
-    if (io_log) fprintf(log_fptr, "  BoundaryRank %"ISYM"\n", BoundaryRank);
+    if (io_log) fprintf(log_fptr, "  NumberOfBaryonFields %" ISYM"\n", NumberOfBaryonFields);
+    if (io_log) fprintf(log_fptr, "  BoundaryRank %" ISYM"\n", BoundaryRank);
  
     for (dim = 0; dim < BoundaryRank; dim++)
     {
-       if (io_log) fprintf(log_fptr, "    BoundaryDimension[%"ISYM"] %"ISYM"\n", dim, BoundaryDimension[dim]);
+       if (io_log) fprintf(log_fptr, "    BoundaryDimension[%" ISYM"] %" ISYM"\n", dim, BoundaryDimension[dim]);
     }
  
     if (io_log) fprintf(log_fptr, "H5Fcreate with Name = %s\n", hdfname);
  
     file_id = H5Fcreate(hdfname, H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
-      if (io_log) fprintf(log_fptr, "H5Fcreate id: %"ISYM"\n", file_id);
+      if (io_log) fprintf(log_fptr, "H5Fcreate id: %ld\n", file_id);
       if( file_id == h5_error )ENZO_FAIL("Could not create boundary file");
  
     for (dim = 0; dim < BoundaryRank; dim++)
@@ -244,12 +242,12 @@ int ExternalBoundary::WriteExternalBoundary(FILE *fptr, char *hdfname)
           Dims[i] = BoundaryDimension[i];
         }
  
-        if (io_log) fprintf(log_fptr, "    Index %"ISYM"\n", index);
+        if (io_log) fprintf(log_fptr, "    Index %" ISYM"\n", index);
         for (i = 0; i < index; i++)
         {
-          if (io_log) fprintf(log_fptr, "      OutDims[%"ISYM"] %"ISYM"\n", i, (int) OutDims[i]);
+          if (io_log) fprintf(log_fptr, "      OutDims[%" ISYM"] %" ISYM"\n", i, (int) OutDims[i]);
         }
-        if (io_log) fprintf(log_fptr, "    Size %"ISYM"\n", size);
+        if (io_log) fprintf(log_fptr, "    Size %" ISYM"\n", size);
  
         char *nfile = new char[2];
         char *dname1 = new char[MAX_NAME_LENGTH];
@@ -259,7 +257,7 @@ int ExternalBoundary::WriteExternalBoundary(FILE *fptr, char *hdfname)
         dname1[0] = '\0';
         dname2[0] = '\0';
  
-        sprintf(nfile,"%"ISYM,dim);
+        sprintf(nfile,"%" ISYM,dim);
         strcat(strcat(strcat(dname1,dname_type),"."),nfile);
         strcat(strcat(strcat(dname2,dname_value),"."),nfile);
  
@@ -268,29 +266,29 @@ int ExternalBoundary::WriteExternalBoundary(FILE *fptr, char *hdfname)
         file_size  = mem_size * 2 * NumberOfBaryonFields;
  
         file_dsp_id = H5Screate_simple((Eint32) 1, &file_size, NULL);
-          if (io_log) fprintf(log_fptr, "H5Screate file_dsp_id: %"ISYM"\n", file_dsp_id);
+          if (io_log) fprintf(log_fptr, "H5Screate file_dsp_id: %ld\n", file_dsp_id);
           if( file_dsp_id == h5_error ){my_exit(EXIT_FAILURE);}
  
         if (io_log) fprintf(log_fptr, "H5Dcreate with Name = %s\n", dname1);
  
         dset_id1 =  H5Dcreate(file_id, dname1, file_type_id, file_dsp_id, H5P_DEFAULT);
-          if (io_log) fprintf(log_fptr, "H5Dcreate id: %"ISYM"\n", dset_id1);
+          if (io_log) fprintf(log_fptr, "H5Dcreate id: %ld\n", dset_id1);
           if( dset_id1 == h5_error ){my_exit(EXIT_FAILURE);}
  
         if (io_log) fprintf(log_fptr, "H5Dcreate with Name = %s\n", dname2);
  
         dset_id2 =  H5Dcreate(file_id, dname2, file_type_id, file_dsp_id, H5P_DEFAULT);
-          if (io_log) fprintf(log_fptr, "H5Dcreate id: %"ISYM"\n", dset_id2);
+          if (io_log) fprintf(log_fptr, "H5Dcreate id: %ld\n", dset_id2);
           if( dset_id2 == h5_error ){my_exit(EXIT_FAILURE);}
  
         file_offset = 0;
  
         mem_dsp_id = H5Screate_simple((Eint32) 1, &mem_size, NULL);
-          if (io_log) fprintf(log_fptr, "H5Screate mem_dsp_id: %"ISYM"\n", mem_dsp_id);
+          if (io_log) fprintf(log_fptr, "H5Screate mem_dsp_id: %ld\n", mem_dsp_id);
           if( mem_dsp_id == h5_error ){my_exit(EXIT_FAILURE);}
  
         file_dsp_id = H5Screate_simple((Eint32) 1, &file_size, NULL);
-          if (io_log) fprintf(log_fptr, "H5Screate file_dsp_id: %"ISYM"\n", file_dsp_id);
+          if (io_log) fprintf(log_fptr, "H5Screate file_dsp_id: %ld\n", file_dsp_id);
           if( file_dsp_id == h5_error ){my_exit(EXIT_FAILURE);}
  
         // Attributes for BoundaryType and BoundaryValue
@@ -298,81 +296,81 @@ int ExternalBoundary::WriteExternalBoundary(FILE *fptr, char *hdfname)
         n_attr = 1;
  
         attr_dsp_id = H5Screate_simple((Eint32) 1, &n_attr, NULL);
-         if (io_log) fprintf(log_fptr, "H5Screate_simple: %"ISYM"\n", attr_dsp_id);
+         if (io_log) fprintf(log_fptr, "H5Screate_simple: %ld\n", attr_dsp_id);
          if( attr_dsp_id == h5_error ){my_exit(EXIT_FAILURE);}
  
         attr_id = H5Acreate(dset_id1, "NumberOfBaryonFields", HDF5_FILE_INT, attr_dsp_id, H5P_DEFAULT);
-          if (io_log) fprintf(log_fptr, "H5Acreate: %"ISYM"\n", attr_id);
+          if (io_log) fprintf(log_fptr, "H5Acreate: %ld\n", attr_id);
           if( attr_id == h5_error ){my_exit(EXIT_FAILURE);}
  
         h5_status = H5Awrite(attr_id,  HDF5_INT, &NumberOfBaryonFields);
-          if (io_log) fprintf(log_fptr, "H5Awrite: %"ISYM"\n", h5_status);
+          if (io_log) fprintf(log_fptr, "H5Awrite: %d\n", h5_status);
           if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
  
         h5_status = H5Aclose(attr_id);
-          if (io_log) fprintf(log_fptr, "H5Aclose: %"ISYM"\n", h5_status);
+          if (io_log) fprintf(log_fptr, "H5Aclose: %d\n", h5_status);
           if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
  
         attr_id = H5Acreate(dset_id1, "BoundaryRank", HDF5_FILE_INT, attr_dsp_id, H5P_DEFAULT);
-          if (io_log) fprintf(log_fptr, "H5Acreate: %"ISYM"\n", attr_id);
+          if (io_log) fprintf(log_fptr, "H5Acreate: %ld\n", attr_id);
           if( attr_id == h5_error ){my_exit(EXIT_FAILURE);}
  
         h5_status = H5Awrite(attr_id,  HDF5_INT, &BoundaryRank);
-          if (io_log) fprintf(log_fptr, "H5Awrite: %"ISYM"\n", h5_status);
+          if (io_log) fprintf(log_fptr, "H5Awrite: %d\n", h5_status);
           if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
  
         h5_status = H5Aclose(attr_id);
-          if (io_log) fprintf(log_fptr, "H5Aclose: %"ISYM"\n", h5_status);
+          if (io_log) fprintf(log_fptr, "H5Aclose: %d\n", h5_status);
           if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
  
         attr_id = H5Acreate(dset_id1, "Index", HDF5_FILE_INT, attr_dsp_id, H5P_DEFAULT);
-          if (io_log) fprintf(log_fptr, "H5Acreate: %"ISYM"\n", attr_id);
+          if (io_log) fprintf(log_fptr, "H5Acreate: %ld\n", attr_id);
           if( attr_id == h5_error ){my_exit(EXIT_FAILURE);}
  
         h5_status = H5Awrite(attr_id,  HDF5_INT, &index);
-          if (io_log) fprintf(log_fptr, "H5Awrite: %"ISYM"\n", h5_status);
+          if (io_log) fprintf(log_fptr, "H5Awrite: %d\n", h5_status);
           if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
  
         h5_status = H5Aclose(attr_id);
-          if (io_log) fprintf(log_fptr, "H5Aclose: %"ISYM"\n", h5_status);
+          if (io_log) fprintf(log_fptr, "H5Aclose: %d\n", h5_status);
           if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
  
         attr_id = H5Acreate(dset_id1, "Size", HDF5_FILE_INT, attr_dsp_id, H5P_DEFAULT);
-          if (io_log) fprintf(log_fptr, "H5Acreate: %"ISYM"\n", attr_id);
+          if (io_log) fprintf(log_fptr, "H5Acreate: %ld\n", attr_id);
           if( attr_id == h5_error ){my_exit(EXIT_FAILURE);}
  
         h5_status = H5Awrite(attr_id,  HDF5_INT, &size);
-          if (io_log) fprintf(log_fptr, "H5Awrite: %"ISYM"\n", h5_status);
+          if (io_log) fprintf(log_fptr, "H5Awrite: %d\n", h5_status);
           if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
  
         h5_status = H5Aclose(attr_id);
-          if (io_log) fprintf(log_fptr, "H5Aclose: %"ISYM"\n", h5_status);
+          if (io_log) fprintf(log_fptr, "H5Aclose: %d\n", h5_status);
           if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
  
         h5_status = H5Sclose(attr_dsp_id);
-          if (io_log) fprintf(log_fptr, "H5Sclose: %"ISYM"\n", h5_status);
+          if (io_log) fprintf(log_fptr, "H5Sclose: %d\n", h5_status);
           if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
  
         n_attr = BoundaryRank;
  
         attr_dsp_id = H5Screate_simple((Eint32) 1, &n_attr, NULL);
-          if (io_log) fprintf(log_fptr, "H5Screate_simple: %"ISYM"\n", attr_dsp_id);
+          if (io_log) fprintf(log_fptr, "H5Screate_simple: %ld\n", attr_dsp_id);
           if( attr_dsp_id == h5_error ){my_exit(EXIT_FAILURE);}
  
         attr_id = H5Acreate(dset_id1, "BoundaryDimension", HDF5_FILE_INT, attr_dsp_id, H5P_DEFAULT);
-          if (io_log) fprintf(log_fptr, "H5Acreate: %"ISYM"\n", attr_id);
+          if (io_log) fprintf(log_fptr, "H5Acreate: %ld\n", attr_id);
           if( attr_id == h5_error ){my_exit(EXIT_FAILURE);}
  
         h5_status = H5Awrite(attr_id,  HDF5_INT, Dims);
-          if (io_log) fprintf(log_fptr, "H5Awrite: %"ISYM"\n", h5_status);
+          if (io_log) fprintf(log_fptr, "H5Awrite: %d\n", h5_status);
           if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
  
         h5_status = H5Aclose(attr_id);
-          if (io_log) fprintf(log_fptr, "H5Aclose: %"ISYM"\n", h5_status);
+          if (io_log) fprintf(log_fptr, "H5Aclose: %d\n", h5_status);
           if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
  
         h5_status = H5Sclose(attr_dsp_id);
-          if (io_log) fprintf(log_fptr, "H5Sclose: %"ISYM"\n", h5_status);
+          if (io_log) fprintf(log_fptr, "H5Sclose: %d\n", h5_status);
           if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
  
 	// Allocate temporary space
@@ -397,7 +395,7 @@ int ExternalBoundary::WriteExternalBoundary(FILE *fptr, char *hdfname)
 	for (field = 0; field < NumberOfBaryonFields; field++)
 	  for (i = 0; i < 2; i++) {
  
-          if (io_log) fprintf(log_fptr, "        dim %"ISYM" : field %"ISYM" : i %"ISYM"\n", dim, field, i);
+          if (io_log) fprintf(log_fptr, "        dim %" ISYM" : field %" ISYM" : i %" ISYM"\n", dim, field, i);
  
 	    // Write out BoundaryType (convert to float first)
 
@@ -428,20 +426,20 @@ int ExternalBoundary::WriteExternalBoundary(FILE *fptr, char *hdfname)
             mem_count = size;
  
             h5_status =  H5Sselect_hyperslab(mem_dsp_id,  H5S_SELECT_SET, &mem_offset, &mem_stride, &mem_count, NULL);
-              if (io_log) fprintf(log_fptr, "H5Sselect mem slab: %"ISYM"\n", h5_status);
+              if (io_log) fprintf(log_fptr, "H5Sselect mem slab: %d\n", h5_status);
               if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
  
             file_stride = 1;
             file_count = size;
  
             h5_status = H5Sselect_hyperslab(file_dsp_id, H5S_SELECT_SET, &file_offset, &file_stride, &file_count, NULL);
-              if (io_log) fprintf(log_fptr, "H5Sselect file slab: %"ISYM"\n", h5_status);
+              if (io_log) fprintf(log_fptr, "H5Sselect file slab: %d\n", h5_status);
               if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
  
             file_offset = file_offset + size;
  
             h5_status = H5Dwrite(dset_id1, float_type_id, mem_dsp_id, file_dsp_id,  H5P_DEFAULT, (VOIDP) buffer);
-              if (io_log) fprintf(log_fptr, "H5Dwrite boundary type: %"ISYM"\n", h5_status);
+              if (io_log) fprintf(log_fptr, "H5Dwrite boundary type: %d\n", h5_status);
               if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
  
 	    /* write out BoundaryValue */
@@ -459,7 +457,7 @@ int ExternalBoundary::WriteExternalBoundary(FILE *fptr, char *hdfname)
                 buffer[j] = float32(bv_buffer[j]);
 
               h5_status = H5Dwrite(dset_id2, float_type_id, mem_dsp_id, file_dsp_id,  H5P_DEFAULT, (VOIDP) buffer);
-                if (io_log) fprintf(log_fptr, "H5Dwrite boundary value: %"ISYM"\n", h5_status);
+                if (io_log) fprintf(log_fptr, "H5Dwrite boundary value: %d\n", h5_status);
                 if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
 
             }
@@ -473,7 +471,7 @@ int ExternalBoundary::WriteExternalBoundary(FILE *fptr, char *hdfname)
 
  
               h5_status = H5Dwrite(dset_id2, float_type_id, mem_dsp_id, file_dsp_id,  H5P_DEFAULT, (VOIDP) buffer);
-                if (io_log) fprintf(log_fptr, "H5Dwrite boundary value: %"ISYM"\n", h5_status);
+                if (io_log) fprintf(log_fptr, "H5Dwrite boundary value: %d\n", h5_status);
                 if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
  
 	    }
@@ -493,25 +491,25 @@ int ExternalBoundary::WriteExternalBoundary(FILE *fptr, char *hdfname)
         delete [] dname2;
  
         h5_status = H5Dclose(dset_id1);
-          if (io_log) fprintf(log_fptr, "H5Dclose 1: %"ISYM"\n", h5_status);
+          if (io_log) fprintf(log_fptr, "H5Dclose 1: %d\n", h5_status);
           if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
  
         h5_status = H5Dclose(dset_id2);
-          if (io_log) fprintf(log_fptr, "H5Dclose 2: %"ISYM"\n", h5_status);
+          if (io_log) fprintf(log_fptr, "H5Dclose 2: %d\n", h5_status);
           if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
  
         h5_status = H5Sclose(mem_dsp_id);
-          if (io_log) fprintf(log_fptr, "H5Sclose mem_dsp: %"ISYM"\n", h5_status);
+          if (io_log) fprintf(log_fptr, "H5Sclose mem_dsp: %d\n", h5_status);
           if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
  
         h5_status = H5Sclose(file_dsp_id);
-          if (io_log) fprintf(log_fptr,"H5Sclose file_dsp: %"ISYM"\n", h5_status);
+          if (io_log) fprintf(log_fptr,"H5Sclose file_dsp: %d\n", h5_status);
           if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
  
       }  // end of loop over dims
  
       h5_status = H5Fclose(file_id);
-        if (io_log) fprintf(log_fptr, "H5Fclose: %"ISYM"\n", h5_status);
+        if (io_log) fprintf(log_fptr, "H5Fclose: %d\n", h5_status);
         if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
  
       if (io_log) fclose(log_fptr);

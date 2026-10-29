@@ -16,7 +16,7 @@ int SplitPhotonPackage(PhotonPackageEntry *PP)
     fprintf(stderr, "SplitPhotonPackage: Warning Previous Photon Package == NULL");
   
   if (DEBUG) 
-    fprintf(stdout, "split package ipix:%"ISYM" level:%"ISYM"\n",PP->ipix, PP->level);
+    fprintf(stdout, "split package ipix:%ld level:%ld\n", (long)PP->ipix, (long)PP->level);
 
   nipix = (PP->ipix)*4;
   for (childrays=0; childrays < 4; childrays++) {
@@ -28,9 +28,9 @@ int SplitPhotonPackage(PhotonPackageEntry *PP)
     if (PP->NextPackage != NULL) PP->NextPackage->PreviousPackage = NewPack;
     PP->NextPackage      = NewPack;
     if (DEBUG) 
-      fprintf(stdout, "split package %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM"\n",
-	      PP->ipix, PP->PreviousPackage,
-	      NewPack->PreviousPackage, NewPack,NewPack->NextPackage);
+      fprintf(stdout, "split package %ld %p %p %p %p\n",
+	      (long)PP->ipix, (void*)PP->PreviousPackage,
+	      (void*)NewPack->PreviousPackage, (void*)NewPack, (void*)NewPack->NextPackage);
 
     NewPack->Photons         = 0.25*PP->Photons;
     NewPack->Type            = PP->Type;
@@ -49,9 +49,9 @@ int SplitPhotonPackage(PhotonPackageEntry *PP)
     NewPack->CurrentSource   = PP->CurrentSource;
 
     if ((NewPack->PreviousPackage->NextPackage != NewPack)) {
-      ENZO_VFAIL("SplitPhotonPackage: Problem splitting %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" \n",
-	      PP, NewPack, NewPack->PreviousPackage,
-	      NewPack->PreviousPackage->NextPackage, NewPack->NextPackage)
+      ENZO_VFAIL("SplitPhotonPackage: Problem splitting %p %p %p %p %p \n",
+	      (void*)PP, (void*)NewPack, (void*)NewPack->PreviousPackage,
+	      (void*)NewPack->PreviousPackage->NextPackage, (void*)NewPack->NextPackage)
 
     }
   } // for childrays=0,3

@@ -46,7 +46,7 @@ int grid::DepositPositions(FLOAT *Position[], float *Mass, int Number,
   /* DepositField specifies where the particles should go.  Set LeftEdge,
      Dimension, CellSize, DepositFieldPointer according to it. */
  
-  float *DepositFieldPointer, CellSize, CloudSize;
+  float *DepositFieldPointer, CellSize;
   FLOAT LeftEdge[MAX_DIMENSION];
   int   dim, Dimension[MAX_DIMENSION];
  
@@ -97,13 +97,13 @@ int grid::DepositPositions(FLOAT *Position[], float *Mass, int Number,
   /* 5) error */
  
   else {
-    ENZO_VFAIL("DepositField = %"ISYM" not recognized.\n", DepositField)
+    ENZO_VFAIL("DepositField = %" ISYM" not recognized.\n", DepositField)
   }
  
   /* Error check. */
  
   if (DepositFieldPointer == NULL) {
-    ENZO_VFAIL("DepositFieldPointer (%"ISYM") is NULL, Number = %"ISYM".\n",
+    ENZO_VFAIL("DepositFieldPointer (%" ISYM") is NULL, Number = %" ISYM".\n",
 	    DepositField, Number)
   }
  
@@ -116,7 +116,7 @@ int grid::DepositPositions(FLOAT *Position[], float *Mass, int Number,
   {
     /* Deposit to field using CIC. */
  
-//  fprintf(stderr, "------DP Call Fortran cic_deposit with CellSize = %"GSYM"\n", CellSize);
+//  fprintf(stderr, "------DP Call Fortran cic_deposit with CellSize = %" GSYM"\n", CellSize);
     float CloudSize = CellSize;  // we assume deposit is only on self
  
     PFORTRAN_NAME(cic_deposit)(Position[0], Position[1], Position[2], &GridRank,
@@ -129,7 +129,7 @@ int grid::DepositPositions(FLOAT *Position[], float *Mass, int Number,
     /* Deposit to field using large-spherical CIC, with radius of
        DepositPositionsParticleSmoothRadius */
  
-//  fprintf(stderr, "------DP Call Fortran smooth_deposit with DPPSmoothRadius = %"GSYM"\n", DepositPositionsParticleSmoothRadius);
+//  fprintf(stderr, "------DP Call Fortran smooth_deposit with DPPSmoothRadius = %" GSYM"\n", DepositPositionsParticleSmoothRadius);
  
     PFORTRAN_NAME(smooth_deposit)(
 			  Position[0], Position[1], Position[2], &GridRank,

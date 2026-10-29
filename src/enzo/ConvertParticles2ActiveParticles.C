@@ -72,8 +72,6 @@ int ConvertParticles2ActiveParticles(char *ParameterFile,
 {
 
   
-  const float When = 0.5;
-  LevelHierarchyEntry *Temp;
   HierarchyEntry **Grids;
   int numtypes = 0;
   
@@ -115,7 +113,7 @@ int ConvertParticles2ActiveParticles(char *ParameterFile,
     Masterarray[i] = 0;
     RMasterarray[i]=0;
   }
-  int active_particles = 0, global_active_particles = 0;
+  int global_active_particles = 0;
   if(MyProcessorNumber == ROOT_PROCESSOR)
     printf("%s: You have chosen to read in a file and convert all the particles " \
 	   "found in the output to active particles.\n", __FUNCTION__);
@@ -145,7 +143,6 @@ int ConvertParticles2ActiveParticles(char *ParameterFile,
   for(int i = 0; i < MAX_ACTIVE_PARTICLE_TYPES; i++)
     {
       if(strlen(active_particle_types[i]) > 0) {
-	active_particles++;
 	Masterarray[i] = 1;
       }
     }
@@ -154,7 +151,7 @@ int ConvertParticles2ActiveParticles(char *ParameterFile,
   MPI_Allreduce(Masterarray, RMasterarray, MAX_ACTIVE_PARTICLE_TYPES, MPI_INT, MPI_MAX, MPI_COMM_WORLD);
   MPI_Barrier(MPI_COMM_WORLD);
   if(MyProcessorNumber == ROOT_PROCESSOR)
-    printf("%s: Number of particles found = %d\n", __FUNCTION__, global_active_particles);
+    printf("%s: Number of particles found = %" ISYM "\n", __FUNCTION__, global_active_particles);
 #endif
 
 #if DEBUG
@@ -162,7 +159,7 @@ int ConvertParticles2ActiveParticles(char *ParameterFile,
   //CollectParticleTypes(active_particle_types, global_active_particles);
   //if(MyProcessorNumber == ROOT_PROCESSOR)    {
   // for(int i = 0; i < global_active_particles; i++)
-  //   fprintf(stdout, "P%d: particle type[%d] =  %s\n", MyProcessorNumber, 
+  //   fprintf(stdout, "P%" ISYM ": particle type[%" ISYM "] =  %s\n", MyProcessorNumber, 
   //	      i, active_particle_types[i]);
   //}
 #endif
@@ -203,7 +200,7 @@ int ConvertParticles2ActiveParticles(char *ParameterFile,
   MPI_Allreduce(&TotalNumberOfNewParticles, &GlobalTotalNumberOfNewParticles, 1, MPI_INT, MPI_SUM, 
 		MPI_COMM_WORLD);
   if(GlobalTotalNumberOfNewParticles && MyProcessorNumber == ROOT_PROCESSOR)
-    printf("%s: TotalNumberOfNewParticles = %d\n", __FUNCTION__, GlobalTotalNumberOfNewParticles);
+    printf("%s: TotalNumberOfNewParticles = %" ISYM "\n", __FUNCTION__, GlobalTotalNumberOfNewParticles);
 #endif
   /* 
    * The new active particle types have now been created and the star objects destroyed.
@@ -250,12 +247,11 @@ void CollectParticleTypes(char **active_particle_types, int global_active_partic
  
   for(int i=0; i<global_active_particles*my_gsize; i++) {
     if(MyProcessorNumber == 75) {
-      printf("P%d: ap_types[%d] = %s\n", MyProcessorNumber, i, ap_types[i]);
+      printf("P%" ISYM ": ap_types[%" ISYM "] = %s\n", MyProcessorNumber, i, ap_types[i]);
     }
   }
   return;
   for(int i=0; i<global_active_particles; i++) {
-    int offset = global_active_particles*MyProcessorNumber;
     MPI_Allgather(ap_types[i], MAX_LINE_LENGTH, MPI_CHAR,
 		  ap_types2[i], MAX_LINE_LENGTH, MPI_CHAR, MPI_COMM_WORLD);
   }
@@ -268,7 +264,7 @@ void CollectParticleTypes(char **active_particle_types, int global_active_partic
       }
       printf("Populating array with %s\n", ap_types2[i]);
       strcpy(active_particle_types[k++], ap_types2[i]);
-    // fprintf(stdout, "P%d: Enabling particle type[%d] =  %s\n", MyProcessorNumber, i, active_particle_types[i]); fflush(stdout);
+    // fprintf(stdout, "P%" ISYM ": Enabling particle type[%" ISYM "] =  %s\n", MyProcessorNumber, i, active_particle_types[i]); fflush(stdout);
     //MPI_Barrier(MPI_COMM_WORLD);
     }
   }

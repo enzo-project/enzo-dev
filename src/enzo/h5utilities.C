@@ -48,7 +48,6 @@ hid_t openH5File(const char* filename)
 
   hid_t fileId = -1;
 
-  int err = 0;
 
   // need the following ifdef to make standalone version of carpet2amira 
   // independent of hxhdf5 and hence of amira kernel libs ...

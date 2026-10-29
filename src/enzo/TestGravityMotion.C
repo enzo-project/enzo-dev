@@ -56,7 +56,7 @@ int TestGravityMotion(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
  
     /* read parameters */
  
-    ret += sscanf(line, "TestGravityMotionParticleVelocity = %"PSYM,
+    ret += sscanf(line, "TestGravityMotionParticleVelocity = %" PSYM,
 		  &TestGravityParticleVelocity);
  
     /* if the line is suspicious, issue a warning */
@@ -77,7 +77,7 @@ int TestGravityMotion(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
  
   if (MyProcessorNumber == ROOT_PROCESSOR) {
 
-    fprintf(Outfptr, "TestGravityMotionParticleVelocity = %"GSYM"\n",
+    fprintf(Outfptr, "TestGravityMotionParticleVelocity = %" GSYM"\n",
 	    TestGravityParticleVelocity);
   }
  

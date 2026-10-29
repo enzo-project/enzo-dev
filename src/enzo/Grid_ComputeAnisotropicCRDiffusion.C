@@ -215,11 +215,11 @@ int grid::ComputeAnisotropicCRDiffusion(){
 	}
 
         if((cr[idx] < 0) || isnan(cr[idx])){
-              printf("CR = %e < 0 (after diff), i,j,k = (%"ISYM", %"ISYM", %"ISYM"), \
-                      grid lims = (%"ISYM", %"ISYM", %"ISYM"), (%"ISYM", %"ISYM", %"ISYM")\n",
+              printf("CR = %e < 0 (after diff), i,j,k = (%" ISYM", %" ISYM", %" ISYM"), \
+                      grid lims = (%" ISYM", %" ISYM", %" ISYM"), (%" ISYM", %" ISYM", %" ISYM")\n",
 		     cr[idx], i, j, k, GridStart[0], GridStart[1], GridStart[2], 
 		     GridEnd[0], GridEnd[1], GridEnd[2]);	      
-	      printf("\t\t>> Old CR: %"ESYM"\n",crOld);
+	      printf("\t\t>> Old CR: %" ESYM"\n",crOld);
 	      cr[idx] = tiny_number; 
 	} // end err if
       } // triple for loop

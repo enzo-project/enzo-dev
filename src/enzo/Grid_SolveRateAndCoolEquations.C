@@ -324,11 +324,11 @@ int grid::SolveRateAndCoolEquations(int RTCoupledSolverIntermediateStep)
     CloudyCoolingData.CloudyCooling, CloudyCoolingData.CloudyHeating);
 
   if (ierr) {
-      fprintf(stdout, "GridLeftEdge = %"FSYM" %"FSYM" %"FSYM"\n",
+      fprintf(stdout, "GridLeftEdge = %" FSYM" %" FSYM" %" FSYM"\n",
 	      GridLeftEdge[0], GridLeftEdge[1], GridLeftEdge[2]);
-      fprintf(stdout, "GridRightEdge = %"FSYM" %"FSYM" %"FSYM"\n",
+      fprintf(stdout, "GridRightEdge = %" FSYM" %" FSYM" %" FSYM"\n",
 	      GridRightEdge[0], GridRightEdge[1], GridRightEdge[2]);
-      fprintf(stdout, "GridDimension = %"ISYM" %"ISYM" %"ISYM"\n",
+      fprintf(stdout, "GridDimension = %" ISYM" %" ISYM" %" ISYM"\n",
 	      GridDimension[0], GridDimension[1], GridDimension[2]);
       ENZO_FAIL("Error in FORTRAN rate/cool solver!\n");
   }

@@ -88,7 +88,7 @@ int RestartPhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   }
 
   if (debug)
-    printf("Restarting radiative transfer.  Light-crossing time = %"GSYM"\n", 
+    printf("Restarting radiative transfer.  Light-crossing time = %" GSYM"\n", 
 	   LightCrossingTime);
 
   /* Solve radiative transfer */
@@ -101,7 +101,7 @@ int RestartPhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	 (MetaData->Time >= PhotonTime))  {
 
     if (debug) 
-      printf("EvolvePhotons[restart]: dt = %"GSYM", Time = %"FSYM", ", 
+      printf("EvolvePhotons[restart]: dt = %" GSYM", Time = %" FSYM", ", 
 	     dtPhoton, PhotonTime);
     EvolvePhotons(MetaData, LevelArray, AllStars, MetaData->Time, 0, FALSE);
 

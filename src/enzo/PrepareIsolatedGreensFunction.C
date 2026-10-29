@@ -67,7 +67,7 @@ int PrepareIsolatedGreensFunction(region *GreensFunction, int proc,
 
   /* Return if this is not our processor. */
 
-  //  fprintf(stderr, "%"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM"\n", proc, MyProcessorNumber, GreensFunction->RegionDim[0], GreensFunction->RegionDim[1], GreensFunction->RegionDim[2]);
+  //  fprintf(stderr, "%" ISYM" %" ISYM" %" ISYM" %" ISYM" %" ISYM"\n", proc, MyProcessorNumber, GreensFunction->RegionDim[0], GreensFunction->RegionDim[1], GreensFunction->RegionDim[2]);
   if (proc != MyProcessorNumber)
     return SUCCESS;
 

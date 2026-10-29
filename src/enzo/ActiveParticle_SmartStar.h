@@ -380,7 +380,7 @@ int ActiveParticleType_SmartStar::AfterEvolveLevel(
       ParticleList.clear();
       
       if (debug)
-        printf("Number of particles after merging: %"ISYM"\n",NumberOfMergedParticles);
+        printf("Number of particles after merging: %" ISYM"\n",NumberOfMergedParticles);
       
       /* Assign local particles to grids */
       
@@ -431,7 +431,7 @@ int ActiveParticleType_SmartStar::AfterEvolveLevel(
   return SUCCESS;
 }
 
-static FLOAT Dist(FLOAT *tempPos, FLOAT *tempPos1)
+static inline FLOAT Dist(FLOAT *tempPos, FLOAT *tempPos1)
 {
   return sqrt((tempPos[0] - tempPos1[0])*(tempPos[0] - tempPos1[0]) +
 	      (tempPos[1] - tempPos1[1])*(tempPos[1] - tempPos1[1]) +

@@ -153,7 +153,7 @@ float grid::ComputePhotonTimestepTau(float DensityUnits, float LengthUnits,
 	  if (this_dt > 0) {
 	    if (this_dt < dt) {
 	      dt = this_dt;
-	      printf("dtPhoton: ijk = %d %d %d, dt=%g, tau=%g, HIIdot=%g, HI=%g, kph=%g\n",
+	      printf("dtPhoton: ijk = %" ISYM " %" ISYM " %" ISYM ", dt=%g, tau=%g, HIIdot=%g, HI=%g, kph=%g\n",
 		     i,j,k,this_dt,tau, HIIdot, 
 		     BaryonField[HINum][index],
 		     BaryonField[kphHINum][index]);

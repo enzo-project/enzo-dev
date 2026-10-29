@@ -109,9 +109,9 @@ int grid::MergePausedPhotonPackages() {
   if (DEBUG) {
     printf("========== BEFORE SORTING ==========\n");
     for (i = 0; i < nphotons; i++)
-      printf("photon %"ISYM": type %"ISYM", lvl %"ISYM", pix %"ISYM", r=%"GSYM", L=%"GSYM", CSRC=%x\n", i, TempPP[i].Type, TempPP[i].level,
-	     TempPP[i].ipix, TempPP[i].Radius, TempPP[i].Photons, 
-	     TempPP[i].CurrentSource);
+      printf("photon %" ISYM": type %" ISYM", lvl %ld, pix %ld, r=%" GSYM", L=%" GSYM", CSRC=%p\n", i, TempPP[i].Type, (long)TempPP[i].level,
+	     (long)TempPP[i].ipix, TempPP[i].Radius, TempPP[i].Photons, 
+	     (void*)TempPP[i].CurrentSource);
   }
 
   qsort(TempPP, nphotons, sizeof(PhotonPackageEntry), compare_ss);
@@ -120,9 +120,9 @@ int grid::MergePausedPhotonPackages() {
   if (DEBUG) {
     printf("========== AFTER ALL SORTING ==========\n");
     for (i = 0; i < nphotons; i++)
-      printf("photon %"ISYM": type %"ISYM", lvl %"ISYM", pix %"ISYM", r=%"GSYM", L=%"GSYM", CSRC=%x\n", i, TempPP[i].Type, TempPP[i].level,
-	     TempPP[i].ipix, TempPP[i].Radius, TempPP[i].Photons, 
-	     TempPP[i].CurrentSource);
+      printf("photon %" ISYM": type %" ISYM", lvl %ld, pix %ld, r=%" GSYM", L=%" GSYM", CSRC=%p\n", i, TempPP[i].Type, (long)TempPP[i].level,
+	     (long)TempPP[i].ipix, TempPP[i].Radius, TempPP[i].Photons, 
+	     (void*)TempPP[i].CurrentSource);
   }
 
   /* Now that the list is sorted, we can easily merge pixels with the
@@ -164,10 +164,10 @@ int grid::MergePausedPhotonPackages() {
 	NewPack->EmissionTimeInterval /= NewPack->Photons;
 	NewPack->ColumnDensity /= NewPack->Photons;
 	if (DEBUG)
-	  printf("photon %"ISYM": type %"ISYM", lvl %"ISYM", pix %"ISYM", r=%"GSYM", L=%"GSYM", CSRC=%x\n", merges, 
-		 NewPack->Type, NewPack->level,
-		 NewPack->ipix, NewPack->Radius, NewPack->Photons, 
-		 NewPack->CurrentSource);
+	  printf("photon %" ISYM": type %" ISYM", lvl %ld, pix %ld, r=%" GSYM", L=%" GSYM", CSRC=%p\n", merges, 
+		 NewPack->Type, (long)NewPack->level,
+		 (long)NewPack->ipix, NewPack->Radius, NewPack->Photons, 
+		 (void*)NewPack->CurrentSource);
 	InsertPhotonAfter(this->PhotonPackages, NewPack);
       }
 
@@ -202,10 +202,10 @@ int grid::MergePausedPhotonPackages() {
     NewPack->EmissionTimeInterval /= NewPack->Photons;
     NewPack->ColumnDensity /= NewPack->Photons;
     if (DEBUG)
-      printf("photon %"ISYM": type %"ISYM", lvl %"ISYM", pix %"ISYM", r=%"GSYM", L=%"GSYM", CSRC=%x\n", merges, 
-	     NewPack->Type, NewPack->level,
-	     NewPack->ipix, NewPack->Radius, NewPack->Photons, 
-	     NewPack->CurrentSource);
+      printf("photon %" ISYM": type %" ISYM", lvl %ld, pix %ld, r=%" GSYM", L=%" GSYM", CSRC=%p\n", merges, 
+	     NewPack->Type, (long)NewPack->level,
+	     (long)NewPack->ipix, NewPack->Radius, NewPack->Photons, 
+	     (void*)NewPack->CurrentSource);
     InsertPhotonAfter(this->PhotonPackages, NewPack);
   }
 
@@ -221,7 +221,7 @@ int grid::MergePausedPhotonPackages() {
   delete [] TempPP;
 
   if (DEBUG)
-    printf("P%d: MergePausedPhotonPackages: %"ISYM" => %"ISYM" photons\n", 
+    printf("P%" ISYM ": MergePausedPhotonPackages: %" ISYM" => %" ISYM" photons\n", 
 	   MyProcessorNumber, nphotons, merges);
 
   return merges;

@@ -81,7 +81,7 @@ int GetNodeFreeMemory(void)
   sscanf(node_name, "s%5d", &node_number);
 #endif
 
-  fprintf(stderr, "Proc %"ISYM" of %"ISYM" is on node %s [%"ISYM"] with %lld MBytes free\n", id, nt, node_name, node_number, free);
+  fprintf(stderr, "Proc %" ISYM" of %" ISYM" is on node %s [%" ISYM"] with %lld MBytes free\n", id, nt, node_name, node_number, free);
 
   MPI_Barrier(MPI_COMM_WORLD);
 
@@ -108,7 +108,7 @@ int GetNodeFreeMemory(void)
   nn = (nt-1)/MAX_TASKS_PER_NODE+1;
 
   if ( id == 0 )
-    fprintf(stderr, "Number of nodes %"ISYM"\n", nn);
+    fprintf(stderr, "Number of nodes %" ISYM"\n", nn);
 
   if ( id % MAX_TASKS_PER_NODE == 0 ) {
     node_input[id/MAX_TASKS_PER_NODE] = node_number;
@@ -126,7 +126,7 @@ int GetNodeFreeMemory(void)
 
   if ( id == 0 ) 
     for ( i = 0; i < nn; i++) {
-      fprintf(stderr, "Logical Node %3"ISYM"  NodeMap %5"ISYM"  NodeMem %6.2lf\n", i, NodeMap[i], NodeMem[i]);
+      fprintf(stderr, "Logical Node %3" ISYM"  NodeMap %5" ISYM"  NodeMem %6.2lf\n", i, NodeMap[i], NodeMem[i]);
     }
 
   MPI_Barrier(MPI_COMM_WORLD);

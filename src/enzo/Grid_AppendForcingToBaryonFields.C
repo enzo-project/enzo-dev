@@ -65,7 +65,7 @@ int grid::AppendForcingToBaryonFields()
   }
  
   /*  if (debug)
-    printf("ForcingAppended[%"ISYM"] NBF %"ISYM"\n", ProcessorNumber,
+    printf("ForcingAppended[%" ISYM"] NBF %" ISYM"\n", ProcessorNumber,
 	   NumberOfBaryonFields);
   */
  

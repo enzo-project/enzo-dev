@@ -22,14 +22,13 @@ static force_t _TopData;
 
 void force_treeallocate(FOFData &D, int maxnodes) 
 {
-  int bytes;
   
   D.MaxNodes = maxnodes;
   
   _TopData.nodes = new FNODE[D.MaxNodes];
   
   if (_TopData.nodes == NULL) {
-    ENZO_VFAIL("failed to allocate memory for %"ISYM" tree-nodes (%"ISYM" bytes).\n",
+    ENZO_VFAIL("failed to allocate memory for %" ISYM" tree-nodes (%" ISYM" bytes).\n",
 	    D.MaxNodes, sizeof(FNODE)*D.MaxNodes)
   }
   force_setkernel();
@@ -62,9 +61,9 @@ void add_particle_props_to_node(FOFData &D, FNODE *no, int p)
 
 int force_treebuild(FOFData &D, int first, int len, float thetamax)
 {
-  int i,j,tr,n,ip;
-  int subp,subi,p,ni,subnode,fak,fp;
-  float x,length;
+  int i, j, ip;
+  int subp, subi, p, subnode, fak;
+  float length;
   float dx,dy,dz;
   FNODE *nfree,*th,*nn,*ff;
   void force_setupnonrecursive(FNODE *no);
@@ -118,7 +117,7 @@ int force_treebuild(FOFData &D, int first, int len, float thetamax)
   nfree++;
   
   if (_TopData.numnodestotal >= D.MaxNodes) {
-    ENZO_VFAIL("FOF: maximum number %"ISYM" of tree-nodes reached.\n", _TopData.numnodestotal)
+    ENZO_VFAIL("FOF: maximum number %" ISYM" of tree-nodes reached.\n", _TopData.numnodestotal)
   }
   
   /* insert all other particles */
@@ -184,7 +183,7 @@ int force_treebuild(FOFData &D, int first, int len, float thetamax)
 	nfree++;
 
 	if (_TopData.numnodestotal >= D.MaxNodes) {
-	  ENZO_VFAIL("FOF: maximum number %"ISYM" of tree-nodes reached.\n", _TopData.numnodestotal)
+	  ENZO_VFAIL("FOF: maximum number %" ISYM" of tree-nodes reached.\n", _TopData.numnodestotal)
         }
 
 	for (j = 0, subi = 0, fak = 1; j < 3; j++, fak<<=1)
@@ -233,7 +232,7 @@ int force_treebuild(FOFData &D, int first, int len, float thetamax)
     nfree++;
 
     if (_TopData.numnodestotal >= D.MaxNodes) {
-      ENZO_VFAIL("FOF: maximum number %"ISYM" of tree-nodes reached.\n", _TopData.numnodestotal)
+      ENZO_VFAIL("FOF: maximum number %" ISYM" of tree-nodes reached.\n", _TopData.numnodestotal)
     }
   } // ENDFOR
   
@@ -315,9 +314,9 @@ void force_setupnonrecursive(FNODE *no)
 
 void force_treeevaluate_potential(double *pos, float *pot, float epsilon)
 {
-  FNODE *no,*nn;
-  int i,k,p,ii;
-  float r2,dx,dy,dz,r,fac,theta,u,h,ff;
+  FNODE *no;
+  int p, ii;
+  float r2, dx, dy, dz, r, u, h, ff;
   float wp;
   float r_inv;
   float h_inv;

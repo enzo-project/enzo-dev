@@ -43,7 +43,7 @@ int grid::ComputeOneZoneCollapseFactor(float *force_factor)
 
   /* Compute the size of the fields. */
  
-  int i, j, k, t, der, index, size = 1;
+  int i, j, k, der, index, size = 1;
   for (int dim = 0; dim < GridRank; dim++)
     size *= GridDimension[dim];
 

@@ -79,24 +79,20 @@ int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
   char pid[MAX_TASK_TAG_SIZE];
   char hierarchyname[MAX_LINE_LENGTH], radiationname[MAX_LINE_LENGTH];
   char mtname[MAX_LINE_LENGTH], forcingname[MAX_LINE_LENGTH];
-  char HDF5hierarchyname[MAX_LINE_LENGTH];
+  char HDF5hierarchyname[MAX_LINE_LENGTH * 2];
   // Code shrapnel. See comments below. --Rick
   // char taskmapname[MAX_LINE_LENGTH];
   char memorymapname[MAX_LINE_LENGTH];
 
   FILE *log_fptr;
   FILE *fptr;
-  FILE *tptr;
-  FILE *mptr;
 
   hid_t Hfile_id;
   herr_t h5_status;
   herr_t h5_error = -1;
 
   int GridID = 1;
-  int GridKD = 1;
 
-  float dummy;
 
   // store the original parameter file name, in case we need it later
   strcpy(PrevParameterFileName, name);
@@ -205,7 +201,7 @@ int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
   strcat(memorymapname, MemoryMapSuffix);
 
 #ifdef USE_MPI
-  sprintf(pid, "%"TASK_TAG_FORMAT""ISYM, MyProcessorNumber);
+  sprintf(pid, "%" TASK_TAG_FORMAT"" ISYM, MyProcessorNumber);
 #endif
  
   /* Read the memory map */
@@ -240,11 +236,11 @@ int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
  
   //  if (HierarchyFileInputFormat == 0) {
   if (HierarchyFileInputFormat % 2 == 0) {
-    sprintf(HDF5hierarchyname,"%s.hdf5",hierarchyname);
+    snprintf(HDF5hierarchyname, sizeof(HDF5hierarchyname), "%s.hdf5", hierarchyname);
     
     if (io_log) {
-      char logname[MAX_LINE_LENGTH];
-      sprintf(logname,"%s.in_log",HDF5hierarchyname);
+      char logname[MAX_LINE_LENGTH * 2 + 32];
+      snprintf(logname, sizeof(logname), "%s.in_log", HDF5hierarchyname);
       
       log_fptr = fopen(logname,"w");
     }
@@ -263,7 +259,7 @@ int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
     
 //     if(MyProcessorNumber == ROOT_PROCESSOR)
 //       for(int i=0;i<TotalNumberOfGrids;i++)
-// 	fprintf(stderr,"LevelLookupTable[%d] = %d\n",i,LevelLookupTable[i]);
+// 	fprintf(stderr,"LevelLookupTable[%" ISYM "] = %" ISYM "\n",i,LevelLookupTable[i]);
   } 
 
   if (HierarchyFileInputFormat == 1) {
@@ -313,7 +309,7 @@ int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
 					       MetaData.LeftFaceBoundaryCondition[dim],
 					       MetaData.RightFaceBoundaryCondition[dim],
 					       Dummy, Dummy);
-      fprintf(stderr, " %i  %i \n", MetaData.LeftFaceBoundaryCondition[dim],
+      fprintf(stderr, " %" ISYM "  %" ISYM " \n", MetaData.LeftFaceBoundaryCondition[dim],
 	      MetaData.RightFaceBoundaryCondition[dim]);
     }
     

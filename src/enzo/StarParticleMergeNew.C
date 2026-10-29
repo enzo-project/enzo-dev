@@ -44,10 +44,9 @@ int StarParticleMergeNew(LevelHierarchyEntry *LevelArray[], Star *&AllStars)
 {
 
   Star *ThisStar, *OtherStar, *LastStar, *MoveStar;
-  LevelHierarchyEntry *Temp;
   float rmerge2, rmerge2o, dx, dx2;
   FLOAT TimeNow;
-  int dim, level;
+  int level;
 
   /* Get the time at the finest level */
   
@@ -82,7 +81,7 @@ int StarParticleMergeNew(LevelHierarchyEntry *LevelArray[], Star *&AllStars)
 	 OtherStar = OtherStar->NextStar) {
       if (ThisStar->ReturnID() == OtherStar->ReturnID()) {
 	if (debug) {
-	  printf("%"ISYM" -- merging duplicate particle??\n", ThisStar->ReturnID());
+	  printf("%" ISYM" -- merging duplicate particle??\n", ThisStar->ReturnID());
 	  printf("ThisStar:\n");
 	  ThisStar->PrintInfo();
 	  printf("OtherStar:\n");
@@ -94,7 +93,7 @@ int StarParticleMergeNew(LevelHierarchyEntry *LevelArray[], Star *&AllStars)
 	if (ThisStar->Separation2(*OtherStar) <= rmerge2) {
 	  ThisStar->Merge(OtherStar);
 	  OtherStar->MarkForDeletion();
-//	  printf("Merging stars %"ISYM" and %"ISYM"\n", ThisStar->ReturnID(),
+//	  printf("Merging stars %" ISYM" and %" ISYM"\n", ThisStar->ReturnID(),
 //		 OtherStar->ReturnID());
 	} // ENDIF radius2 < rmerge2
     } // ENDFOR OtherStar

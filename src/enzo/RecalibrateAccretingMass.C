@@ -52,7 +52,7 @@ int RecalibrateAccretingMass(FLOAT star_pos[], LevelHierarchyEntry *LevelArray[]
 
   float AvgVelocity[MAX_DIMENSION], MassEnclosed[2], Metallicity = 0, ColdGasMass = 0;
   float OneOverRSquaredSum, average_density_at_Bondi_radius = 0.0;
-  int i, l, dim, count, FirstLoop = TRUE;
+  int l, dim, count, FirstLoop = TRUE;
   LevelHierarchyEntry *Temp, *Temp2;
   FLOAT Time;
 
@@ -64,7 +64,7 @@ int RecalibrateAccretingMass(FLOAT star_pos[], LevelHierarchyEntry *LevelArray[]
     ENZO_FAIL("RecalibrateAM: Something is wrong!");
 //    return SUCCESS;
 
-//    printf("RecalibrateAM: Proc = %d, star_pos[] = %g, %g, %g\n", 
+//    printf("RecalibrateAM: Proc = %" ISYM ", star_pos[] = %g, %g, %g\n", 
 // 	  MyProcessorNumber, star_pos[0], star_pos[1], star_pos[2]);  
 
   /* Set the units. */

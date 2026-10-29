@@ -39,23 +39,21 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 int MHD1DTestInitialize(FILE *fptr, FILE *Outfptr, 
 			HierarchyEntry &TopGrid, TopGridData &MetaData) 
 {
-  char *DensName = "Density";
-  char *PresName = "Pressure";
-  char *TEName   = "TotalEnergy";
-  char *GEName   = "GasEnergy";
-  char *Vel1Name = "x-velocity";
-  char *Vel2Name = "y-velocity";
-  char *Vel3Name = "z-velocity";
-  char *ColourName = "colour";
-  char *BxName = "Bx";
-  char *ByName = "By";
-  char *BzName = "Bz";
-  char *PhiName = "Phi";
+  const char *DensName = "Density";
+  const char *TEName   = "TotalEnergy";
+  const char *GEName   = "GasEnergy";
+  const char *Vel1Name = "x-velocity";
+  const char *Vel2Name = "y-velocity";
+  const char *Vel3Name = "z-velocity";
+  const char *BxName = "Bx";
+  const char *ByName = "By";
+  const char *BzName = "Bz";
+  const char *PhiName = "Phi";
 
   /* declarations */
 
   char  line[MAX_LINE_LENGTH];
-  int   dim, ret, level, sphere, i;
+  int ret, level, i;
 
   /* set default parameters */
 
@@ -77,39 +75,39 @@ int MHD1DTestInitialize(FILE *fptr, FILE *Outfptr,
     ret = 0;
 
     /* read parameters */
-    ret += sscanf(line, "RefineAtStart = %"ISYM, 
+    ret += sscanf(line, "RefineAtStart = %" ISYM, 
 		  &RefineAtStart);
-    ret += sscanf(line, "LeftVelocityX = %"FSYM,
+    ret += sscanf(line, "LeftVelocityX = %" FSYM,
 		  &LeftVelocityX);
-    ret += sscanf(line, "LeftVelocityY = %"FSYM,
+    ret += sscanf(line, "LeftVelocityY = %" FSYM,
 		  &LeftVelocityY);
-    ret += sscanf(line, "LeftVelocityZ = %"FSYM,
+    ret += sscanf(line, "LeftVelocityZ = %" FSYM,
 		  &LeftVelocityZ);
-    ret += sscanf(line, "LeftPressure = %"FSYM, 
+    ret += sscanf(line, "LeftPressure = %" FSYM, 
 		  &LeftPressure);
-    ret += sscanf(line, "LeftDensity = %"FSYM, 
+    ret += sscanf(line, "LeftDensity = %" FSYM, 
 		  &LeftDensity);
-    ret += sscanf(line, "LeftBx = %"FSYM,
+    ret += sscanf(line, "LeftBx = %" FSYM,
 		  &LeftBx);
-    ret += sscanf(line, "LeftBy = %"FSYM,
+    ret += sscanf(line, "LeftBy = %" FSYM,
 		  &LeftBy);
-    ret += sscanf(line, "LeftBz = %"FSYM,
+    ret += sscanf(line, "LeftBz = %" FSYM,
 		  &LeftBz);
-    ret += sscanf(line, "RightVelocityX = %"FSYM, 
+    ret += sscanf(line, "RightVelocityX = %" FSYM, 
 		  &RightVelocityX);
-    ret += sscanf(line, "RightVelocityY = %"FSYM, 
+    ret += sscanf(line, "RightVelocityY = %" FSYM, 
 		  &RightVelocityY);
-    ret += sscanf(line, "RightVelocityZ = %"FSYM,
+    ret += sscanf(line, "RightVelocityZ = %" FSYM,
 		  &RightVelocityZ);
-    ret += sscanf(line, "RightPressure = %"FSYM, 
+    ret += sscanf(line, "RightPressure = %" FSYM, 
 		  &RightPressure);
-    ret += sscanf(line, "RightDensity = %"FSYM,
+    ret += sscanf(line, "RightDensity = %" FSYM,
                   &RightDensity);
-    ret += sscanf(line, "RightBx = %"FSYM,
+    ret += sscanf(line, "RightBx = %" FSYM,
 		  &RightBx);
-    ret += sscanf(line, "RightBy = %"FSYM,
+    ret += sscanf(line, "RightBy = %" FSYM,
 		  &RightBy);
-    ret += sscanf(line, "RightBz = %"FSYM,
+    ret += sscanf(line, "RightBz = %" FSYM,
 		  &RightBz);
 
     /* if the line is suspicious, issue a warning */
@@ -130,7 +128,7 @@ int MHD1DTestInitialize(FILE *fptr, FILE *Outfptr,
   double PressureUnits = DensityUnits*pow(VelocityUnits,2);
   double MagneticUnits = sqrt(4.0*M_PI*PressureUnits);
 
-  printf("DensityUnits=%"GSYM",VelocityUnits=%"GSYM",LengthUnits=%"GSYM",TimeUnits=%"GSYM" (%"GSYM" yr),PressureUnits=%"GSYM"\n", 
+  printf("DensityUnits=%" GSYM",VelocityUnits=%" GSYM",LengthUnits=%" GSYM",TimeUnits=%" GSYM" (%" GSYM" yr),PressureUnits=%" GSYM"\n", 
 	 DensityUnits, VelocityUnits, LengthUnits, TimeUnits, TimeUnits/3.1558e7, PressureUnits);
 
   if (UsePhysicalUnit) {
@@ -191,7 +189,7 @@ int MHD1DTestInitialize(FILE *fptr, FILE *Outfptr,
        and re-initialize the level after it is created. */
 
     for (level = 0; level < MaximumRefinementLevel; level++) {
-      printf("In level %"ISYM"\n", level);
+      printf("In level %" ISYM"\n", level);
       if (RebuildHierarchy(&MetaData, LevelArray, level) == FAIL) {
 	fprintf(stderr, "Error in RebuildHierarchy.\n");
 	return FAIL;
@@ -277,31 +275,31 @@ int MHD1DTestInitialize(FILE *fptr, FILE *Outfptr,
   /* Write parameters to parameter output file */
 
   if (MyProcessorNumber == ROOT_PROCESSOR) {
-    fprintf(Outfptr, "RefineAtStart      = %"ISYM"\n",
+    fprintf(Outfptr, "RefineAtStart      = %" ISYM"\n",
 	    RefineAtStart);
-    fprintf(Outfptr, "LeftDensity       = %"FSYM"\n",
+    fprintf(Outfptr, "LeftDensity       = %" FSYM"\n",
 	    LeftDensity);
-    fprintf(Outfptr, "RightDensity          = %"FSYM"\n",
+    fprintf(Outfptr, "RightDensity          = %" FSYM"\n",
 	    RightDensity);
-    fprintf(Outfptr, "LeftVelocityX = %"FSYM"\n",
+    fprintf(Outfptr, "LeftVelocityX = %" FSYM"\n",
 	    LeftVelocityX);
-    fprintf(Outfptr, "RightVelocityX = %"FSYM"\n",
+    fprintf(Outfptr, "RightVelocityX = %" FSYM"\n",
             RightVelocityX);
-    fprintf(Outfptr, "LeftVelocityY = %"FSYM"\n",
+    fprintf(Outfptr, "LeftVelocityY = %" FSYM"\n",
 	    LeftVelocityY);
-    fprintf(Outfptr, "RightVelocityY = %"FSYM"\n",
+    fprintf(Outfptr, "RightVelocityY = %" FSYM"\n",
             RightVelocityY);
-    fprintf(Outfptr, "LeftBx = %"FSYM"\n",
+    fprintf(Outfptr, "LeftBx = %" FSYM"\n",
 	    LeftBx);
-    fprintf(Outfptr, "RightBx = %"FSYM"\n",
+    fprintf(Outfptr, "RightBx = %" FSYM"\n",
 	    RightBx);
-    fprintf(Outfptr, "LeftBy = %"FSYM"\n",
+    fprintf(Outfptr, "LeftBy = %" FSYM"\n",
 	    LeftBy);
-    fprintf(Outfptr, "RightBy = %"FSYM"\n",
+    fprintf(Outfptr, "RightBy = %" FSYM"\n",
 	    RightBy);
-    fprintf(Outfptr, "LeftPressure = %"FSYM"\n",
+    fprintf(Outfptr, "LeftPressure = %" FSYM"\n",
             LeftPressure);
-    fprintf(Outfptr, "RightPressure = %"FSYM"\n",
+    fprintf(Outfptr, "RightPressure = %" FSYM"\n",
             RightPressure);
   }
   //return FAIL;

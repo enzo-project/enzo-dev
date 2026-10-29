@@ -247,7 +247,7 @@ int MHDOrszagTangInit(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 int MHDLoopInit(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
                           TopGridData &MetaData, ExternalBoundary &Exterior);
 
-void PrintMemoryUsage(char *str);
+void PrintMemoryUsage(const char *str);
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
@@ -340,14 +340,14 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
     //printf("This should only run if not a restart!");
  
     if (MetaData.TopGridRank < 0 || MetaData.TopGridRank > 3) {
-      ENZO_VFAIL("TopGridRank = %"ISYM" ill defined.\n", MetaData.TopGridRank)
+      ENZO_VFAIL("TopGridRank = %" ISYM" ill defined.\n", MetaData.TopGridRank)
     }
  
   // Error check the dimensions and at the same time add ghost zones
  
     for (dim = 0; dim < MetaData.TopGridRank; dim++) {
       if (MetaData.TopGridDims[dim] < 1 || MetaData.TopGridDims[dim] > 8192) {
-	ENZO_VFAIL("TopGridDims[%"ISYM"] = %"ISYM" ill defined.\n", dim,
+	ENZO_VFAIL("TopGridDims[%" ISYM"] = %" ISYM" ill defined.\n", dim,
 		   MetaData.TopGridDims[dim])
       }
       MetaData.TopGridDims[dim] = (MetaData.TopGridDims[dim] > 1) ?
@@ -773,7 +773,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   #endif /* TRANSFER */
   
   if (ret == INT_UNDEFINED) {
-    ENZO_VFAIL("Problem Type %"ISYM" undefined.\n", ProblemType)
+    ENZO_VFAIL("Problem Type %" ISYM" undefined.\n", ProblemType)
   }
  
   if (ret == FAIL) {
@@ -789,8 +789,8 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
 
   int nFields = TopGrid.GridData->ReturnNumberOfBaryonFields();
   if (nFields >= MAX_NUMBER_OF_BARYON_FIELDS) {
-    ENZO_VFAIL("NumberOfBaryonFields (%"ISYM") + 1 exceeds "
-	       "MAX_NUMBER_OF_BARYON_FIELDS (%"ISYM").\n", 
+    ENZO_VFAIL("NumberOfBaryonFields (%" ISYM ") + 1 exceeds "
+	       "MAX_NUMBER_OF_BARYON_FIELDS (%d).\n", 
 	       nFields, MAX_NUMBER_OF_BARYON_FIELDS)
   }
 
@@ -952,8 +952,6 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   // Walk the grids
   
   HierarchyEntry *CurrentGrid;
-  FLOAT WT = -1.0;
-  int GP = 1;
   int gridcounter = 0;
   
   CurrentGrid = &TopGrid;
@@ -963,7 +961,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   while (CurrentGrid != NULL) {
     
     if (debug)
-      printf("InitializeNew: Partition Initial Grid %"ISYM"\n", gridcounter);
+      printf("InitializeNew: Partition Initial Grid %" ISYM"\n", gridcounter);
     
     if (CurrentGrid->NextGridThisLevel == NULL)     
       CommunicationPartitionGrid(CurrentGrid, gridcounter);
@@ -1038,15 +1036,16 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
       ENZO_FAIL("Error in ParallelFDMCollapseReInitialize.");
   }
 
-  if (ProblemType == 201)
+  if (ProblemType == 201) {
     if (MHD2DTestInitialize(fptr, Outfptr, TopGrid, MetaData, 1)
 	== FAIL) {
       ENZO_FAIL("Error in MHD2DTestReInitialize.\n");
     }
+  }
   
-  
-    if (ProblemType == 202)
+  if (ProblemType == 202) {
     CollapseMHD3DInitialize(fptr, Outfptr, TopGrid, MetaData, 1);
+  }
 
   // For ProblemType 203 (MHD Turbulence Simulation we only initialize the data
   // once the topgrid has been split.

@@ -32,11 +32,11 @@
 int PressurelessCollapseInitialize(FILE *fptr, FILE *Outfptr,
 			      HierarchyEntry &TopGrid, TopGridData &MetaData)
 {
-  char *DensName = "Density";
-  char *TEName = "TotalEnergy";
-  char *Vel1Name = "x-velocity";
-  char *Vel2Name = "y-velocity";
-  char *Vel3Name = "z-velocity";
+  const char *DensName = "Density";
+  const char *TEName = "TotalEnergy";
+  const char *Vel1Name = "x-velocity";
+  const char *Vel2Name = "y-velocity";
+  const char *Vel3Name = "z-velocity";
  
   /* declarations */
  
@@ -70,11 +70,11 @@ int PressurelessCollapseInitialize(FILE *fptr, FILE *Outfptr,
  
     /* read parameters */
  
-    ret += sscanf(line, "PressurelessCollapseDirection = %"ISYM,
+    ret += sscanf(line, "PressurelessCollapseDirection = %" ISYM,
 		  &PressurelessCollapseDirection);
-    ret += sscanf(line, "PressurelessCollapseInitialDensity = %"FSYM,
+    ret += sscanf(line, "PressurelessCollapseInitialDensity = %" FSYM,
 		  &PressurelessCollapseInitialDensity);
-    ret += sscanf(line, "PressurelessCollapseNumberOfCells = %"ISYM,
+    ret += sscanf(line, "PressurelessCollapseNumberOfCells = %" ISYM,
 		  &PressurelessCollapseNumberOfCells);
  
     /* if the line is suspicious, issue a warning */
@@ -112,9 +112,9 @@ int PressurelessCollapseInitialize(FILE *fptr, FILE *Outfptr,
  
   if (MyProcessorNumber == ROOT_PROCESSOR) {
 
-    fprintf(Outfptr, "PressurelessCollapseDirection      = %"ISYM"\n",
+    fprintf(Outfptr, "PressurelessCollapseDirection      = %" ISYM"\n",
 	    PressurelessCollapseDirection);
-    fprintf(Outfptr, "PressurelessCollapseInitialDensity = %"FSYM"\n\n",
+    fprintf(Outfptr, "PressurelessCollapseInitialDensity = %" FSYM"\n\n",
 	    PressurelessCollapseInitialDensity);
   }
  

@@ -85,7 +85,7 @@ int AdjustMustRefineParticlesRefineToLevel(TopGridData *MetaData, int EL_level)
 
   if (MyProcessorNumber == ROOT_PROCESSOR) {
 
-    printf("AdjustMustRefineParticlesRefineToLevel: Changed MustRefineParticlesRefineToLevel from %"ISYM" to %"ISYM"\n", 
+    printf("AdjustMustRefineParticlesRefineToLevel: Changed MustRefineParticlesRefineToLevel from %" ISYM" to %" ISYM"\n", 
 	   MustRefineParticlesRefineToLevel_prev, MustRefineParticlesRefineToLevel);
 //  printf("AdjustMustRefineParticlesRefineToLevel: LengthUnits = %g\n", LengthUnits);
   }

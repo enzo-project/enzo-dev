@@ -363,7 +363,7 @@ int gFLDProblem::lsolve(EnzoVector *s, EnzoVector *b,
   HYPRE_StructPFMGGetNumIterations(preconditioner, &Pits);
   totIters += Sits;
   if (debug)
-    printf("   HYPRE resid = %g (tol = %g), PCG = %i, PFMG = %i\n",
+    printf("   HYPRE resid = %g (tol = %g), PCG = %" ISYM ", PFMG = %" ISYM "\n",
 	   finalresid,delta,Sits,Pits);
 
   //       extract values from solution vector 

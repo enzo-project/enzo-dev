@@ -67,7 +67,7 @@ int FSProb::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
     else {foundgrid=1; break;}
   }
   if (foundgrid == 0) {
-    printf("FSProb Initialize ERROR: p%"ISYM" could not locate his grid\n",
+    printf("FSProb Initialize ERROR: p%" ISYM" could not locate his grid\n",
 	   MyProcessorNumber);
     return FAIL;
   }
@@ -120,7 +120,6 @@ int FSProb::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
   // if input file present, over-write defaults with module inputs
   FILE *fptr;
   char line[MAX_LINE_LENGTH];
-  int ret;
   char *dummy = new char[MAX_LINE_LENGTH];
   dummy[0] = 0;
 
@@ -133,33 +132,32 @@ int FSProb::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
 
       // read until out of lines
       while (fgets(line, MAX_LINE_LENGTH, fptr) != NULL) {
-	ret = 0;
-	ret += sscanf(line, "FSRadiationScaling = %"FSYM, &EScale);
-	ret += sscanf(line, "FSRadiationTheta = %"FSYM, &theta);
-	ret += sscanf(line, "FSRadiationOpacity = %"FSYM, &kappa0);
-	ret += sscanf(line, "FSRadiationH2OpacityOn = %"ISYM, &kappa_h2on);
-	ret += sscanf(line, "FSRadiationNGammaDot = %lf", &NGammaDot);
-	ret += sscanf(line, "FSRadiationEtaRadius = %"FSYM, &EtaRadius);
-	ret += sscanf(line, "FSRadiationEtaCenter = %"FSYM" %"FSYM" %"FSYM, 
+	sscanf(line, "FSRadiationScaling = %" FSYM, &EScale);
+	sscanf(line, "FSRadiationTheta = %" FSYM, &theta);
+	sscanf(line, "FSRadiationOpacity = %" FSYM, &kappa0);
+	sscanf(line, "FSRadiationH2OpacityOn = %" ISYM, &kappa_h2on);
+	sscanf(line, "FSRadiationNGammaDot = %lf", &NGammaDot);
+	sscanf(line, "FSRadiationEtaRadius = %" FSYM, &EtaRadius);
+	sscanf(line, "FSRadiationEtaCenter = %" FSYM" %" FSYM" %" FSYM, 
 		      &(EtaCenter[0]), &(EtaCenter[1]), &(EtaCenter[2]));
-	ret += sscanf(line, "FSRadiationLimiterType = %"ISYM, &LimType);
-	ret += sscanf(line, "FSRadiationBoundaryX0Faces = %"ISYM" %"ISYM, 
+	sscanf(line, "FSRadiationLimiterType = %" ISYM, &LimType);
+	sscanf(line, "FSRadiationBoundaryX0Faces = %" ISYM" %" ISYM, 
 		      BdryType[0], BdryType[0]+1);
 	if (rank > 1) {
-	  ret += sscanf(line, "FSRadiationBoundaryX1Faces = %"ISYM" %"ISYM,
+	  sscanf(line, "FSRadiationBoundaryX1Faces = %" ISYM" %" ISYM,
 			BdryType[1], BdryType[1]+1);
 	  if (rank > 2) {
-	    ret += sscanf(line, "FSRadiationBoundaryX2Faces = %"ISYM" %"ISYM,
+	    sscanf(line, "FSRadiationBoundaryX2Faces = %" ISYM" %" ISYM,
 			  BdryType[2], BdryType[2]+1);
 	  }
 	}
-	ret += sscanf(line, "FSRadiationMaxDt = %"FSYM, &maxdt);
-	ret += sscanf(line, "FSRadiationInitialGuess = %"ISYM, &initial_guess);
-	ret += sscanf(line, "FSRadiationTolerance = %g", &sol_tolerance);
-	ret += sscanf(line, "FSRadiationMaxMGIters = %i", &sol_maxit);
-	ret += sscanf(line, "FSRadiationMGRelaxType = %i", &sol_rlxtype);
-	ret += sscanf(line, "FSRadiationMGPreRelax = %i", &sol_npre);
-	ret += sscanf(line, "FSRadiationMGPostRelax = %i", &sol_npost);
+	sscanf(line, "FSRadiationMaxDt = %" FSYM, &maxdt);
+	sscanf(line, "FSRadiationInitialGuess = %" ISYM, &initial_guess);
+	sscanf(line, "FSRadiationTolerance = %" GSYM "", &sol_tolerance);
+	sscanf(line, "FSRadiationMaxMGIters = %i", &sol_maxit);
+	sscanf(line, "FSRadiationMGRelaxType = %i", &sol_rlxtype);
+	sscanf(line, "FSRadiationMGPreRelax = %i", &sol_npre);
+	sscanf(line, "FSRadiationMGPostRelax = %i", &sol_npost);
 	
       }  // end loop over file lines
 
@@ -182,7 +180,7 @@ int FSProb::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
     for (face=0; face<2; face++)
       /// ADD NEW BOUNDARY CONDITION TYPES HERE!
       if ((BdryType[dim][face] < 0) || (BdryType[dim][face] > 2)) {
-	fprintf(stderr,"FSProb_Initialize Warning: re-setting BC to periodic, dim %"ISYM", face %"ISYM"\n",dim,face);
+	fprintf(stderr,"FSProb_Initialize Warning: re-setting BC to periodic, dim %" ISYM", face %" ISYM"\n",dim,face);
 	BdryType[dim][face] = 0;
       }
 
@@ -190,7 +188,7 @@ int FSProb::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
   for (dim=0; dim<rank; dim++) 
     if ((BdryType[dim][0]*BdryType[dim][1] == 0) && 
 	(BdryType[dim][0]+BdryType[dim][1] != 0)) {
-      fprintf(stderr,"FSProb_Initialize Warning: non-matching periodic BCs, dim %"ISYM"\n",dim);
+      fprintf(stderr,"FSProb_Initialize Warning: non-matching periodic BCs, dim %" ISYM"\n",dim);
       BdryType[dim][0] = 0;
       BdryType[dim][1] = 0;
     }
@@ -445,22 +443,22 @@ int FSProb::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
 
   //   check MG solver parameters
   if (sol_maxit < 0) {
-    fprintf(stderr,"Illegal FSRadiationMaxMGIters = %i. Setting to 20\n",
+    fprintf(stderr,"Illegal FSRadiationMaxMGIters = %d. Setting to 20\n",
 	    sol_maxit);
     sol_maxit = 20;
   }
   if ((sol_rlxtype<0) || (sol_rlxtype>3)) {
-    fprintf(stderr,"Illegal FSRadiationMGRelaxType = %i. Setting to 1\n",
+    fprintf(stderr,"Illegal FSRadiationMGRelaxType = %d. Setting to 1\n",
 	    sol_rlxtype);
     sol_rlxtype = 1;
   }
   if (sol_npre < 0) {
-    fprintf(stderr,"Illegal FSRadiationMGPreRelax = %i. Setting to 1\n",
+    fprintf(stderr,"Illegal FSRadiationMGPreRelax = %d. Setting to 1\n",
 	    sol_npre);
     sol_npre = 1;
   }
   if (sol_npost < 0) {
-    fprintf(stderr,"Illegal FSRadiationMGPostRelax = %i. Setting to 1\n",
+    fprintf(stderr,"Illegal FSRadiationMGPostRelax = %d. Setting to 1\n",
 	    sol_npost);
     sol_npost = 1;
   }
@@ -599,29 +597,29 @@ int FSProb::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
       fprintf(outfptr, "FSRadiationScaling = %g\n", EScale);
       fprintf(outfptr, "FSRadiationTheta = %g\n", theta);
       fprintf(outfptr, "FSRadiationOpacity = %g\n", kappa0);
-      fprintf(outfptr, "FSRadiationH2OpacityOn = %"ISYM"\n", kappa_h2on);
+      fprintf(outfptr, "FSRadiationH2OpacityOn = %" ISYM"\n", kappa_h2on);
       fprintf(outfptr, "FSRadiationNGammaDot = %g\n", NGammaDot);
       fprintf(outfptr, "FSRadiationEtaRadius = %g\n", EtaRadius);
       fprintf(outfptr, "FSRadiationEtaCenter = %g %g %g\n", 
 	      EtaCenter[0], EtaCenter[1], EtaCenter[2]);
-      fprintf(outfptr, "FSRadiationLimiterType = %"ISYM"\n", LimType);
-      fprintf(outfptr, "FSRadiationBoundaryX0Faces = %"ISYM" %"ISYM"\n", 
+      fprintf(outfptr, "FSRadiationLimiterType = %" ISYM"\n", LimType);
+      fprintf(outfptr, "FSRadiationBoundaryX0Faces = %" ISYM" %" ISYM"\n", 
 	      BdryType[0][0], BdryType[0][1]);
       if (rank > 1) {
-	fprintf(outfptr, "FSRadiationBoundaryX1Faces = %"ISYM" %"ISYM"\n", 
+	fprintf(outfptr, "FSRadiationBoundaryX1Faces = %" ISYM" %" ISYM"\n", 
 		BdryType[1][0], BdryType[1][1]);
 	if (rank > 2) {
-	  fprintf(outfptr, "FSRadiationBoundaryX2Faces = %"ISYM" %"ISYM"\n", 
+	  fprintf(outfptr, "FSRadiationBoundaryX2Faces = %" ISYM" %" ISYM"\n", 
 		  BdryType[2][0], BdryType[2][1]);
 	}
       }
       fprintf(outfptr, "FSRadiationMaxDt = %g\n", maxdt);
-      fprintf(outfptr, "FSRadiationInitialGuess = %"ISYM"\n", initial_guess);
+      fprintf(outfptr, "FSRadiationInitialGuess = %" ISYM"\n", initial_guess);
       fprintf(outfptr, "FSRadiationTolerance = %g\n", sol_tolerance);    
-      fprintf(outfptr, "FSRadiationMaxMGIters = %i\n", sol_maxit);    
-      fprintf(outfptr, "FSRadiationMGRelaxType = %i\n", sol_rlxtype);    
-      fprintf(outfptr, "FSRadiationMGPreRelax = %i\n", sol_npre);    
-      fprintf(outfptr, "FSRadiationMGPostRelax = %i\n", sol_npost);    
+      fprintf(outfptr, "FSRadiationMaxMGIters = %d\n", sol_maxit);    
+      fprintf(outfptr, "FSRadiationMGRelaxType = %d\n", sol_rlxtype);    
+      fprintf(outfptr, "FSRadiationMGPreRelax = %d\n", sol_npre);    
+      fprintf(outfptr, "FSRadiationMGPostRelax = %d\n", sol_npost);    
       
       // close parameter file
       fclose(outfptr);

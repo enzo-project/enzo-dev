@@ -30,9 +30,9 @@ float TestGravitySphereComputeRadialForce(float r, int GridRank);
 int grid::TestGravitySphereCheckResults(FILE *fptr)
 {
  
-  char *TGSTangName     = "TangentialForce";
-  char *TGSRadialName   = "RadialForce";
-  char *TGSAnalyticName = "AnalyticForce";
+  const char *TGSTangName     = "TangentialForce";
+  const char *TGSRadialName   = "RadialForce";
+  const char *TGSAnalyticName = "AnalyticForce";
  
   if (MyProcessorNumber != ProcessorNumber)
     return SUCCESS;
@@ -84,7 +84,7 @@ int grid::TestGravitySphereCheckResults(FILE *fptr)
  
     /* Output results. */
  
-    fprintf(fptr, "%"FSYM"  %e   %e   %e\n", r, ftang, -fradial, fanalytic);
+    fprintf(fptr, "%" FSYM"  %e   %e   %e\n", r, ftang, -fradial, fanalytic);
  
   } // end loop over particles.
  

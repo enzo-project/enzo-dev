@@ -44,7 +44,7 @@ int TestGravityCheckResults(LevelHierarchyEntry *LevelArray[])
  
   strcpy(name, TGOutputFileName);
   if (NumberOfProcessors > 1) {
-    sprintf(proc, "%"TASK_TAG_FORMAT""ISYM, MyProcessorNumber);
+    sprintf(proc, "%" TASK_TAG_FORMAT"" ISYM, MyProcessorNumber);
     strcat(name, proc);
   }
   if ((fptr = fopen(name, "w")) == NULL) {

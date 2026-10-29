@@ -55,7 +55,7 @@ int grid::ComputeVertexCenteredField(int Num)
   InterpolatedField[Num] = new float[size];
 
   int ci = 0;
-  int vi[8], v;
+  int vi[8];
 
   if (GridRank == 1) 
     for (i = 0; i <= (GridEndIndex[0]-GridStartIndex[0]+1); i++) 

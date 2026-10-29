@@ -2,7 +2,7 @@
 /
 / Chem Equilibrium Data Tables
 /
-/*****************************************/
+******************************************/
 
 struct EquilibriumTableType {
 

@@ -1,5 +1,5 @@
 /***********************************************************************
- /////////////////////// SUBROUTINE POP3_LUMINOSITY \\\\\\\\\\\\\\\\\\\\\
+ /////////////////////// SUBROUTINE POP3_LUMINOSITY \\\\\\\\\\\\\\\\\\
 
      subroutine pop3_properties(mass, luminosity, lifetime)
 

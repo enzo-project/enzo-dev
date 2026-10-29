@@ -246,7 +246,7 @@ int DetermineSEDParameters(ActiveParticleType_SmartStar *SS, FLOAT Time, FLOAT d
     }
   }
   else {
-    fprintf(stderr, "%s: Particle Class = %d but no Radiative Feedback\n", __FUNCTION__, SS->ParticleClass);
+    fprintf(stderr, "%s: Particle Class = %" ISYM " but no Radiative Feedback\n", __FUNCTION__, SS->ParticleClass);
     return SUCCESS;
   }
 
@@ -270,7 +270,7 @@ static int CalculateArrayIndex(float Mass, float AccRate)
   int column = floor(logaccrate) + accrate_offset + 1;
   int row = floor(logmass) + 1;
   int index = rowlength*row + column;
-  //printf("%s: Row: %d Column: %d Index: %d\n", __FUNCTION__, row, column, index);
+  //printf("%s: Row: %" ISYM " Column: %" ISYM " Index: %" ISYM "\n", __FUNCTION__, row, column, index);
   return index;
 }
 

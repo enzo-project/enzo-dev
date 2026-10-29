@@ -60,8 +60,7 @@ int grid::StratifiedMediumExplosionInitialize(FLOAT BubbleRadius, int PulseType,
     ENZO_FAIL("Error in GetUnits.");
   }
 
-  float delta, this_delta, g;
-  
+
   FLOAT ScaleHeight = 8.0e+5;  // scale height in cm
   float GroundTemp = 300.0;   // ground temperature in K
   float GroundEnergy, GroundDensity;
@@ -74,8 +73,6 @@ int grid::StratifiedMediumExplosionInitialize(FLOAT BubbleRadius, int PulseType,
 
   GroundDensity = 1.2e-3 / DensityUnits;  // grams/cc in Enzo internal units
   ScaleHeight /= LengthUnits;  // scale height in enzo internal units
-
-  delta = 1.0;  //POW(DeltaEntropy, 0.6);
 
 
   // ExplosionEnergy comes in as kilotons
@@ -111,18 +108,8 @@ int grid::StratifiedMediumExplosionInitialize(FLOAT BubbleRadius, int PulseType,
 
   printf("GroundEnergy is %e in code units (explosion energy is %e)\n",GroundEnergy,ExplosionEnergy);
 
-  int MetallicityField = FALSE;
-  if ((MetalNum = FindField(Metallicity, FieldType, NumberOfBaryonFields))
-      != -1)
-    MetallicityField = TRUE;
-  else
+  if ((MetalNum = FindField(Metallicity, FieldType, NumberOfBaryonFields)) == -1)
     MetalNum = 0;
-
-
-  // calculate gravitational constant in Enzo internal units.
-  g = fabs(UniformGravityConstant)*LengthUnits/(TimeUnits*TimeUnits);
-
-  if(UniformGravity==0) g = 0.0;  // if gravity is off make sure it's zero
 
   int GridStart[] = {0, 0, 0}, GridEnd[] = {0, 0, 0};
   for (int dim = 0; dim<GridRank; dim++) {
@@ -130,8 +117,7 @@ int grid::StratifiedMediumExplosionInitialize(FLOAT BubbleRadius, int PulseType,
     GridEnd[dim] = GridDimension[dim]-1;
   }
 
-  int ii, small_index;
-  FLOAT smallest_d, celldist;
+  FLOAT celldist;
 
   // loop over grid and set cell values: we're setting both the 
   // pulse values and the background values here.

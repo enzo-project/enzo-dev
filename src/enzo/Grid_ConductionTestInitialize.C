@@ -42,11 +42,7 @@ int grid::ConductionTestInitialize (float PulseHeight, FLOAT PulseWidth, int Pul
     ENZO_FAIL("Error in IdentifyPhysicalQuantities.");
   }
 
-  int MetallicityField = FALSE;
-  if ((MetalNum = FindField(Metallicity, FieldType, NumberOfBaryonFields))
-      != -1)
-    MetallicityField = TRUE;
-  else
+  if ((MetalNum = FindField(Metallicity, FieldType, NumberOfBaryonFields)) == -1)
     MetalNum = 0;
 
   if(AnisotropicConduction){

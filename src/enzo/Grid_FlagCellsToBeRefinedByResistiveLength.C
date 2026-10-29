@@ -42,14 +42,11 @@ int grid::FlagCellsToBeRefinedByResistiveLength()
   }
 
 
-  float denu = 1.0, lenu = 1.0, velu = 1.0, tu, tempu;
     
   int igrid;
   
-  float rho, eint, etot, vx, vy, vz, v2, p, h, cs, dpdrho, dpde, l_res, 
-    curlBx, curlBy, curlBz, absB2, curlB2;
+  float l_res, curlBx, curlBy, curlBz, absB2, curlB2;
   int xmo, xpo, ymo, ypo, zmo, zpo;
-  FLOAT x, y, z, r;
 
   int iBx, iBy, iBz;
   float *Bx, *By, *Bz;

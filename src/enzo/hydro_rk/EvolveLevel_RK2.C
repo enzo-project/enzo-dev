@@ -67,7 +67,7 @@ int CreateSiblingList(HierarchyEntry ** Grids, int NumberOfGrids,
 void DeleteFluxes(fluxes *Fluxes);
 int  RebuildHierarchy(TopGridData *MetaData,
 		      LevelHierarchyEntry *LevelArray[], int level);
-int  ReportMemoryUsage(char *header = NULL);
+int  ReportMemoryUsage(const char *header = NULL);
 int  UpdateParticlePositions(grid *Grid);
 int  CheckEnergyConservation(HierarchyEntry *Grids[], int grid, 
 			     int NumberOfGrids, int level, float dt);
@@ -181,7 +181,6 @@ void my_exit(int status);
 /* Counters for performance and cycle counting. */
 
 static int MovieCycleCount[MAX_DEPTH_OF_HIERARCHY];
-static double LevelWallTime[MAX_DEPTH_OF_HIERARCHY];
 static double LevelZoneCycleCount[MAX_DEPTH_OF_HIERARCHY];
 static double LevelZoneCycleCountPerProc[MAX_DEPTH_OF_HIERARCHY];
  
@@ -192,8 +191,6 @@ static float norm = 0.0;            //AK
 static float TopGridTimeStep = 0.0; //AK
 
 int ComputeStochasticForcing(TopGridData *MetaData,HierarchyEntry *Grids[], int NumberOfGrids);
-
-static int StaticSiblingListInitialized = 0;
 
 #ifdef STATIC_SIBLING_LIST
 static SiblingGridList StaticSiblingList[MAX_NUMBER_OF_SUBGRIDS];
@@ -219,15 +216,12 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     fprintf(stderr,"Please contact the Enzo team for assistance if you have added functionality here");
     ENZO_FAIL("EvolveLevel_RK2 has been downsized.")
 
-  float dtGrid;
-  int RefinementFactors[MAX_DIMENSION];
-  int cycle = 0, counter = 0, grid1, subgrid, iLevel;
+  int cycle = 0, counter = 0, grid1;
   HierarchyEntry *NextGrid;
-  double time1 = ReturnWallTime();
   int OutputNow = FALSE;
 
   char level_name[MAX_LINE_LENGTH];
-  sprintf(level_name, "Level_%02"ISYM, level);
+  sprintf(level_name, "Level_%02" ISYM, level);
 
 
 
@@ -239,7 +233,6 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   
   /* Create an array (Grids) of all the grids. */
 
-  typedef HierarchyEntry* HierarchyEntryPointer;
   HierarchyEntry **Grids;
   int NumberOfGrids = GenerateGridArray(LevelArray, level, &Grids);
   int *NumberOfSubgrids = new int[NumberOfGrids];
@@ -276,7 +269,7 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
   Grids[0]->GridData->SetNumberOfColours();
   if (debug)
-  	fprintf(stdout, "EvolveLevel_RK2: NColor = %"ISYM", NSpecies = %"ISYM"\n", NColor, NSpecies); 
+  	fprintf(stdout, "EvolveLevel_RK2: NColor = %" ISYM", NSpecies = %" ISYM"\n", NColor, NSpecies); 
 
   /* Clear the boundary fluxes for all Grids (this will be accumulated over
      the subcycles below (i.e. during one current grid step) and used to by the
@@ -340,7 +333,7 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       ComputeDednerWaveSpeeds(MetaData, LevelArray, level, dt0);
 	
     if (debug1 && HydroMethod == MHD_RK && (MyProcessorNumber == ROOT_PROCESSOR)) 
-      fprintf(stderr, "wave speeds: timestep: %"GSYM"  C_h: %"GSYM"  C_p: %"GSYM"\n ", 
+      fprintf(stderr, "wave speeds: timestep: %" GSYM"  C_h: %" GSYM"  C_p: %" GSYM"\n ", 
 	       dt0, C_h, C_p);
 
 
@@ -363,7 +356,7 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
    if (DrivenFlowProfile) {
      if (MyProcessorNumber == ROOT_PROCESSOR)
-         if (debug) printf("Level %"ISYM": computing stochastic force field on %"ISYM" grids...\n",
+         if (debug) printf("Level %" ISYM": computing stochastic force field on %" ISYM" grids...\n",
              level,NumberOfGrids);
      if (ComputeStochasticForcing(MetaData, Grids, NumberOfGrids)
          == FAIL) {
@@ -392,7 +385,6 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
       /* Gravity: compute acceleration field for grid and particles. */
       if (SelfGravity) {
-	int Dummy;
 	if (level <= MaximumGravityRefinementLevel) {
 	  if (level > 0) 
 	    Grids[grid1]->GridData->SolveForPotential(level) ;
@@ -456,7 +448,6 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
       /* Gravity: compute acceleration field for grid and particles. */
       if (RK2SecondStepBaryonDeposit && SelfGravity) {
-	int Dummy;
 	if (level <= MaximumGravityRefinementLevel) {
 	  if (level > 0) 
 	    Grids[grid1]->GridData->SolveForPotential(level) ;
@@ -497,7 +488,6 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
         } // ENDIF MHD_RK
 
-        time1 = ReturnWallTime();
 
         /* Add viscosity */
 
@@ -598,11 +588,10 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 #endif
 			  dt0, SiblingGridListStorage) 
 	  == FAIL) {
-	fprintf(stderr, "Error in EvolveLevel_RK2 (%"ISYM").\n", level);
+	fprintf(stderr, "Error in EvolveLevel_RK2 (%" ISYM").\n", level);
 	ENZO_FAIL("");
       }
     }
-    time1 = ReturnWallTime();
 
 
     /* Update SubcycleNumber and the timestep counter for the
@@ -683,7 +672,6 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     if (dtThisLevelSoFar[level] < dtLevelAbove) 
       RebuildHierarchy(MetaData, LevelArray, level);
 
-    time1 = ReturnWallTime();
 
     /* Count up number of grids on this level. */
 
@@ -706,7 +694,7 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   } // while (dtThisLevelSoFar < dtLevelAbove)
 
   if (debug)
-    printf("EvolveLevelRK2[%"ISYM"]: NumberOfSubCycles = %"ISYM" (%"ISYM" total)\n", level, 
+    printf("EvolveLevelRK2[%" ISYM"]: NumberOfSubCycles = %" ISYM" (%" ISYM" total)\n", level, 
            cycle, LevelCycleCount[level]);
 
   /* If possible & desired, report on memory usage. */

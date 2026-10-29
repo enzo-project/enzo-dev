@@ -36,14 +36,11 @@ int grid::SetFloor()
     return SUCCESS;
   }
 
-  float DensityUnits = 1.0, LengthUnits = 1.0, TemperatureUnits = 1, TimeUnits, 
-    VelocityUnits, CriticalDensity = 1, BoxLength = 1, MagneticUnits;
-  double MassUnits;
+  float DensityUnits = 1.0, LengthUnits = 1.0, TemperatureUnits = 1, TimeUnits, VelocityUnits;
   GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	   &TimeUnits, &VelocityUnits, 1.0);
 
-  int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, 
-    B1Num, B2Num, B3Num, HMNum, H2INum, H2IINum;
+  int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, B1Num, B2Num, B3Num;
   if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, 
 				       Vel3Num, TENum, B1Num, B2Num, B3Num) == FAIL) {
     fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
@@ -104,7 +101,7 @@ int grid::SetFloor()
 	    float rho1 = B2/pow(ca_min,2);
 	    BaryonField[DensNum][igrid] = rho1;
 	    BaryonField[TENum][igrid] += 0.5*B2/rho1;
-	    printf("floor set based on MaximumAlvenSpeed: (%"GSYM" %"GSYM" %"GSYM"), rho: %"GSYM"->%"GSYM"\n", CellLeftEdge[0][i],
+	    printf("floor set based on MaximumAlvenSpeed: (%" GSYM" %" GSYM" %" GSYM"), rho: %" GSYM"->%" GSYM"\n", CellLeftEdge[0][i],
 		   CellLeftEdge[1][j], CellLeftEdge[2][k], rho*DensityUnits, rho1*DensityUnits);
 	  }
 	}

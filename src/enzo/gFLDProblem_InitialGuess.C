@@ -37,7 +37,6 @@
 int gFLDProblem::InitialGuess(EnzoVector *uvec)
 {
   // set some pointers
-  float *tmp3_E, *Er, *Er0;
 
   // set initial guess depending on user choice
   switch (initial_guess) {

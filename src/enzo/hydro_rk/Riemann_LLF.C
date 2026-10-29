@@ -23,9 +23,7 @@
 int llf(float **FluxLine, float **priml, float **primr, int ActiveSize)
 {
   float Ul[NEQ_HYDRO], Ur[NEQ_HYDRO], Fl[NEQ_HYDRO], Fr[NEQ_HYDRO];
-  float etot, eintl, eintr, h, dpdrho, dpde, W, W2, ap, am, cs_l, cs_r, v_yz, v_yz2, v2,
-    vx, vx2, vy, vz, rho, p, lm_l, lp_l, lm_r, lp_r, v, a0; 
-  float Zero = 0.0;
+  float etot, eintl, eintr, h, dpdrho, dpde, ap, am, cs_l, cs_r, v2, vx, vy, vz, rho, p, lm_l, lp_l, lm_r, lp_r, a0;
 
   for (int n = 0; n < ActiveSize+1; n++) {
     // First, compute Fl and Ul

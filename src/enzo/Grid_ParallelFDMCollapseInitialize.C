@@ -44,7 +44,7 @@ void my_exit(int status);
 #endif
 
 /********************* PROTOTYPES *********************/
-int ReadFile(char *name, int Rank, int Dims[], int StartIndex[],
+int ReadFile(const char *name, int Rank, int Dims[], int StartIndex[],
        int EndIndex[], int BufferOffset[], float *buffer,
        inits_type **tempbuffer, int Part, int Npart);
  
@@ -52,7 +52,7 @@ int ReadIntFile(char *name, int Rank, int Dims[], int StartIndex[],
     int EndIndex[], int BufferOffset[], int *buffer,
     int **tempbuffer, int Part, int Npart);
 
-void ReadAttribute(hid_t dset_id, int *Attribute, char *AttributeName, FILE *log_fptr, int io_log);
+void ReadAttribute(hid_t dset_id, int *Attribute, const char *AttributeName, FILE *log_fptr, int io_log);
 int ReadAttr(char *Fname, int *Rank, int Dims[], int *NSeg, int *LSeg, FILE *log_fptr);
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
@@ -72,10 +72,8 @@ int grid::ParallelFDMCollapseInitializeGrid(char *FDMCollapseRePsiName,
                                     int TotalRefinement)
 {
   /* declarations */
-  int idim, dim, vel, ibx;
-  int DeNum;
+  int dim;
  
-  int ExtraField[2];
  
   inits_type *tempbuffer = NULL;
  
@@ -88,7 +86,7 @@ int grid::ParallelFDMCollapseInitializeGrid(char *FDMCollapseRePsiName,
 #endif
 
   char pid[MAX_TASK_TAG_SIZE];
-  sprintf(pid, "%"TASK_TAG_FORMAT""ISYM, MyProcessorNumber);
+  sprintf(pid, "%" TASK_TAG_FORMAT"" ISYM, MyProcessorNumber);
  
   char *logname = new char[MAX_NAME_LENGTH];
   strcpy(logname, "TSlog.");
@@ -97,10 +95,10 @@ int grid::ParallelFDMCollapseInitializeGrid(char *FDMCollapseRePsiName,
   if (io_log) {
     log_fptr = fopen(logname, "a");
     fprintf(log_fptr, "\n");
-    fprintf(log_fptr, "TSIG ParallelRootGridIO = %"ISYM"\n", ParallelRootGridIO);
-    fprintf(log_fptr, "Processor %"ISYM", Target processor %"ISYM"\n",
+    fprintf(log_fptr, "TSIG ParallelRootGridIO = %" ISYM"\n", ParallelRootGridIO);
+    fprintf(log_fptr, "Processor %" ISYM", Target processor %" ISYM"\n",
         MyProcessorNumber, ProcessorNumber);
-    fprintf(log_fptr, "TotalRefinement = %"ISYM"\n", TotalRefinement);
+    fprintf(log_fptr, "TotalRefinement = %" ISYM"\n", TotalRefinement);
   }
 
   /* Determine if the data should be loaded in or not. */
@@ -110,7 +108,7 @@ int grid::ParallelFDMCollapseInitializeGrid(char *FDMCollapseRePsiName,
   if (ParallelRootGridIO == TRUE && TotalRefinement == 1)
     ReadData = FALSE;
  
-  if (io_log) fprintf(log_fptr, "ReadData = %"ISYM"\n", ReadData);
+  if (io_log) fprintf(log_fptr, "ReadData = %" ISYM"\n", ReadData);
 
     /* Calculate buffer Offset (same as Grid unless doing ParallelRootGridIO
      (TotalRefinement = -1 if used as a signal that we should really load
@@ -120,8 +118,6 @@ int grid::ParallelFDMCollapseInitializeGrid(char *FDMCollapseRePsiName,
     for (dim = 0; dim < GridRank; dim++)
       Offset[dim] = nint((GridLeftEdge[dim] - DomainLeftEdge[dim])/CellWidth[dim][0]);
 
-  int i, j, k, m, field, sphere, size, iden;
-  float xdist,ydist,zdist;
 
   /* create fields */
 
@@ -129,7 +125,6 @@ int grid::ParallelFDMCollapseInitializeGrid(char *FDMCollapseRePsiName,
   FieldType[NumberOfBaryonFields++] = Density;
   FieldType[NumberOfBaryonFields++] = TotalEnergy;
 
-  int ivel = NumberOfBaryonFields;
   FieldType[NumberOfBaryonFields++] = Velocity1;
   if (GridRank > 1) 
     FieldType[NumberOfBaryonFields++] = Velocity2;
@@ -140,7 +135,7 @@ int grid::ParallelFDMCollapseInitializeGrid(char *FDMCollapseRePsiName,
   FieldType[NumberOfBaryonFields++] = ImPsi;
   FieldType[NumberOfBaryonFields++] = FDMDensity;
   
-  //printf("%d \n", NumberOfBaryonFields);
+  //printf("%" ISYM " \n", NumberOfBaryonFields);
   if(WritePotential)
     FieldType[NumberOfBaryonFields++] = GravPotential;
 
@@ -161,18 +156,15 @@ int grid::ParallelFDMCollapseInitializeGrid(char *FDMCollapseRePsiName,
                            Vel2Num, Vel3Num, TENum,
                            B1Num, B2Num, B3Num, PhiNum);
       
-      int RePsiNum = -1, ImPsiNum=-1, FDMDensNum=-1;
+      int RePsiNum = -1, ImPsiNum=-1;
       
       RePsiNum = FindField(RePsi, FieldType, NumberOfBaryonFields);
       ImPsiNum = FindField(ImPsi, FieldType, NumberOfBaryonFields);
-      FDMDensNum = FindField(FDMDensity, FieldType, NumberOfBaryonFields);
 
     /* Determine the size of the fields. */
  
-    int size = 1;
  
     for (dim = 0; dim < GridRank; dim++)
-      size *= GridDimension[dim];
  
     /* Allocate space for the fields. */
  
@@ -211,35 +203,23 @@ int grid::ParallelFDMCollapseInitializeGrid(char *FDMCollapseRePsiName,
   if (io_log) fclose(log_fptr);
 
   /* Set various units. */
-  float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits, 
-    VelocityUnits, CriticalDensity = 1, BoxLength = 1, mu = 0.6;
+  float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits, VelocityUnits;
 
-  FLOAT a, dadt, ExpansionFactor = 1;
+  FLOAT a, dadt;
   GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits, &TimeUnits, 
 	   &VelocityUnits, Time);
   if (ComovingCoordinates) {
     CosmologyComputeExpansionFactor(Time, &a, &dadt);
-    ExpansionFactor = a/(1.0+InitialRedshift);
-    CriticalDensity = 2.78e11*pow(HubbleConstantNow, 2); // in Msolar/Mpc^3
-    BoxLength = ComovingBoxSize*ExpansionFactor/HubbleConstantNow;  // in Mpc
   } else {
-    CriticalDensity = 2.78e11*pow(0.74,2); // in Msolar/Mpc^3 for h=0.74
-    BoxLength = LengthUnits / 3.086e24;
     HubbleConstantNow = 1.0;
     OmegaMatterNow = 1.0;
 	a = 1.0;
   }
 
-  double afloat = double(a);
-  double hmcoef = 5.9157166856e27*TimeUnits/POW(LengthUnits/afloat,2)/FDMMass;
-
   // If use particle, initial particles according to the FDM values and turn off QuantumPressure
   int CollapseTestParticleCount = 0;
   int SetupLoopCount, npart = 0;
   int ParticleCount = 0;
-  int ind, indxp, indxn, indyp, indyn, indzp, indzn;
-  int ip,in,jp,jn,kp,kn;
-  double x,y,z,vx,vy,vz;
   double r,theta,phi;
   double cluster_radius = 200*3e18/LengthUnits;
 
@@ -251,7 +231,7 @@ int grid::ParallelFDMCollapseInitializeGrid(char *FDMCollapseRePsiName,
     return SUCCESS;
     }
 
-    fprintf(stdout, "FDMCollapse: initialize particles on processor %d \n", MyProcessorNumber);
+    fprintf(stdout, "FDMCollapse: initialize particles on processor %" ISYM " \n", MyProcessorNumber);
     for (SetupLoopCount = 0; SetupLoopCount < 1+min(FDMUseParticles, 1); SetupLoopCount++) {
      if (SetupLoopCount > 0) {
       /* If particles already exist (coarse particles), then delete. */
@@ -313,9 +293,9 @@ int grid::ParallelFDMCollapseInitializeGrid(char *FDMCollapseRePsiName,
             indzp = GRIDINDEX_NOGHOST(i,j,k+1);
             indzn = GRIDINDEX_NOGHOST(i,j,k-1);
           }
-		  //printf("%d %d %d %d \n",size, i,j,k);
+		  //printf("%" ISYM " %" ISYM " %" ISYM " %" ISYM " \n",size, i,j,k);
           //printf("x,y,z %f %f %f \n",x,y,z);
-          //printf("%d %d %d \n",ind,indxp,indxn);
+          //printf("%" ISYM " %" ISYM " %" ISYM " \n",ind,indxp,indxn);
 
 		  ParticleCount += int(BaryonField[FDMDensNum][ind]/ParticleMeanDensity);
 	      
@@ -362,7 +342,7 @@ int grid::ParallelFDMCollapseInitializeGrid(char *FDMCollapseRePsiName,
       }// end for loop over grid */ 
    } // end loop SetupLoopCount
    NumberOfParticles = npart;
-   printf("FDMCollapseInitialize: Number of Particles = %d on Processor %d\n", NumberOfParticles, MyProcessorNumber);
+   printf("FDMCollapseInitialize: Number of Particles = %" ISYM " on Processor %" ISYM "\n", NumberOfParticles, MyProcessorNumber);
 
 
   // turn off quantum pressure, do a pure CDM sim

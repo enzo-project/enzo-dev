@@ -43,8 +43,6 @@ int ActiveParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
   int i;
 
   if (EnabledActiveParticlesCount == 0) return SUCCESS;
-  FLOAT TimeNow = LevelArray[level]->GridData->ReturnTime();
-  float Timestep = LevelArray[level]->GridData->ReturnTimeStep();
 
   LCAPERF_START("ActiveParticleFinalize");
 

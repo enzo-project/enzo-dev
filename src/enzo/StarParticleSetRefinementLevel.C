@@ -82,8 +82,8 @@ int StarParticleSetRefinementLevel(Star *AllStars)
 	RefinementLevel = 
 	  nint(ceil(logf(TopGridDx[0]/DesiredResolution) / logf(RefineBy)));
 
-	printf("Diameter = %g, factor = %f, Need_dx = %g (lvl %d), "
-	       "MustRefineTo = %d\n",
+	printf("Diameter = %g, factor = %f, Need_dx = %g (lvl %" ISYM "), "
+	       "MustRefineTo = %" ISYM "\n",
 	       Diameter, factor, DesiredResolution, cstar->ReturnLevel(),
 	       RefinementLevel);
 	RefinementLevel = min(max(RefinementLevel, 0), RefinementLevel);

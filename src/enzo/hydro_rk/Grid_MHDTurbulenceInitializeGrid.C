@@ -69,7 +69,7 @@ int grid::MHDTurbulenceInitializeGrid(float rho_medium, float cs_medium, float m
   
 
   float rhou = 1.0, lenu = 1.0, tempu = 1.0, tu = 1.0,
-    velu = 1.0, CriticalDensity = 1, BoxLength = 1;
+    velu = 1.0;
   if (UsePhysicalUnit)
     GetUnits(&rhou, &lenu, &tempu, &tu, &velu, Time);
   
@@ -102,7 +102,7 @@ int grid::MHDTurbulenceInitializeGrid(float rho_medium, float cs_medium, float m
   }
 
   if (debug) 
-    printf("Begin generating turbulent velocity spectrum... %"ISYM" %"ISYM" %"ISYM"\n", 
+    printf("Begin generating turbulent velocity spectrum... %" ISYM" %" ISYM" %" ISYM"\n", 
 	   GridDimension[0]-2*NumberOfGhostZones,
 	   GridDimension[1]-2*NumberOfGhostZones,
 	   GridDimension[2]-2*NumberOfGhostZones);
@@ -126,13 +126,12 @@ int grid::MHDTurbulenceInitializeGrid(float rho_medium, float cs_medium, float m
 
 
   // assume isothermal initially
-  float p_medium = rho_medium*cs_medium*cs_medium;
 
 
   // For coding efficiency, we set the radius, density contrast of the 
   // initial cloud by hand below. Should be changed in the future
   // Initialize field without turbulent velocity field
-  float eint, h, dpdrho, dpde, cs;
+  float eint;
   eint = cs_medium*cs_medium/(Gamma-1.0);
   FLOAT xc = 0.5, yc = 0.5, zc = 0.5, x, y, z, r;
   FLOAT rs = 1.; // 0.3;
@@ -192,7 +191,6 @@ int grid::MHDTurbulenceInitializeGrid(float rho_medium, float cs_medium, float m
   }
 
   // Set the turbulent velocity field
-  float v2;
 
   int igrid;
   n = 0;
@@ -225,7 +223,7 @@ int grid::MHDTurbulenceInitializeGrid(float rho_medium, float cs_medium, float m
     }
 
   /* Initialize driving force field = efficiency * density * velocity / t_ff*/
-  printf("UseDrivingField =%"ISYM"\n",UseDrivingField);
+  printf("UseDrivingField =%" ISYM"\n",UseDrivingField);
   if (UseDrivingField) {
     float k1, k2, dk;
     k1 = 3.0;
@@ -273,7 +271,7 @@ int grid::MHDTurbulenceInitializeGrid(float rho_medium, float cs_medium, float m
 	     RandomForcingField[0][igrid] = DrivingField[0][n]*DrivingEfficiency;
 	     RandomForcingField[1][igrid] = DrivingField[1][n]*DrivingEfficiency;
 	     RandomForcingField[2][igrid] = DrivingField[2][n]*DrivingEfficiency;
-	     //	     fprintf(stderr, "%"GSYM"\t",RandomForcingField[0][igrid]);
+	     //	     fprintf(stderr, "%" GSYM"\t",RandomForcingField[0][igrid]);
 	  }
 	}
       }

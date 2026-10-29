@@ -116,13 +116,13 @@ int CommunicationUpdateActiveParticleCount(HierarchyEntry *Grids[],
 
   // Update ActiveParticleType counts as well
 
-  int i, j, idx, nap;
+  int i, j, idx;
   int stride = EnabledActiveParticlesCount;
   int *buffer = new int[NumberOfGrids * stride];
 
   for (i = 0, idx = 0; i < NumberOfGrids; i++, idx += stride)
     if (Grids[i]->GridData->ReturnProcessorNumber() == MyProcessorNumber) {
-      nap = Grids[i]->GridData->ReturnNumberOfActiveParticles();
+      Grids[i]->GridData->ReturnNumberOfActiveParticles();
 	  for (j = 0; j < EnabledActiveParticlesCount; j++) {
 	    buffer[idx+j] = Grids[i]->GridData->ReturnNumberOfActiveParticlesOfThisType(j);
 	  }

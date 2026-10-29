@@ -23,7 +23,7 @@ int ReadEquilibriumTable(char* name, FLOAT Time)
 {
 
   float TemperatureUnits = 1, DensityUnits = 1, LengthUnits = 1, 
-        VelocityUnits = 1, TimeUnits = 1, aUnits = 1;
+        VelocityUnits = 1, TimeUnits = 1;
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	            &TimeUnits, &VelocityUnits, Time) == FAIL) {
     fprintf(stderr, "Error in GetUnits.\n");
@@ -74,7 +74,7 @@ int ReadEquilibriumTable(char* name, FLOAT Time)
 #endif
 
   EquilibriumTable.dim_size = *size; // pointer to int
-  if (debug) fprintf(stderr,"Equilibrium table size is %d x %d\n",
+  if (debug) fprintf(stderr,"Equilibrium table size is %" ISYM " x %" ISYM "\n",
 		     EquilibriumTable.dim_size, EquilibriumTable.dim_size);
   delete [] size;
 

@@ -30,7 +30,7 @@ int grid::CollectParticles(int GridNum, int* &NumberToMove,
  
   /* Declarations. */
 
-  int i, j, dim, n1, grid, proc;
+  int i, j, dim, n1;
 
   /* ----------------------------------------------------------------- */
   /* Copy particle out of grid. */

@@ -64,10 +64,10 @@ int grid::ConvertToCellCenteredRadiation()
       } // ENDSWITCH field
 
       if (InterpolatedField[rkph] == NULL) {
-	ENZO_VFAIL("InterpolatedField[%"ISYM"] not allocated.\n", rkph)
+	ENZO_VFAIL("InterpolatedField[%" ISYM"] not allocated.\n", rkph)
       }
       if (InterpolatedField[rgamma] == NULL) {
-	ENZO_VFAIL("InterpolatedField[%"ISYM"] not allocated.\n", rgamma)
+	ENZO_VFAIL("InterpolatedField[%" ISYM"] not allocated.\n", rgamma)
       }
 
       if (rkph != FieldUndefined)

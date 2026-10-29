@@ -27,7 +27,7 @@
 /* character strings */
  
 char DefaultDimUnits[] = "cm";
-char *DefaultDimLabel[] = {"x", "y", "z"};
+const char *DefaultDimLabel[] = {"x", "y", "z"};
  
 char DefaultRestartName[] = "restart";
 char DefaultDataName[] = "data";

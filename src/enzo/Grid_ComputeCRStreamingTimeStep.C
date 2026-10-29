@@ -40,8 +40,7 @@ int grid::ComputeCRStreamingTimeStep (float &dt) {
   // Some locals
   float rho, v_stream,B2,dt_est;
 
-  int size = 1, idx; 
-  for (int dim = 0; dim < GridRank; dim++) {size *= GridDimension[dim];};
+  int idx;
 
   FLOAT dx = CellWidth[0][0];
 

@@ -60,8 +60,7 @@ int CommunicationTransferActiveParticles
   int *GridMap = new int[NumberOfGrids];
   int *StartIndex[MAX_DIMENSION];
   int Layout[MAX_DIMENSION], LayoutTemp[MAX_DIMENSION];
-  int Rank, grid_num, bin, CenterIndex;
-  int *pbin;
+  int Rank, grid_num, CenterIndex;
   int GridPosition[MAX_DIMENSION], Dims[MAX_DIMENSION];
   FLOAT Left[MAX_DIMENSION], Right[MAX_DIMENSION];
 
@@ -138,7 +137,7 @@ int CommunicationTransferActiveParticles
 #ifdef DEBUG_CTP
   if (MyProcessorNumber == ROOT_PROCESSOR) 
   for (j = 0; j < NumberOfGrids; j++)
-    fprintf(stderr, "Pa(%"ISYM") CTP grid[%"ISYM"] = %"ISYM"\n",
+    fprintf(stderr, "Pa(%" ISYM") CTP grid[%" ISYM"] = %" ISYM"\n",
 	    MyProcessorNumber, j, GridPointer[j]->ReturnNumberOfStars());
 #endif
  
@@ -193,7 +192,7 @@ int CommunicationTransferActiveParticles
 
   CommunicationSumValues(&TotalNumberToMove, 1);
   if (debug)
-    printf("CommunicationTransferActiveParticles: moved = %"ISYM"\n",
+    printf("CommunicationTransferActiveParticles: moved = %" ISYM"\n",
   	   TotalNumberToMove);
 
   return SUCCESS;

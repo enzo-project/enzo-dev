@@ -37,7 +37,7 @@ int MHDSweepZ(float **Prim, float **Flux3D, int GridDimension[],
   */
 {
 
-  int i, j, k, m, iflux, igrid;
+  int i, j, k, iflux, igrid;
   int idual = (DualEnergyFormalism) ? 1 : 0;
   float *FluxLine[NEQ_MHD+NSpecies+NColor];
   float *Prim1[NEQ_MHD+NSpecies+NColor-idual];

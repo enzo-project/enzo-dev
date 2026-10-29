@@ -37,11 +37,10 @@ int Star::SphereContained(LevelHierarchyEntry *LevelArray[], int level,
 {
 
   LevelHierarchyEntry *Temp;
-  int i, dim, direction, cornersContained, Rank, result;
+  int i, dim, direction, cornersContained, result;
   bool inside;
-  int cornerDone[8], Dims[MAX_DIMENSION];
+  int cornerDone[8];
   FLOAT corners[MAX_DIMENSION][8];
-  FLOAT LeftEdge[MAX_DIMENSION], RightEdge[MAX_DIMENSION];
 
   /**************************************************************
 

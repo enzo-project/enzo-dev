@@ -44,7 +44,7 @@ void Star::AssignAccretedAngularMomentum(void)
     while (fgets(line, MAX_LINE_LENGTH, fptr) != NULL) 
       if (line[0] != '#') {
 	// order: time, regular star count, MBH id, MBH mass, MBH angular momentum 
-	if (sscanf(line, " %"FSYM"  %"ISYM"  %"ISYM"  %lf  %"FSYM"  %"FSYM"  %"FSYM"  %lf", 
+	if (sscanf(line, " %" FSYM"  %" ISYM"  %" ISYM"  %lf  %" FSYM"  %" FSYM"  %" FSYM"  %lf", 
 		   &dummy[0], &dummy_int[0], &dummy_int[1], &dummy_double[0], 
 		   &AccretedAngularMomentum[0], &AccretedAngularMomentum[1], 
 		   &AccretedAngularMomentum[2], &dummy_double[1]) != 8) {

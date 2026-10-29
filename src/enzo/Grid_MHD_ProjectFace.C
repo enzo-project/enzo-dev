@@ -66,7 +66,7 @@ int grid::MHD_ProjectFace(grid &ParentGrid,
   //Variables
   //
 
-  int i, j, k, dim, field, One = 1, Zero = 0, skipi, skipj, skipk;
+  int i, j, k, dim, field, skipi, skipj, skipk;
   int SkipShift=FALSE, ThisIsAFaceProjection;
   int shift[3];
   int SendField;

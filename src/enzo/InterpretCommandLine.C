@@ -68,7 +68,7 @@ int InterpretCommandLine(int argc, char *argv[], char *myname,
 	dim = 0;
 	while (dim < MAX_DIMENSION && argc > 1 && hide_isdigit(*argv[1])) {
 	  argc--;
-	  if (sscanf((*++argv), "%"PSYM, &RegionStartCoordinate[dim++]) != 1) {
+	  if (sscanf((*++argv), "%" PSYM, &RegionStartCoordinate[dim++]) != 1) {
 	    if (MyProcessorNumber == ROOT_PROCESSOR)
 	    ENZO_VFAIL("%s: error reading Begin coordinates\n", myname)
 	  }
@@ -102,7 +102,7 @@ int InterpretCommandLine(int argc, char *argv[], char *myname,
 	dim = 0;
 	while (dim < MAX_DIMENSION && argc > 1 && hide_isdigit(*argv[1])) {
 	  argc--;
-	  if (sscanf((*++argv), "%"ISYM, &RegionEnd[dim++]) != 1) {
+	  if (sscanf((*++argv), "%" ISYM, &RegionEnd[dim++]) != 1) {
 	    if (MyProcessorNumber == ROOT_PROCESSOR)
 	    ENZO_VFAIL("%s: error reading End indexes.\n", myname)
 	  }
@@ -117,7 +117,7 @@ int InterpretCommandLine(int argc, char *argv[], char *myname,
 	dim = 0;
 	while (dim < MAX_DIMENSION && argc > 1 && hide_isdigit(*argv[1])) {
 	  argc--;
-	  if (sscanf((*++argv), "%"PSYM, &RegionEndCoordinate[dim++]) != 1) {
+	  if (sscanf((*++argv), "%" PSYM, &RegionEndCoordinate[dim++]) != 1) {
 	    if (MyProcessorNumber == ROOT_PROCESSOR)
 	    ENZO_VFAIL("%s: error reading Finish coordinates\n",myname)
 	  }
@@ -163,7 +163,7 @@ int InterpretCommandLine(int argc, char *argv[], char *myname,
  
       case 'l':
 	if (--argc > 0) {
-	  if (sscanf((*++argv), "%"ISYM, &RegionLevel) != 1) {
+	  if (sscanf((*++argv), "%" ISYM, &RegionLevel) != 1) {
 	    if (MyProcessorNumber == ROOT_PROCESSOR)
 	    ENZO_VFAIL("%s: error reading level.\n", myname)
 	  }
@@ -198,7 +198,7 @@ int InterpretCommandLine(int argc, char *argv[], char *myname,
  
       case 'p':
 	if (--argc > 0) {
-	  if (sscanf((*++argv), "%"ISYM, &ProjectionDimension) != 1) {
+	  if (sscanf((*++argv), "%" ISYM, &ProjectionDimension) != 1) {
 	    if (MyProcessorNumber == ROOT_PROCESSOR)
 	    ENZO_VFAIL("%s: error reading ProjectionDimension.\n",
 		      myname)
@@ -215,7 +215,7 @@ int InterpretCommandLine(int argc, char *argv[], char *myname,
 
       case 'P':
 	if (--argc > 0) {
-	  if (sscanf((*++argv), "%"ISYM, &ProjectionDimension) != 1) {
+	  if (sscanf((*++argv), "%" ISYM, &ProjectionDimension) != 1) {
 	    if (MyProcessorNumber == ROOT_PROCESSOR)
 	    ENZO_VFAIL("%s: error reading ProjectionDimension.\n",
 		      myname)
@@ -242,7 +242,7 @@ int InterpretCommandLine(int argc, char *argv[], char *myname,
 	dim = 0;
 	while (dim < MAX_DIMENSION && argc > 1 && hide_isdigit(*argv[1])) {
 	  argc--;
-	  if (sscanf((*++argv), "%"ISYM, &RegionStart[dim++]) != 1) {
+	  if (sscanf((*++argv), "%" ISYM, &RegionStart[dim++]) != 1) {
 	    if (MyProcessorNumber == ROOT_PROCESSOR)
 	    ENZO_VFAIL("%s: error reading Start indexes.\n", myname)
 	  }

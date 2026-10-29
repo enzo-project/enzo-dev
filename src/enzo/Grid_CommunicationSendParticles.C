@@ -69,7 +69,7 @@ int grid::CommunicationSendParticles(grid *ToGrid, int ToProcessor,
 //  int RegionSize = FromNumber;
   int TransferSize = FromNumber;
  
-  //  fprintf(stderr, "P(%"ISYM"): sending %"ISYM" from %"ISYM" -> %"ISYM" (%"ISYM" %"ISYM")\n",
+  //  fprintf(stderr, "P(%" ISYM"): sending %" ISYM" from %" ISYM" -> %" ISYM" (%" ISYM" %" ISYM")\n",
   //  	  MyProcessorNumber, FromNumber, ProcessorNumber, ToProcessor,
   //  	  FromStart, ToStart);
  
@@ -143,7 +143,7 @@ int grid::CommunicationSendParticles(grid *ToGrid, int ToProcessor,
     if (ToGrid->ParticleNumber == NULL) {
       ToGrid->AllocateNewParticles(NewNumber);
       if (ToStart > 0) {
-	ENZO_VFAIL("Unallocated Number, yet FromStart = %"ISYM"\n", FromStart)
+	ENZO_VFAIL("Unallocated Number, yet FromStart = %" ISYM"\n", FromStart)
       }
     }
  
@@ -194,7 +194,7 @@ int grid::CommunicationSendParticles(grid *ToGrid, int ToProcessor,
 
     if (FirstTimeCalled) {
       PCount = sizeof(particle_data);
-      //  fprintf(stderr, "Size of ParticleMoveList %"ISYM"\n", Count);
+      //  fprintf(stderr, "Size of ParticleMoveList %" ISYM"\n", Count);
       stat = MPI_Type_contiguous(PCount, MPI_BYTE, &ParticleDataType);
       stat |= MPI_Type_commit(&ParticleDataType);
       if (stat != MPI_SUCCESS) ENZO_FAIL("");
@@ -217,8 +217,8 @@ int grid::CommunicationSendParticles(grid *ToGrid, int ToProcessor,
 		  MPI_SENDPART_TAG, MPI_COMM_WORLD,
 		  CommunicationReceiveMPI_Request+CommunicationReceiveIndex);
 
-//	printf("Posting receive from P%"ISYM" for %"ISYM" particles in "
-//	       "comm index %"ISYM"\n", Source, TransferSize, 
+//	printf("Posting receive from P%" ISYM" for %" ISYM" particles in "
+//	       "comm index %" ISYM"\n", Source, TransferSize, 
 //	       CommunicationReceiveIndex);
 
 	CommunicationReceiveGridOne[CommunicationReceiveIndex] = this;

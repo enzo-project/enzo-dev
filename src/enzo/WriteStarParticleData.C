@@ -40,10 +40,10 @@ int WriteStarParticleData(FILE *fptr, TopGridData &MetaData)
     /* Write out particle number data. */
 
     fprintf(fptr, "\n");    
-    fprintf(fptr, "NumberOfStarParticles      = %"ISYM"\n", NumberOfStarParticles);
-    fprintf(fptr, "NumberOfActiveParticles    = %"ISYM"\n", NumberOfActiveParticles);
-    fprintf(fptr, "NextActiveParticleID       = %"ISYM"\n", NextActiveParticleID);
-    fprintf(fptr, "NumberOfOtherParticles     = %"ISYM"\n", NumberOfOtherParticles); 
+    fprintf(fptr, "NumberOfStarParticles      = %" ISYM"\n", NumberOfStarParticles);
+    fprintf(fptr, "NumberOfActiveParticles    = %" ISYM"\n", NumberOfActiveParticles);
+    fprintf(fptr, "NextActiveParticleID       = %" ISYM"\n", NextActiveParticleID);
+    fprintf(fptr, "NumberOfOtherParticles     = %" ISYM"\n", NumberOfOtherParticles); 
 
     /* mqk 12/04/2010: moved MBH particle data output to
        (Group_)WriteAllData, since this routine is not called when

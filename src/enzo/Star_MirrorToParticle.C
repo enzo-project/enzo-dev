@@ -52,11 +52,11 @@ void Star::MirrorToParticle(void)
     }
 
   if (place < 0) {
-    printf("star::MTP: CurrentGrid->NumberOfParticles = %d, level = %d, "
-	   "place =%d, Mass = %d, GridID = %d\n", 
+    printf("star::MTP: CurrentGrid->NumberOfParticles = %" ISYM ", level = %" ISYM ", "
+	   "place =%" ISYM ", Mass = %" FSYM ", GridID = %" ISYM "\n", 
 	   CurrentGrid->NumberOfParticles, level, place, Mass, GridID); 
-    printf("star::MTP: LeftEdge // RightEdge = %"PSYM" %"PSYM" %"PSYM
-	   " // %"PSYM" %"PSYM" %"PSYM"\n",
+    printf("star::MTP: LeftEdge // RightEdge = %" PSYM" %" PSYM" %" PSYM
+	   " // %" PSYM" %" PSYM" %" PSYM"\n",
 	   CurrentGrid->GridLeftEdge[0], CurrentGrid->GridLeftEdge[1], 
 	   CurrentGrid->GridLeftEdge[2], 
 	   CurrentGrid->GridRightEdge[0], CurrentGrid->GridRightEdge[1], 

@@ -32,7 +32,7 @@ int grid::UpdatePrim(float **dU, float c1, float c2)
     return SUCCESS;
   }
 
-  int i, j, k, n, n_dU, dim, igrid, field, size, activesize;
+  int i, j, k, n, dim, igrid, field, size, activesize;
   for (dim = 0, size = 1; dim < GridRank; dim++) {
     size *= GridDimension[dim];
   }
@@ -189,9 +189,7 @@ int grid::UpdatePrim(float **dU, float c1, float c2)
 
   this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum);
 
-  float rho_old, vx_old, vy_old, vz_old, e_old, etot_old, Tau_old, eint_old,
-    rho, vx, vy, vz, e, etot, Tau, eint, p, v2,
-    D_new, S1_new, S2_new, S3_new, Tau_new, h, cs, dpdrho, dpde, Eint_new;
+  float rho_old, vx_old, vy_old, vz_old, etot_old, Tau_old, eint_old, rho, vx, vy, vz, etot, Tau, eint, p, v2, D_new, S1_new, S2_new, S3_new, Tau_new, h, cs, dpdrho, dpde, Eint_new;
 
   n = 0;
   for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
@@ -231,7 +229,7 @@ int grid::UpdatePrim(float **dU, float c1, float c2)
 	  Eint_new = c1*rho_old*eint_old + (1.0-c1)*rho*eint + c2*dU[iEint][n];
 	  /*if (Eint_new < 0) {
 	    printf("UpdatePrim: eint < 0 in dual energy update\n");
-	    printf("eint_old=%"GSYM",eint=%"GSYM",eint_new=%"GSYM", dU=%"GSYM"\n",
+	    printf("eint_old=%" GSYM",eint=%" GSYM",eint_new=%" GSYM", dU=%" GSYM"\n",
 		   eint_old, eint, Eint_new, dU[iEint][n]);
 	    return FAIL;
 	    }*/
@@ -240,7 +238,7 @@ int grid::UpdatePrim(float **dU, float c1, float c2)
 	if (D_new < 0 || isnan(D_new)) {
 	  PrintToScreenBoundaries(BaryonField[0], "Density", 1, j);
 
-	  printf("UpdatePrim: rho <0 at %"ISYM" %"ISYM" %"ISYM": rho_old=%"GSYM", rho=%"GSYM", rho_new=%"GSYM", dU[iD]=%"GSYM"\n", 
+	  printf("UpdatePrim: rho <0 at %" ISYM" %" ISYM" %" ISYM": rho_old=%" GSYM", rho=%" GSYM", rho_new=%" GSYM", dU[iD]=%" GSYM"\n", 
 		 i, j, k, rho_old, rho, D_new, dU[iD][n]);
 	  //D_new = max(D_new, SmallRho);
 	  D_new = rho;
@@ -268,10 +266,10 @@ int grid::UpdatePrim(float **dU, float c1, float c2)
 
 	if (etot < 0 && EOSType == 0) {
 	  float v2_old = vx_old*vx_old + vy_old*vy_old + vz_old*vz_old;
-	  printf("UpdatePrim: tau < 0. etot_old=%"GSYM", etot=%"GSYM", etot_new=%"GSYM", v2=%"GSYM", v2old=%"GSYM", dU[iTau] = %"GSYM"\n", 
+	  printf("UpdatePrim: tau < 0. etot_old=%" GSYM", etot=%" GSYM", etot_new=%" GSYM", v2=%" GSYM", v2old=%" GSYM", dU[iTau] = %" GSYM"\n", 
 		 Tau_old/rho_old, Tau/rho, Tau_new/D_new, v2, v2_old, dU[iEtot][n]*CellWidth[0][0]/dtFixed);
-	  printf("rho_new=%"GSYM", rho=%"GSYM", rho_old=%"GSYM"\n", D_new, rho, rho_old);
-	  printf("i=%"ISYM", j=%"ISYM", k=%"ISYM"\n", i,j,k);
+	  printf("rho_new=%" GSYM", rho=%" GSYM", rho_old=%" GSYM"\n", D_new, rho, rho_old);
+	  printf("i=%" ISYM", j=%" ISYM", k=%" ISYM"\n", i,j,k);
 
 	  //return FAIL;
 	}
@@ -307,12 +305,12 @@ int grid::UpdatePrim(float **dU, float c1, float c2)
 	  BaryonField[TENum][igrid] = eint + 0.5*v2;
 	  
 	  if (eint < 0.0) {
-	    printf("UpdatePrim:eint < 0, cs2=%"GSYM", eta*v2=%"GSYM", eint=%"GSYM", etot=%"GSYM", v2=%"GSYM", p=%"GSYM", rho=%"GSYM",eint1=%"GSYM"\n", 
+	    printf("UpdatePrim:eint < 0, cs2=%" GSYM", eta*v2=%" GSYM", eint=%" GSYM", etot=%" GSYM", v2=%" GSYM", p=%" GSYM", rho=%" GSYM",eint1=%" GSYM"\n", 
 		   cs*cs, DualEnergyFormalismEta1*v2, eint_du, etot, v2, p, D_new, eint1);
-	    printf("old rho=%"GSYM", old v:%"GSYM" %"GSYM" %"GSYM", old etot=%"GSYM" oldeint=%"GSYM" \n", 
+	    printf("old rho=%" GSYM", old v:%" GSYM" %" GSYM" %" GSYM", old etot=%" GSYM" oldeint=%" GSYM" \n", 
 		   rho_old, vx_old, vy_old, vz_old,
 		   etot_old, eint_old);
-	    printf("dU=%"GSYM" %"GSYM" %"GSYM" %"GSYM" %"GSYM", Tau_old=%"GSYM"\n", 
+	    printf("dU=%" GSYM" %" GSYM" %" GSYM" %" GSYM" %" GSYM", Tau_old=%" GSYM"\n", 
 		   dU[iD][n], dU[iS1][n], dU[iS2][n], dU[iS3][n], dU[iEtot][n], Tau_old);
 	    //return FAIL;
 	    BaryonField[GENum][igrid] = OldBaryonField[GENum][igrid];

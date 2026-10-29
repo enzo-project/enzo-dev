@@ -63,26 +63,26 @@ int CosmologyReadParameters(FILE *fptr, FLOAT *StopTime, FLOAT *InitTime)
  
     /* read parameters */
  
-    ret += sscanf(line, "CosmologyHubbleConstantNow = %"FSYM,
+    ret += sscanf(line, "CosmologyHubbleConstantNow = %" FSYM,
 		  &HubbleConstantNow);
-    ret += sscanf(line, "CosmologyOmegaMatterNow = %"FSYM, &OmegaMatterNow);
-    ret += sscanf(line, "CosmologyOmegaDarkMatterNow = %"FSYM, &OmegaDarkMatterNow);
-    ret += sscanf(line, "CosmologyOmegaLambdaNow = %"FSYM, &OmegaLambdaNow);
-    ret += sscanf(line, "CosmologyOmegaRadiationNow = %"FSYM, &OmegaRadiationNow);
-    ret += sscanf(line, "CosmologyComovingBoxSize = %"FSYM, &ComovingBoxSize);
-    ret += sscanf(line, "CosmologyMaxExpansionRate = %"FSYM,
+    ret += sscanf(line, "CosmologyOmegaMatterNow = %" FSYM, &OmegaMatterNow);
+    ret += sscanf(line, "CosmologyOmegaDarkMatterNow = %" FSYM, &OmegaDarkMatterNow);
+    ret += sscanf(line, "CosmologyOmegaLambdaNow = %" FSYM, &OmegaLambdaNow);
+    ret += sscanf(line, "CosmologyOmegaRadiationNow = %" FSYM, &OmegaRadiationNow);
+    ret += sscanf(line, "CosmologyComovingBoxSize = %" FSYM, &ComovingBoxSize);
+    ret += sscanf(line, "CosmologyMaxExpansionRate = %" FSYM,
 		  &MaxExpansionRate);
-    ret += sscanf(line, "CosmologyInitialRedshift = %"PSYM, &InitialRedshift);
-    ret += sscanf(line, "CosmologyFinalRedshift = %"PSYM, &FinalRedshift);
-    ret += sscanf(line, "CosmologyCurrentRedshift = %"PSYM, &CurrentRedshift);
-    ret += sscanf(line, "CosmologyTableNumberOfBins = %"ISYM, &CosmologyTableNumberOfBins);
-    ret += sscanf(line, "CosmologyTableLogaInitial = %"PSYM, &CosmologyTableLogaInitial);
-    ret += sscanf(line, "CosmologyTableLogaFinal = %"PSYM, &CosmologyTableLogaFinal);
+    ret += sscanf(line, "CosmologyInitialRedshift = %" PSYM, &InitialRedshift);
+    ret += sscanf(line, "CosmologyFinalRedshift = %" PSYM, &FinalRedshift);
+    ret += sscanf(line, "CosmologyCurrentRedshift = %" PSYM, &CurrentRedshift);
+    ret += sscanf(line, "CosmologyTableNumberOfBins = %" ISYM, &CosmologyTableNumberOfBins);
+    ret += sscanf(line, "CosmologyTableLogaInitial = %" PSYM, &CosmologyTableLogaInitial);
+    ret += sscanf(line, "CosmologyTableLogaFinal = %" PSYM, &CosmologyTableLogaFinal);
  
-    if (sscanf(line, "CosmologyOutputRedshift[%"ISYM"] =", &OutputNumber) == 1)
-      ret += sscanf(line, "CosmologyOutputRedshift[%"ISYM"] = %"PSYM,
+    if (sscanf(line, "CosmologyOutputRedshift[%" ISYM"] =", &OutputNumber) == 1)
+      ret += sscanf(line, "CosmologyOutputRedshift[%" ISYM"] = %" PSYM,
 		    &OutputNumber, &CosmologyOutputRedshift[OutputNumber]);
-    if (sscanf(line, "CosmologyOutputRedshiftName[%"ISYM"] = %s",
+    if (sscanf(line, "CosmologyOutputRedshiftName[%" ISYM"] = %s",
 	       &OutputNumber, dummy) == 2)
       CosmologyOutputRedshiftName[OutputNumber] = dummy;
  

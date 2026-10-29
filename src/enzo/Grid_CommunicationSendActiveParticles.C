@@ -54,10 +54,9 @@ int grid::CommunicationSendActiveParticles(
 
   char *buffer;
   Eint32 position = 0;
-  int npart, i, j, NumberToSend, type, dim, index;
-  int element_size, header_size, ap_id;
+  int i, NumberToSend, type;
+  int element_size;
   int *type_element_size, *type_count;
-  int type_count_index;
   int SendNumberOfActiveParticles;
   ActiveParticleType_info *ap_info;
   ActiveParticleList<ActiveParticleType> NewParticles;
@@ -95,7 +94,7 @@ int grid::CommunicationSendActiveParticles(
 
       ap_info = EnabledActiveParticles[type];
 
-      header_size = ap_info->ReturnHeaderSize();
+      ap_info->ReturnHeaderSize();
       element_size = ap_info->ReturnElementSize();
       type_element_size[type] = element_size;
 
@@ -170,7 +169,7 @@ int grid::CommunicationSendActiveParticles(
     if (MyProcessorNumber == ProcessorNumber) {
       ActiveParticleList<ActiveParticleType> SendParticles(type_count[type]);
       position = 0;
-      ap_id = ap_info->GetEnabledParticleID();
+      ap_info->GetEnabledParticleID();
         for (i = 0; i < NumberOfActiveParticles; i++) {
           if (ActiveParticles[i]->ReturnType() == type) {
 	        SendParticles.copy_and_insert(*ActiveParticles[i]);

@@ -56,7 +56,7 @@ int FreezeRateData(FLOAT Time, HierarchyEntry &TopGrid)
     
   // Find a TopLevel grid owned by this processor, to compute temperature
   HierarchyEntry *ThisGrid = &TopGrid;
-  int i, dim, face, foundgrid=0;
+  int i, foundgrid=0;
   for (i=0; i<=MAX_NUMBER_OF_SUBGRIDS; i++) {
     if (MyProcessorNumber != ThisGrid->GridData->ReturnProcessorNumber()) 
       ThisGrid = ThisGrid->NextGridThisLevel;
@@ -89,11 +89,8 @@ int FreezeRateData(FLOAT Time, HierarchyEntry &TopGrid)
     if (etot_ == NULL)
       ENZO_FAIL("Could not access total energy field!");
     float *vx_ = ThisGrid->GridData->AccessVelocity1();
-    float vx = (vx_ == NULL) ? 0.0 : vx_[idx];
     float *vy_ = ThisGrid->GridData->AccessVelocity2();
-    float vy = (vy_ == NULL) ? 0.0 : vy_[idx];
     float *vz_ = ThisGrid->GridData->AccessVelocity3();
-    float vz = (vz_ == NULL) ? 0.0 : vz_[idx];
     eint = vUnit*vUnit*(etot_[idx] - 0.5*(vx_[idx]*vx_[idx] 
 			+ vy_[idx]*vy_[idx] + vz_[idx]*vz_[idx]));
   }
@@ -124,7 +121,6 @@ int FreezeRateData(FLOAT Time, HierarchyEntry &TopGrid)
   float Temp = max((Gamma-1.0)*mu*mh*eint/kboltz, 1.0);
 
   // find temperature bin
-  float lamT = 3.15614e5/Temp;
   float lTempS = log(CoolData.TemperatureStart);
   float lTempE = log(CoolData.TemperatureEnd);
   float dlTemp = (lTempE - lTempS)/(1.0*CoolData.NumberOfTemperatureBins - 1.0);

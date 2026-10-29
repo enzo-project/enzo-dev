@@ -46,7 +46,7 @@ int grid::ShocksHandler()
     break;
   default:
     shock_status = FAIL;
-    fprintf(stderr,"Invalid ShockMethod Value %"ISYM"\n",ShockMethod);
+    fprintf(stderr,"Invalid ShockMethod Value %" ISYM"\n",ShockMethod);
   }
 
   if(shock_status == FAIL){

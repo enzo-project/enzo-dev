@@ -256,7 +256,7 @@ void ExtractSection(HierarchyEntry &TopGrid, TopGridData &MetaData,
     RHC = RHC + RHN;
     Temp = Temp->NextGridThisLevel;
   }
-  printf("Allocate N %"ISYM"\n",RHC);
+  printf("Allocate N %" ISYM"\n",RHC);
  
 // Allocate arrays for entire particle subgrid data
  
@@ -302,7 +302,7 @@ void ExtractSection(HierarchyEntry &TopGrid, TopGridData &MetaData,
       fprintf(stderr, "Error in grid->MoveSubgridParticles.\n");
       my_exit(EXIT_FAILURE);
     }
-    printf("Called MoveSubgridParticles %"ISYM"\n",RHP);
+    printf("Called MoveSubgridParticles %" ISYM"\n",RHP);
     Temp = Temp->NextGridThisLevel;
   }
  
@@ -389,7 +389,7 @@ void ExtractSection(HierarchyEntry &TopGrid, TopGridData &MetaData,
  
       /* Write out grid data. */
  
-      fprintf(output, "Level %"ISYM"   Grid %"ISYM"\n", Level, grid);
+      fprintf(output, "Level %" ISYM"   Grid %" ISYM"\n", Level, grid);
  
 #define CORNERS
  
@@ -397,19 +397,19 @@ void ExtractSection(HierarchyEntry &TopGrid, TopGridData &MetaData,
       for (i = 0; i < NumberOfLinks[Rank-1]; i++) {
 	for (dim = 0; dim < Rank; dim++)
 	  if (LinkSide[i][dim] == 0)
-	    fprintf(output, "%"FSYM" ", Left[dim]);
+	    fprintf(output, "%" FSYM" ", Left[dim]);
 	  else
-	    fprintf(output, "%"FSYM" ", Right[dim]);
+	    fprintf(output, "%" FSYM" ", Right[dim]);
 	fprintf(output, "\n");
       }
 #endif /* LINES */
  
 #ifdef CORNERS
 //      for (dim = 0; dim < Rank; dim++)
-//	fprintf(output, "%"FSYM" %"FSYM"\n", Left[dim], Right[dim]);
+//	fprintf(output, "%" FSYM" %" FSYM"\n", Left[dim], Right[dim]);
       WriteListOfFloats(output, Rank, Left);
       WriteListOfFloats(output, Rank, Right);
-//      fprintf(output, "%"FSYM" %"FSYM" %"FSYM"\n", Right[0]-Left[0], Right[1]-Left[1],
+//      fprintf(output, "%" FSYM" %" FSYM" %" FSYM"\n", Right[0]-Left[0], Right[1]-Left[1],
 //	      Right[2]-Left[2]);
 #endif /* CORNERS */
  

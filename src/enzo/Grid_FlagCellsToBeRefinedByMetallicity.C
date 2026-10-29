@@ -30,7 +30,7 @@ int grid::FlagCellsToBeRefinedByMetallicity(int level)
 {
   /* declarations */
  
-  int i, j, k, index, dim, NumberOfFlaggedCells = 0;
+  int i, dim, NumberOfFlaggedCells = 0;
  
   /* Return if this grid is not on this processor. */
   if (MyProcessorNumber != ProcessorNumber)

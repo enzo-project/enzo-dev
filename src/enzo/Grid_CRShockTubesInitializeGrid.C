@@ -54,12 +54,12 @@ int grid::CRShockTubesInitializeGrid(   float x0,
     return SUCCESS;
   }
 
-  int size = 1, activesize = 1, dim;
+  int size = 1, dim;
   for (dim = 0; dim < GridRank; dim++)
     size *= GridDimension[dim];
 
   for (dim = 0; dim < GridRank; dim++)
-    activesize *= (GridDimension[dim] - 2*NumberOfGhostZones);
+    ;
   
   int field;
   for (field = 0; field < NumberOfBaryonFields; field++)
@@ -162,12 +162,12 @@ int grid::CRShockTubesInitializeGrid(   float x0,   float x1,
     return SUCCESS;
   }
 
-  int size = 1, activesize = 1, dim;
+  int size = 1, dim;
   for (dim = 0; dim < GridRank; dim++)
     size *= GridDimension[dim];
 
   for (dim = 0; dim < GridRank; dim++)
-    activesize *= (GridDimension[dim] - 2*NumberOfGhostZones);
+    ;
   
   int field;
   for (field = 0; field < NumberOfBaryonFields; field++)
@@ -251,7 +251,7 @@ int grid::CRShockTubesInitializeGrid(   float x0,   float x1,
       }
     }
     if (debug)
-      printf("%"FSYM"\t%"FSYM"\t%"FSYM"\n", x , BaryonField[ieint][i], BaryonField[iCRD][i] );
+      printf("%" FSYM"\t%" FSYM"\t%" FSYM"\n", x , BaryonField[ieint][i], BaryonField[iCRD][i] );
   }
 
   // --------------- FOR DIFFUSION PROBLEM --

@@ -161,16 +161,16 @@ int grid::DepositBaryons(grid *TargetGrid, FLOAT DepositTime)
     size *= RegionDim[dim];
  
     if (TargetGrid != this && GridOffset[dim] < 0) {
-      fprintf(stderr, "GridOffsetEnd[%"ISYM"] = %"ISYM" \n", dim, GridOffsetEnd[dim]);
-      fprintf(stderr, "GridOffset[%"ISYM"] = %"ISYM" \n", dim, GridOffset[dim]);
-      ENZO_VFAIL("GridOffset[%"ISYM"] = %"GSYM" < 0.\n", dim,GridOffset[dim])
+      fprintf(stderr, "GridOffsetEnd[%" ISYM"] = %" ISYM" \n", dim, GridOffsetEnd[dim]);
+      fprintf(stderr, "GridOffset[%" ISYM"] = %" ISYM" \n", dim, GridOffset[dim]);
+      ENZO_VFAIL("GridOffset[%" ISYM"] = %" ISYM" < 0.\n", dim,GridOffset[dim])
     }
  
     if (RegionDim[dim] < 2) {
-      fprintf(stderr, "GridStart[%"ISYM"] = %"ISYM" \n", dim, GridStart[dim]);
-      fprintf(stderr, "GridOffsetEnd[%"ISYM"] = %"ISYM"\n", dim, GridOffsetEnd[dim]);
-      fprintf(stderr, "GridOffset[%"ISYM"] = %"ISYM"\n", dim, GridOffset[dim]);
-      ENZO_VFAIL("RegionDim[%"ISYM"] = %"ISYM" < 2!\n", dim, RegionDim[dim])
+      fprintf(stderr, "GridStart[%" ISYM"] = %" FSYM" \n", dim, GridStart[dim]);
+      fprintf(stderr, "GridOffsetEnd[%" ISYM"] = %" ISYM"\n", dim, GridOffsetEnd[dim]);
+      fprintf(stderr, "GridOffset[%" ISYM"] = %" ISYM"\n", dim, GridOffset[dim]);
+      ENZO_VFAIL("RegionDim[%" ISYM"] = %" ISYM" < 2!\n", dim, RegionDim[dim])
     }
  
   }
@@ -261,7 +261,7 @@ int grid::DepositBaryons(grid *TargetGrid, FLOAT DepositTime)
     }
   }
 
-    //    printf("DepositBaryons, %i\n", RK2SecondStepBaryonDeposit);
+    //    printf("DepositBaryons, %" ISYM "\n", RK2SecondStepBaryonDeposit);
 
     if (DepositGridCIC == TRUE)
       FORTRAN_NAME(dep_grid_cic)(input_density, dens_field, vel_field,
@@ -308,11 +308,7 @@ int grid::DepositBaryons(grid *TargetGrid, FLOAT DepositTime)
  
     MPI_Status status;
     MPI_Datatype DataType = (sizeof(float) == 4) ? MPI_FLOAT : MPI_DOUBLE;
-    MPI_Arg Count;
-    MPI_Arg Source;
 
-    Count = size;
-    Source = ProcessorNumber;
  
     double time1 = MPI_Wtime();
  

@@ -43,7 +43,7 @@ int grid::SetParticleMassFlaggingField(int StartProc, int EndProc, int level,
 {
 
   //printf("grid::SetParticleMassFlaggingField called \n");
-  int i, irecv, dim, size, proc, MPI_Tag;
+  int i, dim, size, proc;
   bool and_flag;
 
   /* Return if we're not needed here */
@@ -59,8 +59,8 @@ int grid::SetParticleMassFlaggingField(int StartProc, int EndProc, int level,
        CommunicationDirection == COMMUNICATION_POST_RECEIVE))
     return SUCCESS;
 
-//  printf("--> SetPMFlag[P%"ISYM"/%"ISYM"]: level %"ISYM", grid %"ISYM", "
-//	 "comm_dir = %"ISYM", npart = %"ISYM"\n", 
+//  printf("--> SetPMFlag[P%" ISYM"/%" ISYM"]: level %" ISYM", grid %" ISYM", "
+//	 "comm_dir = %" ISYM", npart = %" ISYM"\n", 
 //	 MyProcessorNumber, ProcessorNumber, level, GridNum, 
 //	 CommunicationDirection, NumberOfParticles);
 
@@ -77,7 +77,7 @@ int grid::SetParticleMassFlaggingField(int StartProc, int EndProc, int level,
 
   if (CommunicationDirection == COMMUNICATION_SEND) {
 
-    int method, NumberOfFlaggedCells;
+    int NumberOfFlaggedCells;
     bool KeepFlaggingField;
 
     /* Calculate the flagging field only if 
@@ -94,7 +94,7 @@ int grid::SetParticleMassFlaggingField(int StartProc, int EndProc, int level,
     // given range and has particles.
     if (MyProcessorNumber != ProcessorNumber &&
 	(MyProcessorNumber < StartProc || MyProcessorNumber >= EndProc ||
-	 NumberOfParticles == 0 && NumberOfActiveParticles == 0))
+	 (NumberOfParticles == 0 && NumberOfActiveParticles == 0)))
       return SUCCESS;
 
     /***********************************************************************/
@@ -161,7 +161,7 @@ int grid::SetParticleMassFlaggingField(int StartProc, int EndProc, int level,
 #ifdef USE_MPI
     if (MyProcessorNumber != ProcessorNumber) {
       //MPI_Tag = Return_MPI_Tag(GridNum, MyProcessorNumber);
-//      printf("----> SetPMFlag[P%"ISYM"/%"ISYM"]: sending %"ISYM" floats.\n",
+//      printf("----> SetPMFlag[P%" ISYM"/%" ISYM"]: sending %" ISYM" floats.\n",
 //	     MyProcessorNumber, ProcessorNumber, size);
       CommunicationBufferedSend(ParticleMassFlaggingField, size, DataType,
 				ProcessorNumber, MPI_SENDPMFLAG_TAG, 
@@ -194,8 +194,8 @@ int grid::SetParticleMassFlaggingField(int StartProc, int EndProc, int level,
     Count = size;
     for (proc = 0; proc < NumberOfSends; proc++) {
       Source = SendProcs[proc];
-//      printf("----> SetPMFlag[P%"ISYM"/%"ISYM"]: "
-//	     "posting receive for %"ISYM" floats, coming from P%"ISYM".\n",
+//      printf("----> SetPMFlag[P%" ISYM"/%" ISYM"]: "
+//	     "posting receive for %" ISYM" floats, coming from P%" ISYM".\n",
 //	     MyProcessorNumber, ProcessorNumber, size, Source);
 
       if (Source >= StartProc && Source < EndProc) {

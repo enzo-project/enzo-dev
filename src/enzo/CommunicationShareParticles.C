@@ -47,7 +47,6 @@ int CommunicationShareParticles(int *NumberToMove, particle_data* &SendList,
   // destination processor
 
   int TotalNumberToMove = 0;
-  int particle_data_size = sizeof(particle_data);
   for (proc = 0; proc < NumberOfProcessors; proc++)
     TotalNumberToMove += NumberToMove[proc];
   //qsort(SendList, TotalNumberToMove, particle_data_size, compare_proc);
@@ -56,7 +55,6 @@ int CommunicationShareParticles(int *NumberToMove, particle_data* &SendList,
   SharedList = NULL;
 
 #ifdef USE_MPI
-  MPI_Datatype DataType = (sizeof(float) == 4) ? MPI_FLOAT : MPI_DOUBLE;
   MPI_Datatype DataTypeInt = (sizeof(int) == 4) ? MPI_INT : MPI_LONG_LONG_INT;
   MPI_Datatype DataTypeByte = MPI_BYTE;
   MPI_Arg Count;
@@ -73,7 +71,7 @@ int CommunicationShareParticles(int *NumberToMove, particle_data* &SendList,
  
     if (FirstTimeCalled) {
       Count = sizeof(particle_data);
-      //  fprintf(stderr, "Size of ParticleMoveList %"ISYM"\n", Count);
+      //  fprintf(stderr, "Size of ParticleMoveList %" ISYM"\n", Count);
       stat = MPI_Type_contiguous(Count, DataTypeByte, &MPI_ParticleMoveList);
       stat |= MPI_Type_commit(&MPI_ParticleMoveList);
       if (stat != MPI_SUCCESS) ENZO_FAIL("");

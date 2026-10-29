@@ -66,11 +66,10 @@ int CommunicationMergeStarParticle(HierarchyEntry *Grids[],
 {
   //printf("CommunicationMergeStarParticle running......................\n");
 #ifdef USE_MPI
-  double time1 = ReturnWallTime();
 
   /* count particles on this processor */
 
-  int i, n, dim, grid;
+  int i, dim, grid;
   Eint32 ParticlesToSend = 0;
 
   for (grid = 0; grid < NumberOfGrids; grid++) {
@@ -97,7 +96,7 @@ int CommunicationMergeStarParticle(HierarchyEntry *Grids[],
   }
 
   //for (i = 0; i < count; i++)
-  //printf("P(%"ISYM"): %"ISYM" %"GSYM" %"GSYM" %"GSYM" %"GSYM" \n", MyProcessorNumber,
+  //printf("P(%" ISYM"): %" ISYM" %" GSYM" %" GSYM" %" GSYM" %" GSYM" \n", MyProcessorNumber,
   //     ParticlePartialList[i].Number, 
   //     ParticlePartialList[i].Mass, ParticlePartialList[i].Position[0], 
   //     ParticlePartialList[i].Velocity[0], ParticlePartialList[i].Attribute[0]);
@@ -160,15 +159,15 @@ int CommunicationMergeStarParticle(HierarchyEntry *Grids[],
       if (!found) {
 	float v = sqrt(pow(SharedList[i].Velocity[0],2) + pow(SharedList[i].Velocity[1],2) +
 		       pow(SharedList[i].Velocity[2],2))*VelocityUnits/1e5;
-	printf("Particle %"ISYM" is not in any grid!\n", SharedList[i].Number);
-	printf("m=%"GSYM", v=%"GSYM", tc=%"GSYM", dm=%"GSYM"\n", SharedList[i].Mass*MassUnits,
+	printf("Particle %" ISYM" is not in any grid!\n", SharedList[i].Number);
+	printf("m=%" GSYM", v=%" GSYM", tc=%" GSYM", dm=%" GSYM"\n", SharedList[i].Mass*MassUnits,
 	       v, SharedList[i].Attribute[0], SharedList[i].Attribute[2]);
 	return FAIL;
       }
     }
   }
   */
-  //  printf("\n CMSP: SinkMergeDistance = %"GSYM", SinkMergeMass = %"GSYM", MassUnits = %"GSYM"\n \n",
+  //  printf("\n CMSP: SinkMergeDistance = %" GSYM", SinkMergeMass = %" GSYM", MassUnits = %" GSYM"\n \n",
   //	 SinkMergeDistance, SinkMergeMass, MassUnits); 
 
 
@@ -242,15 +241,15 @@ int CommunicationMergeStarParticle(HierarchyEntry *Grids[],
   float r2, r2min, dx[MAX_DIMENSION];
   if (total != NumberOfGroups) {
     if (debug)
-      printf("CommunicationMergeParticle: total %"ISYM" != NumberOfGroups %"ISYM"\n", 
+      printf("CommunicationMergeParticle: total %" ISYM" != NumberOfGroups %" ISYM"\n", 
 	     total, NumberOfGroups);
     for (i = 0; i < NumberOfGroups; i++) {
       if (!TotalAdded[i]) {
 	float v = sqrt(pow(NewList[i].Velocity[0],2) + pow(NewList[i].Velocity[1],2) +
 		       pow(NewList[i].Velocity[2],2));
 	if (debug) {
-	  printf("Group %"ISYM" failed to be added.\n", NewList[i].Number);
-	  printf("m=%"GSYM", x=(%"GSYM", %"GSYM", %"GSYM"), v=%"GSYM"\n", 
+	  printf("Group %" ISYM" failed to be added.\n", NewList[i].Number);
+	  printf("m=%" GSYM", x=(%" GSYM", %" GSYM", %" GSYM"), v=%" GSYM"\n", 
 		 NewList[i].Mass*MassUnits, NewList[i].Position[0],
 		 NewList[i].Position[1], NewList[i].Position[2], v*VelocityUnits/1e5);
 	}
@@ -277,9 +276,9 @@ int CommunicationMergeStarParticle(HierarchyEntry *Grids[],
 	  } // ENDFOR grids
 	  if (debug) {
 	    Grids[closest]->GridData->ReturnGridInfo(&Rank, Dims, Left, Right);
-	    printf("Adding particle to grid %"ISYM"\n"
-		   "left edge  = %"GOUTSYM" %"GOUTSYM" %"GOUTSYM"\n"
-		   "right edge = %"GOUTSYM" %"GOUTSYM" %"GOUTSYM"\n",		   
+	    printf("Adding particle to grid %" ISYM"\n"
+		   "left edge  = %" GOUTSYM" %" GOUTSYM" %" GOUTSYM"\n"
+		   "right edge = %" GOUTSYM" %" GOUTSYM" %" GOUTSYM"\n",		   
 		   closest, Left[0], Left[1], Left[2],
 		   Right[0], Right[1], Right[2]);
 	  }
@@ -319,10 +318,10 @@ int CheckMergeFlagList(ParticleEntry *List, const int &Size, int *Flag, const in
 {
   int i, group;
   for (group = 0; group < GroupSize; group++) {
-    printf("group %"ISYM" ", group);
+    printf("group %" ISYM" ", group);
     for (i = 0; i < Size; i++) {
       if (Flag[i] == group)
-	printf("%"GSYM" ", List[i].Mass*MassUnits);
+	printf("%" GSYM" ", List[i].Mass*MassUnits);
     }
     printf("\n");
   }

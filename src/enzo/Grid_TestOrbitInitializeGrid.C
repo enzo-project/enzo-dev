@@ -86,7 +86,6 @@ int grid::TestOrbitInitializeGrid(int NumberOfTestParticles,
      by code units to get the correct velocity. */
 
   double BigGee = GravitationalConstant/(4.0*pi);  // big G is the constant/4pi
-  double MassCGS = CentralMass*MassUnits;
 
 /* JRT 09/13/06  replace following line by */
 

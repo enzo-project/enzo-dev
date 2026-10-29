@@ -24,9 +24,8 @@ int hlld_mhd(float **FluxLine, float **priml, float **primr, float **prim, int A
 {
   float Ul[NEQ_MHD], Ur[NEQ_MHD], Fl[NEQ_MHD], Fr[NEQ_MHD], Us[NEQ_MHD], Uss[NEQ_MHD];
   float etot_l,etot_r, eint_l, eint_r, h, dpdrho, dpde, rho_l, rho_r, vx_l, vy_l, vz_l, vx_r, vy_r, vz_r, Bx_l, Bx_r,Bx, By_l, Bz_l, By_r, Bz_r, Phi_l, Phi_r, v2, B2, Bv_l, Bv_r, p_l, p_r, cs_l, cs_r, pt_l, pt_r;
-  float rho_ls, rho_rs, vy_ls, vy_rs, vz_ls, vz_rs, vv_ls, vv_rs, By_ls, By_rs, Bz_ls, Bz_rs, Bv_ls, Bv_rs, bb_ls, bb_rs, eint_ls, eint_rs, etot_ls, etot_rs, pt_s;
-  float vy_ss, vz_ss, By_ss, Bz_ss, Bv_ss, eint_lss, eint_rss, etot_lss, etot_rss, rho_savg;
-  float Zero = 0.0;
+  float rho_ls, rho_rs, vy_ls, vy_rs, vz_ls, vz_rs, vv_ls, vv_rs, By_ls, By_rs, Bz_ls, Bz_rs, Bv_ls, Bv_rs, bb_ls, bb_rs, eint_ls = 0.0, eint_rs = 0.0, etot_ls, etot_rs, pt_s;
+  float vy_ss, vz_ss, By_ss, Bz_ss, Bv_ss, eint_lss = 0.0, eint_rss = 0.0, etot_lss, etot_rss, rho_savg;
   float S_l, S_r, S_ls, S_rs, S_M; // wave speeds
   float cf_l, cf_r, sam, sap; // fast speeds
 
@@ -209,6 +208,7 @@ int hlld_mhd(float **FluxLine, float **priml, float **primr, float **prim, int A
 
     etot_ls = ((S_l - vx_l)*etot_l - pt_l*vx_l + pt_s * S_M + Bx*(Bv_l - Bv_ls))/(S_l - S_M);
     etot_rs = ((S_r - vx_r)*etot_r - pt_r*vx_r + pt_s * S_M + Bx*(Bv_r - Bv_rs))/(S_r - S_M);
+    eint_ls = eint_l; eint_rs = eint_r; eint_lss = eint_l; eint_rss = eint_r;
     
     // compute the fluxes based on the wave speeds
     if (S_l <= 0 && S_ls >= 0) {

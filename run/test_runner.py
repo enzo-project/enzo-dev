@@ -14,6 +14,10 @@ import time
 import tarfile
 import logging
 import multiprocessing
+try:
+    multiprocessing.set_start_method('fork')
+except RuntimeError:
+    pass
 
 known_categories = [
     "Cooling",

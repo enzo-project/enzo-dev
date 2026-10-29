@@ -156,7 +156,6 @@ int OutputLevelInformation(FILE *fptr, TopGridData &MetaData,
  
   /* Get the total memory, if possible. */
  
-  float TotalMemoryDeclared = 0, TotalMemoryUsed = 0;
 #if defined(MALLOC_IRIS4)
   struct mallinfo proc;
   proc = mallinfo();
@@ -167,7 +166,7 @@ int OutputLevelInformation(FILE *fptr, TopGridData &MetaData,
   /* Write output (memory in MB). */
 
   if (isRoot) {
-    fprintf(fptr, "Cycle %"ISYM"  Time %"GOUTSYM"  MaxDepth %"ISYM"  Grids %"ISYM"  Memory(MB) %"GSYM"  Ratio %"GSYM"\n",
+    fprintf(fptr, "Cycle %" ISYM"  Time %" GOUTSYM"  MaxDepth %" ISYM"  Grids %" ISYM"  Memory(MB) %" GSYM"  Ratio %" GSYM"\n",
       MetaData.CycleNumber,
       MetaData.Time, maxdepth, HierarchyGrids,
       float(HierarchyMemory)/1.049e6,
@@ -184,7 +183,7 @@ int OutputLevelInformation(FILE *fptr, TopGridData &MetaData,
   for (level = 0; level <= MaximumRefinementLevel; level++) {
 
     if (isRoot) {
-      fprintf(fptr, "  Level %"ISYM"  Grids %"ISYM"  Memory(MB) %"GSYM"  Coverage %"GSYM"  Ratio %"GSYM"  Flagged %"GSYM"  Active %lld\n",
+      fprintf(fptr, "  Level %" ISYM"  Grids %" ISYM"  Memory(MB) %" GSYM"  Coverage %" GSYM"  Ratio %" GSYM"  Flagged %" GSYM"  Active %lld\n",
       level, Grids[level], float(Memory[level])/1.049e6,
       Coverage[level], MeanAxialRatio[level], FractionFlagged[level],
       CellsActive[level]);
@@ -201,25 +200,25 @@ int OutputLevelInformation(FILE *fptr, TopGridData &MetaData,
 
       // lcaperf count-zones-local-<level>
 
-      sprintf (jb_counter_name,"count-zones-local-%"ISYM,level);
+      sprintf (jb_counter_name,"count-zones-local-%" ISYM,level);
       value = LocalCellsActive[level];
       lcaperf.assign(jb_counter_name, value);
 
       // lcaperf count-ghosts-local-<level>
 
-      sprintf (jb_counter_name,"count-ghosts-local-%"ISYM,level);
+      sprintf (jb_counter_name,"count-ghosts-local-%" ISYM,level);
       value = LocalCellsTotal[level]-LocalCellsActive[level];
       lcaperf.assign(jb_counter_name, value);
 
       // lcaperf count-grids-local-<level>
 
-      sprintf (jb_counter_name,"count-grids-local-%"ISYM,level);
+      sprintf (jb_counter_name,"count-grids-local-%" ISYM,level);
       value = LocalGrids[level];
       lcaperf.assign(jb_counter_name, value);
 
       // lcaperf count-particles-local-<level>
 
-      sprintf (jb_counter_name,"count-particles-local-%"ISYM,level);
+      sprintf (jb_counter_name,"count-particles-local-%" ISYM,level);
       value = LocalParticles[level];
       lcaperf.assign(jb_counter_name, value);
     }

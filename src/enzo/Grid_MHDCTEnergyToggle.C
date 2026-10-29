@@ -102,7 +102,7 @@ int grid::MHDCT_ConvertEnergyToConservedC()
     if ( HydroMethod != MHD_Li ||  EquationOfState != 0 || ProcessorNumber != MyProcessorNumber || MHDCTUseSpecificEnergy == TRUE )
         return SUCCESS;
 
-    int DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum, B1Num, B2Num, B3Num, size=1;
+    int DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum, B1Num, B2Num, B3Num;
     if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
                          Vel3Num, TENum, B1Num, B2Num, B3Num) == FAIL) {
       ENZO_FAIL("Error in IdentifyPhysicalQuantities.\n");

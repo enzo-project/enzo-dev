@@ -64,7 +64,7 @@ void* operator new(size_t NumberOfBytes)
  
 #ifdef MALLOC_REPORT
   if (NumberOfCalls % MALLOC_REPORT_FREQUENCY == 0)
-    printf("new_malloc: Current = %"GSYM"   Max = %"GSYM"\n",
+    printf("new_malloc: Current = %" GSYM"   Max = %" GSYM"\n",
 	   float(CurrentMemoryUsage),
 	   float(MaximumMemoryUsage));
 #endif /* MALLOC_REPORT */
@@ -73,7 +73,7 @@ void* operator new(size_t NumberOfBytes)
   void *pointer = malloc(NumberOfBytes+sizeof(float));
  
   if (pointer == NULL) {
-    fprintf(stderr, "Error allocating %"ISYM" bytes.\n", NumberOfBytes);
+    fprintf(stderr, "Error allocating %" ISYM" bytes.\n", NumberOfBytes);
     exit(EXIT_FAILURE);
   }
  
@@ -117,7 +117,7 @@ void* operator new(size_t NumberOfBytes) throw (std::bad_alloc) {
   //void *pointer = jemalloc(NumberOfBytes + sizeof(float));
   void *pointer = jemalloc(NumberOfBytes);
   if (pointer == NULL)
-    ENZO_VFAIL("Error allocation %d bytes", NumberOfBytes);
+    ENZO_VFAIL("Error allocation %" ISYM " bytes", NumberOfBytes);
   return pointer;
   //*((float*) pointer) = float(NumberOfBytes);
   //return (void*) (((float*) pointer) + 1);
@@ -128,7 +128,7 @@ void* operator new[](size_t NumberOfBytes) throw (std::bad_alloc) {
   //void *pointer = jemalloc(NumberOfBytes + sizeof(float));
   void *pointer = jemalloc(NumberOfBytes);
   if (pointer == NULL)
-    ENZO_VFAIL("Error allocation %d bytes", NumberOfBytes);
+    ENZO_VFAIL("Error allocation %" ISYM " bytes", NumberOfBytes);
   return pointer;
   //*((float*) pointer) = float(NumberOfBytes);
   //return (void*) (((float*) pointer) + 1);

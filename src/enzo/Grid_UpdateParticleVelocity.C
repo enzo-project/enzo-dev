@@ -44,7 +44,7 @@ int grid::UpdateParticleVelocity(float TimeStep)
 #if defined(VELOCITY_METHOD1) || defined(VELOCITY_METHOD2)
   float VelocityMidStep;
 #endif
-  int i, dim , dim1;
+  int i, dim;
 
   FLOAT coef, coef1, coef2;
 
@@ -125,13 +125,14 @@ int grid::UpdateParticleVelocity(float TimeStep)
   }
 
 
-  if (ProblemType == 29)
+  if (ProblemType == 29) {
     for (i = 0; i < NumberOfParticles; i++)
-      printf("id=%"PISYM"  %"PSYM" %"PSYM" %"PSYM"  %"ESYM" %"ESYM" %"ESYM" \n", ParticleNumber[i],
+      printf("id=%" PISYM"  %" PSYM" %" PSYM" %" PSYM"  %" ESYM" %" ESYM" %" ESYM" \n", ParticleNumber[i],
 	     ParticlePosition[0][i], ParticlePosition[1][i], ParticlePosition[2][i],
              ParticleVelocity[0][i], ParticleVelocity[1][i], ParticleVelocity[2][i]);
+  }
 
-    if (NumberOfActiveParticles > 0) {
+  if (NumberOfActiveParticles > 0) {
       if (ComovingCoordinates) {
         if (CosmologyComputeExpansionFactor(Time + TimeStep, &a, &dadt)
             == FAIL) {

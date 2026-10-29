@@ -33,19 +33,19 @@ int DrivenFlowInitialize(FILE *fptr, FILE *Outfptr,
              HierarchyEntry &TopGrid, TopGridData &MetaData, 
              int SetBaryonFields)
 {
-  char *DensName = "Density";
-  char *TEName   = "TotalEnergy";
-  char *GEName   = "GasEnergy";
-  char *Vel1Name = "x-velocity";
-  char *Vel2Name = "y-velocity";
-  char *Vel3Name = "z-velocity";
-  char *BxName = "Bx";
-  char *ByName = "By";
-  char *BzName = "Bz";
-  char *PhiName = "Phi";
-  char *StochAccel1Name = "x-acceleration";
-  char *StochAccel2Name = "y-acceleration";
-  char *StochAccel3Name = "z-acceleration";
+  const char *DensName = "Density";
+  const char *TEName   = "TotalEnergy";
+  const char *GEName   = "GasEnergy";
+  const char *Vel1Name = "x-velocity";
+  const char *Vel2Name = "y-velocity";
+  const char *Vel3Name = "z-velocity";
+  const char *BxName = "Bx";
+  const char *ByName = "By";
+  const char *BzName = "Bz";
+  const char *PhiName = "Phi";
+  const char *StochAccel1Name = "x-acceleration";
+  const char *StochAccel2Name = "y-acceleration";
+  const char *StochAccel3Name = "z-acceleration";
 
   /* declarations */
 
@@ -82,26 +82,26 @@ int DrivenFlowInitialize(FILE *fptr, FILE *Outfptr,
 
     /* read parameters */
 
-    ret += sscanf(line, "DrivenFlowProfile = %"ISYM, &DrivenFlowProfile);
+    ret += sscanf(line, "DrivenFlowProfile = %" ISYM, &DrivenFlowProfile);
     
-    ret += sscanf(line, "DrivenFlowAlpha = %"ISYM" %"ISYM" %"ISYM, 
+    ret += sscanf(line, "DrivenFlowAlpha = %" ISYM" %" ISYM" %" ISYM, 
           DrivenFlowAlpha, DrivenFlowAlpha+1, DrivenFlowAlpha+2);
-    ret += sscanf(line, "DrivenFlowSeed = %"ISYM, &DrivenFlowSeed);
+    ret += sscanf(line, "DrivenFlowSeed = %" ISYM, &DrivenFlowSeed);
 
-    ret += sscanf(line, "DrivenFlowBandWidth = %"FSYM"%"FSYM"%"FSYM, 
+    ret += sscanf(line, "DrivenFlowBandWidth = %" FSYM"%" FSYM"%" FSYM, 
           DrivenFlowBandWidth, DrivenFlowBandWidth+1, DrivenFlowBandWidth+2);
 
-    ret += sscanf(line, "DrivenFlowAutoCorrl = %"FSYM"%"FSYM"%"FSYM, 
+    ret += sscanf(line, "DrivenFlowAutoCorrl = %" FSYM"%" FSYM"%" FSYM, 
           DrivenFlowAutoCorrl, DrivenFlowAutoCorrl+1, DrivenFlowAutoCorrl+2);
 
-    ret += sscanf(line, "DrivenFlowMach = %"FSYM"%"FSYM"%"FSYM, 
+    ret += sscanf(line, "DrivenFlowMach = %" FSYM"%" FSYM"%" FSYM, 
           DrivenFlowMach, DrivenFlowMach+1, DrivenFlowMach+2);
 
-    ret += sscanf(line, "DrivenFlowWeight = %"FSYM, &DrivenFlowWeight);
+    ret += sscanf(line, "DrivenFlowWeight = %" FSYM, &DrivenFlowWeight);
 
-    ret += sscanf(line, "DrivenFlowDensity = %"FSYM, &DrivenFlowDensity);
-    ret += sscanf(line, "DrivenFlowPressure = %"FSYM, &DrivenFlowPressure);
-    ret += sscanf(line, "DrivenFlowMagField = %"FSYM, &DrivenFlowMagField);
+    ret += sscanf(line, "DrivenFlowDensity = %" FSYM, &DrivenFlowDensity);
+    ret += sscanf(line, "DrivenFlowPressure = %" FSYM, &DrivenFlowPressure);
+    ret += sscanf(line, "DrivenFlowMagField = %" FSYM, &DrivenFlowMagField);
 
     /* if the line is suspicious, issue a warning */
 
@@ -149,7 +149,7 @@ int DrivenFlowInitialize(FILE *fptr, FILE *Outfptr,
       DrivenFlowVelocity[dim] = DrivenFlowMach[dim] * SoundSpeed;
       DrivenFlowDomainLength[dim] = DomainRightEdge[dim] - DomainLeftEdge[dim];
       if (debug)
-          printf("dim = %"ISYM" vel = %"FSYM" len = %"FSYM"\n",
+          printf("dim = %" ISYM" vel = %" FSYM" len = %" FSYM"\n",
             dim,DrivenFlowVelocity[dim],DrivenFlowDomainLength[dim]);
   }
 
@@ -212,28 +212,28 @@ int DrivenFlowInitialize(FILE *fptr, FILE *Outfptr,
   if (debug) printf("DrivenFlowInitialize: writing parameters to output file.\n");
 
   if (MyProcessorNumber == ROOT_PROCESSOR) {
-    fprintf(Outfptr, "Profile    = %"ISYM"\n\n", DrivenFlowProfile);
+    fprintf(Outfptr, "Profile    = %" ISYM"\n\n", DrivenFlowProfile);
 
-    fprintf(Outfptr, "Alpha1     = %"ISYM"\n",   DrivenFlowAlpha[0]);
-    fprintf(Outfptr, "Alpha2     = %"ISYM"\n",   DrivenFlowAlpha[1]);
-    fprintf(Outfptr, "Alpha3     = %"ISYM"\n\n", DrivenFlowAlpha[2]);
+    fprintf(Outfptr, "Alpha1     = %" ISYM"\n",   DrivenFlowAlpha[0]);
+    fprintf(Outfptr, "Alpha2     = %" ISYM"\n",   DrivenFlowAlpha[1]);
+    fprintf(Outfptr, "Alpha3     = %" ISYM"\n\n", DrivenFlowAlpha[2]);
 
-    fprintf(Outfptr, "BandWidth1 = %"FSYM"\n",   DrivenFlowBandWidth[0]);
-    fprintf(Outfptr, "BandWidth2 = %"FSYM"\n",   DrivenFlowBandWidth[1]);
-    fprintf(Outfptr, "BandWidth3 = %"FSYM"\n\n", DrivenFlowBandWidth[2]);
+    fprintf(Outfptr, "BandWidth1 = %" FSYM"\n",   DrivenFlowBandWidth[0]);
+    fprintf(Outfptr, "BandWidth2 = %" FSYM"\n",   DrivenFlowBandWidth[1]);
+    fprintf(Outfptr, "BandWidth3 = %" FSYM"\n\n", DrivenFlowBandWidth[2]);
 
-    fprintf(Outfptr, "AutoCorrl1 = %"FSYM"\n",   DrivenFlowAutoCorrl[0]);
-    fprintf(Outfptr, "AutoCorrl2 = %"FSYM"\n",   DrivenFlowAutoCorrl[1]);
-    fprintf(Outfptr, "AutoCorrl3 = %"FSYM"\n\n", DrivenFlowAutoCorrl[2]);
+    fprintf(Outfptr, "AutoCorrl1 = %" FSYM"\n",   DrivenFlowAutoCorrl[0]);
+    fprintf(Outfptr, "AutoCorrl2 = %" FSYM"\n",   DrivenFlowAutoCorrl[1]);
+    fprintf(Outfptr, "AutoCorrl3 = %" FSYM"\n\n", DrivenFlowAutoCorrl[2]);
 
-    fprintf(Outfptr, "SolnWeight = %"FSYM"\n\n", DrivenFlowWeight);
+    fprintf(Outfptr, "SolnWeight = %" FSYM"\n\n", DrivenFlowWeight);
 
-    fprintf(Outfptr, "Density    = %"FSYM"\n",   DrivenFlowDensity);
-    fprintf(Outfptr, "Pressure   = %"FSYM"\n\n", DrivenFlowPressure);
+    fprintf(Outfptr, "Density    = %" FSYM"\n",   DrivenFlowDensity);
+    fprintf(Outfptr, "Pressure   = %" FSYM"\n\n", DrivenFlowPressure);
 
-    fprintf(Outfptr, "Velocity1  = %"FSYM"\n",   DrivenFlowVelocity[0]);
-    fprintf(Outfptr, "Velocity2  = %"FSYM"\n",   DrivenFlowVelocity[1]);
-    fprintf(Outfptr, "Velocity3  = %"FSYM"\n\n", DrivenFlowVelocity[2]);
+    fprintf(Outfptr, "Velocity1  = %" FSYM"\n",   DrivenFlowVelocity[0]);
+    fprintf(Outfptr, "Velocity2  = %" FSYM"\n",   DrivenFlowVelocity[1]);
+    fprintf(Outfptr, "Velocity3  = %" FSYM"\n\n", DrivenFlowVelocity[2]);
   }
   }
   return SUCCESS;

@@ -109,7 +109,7 @@ int ClusterSMBHSumGasMass(HierarchyEntry *Grids[], int NumberOfGrids, int level)
 
     if (LastClusterSMBHFeedbackSwitch == FALSE && ClusterSMBHFeedbackSwitch == TRUE) {
        ClusterSMBHStartTime = Time + ClusterSMBHTramp*1.0e6*yr_s/TimeUnits;
-       if (ClusterSMBHJetPrecessionPeriod < 0.00001 & ClusterSMBHJetPrecessionPeriod > -0.00001)  //if precession off (set to 0), change the angle of the jets
+       if (ClusterSMBHJetPrecessionPeriod < 0.00001 && ClusterSMBHJetPrecessionPeriod > -0.00001)  //if precession off (set to 0), change the angle of the jets
        ClusterSMBHJetAnglePhi += 0.5;
     if (ClusterSMBHJetPrecessionPeriod < -0.00001)  //if precession negative, change the jet dimension
        ClusterSMBHJetDim += 1;
@@ -119,7 +119,7 @@ int ClusterSMBHSumGasMass(HierarchyEntry *Grids[], int NumberOfGrids, int level)
 
   if (MyProcessorNumber == ROOT_PROCESSOR) {
     FILE *fptr=fopen("MT.out","a");
-    fprintf(fptr,"Time, ClusterSMBHJetMdot, ClusterSMBHAccretionTime, and Total ClusterSMBHColdGasMass in Msun = %"ESYM" %"ESYM" %"ESYM" %"ESYM"\n", Time, ClusterSMBHJetMdot, ClusterSMBHAccretionTime, ColdGasMassMsun);
+    fprintf(fptr,"Time, ClusterSMBHJetMdot, ClusterSMBHAccretionTime, and Total ClusterSMBHColdGasMass in Msun = %" ESYM" %" ESYM" %" ESYM" %" ESYM"\n", Time, ClusterSMBHJetMdot, ClusterSMBHAccretionTime, ColdGasMassMsun);
     fclose(fptr);
   }
   return SUCCESS;

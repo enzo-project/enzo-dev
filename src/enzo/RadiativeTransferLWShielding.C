@@ -88,7 +88,6 @@ int grid::RadiativeTransferLWShielding(PhotonPackageEntry **PP, FLOAT &dP,
     float x = 0;
     float alpha = 1.1;
     float H2mass = 2.0*mh; //grams
-    float shield1_db = 1.0, shield2_db = 1.0;
     /*
      * The Wallcott-Green 2011 paper indicates that  a modified form
      * of the Draine & Bertoldi fitting formaula for H2 self shielding may be 
@@ -143,7 +142,7 @@ int grid::RadiativeTransferLWShielding(PhotonPackageEntry **PP, FLOAT &dP,
   /* [geo_correction] = None (unitless)
    * [(*PP)->Photons] = 1/(LengthUnits^3)
    * [dissrate] = cm^2*CodeLength/(CodeLength^2*CodeTime)
-   /* Units = 1/(CodeTime) */
+   * Units = 1/(CodeTime) */
   
   BaryonField[kdissH2INum][cellindex] += geo_correction * (*PP)->Photons * 
     dissrate;

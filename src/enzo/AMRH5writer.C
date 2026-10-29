@@ -91,23 +91,18 @@ void AMRHDF5Writer::AMRHDF5Create( const char*      fileName,
   /* Create global attributes */
 
   hid_t groupId;
-  int err = 0;
 
   gridId = 0;
   particlegridId = 0;
 
   /* Create a string array that has the field names */
 
-  char buf[80];
   int NumberOfParticleFields = (ParticlesOn == TRUE) ? 9+nParticleAttr : 0;
   int NumberOfAllFields = nFields + NumberOfParticleFields;
   int iField = 0;
   char **HDF5_FieldNames = new char*[NumberOfAllFields];
   for (i = 0; i < NumberOfAllFields; i++)
     HDF5_FieldNames[i] = new char[64];
-
-  for (i = 0; i < nFields; i++)
-    strcpy(HDF5_FieldNames[iField++], FieldNames[i]);
 
   if (ParticlesOn == TRUE) {
     for (i = 0; i < 3; i++)
@@ -120,20 +115,23 @@ void AMRHDF5Writer::AMRHDF5Create( const char*      fileName,
       strcpy(HDF5_FieldNames[iField++], ParticleAttributeLabel[i]);
   } // ENDIF ParticlesOn
 
+  for (i = 0; i < nFields; i++)
+    strcpy(HDF5_FieldNames[iField++], FieldNames[i]);
+
   /* Write global attributes */
 
   char str[100];
   hid_t atype;
   strcpy(str, "/Parameters and Global Attributes");
-  err |= checkErr(groupId = H5Gcreate(fileId, str, 0), str);
-  err |= writeScalarAttribute(groupId, H5T_NATIVE_INT, "staggering", &stag);
-  err |= writeScalarAttribute(groupId, H5T_NATIVE_INT, "NumberOfFields", &nFields);
-  err |= writeScalarAttribute(groupId, H5T_NATIVE_INT, "NumberOfParticleFields", 
+  checkErr(groupId = H5Gcreate(fileId, str, 0), str);
+  writeScalarAttribute(groupId, H5T_NATIVE_INT, "staggering", &stag);
+  writeScalarAttribute(groupId, H5T_NATIVE_INT, "NumberOfFields", &nFields);
+  writeScalarAttribute(groupId, H5T_NATIVE_INT, "NumberOfParticleFields", 
 			      &NumberOfParticleFields);
 
   atype = H5Tcopy(H5T_C_S1);
-  err |= H5Tset_size(atype, H5T_VARIABLE);
-  err |= writeArrayAttribute(groupId, atype, NumberOfAllFields, "FieldNames", 
+  H5Tset_size(atype, H5T_VARIABLE);
+  writeArrayAttribute(groupId, atype, NumberOfAllFields, "FieldNames", 
 			     HDF5_FieldNames);
 
 //  err |= writeScalarAttribute(groupId, H5T_NATIVE_INT, "ParticlesPresent", 
@@ -180,7 +178,7 @@ void AMRHDF5Writer::AMRHDF5Create( const char*      fileName,
     if (overwrite)
       fprintf(fptr, "# %10s %20s %20s\n", "Cycle", "Time", "Redshift");
 
-    fprintf(fptr, "  %10d %20.15f %20.15f\n", cycle, time, redshift);
+    fprintf(fptr, "  %10" ISYM " %20.15lf %20.15lf\n", cycle, time, redshift);
     fclose(fptr);
 
   } // ENDIF writeTimeFile
@@ -212,20 +210,18 @@ herr_t AMRHDF5Writer::WriteTextures(  const int    timeStep,
 
 {
   
-  char gridDataName[100], fieldName[100];
-  sprintf(gridDataName, "/grid-%d", gridId);
+  char gridDataName[512], fieldName[1024];
+  sprintf(gridDataName, "/grid-%" ISYM "", gridId);
 
   hid_t gridGrp, dataspace, dataset;
-  hsize_t hdims[2] = { dims[0], dims[1] };
+  hsize_t hdims[2] = { (hsize_t) dims[0], (hsize_t) dims[1] };
   int err = 0;
-  int size = dims[0]*dims[1];
-  int totalSize = 0;
   int i;
 
   /* Write index entry */
 
   char level8bit = (char) levelIndex;
-  short shortdims[3] = { dims[0], dims[1], dims[2] };
+  short shortdims[3] = { (short) dims[0], (short) dims[1], (short) dims[2] };
 
   if (dim == 0) {
     fwrite(&gridId, sizeof(int), 1, index_file);
@@ -271,7 +267,7 @@ herr_t AMRHDF5Writer::WriteTextures(  const int    timeStep,
 
   for (i = 0; i < nFields; i++) {
 
-    sprintf(fieldName, "%s/%s-dim%d", gridDataName, names[i], dim);
+    snprintf(fieldName, sizeof(fieldName), "%s/%s-dim%" ISYM, gridDataName, names[i], dim);
 
     dataspace = H5Screate_simple(2, hdims, NULL);
     dataset = H5Dcreate(fileId, fieldName, h5DataType, dataspace, H5P_DEFAULT);
@@ -328,16 +324,15 @@ herr_t AMRHDF5Writer::WriteFlat(  const int    timeStep,
 
 {
   
-  char gridDataName[100], fieldName[100];
-  sprintf(gridDataName, "/grid-%d", gridId);
-  sprintf(fieldName, "%s/%s", gridDataName, name);
+  char gridDataName[512], fieldName[1024];
+  sprintf(gridDataName, "/grid-%" ISYM "", gridId);
+  snprintf(fieldName, sizeof(fieldName), "%s/%s", gridDataName, name);
 
   hid_t gridGrp, dataspace, dataset;
-  hsize_t hdims[3] = { dims[2], dims[1], dims[0] };
+  hsize_t hdims[3] = { (hsize_t) dims[2], (hsize_t) dims[1], (hsize_t) dims[0] };
   int err = 0;
-  int size = dims[0] * dims[1] * dims[2];
   char level8bit = (char) levelIndex;
-  short shortdims[3] = { dims[0], dims[1], dims[2] };
+  short shortdims[3] = { (short) dims[0], (short) dims[1], (short) dims[2] };
 
   /* Write index entry */
 
@@ -441,7 +436,7 @@ herr_t AMRHDF5Writer::writeParticles ( const int nPart,
     {"creation_time", "dynamical_time", "metallicity_fraction", "typeia_fraction"};
 #endif
 
-  sprintf(gridDataName, "/grid-%d", gridId);
+  sprintf(gridDataName, "/grid-%" ISYM "", gridId);
   if (nBaryonFields > 0) 
     gridGrp = H5Gopen(fileId, gridDataName);
   else
@@ -591,7 +586,6 @@ herr_t AMRHDF5Writer::writeParticles2( const int nPart,
   int dim, i, nPart_recorded_here, nPart_recorded_here_new;
   int err = 0;
   hid_t gridGrp, dataspace, dataspace2, dataset, PositionDatatype, attrname;
-  herr_t ret;
   hsize_t hdims, hdims2;  
   char gridDataName[100];
 
@@ -613,8 +607,8 @@ herr_t AMRHDF5Writer::writeParticles2( const int nPart,
   if (nPart == 0 && levelIndex != 0)
     return 0;
 
-  sprintf(gridDataName, "/particlegrid-%d", particlegridId);
-  fprintf(stdout, "AMRH5writer: nPart = %d (NofSP_OnProcOnLvl = %d), alreadyopenedentry = %d, gridDataName = %s\n",
+  sprintf(gridDataName, "/particlegrid-%" ISYM "", particlegridId);
+  fprintf(stdout, "AMRH5writer: nPart = %" ISYM " (NofSP_OnProcOnLvl = %" ISYM "), alreadyopenedentry = %" ISYM ", gridDataName = %s\n",
 	  nPart, NumberOfStarParticlesOnProcOnLvlEntry, alreadyopenedentry, gridDataName); //#####
 
   if (alreadyopenedentry == FALSE) {
@@ -647,14 +641,14 @@ herr_t AMRHDF5Writer::writeParticles2( const int nPart,
     gridGrp = H5Gopen(fileId_particle, gridDataName);
 
     attrname = H5Aopen_name(gridGrp, "nPart_recorded_here");
-    ret  = H5Aread(attrname, H5T_NATIVE_INT, &nPart_recorded_here);
+    H5Aread(attrname, H5T_NATIVE_INT, &nPart_recorded_here);
 
     // increase the recorded number of star particles
     nPart_recorded_here_new = nPart_recorded_here + nPart;
-    ret  = H5Awrite(attrname, H5T_NATIVE_INT, &nPart_recorded_here_new);
+    H5Awrite(attrname, H5T_NATIVE_INT, &nPart_recorded_here_new);
     H5Aclose(attrname);
 
-    fprintf(stdout, "nPart_recorded_here was %d, is now %d \n",
+    fprintf(stdout, "nPart_recorded_here was %" ISYM ", is now %" ISYM " \n",
 	    nPart_recorded_here, nPart_recorded_here_new); //#####
   }
 
@@ -753,12 +747,7 @@ herr_t AMRHDF5Writer::writeParticles2( const int nPart,
 
     dataspace = H5Screate_simple(1, &hdims, NULL);
     dataspace2 = H5Screate_simple(1, &hdims2, NULL);
-    ret = H5Sselect_hyperslab(dataspace, H5S_SELECT_SET, file_offset, NULL, file_count, NULL);
-
-    hsize_t a1[1], a2[1];
-    int a3;
-    H5Sget_simple_extent_dims(dataspace, a1, a2);
-    a3 = H5Sget_select_npoints(dataspace);
+    H5Sselect_hyperslab(dataspace, H5S_SELECT_SET, file_offset, NULL, file_count, NULL);
 
     for (dim = 0; dim < Rank; dim++) {
       
@@ -869,14 +858,12 @@ void AMRHDF5Writer::AMRHDF5CreateSeparateParticles( const char*      fileName,
   /* Create global attributes */
 
   hid_t groupId;
-  int err = 0;
 
   gridId = 0;
   output_particle = 0;  //This is the counter when recording particles in separate hdf5 file
 
   /* Create a string array that has the field names */
 
-  char buf[80];
   int NumberOfParticleFields = (ParticlesOn == TRUE) ? 9+nParticleAttr : 0;
   int iField = 0;
   char **HDF5_FieldNames = new char*[NumberOfParticleFields];
@@ -899,13 +886,13 @@ void AMRHDF5Writer::AMRHDF5CreateSeparateParticles( const char*      fileName,
   char str[100];
   hid_t atype;
   strcpy(str, "/Parameters and Global Attributes");
-  err |= checkErr(groupId = H5Gcreate(fileId_particle, str, 0), str);
-  err |= writeScalarAttribute(groupId, H5T_NATIVE_INT, "NumberOfParticleFields", 
+  checkErr(groupId = H5Gcreate(fileId_particle, str, 0), str);
+  writeScalarAttribute(groupId, H5T_NATIVE_INT, "NumberOfParticleFields", 
 			      &NumberOfParticleFields);
 
   atype = H5Tcopy(H5T_C_S1);
-  err |= H5Tset_size(atype, H5T_VARIABLE);
-  err |= writeArrayAttribute(groupId, atype, NumberOfParticleFields, "FieldNames", 
+  H5Tset_size(atype, H5T_VARIABLE);
+  writeArrayAttribute(groupId, atype, NumberOfParticleFields, "FieldNames", 
 			     HDF5_FieldNames);
 
   H5Gclose(groupId);
@@ -934,7 +921,6 @@ herr_t AMRHDF5Writer::writeSeparateParticles ( const int nPart,
 
   int dim, i, nPart_recorded_here, nPart_recorded_here_new;
   int err = 0;
-  herr_t ret;
   hsize_t hdims, hdims2;  
   
   hid_t partGrp, dataspace, dataspace2, dataset, PositionDatatype, attrname;
@@ -956,8 +942,8 @@ herr_t AMRHDF5Writer::writeSeparateParticles ( const int nPart,
   if (nPart == 0) 
     return 0;
 
-  sprintf(partDataName, "/Timestep-%d", output_particle);
-  //  fprintf(stdout, "AMRH5writer: nPart = %d, alreadyopenedentry = %d, partDataName = %s\n",
+  sprintf(partDataName, "/Timestep-%" ISYM "", output_particle);
+  //  fprintf(stdout, "AMRH5writer: nPart = %" ISYM ", alreadyopenedentry = %" ISYM ", partDataName = %s\n",
   //	  nPart, alreadyopenedentry, partDataName); 
   //  fprintf(stdout, "fileId_particle = %g\n", fileId_particle);
 
@@ -977,14 +963,14 @@ herr_t AMRHDF5Writer::writeSeparateParticles ( const int nPart,
     partGrp = H5Gopen(fileId_particle, partDataName);
 
     attrname = H5Aopen_name(partGrp, "nPart_recorded_here");
-    ret  = H5Aread(attrname, H5T_NATIVE_INT, &nPart_recorded_here);
+    H5Aread(attrname, H5T_NATIVE_INT, &nPart_recorded_here);
 
     // increase the recorded number of star particles
     nPart_recorded_here_new = nPart_recorded_here + nPart;
-    ret  = H5Awrite(attrname, H5T_NATIVE_INT, &nPart_recorded_here_new);
+    H5Awrite(attrname, H5T_NATIVE_INT, &nPart_recorded_here_new);
     H5Aclose(attrname);
 
-  //  fprintf(stdout, "AMRH5writer: nPart = %d, alreadyopenedentry = %d, partDataName = %s\n"
+  //  fprintf(stdout, "AMRH5writer: nPart = %" ISYM ", alreadyopenedentry = %" ISYM ", partDataName = %s\n"
   //	  "nPart_recorded_here was %d, is now %d \n",
   //	  nPart, alreadyopenedentry, partDataName, 
   //	  nPart_recorded_here, nPart_recorded_here_new); 
@@ -1081,12 +1067,7 @@ herr_t AMRHDF5Writer::writeSeparateParticles ( const int nPart,
 
     dataspace = H5Screate_simple(1, &hdims, NULL);
     dataspace2 = H5Screate_simple(1, &hdims2, NULL);
-    ret = H5Sselect_hyperslab(dataspace, H5S_SELECT_SET, file_offset, NULL, file_count, NULL);
-
-    hsize_t a1[1], a2[1];
-    int a3;
-    H5Sget_simple_extent_dims(dataspace, a1, a2);
-    a3 = H5Sget_select_npoints(dataspace);
+    H5Sselect_hyperslab(dataspace, H5S_SELECT_SET, file_offset, NULL, file_count, NULL);
 
     for (dim = 0; dim < Rank; dim++) {
       

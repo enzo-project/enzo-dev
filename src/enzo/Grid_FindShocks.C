@@ -439,11 +439,7 @@ int grid::FindVelShocks()
 
   int i, j, k, index,
     tempi, posti, prei;
-  float Csound, centervelx,centervely,centervelz,
-    preV, postV,veljumpmag,
-    v1jump,v2jump,v3jump,
-    gradvx, gradvy, gradvz,
-    maxdiv, thisjump, oldjump, velmach;
+  float Csound, centervelx, centervely, centervelz, veljumpmag, v1jump, v2jump, v3jump, gradvx, gradvy, gradvz, maxdiv, thisjump, oldjump, velmach;
   float num;
 
   int DensNum, TENum, GENum, 
@@ -582,8 +578,6 @@ int grid::FindVelShocks()
 
 	gradvx = gradvy = gradvz = 0.0;
 
-	preV = index;
-	postV = index;	
 
 	veljumpmag = 			
 	  (velocity1[index+1]-velocity1[index-1])*
@@ -709,7 +703,6 @@ int grid::FindVelShocks()
 	  //postV and break out
 	  if(flowdivergence[posti] < maxdiv){
 	    //  postV = temperature[tempi];  //Debatable 
-	    postV = posti;
 	    break;
 	  }
 	  //Update temporary i, maximum divergence, and increment num.
@@ -780,7 +773,6 @@ int grid::FindVelShocks()
 	  //Check for a shock in the current cell.  If not, set preV
 	  //and break out.
 	  if(flowdivergence[prei] >= 0.0){
-	    preV = prei;
 	    break;
 	  }
 	  //Check for better center of the shock.  If so, get out.
@@ -792,7 +784,6 @@ int grid::FindVelShocks()
 	  //preV and break out
 	  if(flowdivergence[prei] < maxdiv){
 	    // preV = temperature[tempi];  //Debatable 
-	    preV = prei;
 	    break;
 	  }
 	  //Update temporary i, maximum divergence, and increment num.

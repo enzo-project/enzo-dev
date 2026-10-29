@@ -37,7 +37,6 @@ int grid::xEulerSweep(int k, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 
   int dim = 0, idim = 1, jdim = 2;
   int dim_p1 = dim+1;   // To match definition in calcdiss
-  int ierr = 0;
 
   /* Find fields: density, total energy, velocity1-3. */
 
@@ -46,9 +45,8 @@ int grid::xEulerSweep(int k, int NumberOfSubgrids, fluxes *SubgridFluxes[],
   this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, 
 				   Vel3Num, TENum);
 
-  int nxz, nyz, nzz, ixyz;
+  int nyz, nzz;
 
-  nxz = GridEndIndex[0] - GridStartIndex[0] + 1;
   nyz = GridEndIndex[1] - GridStartIndex[1] + 1;
   nzz = GridEndIndex[2] - GridStartIndex[2] + 1;
 
@@ -307,8 +305,7 @@ int grid::xEulerSweep(int k, int NumberOfSubgrids, fluxes *SubgridFluxes[],
   /* Check this slice against the list of subgrids (all subgrid
      quantities are zero-based) */
 
-  int jstart, jend, offset, nfi, lface, rface, lindex, rindex, 
-    fistart, fiend, fjstart, fjend, clindex, crindex;
+  int offset, nfi, lface, rface, lindex, rindex, fistart, fiend, fjstart, fjend, clindex, crindex;
   
   for (n = 0; n < NumberOfSubgrids; n++) {
 

@@ -44,10 +44,9 @@ int ExternalBoundary::SetMagneticBoundary(int FieldRank, int GridDims[], int Gri
   //      which corrects indexing along the y faces, but not x or z.
   int nb = NumberOfGhostZones;
   int nx = GridDims[0] - 2*nb, ny = GridDims[1] - 2*nb, nz = GridDims[2] - 2*nb;
-  int i,j,k,sign,dbgflag,Bi,Ai, field;
+  int i, j, k, sign = 1, Bi, Ai, field;
   int nxt = nx+2*nb, nyt = ny+2*nb, nzt=nz+2*nb;
   int is,js,ks,ie, je ,ke;
-  bool lx = 1, rx = 0, lxz = 0, rxz = 0, ly=0,ry=0,lz=0,rz=0;
   bool verbose = 0;
   
   //The fields centered on the boundary may require special attention.
@@ -109,7 +108,7 @@ int ExternalBoundary::SetMagneticBoundary(int FieldRank, int GridDims[], int Gri
 	    A[Bi] = A[Ai];
 	  }
 
-	break;
+      break;
 
     case periodic:
       if( verbose ) fprintf(stderr,"Periodic?\n");
@@ -144,7 +143,7 @@ int ExternalBoundary::SetMagneticBoundary(int FieldRank, int GridDims[], int Gri
 	      Ai = j+GridOffset[1] + (k+GridOffset[2])*MagneticBoundaryDims[field][1];
               A[Bi] = 0.0;
 	    }      
-	break;
+      break;
 	
       case outflow:
 	if( verbose ) fprintf(stderr,"Right Outflow X\n");
@@ -155,7 +154,7 @@ int ExternalBoundary::SetMagneticBoundary(int FieldRank, int GridDims[], int Gri
 	      Bi = indgen(nb+nx+i,j,k,nxt,nyt,nzt);
 	      A[Bi] = A[Ai];
 	    }
-	break;
+      break;
 	
       case reflecting:
 	
@@ -167,10 +166,10 @@ int ExternalBoundary::SetMagneticBoundary(int FieldRank, int GridDims[], int Gri
 	      A[Bi] = sign*A[Ai];
 	    }
 	
-	break;
+      break;
 	
       case periodic:
-	break;
+      break;
 	if( GridOffset[0] == 0 ){
 	  for(k=ks;k<ke;k++)
 	    for(j=js;j<je;j++)
@@ -181,13 +180,13 @@ int ExternalBoundary::SetMagneticBoundary(int FieldRank, int GridDims[], int Gri
 	      }
 	}
 	
-	break;
+      break;
 	
 
       default:
       case BoundaryUndefined:
 	  if(verbose) fprintf(stderr,"Undefined Boundary\n");
-	break;
+      break;
 	
       }
   
@@ -205,7 +204,7 @@ int ExternalBoundary::SetMagneticBoundary(int FieldRank, int GridDims[], int Gri
 	      Ai = i+GridOffset[0] + (k+GridOffset[2])*MagneticBoundaryDims[field][0];
               A[Bi] = 0.0;
 	    }
-	break;
+      break;
 	
       case outflow:
 	for(k=ks;k<ke;k++)
@@ -215,7 +214,7 @@ int ExternalBoundary::SetMagneticBoundary(int FieldRank, int GridDims[], int Gri
 	      Bi = indgen(i,j,k,nxt,nyt,nzt);
 	      A[Bi] = A[Ai];
 	    }
-	break;
+      break;
 	
       case reflecting:
 	
@@ -226,10 +225,10 @@ int ExternalBoundary::SetMagneticBoundary(int FieldRank, int GridDims[], int Gri
 	      Ai = indgen(i,2*nb-j-1+Add[1],k,nxt,nyt,nzt);
 	      A[Bi] = A[Ai];
 	    }
-	break;
+      break;
 	
       case periodic:
-	break;
+      break;
 	if( GridOffset[1]+GridDims[1] == BoundaryDimension[1]) {
 	  for(k=ks;k<ke;k++)
 	    for(j=0;j<nb+Add[1];j++)
@@ -241,11 +240,11 @@ int ExternalBoundary::SetMagneticBoundary(int FieldRank, int GridDims[], int Gri
 		
 	      }
 	}
-	break;
+      break;
 	
       default:
       case BoundaryUndefined:
-	break;
+      break;
 	
 	
       }
@@ -264,7 +263,7 @@ int ExternalBoundary::SetMagneticBoundary(int FieldRank, int GridDims[], int Gri
 	      Bi = indgen(i,nb+ny+j-Add[1],k,nxt,nyt,nzt);
 	      A[Bi] = 0.0;
 	    }
-	break;
+      break;
 	
       case outflow: 
 	for(k=ks;k<ke;k++)
@@ -274,7 +273,7 @@ int ExternalBoundary::SetMagneticBoundary(int FieldRank, int GridDims[], int Gri
 	      Bi = indgen(i,nb+ny+j,k,nxt,nyt,nzt);
 	      A[Bi] = A[Ai];
 	    }
-	break;
+      break;
 	
       case reflecting:
 	
@@ -286,10 +285,10 @@ int ExternalBoundary::SetMagneticBoundary(int FieldRank, int GridDims[], int Gri
 	      A[Bi] = A[Ai];
 	      
 	    }
-	break;
+      break;
 
       case periodic:
-	break;
+      break;
 	if( GridOffset[1] == 0){
 	  for(k=ks;k<ke;k++)
 	    for(j=0;j<nb;j++)
@@ -299,13 +298,13 @@ int ExternalBoundary::SetMagneticBoundary(int FieldRank, int GridDims[], int Gri
 		A[Bi] = A[Ai];
 	      }
 	}
-	break;
+      break;
 	
       default:
       case BoundaryUndefined:
 	  if(verbose) fprintf(stderr,"Undefined Boundary\n");
 
-	break;
+      break;
 	
       }
   
@@ -324,7 +323,7 @@ int ExternalBoundary::SetMagneticBoundary(int FieldRank, int GridDims[], int Gri
 	      Bi = indgen(i,j,k,nxt,nyt,nzt);
               A[Bi] = 0.0;
 	    }	      
-	break;
+      break;
 	
       case outflow:
 	for(k=0;k<nb;k++)
@@ -335,7 +334,7 @@ int ExternalBoundary::SetMagneticBoundary(int FieldRank, int GridDims[], int Gri
 	      A[Bi] = A[Ai];
 	    }	      
 	
-	break;
+      break;
 	
       case reflecting:
 
@@ -383,7 +382,7 @@ int ExternalBoundary::SetMagneticBoundary(int FieldRank, int GridDims[], int Gri
 	      Bi = indgen(i,j,nb+nz+k-Add[2],nxt,nyt,nzt);
               A[Bi] = 0.0;
 	    }
-	break;
+      break;
       case outflow:
 	for(k=0;k<nb;k++)
 	  for(j=js;j<je;j++)
@@ -394,7 +393,7 @@ int ExternalBoundary::SetMagneticBoundary(int FieldRank, int GridDims[], int Gri
 	      
 	    }
 	
-	break;
+      break;
 	
       case reflecting:
 	
@@ -406,9 +405,9 @@ int ExternalBoundary::SetMagneticBoundary(int FieldRank, int GridDims[], int Gri
 	      A[Bi] =sign*A[Ai];
 	    }
 	
-	break;
+      break;
       case periodic:
-	break;
+      break;
 	if( GridOffset[2] == 0 ){
 	  for(k=0;k<nb;k++)
 	    for(j=js;j<je;j++)
@@ -419,11 +418,11 @@ int ExternalBoundary::SetMagneticBoundary(int FieldRank, int GridDims[], int Gri
 		
 	      }
 	}
-	break;
+      break;
 	
       default:
       case BoundaryUndefined:
-	break;
+      break;
 	
       }
   

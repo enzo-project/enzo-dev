@@ -32,7 +32,7 @@ int SetLevelTimeStep(HierarchyEntry *Grids[], int NumberOfGrids, int level,
 		     float *dtThisLevelSoFar, float *dtThisLevel,
 		     float dtLevelAbove)
 {
-  float dtGrid, dtActual, dtLimit;
+  float dtGrid, dtActual;
   int grid1;
 
   LCAPERF_START("SetLevelTimeStep"); // SetTimeStep()
@@ -91,7 +91,7 @@ int SetLevelTimeStep(HierarchyEntry *Grids[], int NumberOfGrids, int level,
       int my_cycle_skip = max(1, (int) (*dtThisLevel / dt_conduction));
       dtRebuildHierarchy[level] = *dtThisLevel;
       if (debug)
-        fprintf(stderr, "Conduction dt[%"ISYM"] = %"GSYM", will rebuild hierarchy in about %"ISYM" cycles.\n",
+        fprintf(stderr, "Conduction dt[%" ISYM"] = %" GSYM", will rebuild hierarchy in about %" ISYM" cycles.\n",
                          level, dt_conduction, my_cycle_skip);
 
       /* Set actual timestep correctly. */
@@ -124,7 +124,7 @@ int SetLevelTimeStep(HierarchyEntry *Grids[], int NumberOfGrids, int level,
   }
 
   if (debug) 
-    printf("Level[%"ISYM"]: dt = %"GSYM"  %"GSYM" (%"GSYM"/%"GSYM")\n", 
+    printf("Level[%" ISYM"]: dt = %" GSYM"  %" GSYM" (%" GSYM"/%" GSYM")\n", 
 	   level, *dtThisLevel, dtActual, *dtThisLevelSoFar, dtLevelAbove);
  
   /* Set all grid's timestep to this minimum dt. */

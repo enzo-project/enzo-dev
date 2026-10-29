@@ -69,8 +69,8 @@ int InitializeCloudyCooling(FLOAT Time)
   if (debug) {
     fprintf(stderr,"Initializing Cloudy cooling.\n");
     fprintf(stderr,"CloudyCoolingGridFile: %s.\n",CloudyCoolingData.CloudyCoolingGridFile);
-    fprintf(stderr,"IncludingCloudyHeating: %"ISYM".\n",CloudyCoolingData.IncludeCloudyHeating);
-    fprintf(stderr,"CMBTemperatureFloor: %"ISYM".\n",CloudyCoolingData.CMBTemperatureFloor);
+    fprintf(stderr,"IncludingCloudyHeating: %" ISYM".\n",CloudyCoolingData.IncludeCloudyHeating);
+    fprintf(stderr,"CMBTemperatureFloor: %" ISYM".\n",CloudyCoolingData.CMBTemperatureFloor);
   }
 
   /* If using cosmology, compute the expansion factor and get units. */
@@ -132,7 +132,7 @@ int InitializeCloudyCooling(FLOAT Time)
     return FAIL;
   }
   CloudyCoolingData.CloudyCoolingGridRank = (int) temp_int;
-  if (debug) fprintf(stderr,"Cloudy cooling grid rank: %"ISYM".\n",CloudyCoolingData.CloudyCoolingGridRank);
+  if (debug) fprintf(stderr,"Cloudy cooling grid rank: %" ISYM".\n",CloudyCoolingData.CloudyCoolingGridRank);
   status = H5Aclose(attr_id);
   if (attr_id == h5_error) {
     fprintf(stderr,"Failed to close Rank attribute in Cooling dataset.\n");
@@ -154,7 +154,7 @@ int InitializeCloudyCooling(FLOAT Time)
   if (debug) fprintf(stderr,"Cloudy cooling grid dimensions:");
   for (q = 0;q < CloudyCoolingData.CloudyCoolingGridRank;q++) {
     CloudyCoolingData.CloudyCoolingGridDimension[q] = (int) temp_int_arr[q];
-    if (debug) fprintf(stderr," %"ISYM,CloudyCoolingData.CloudyCoolingGridDimension[q]);
+    if (debug) fprintf(stderr," %" ISYM,CloudyCoolingData.CloudyCoolingGridDimension[q]);
   }
   if (debug) fprintf(stderr,".\n");
   status = H5Aclose(attr_id);
@@ -231,7 +231,7 @@ int InitializeCloudyCooling(FLOAT Time)
   for (q = 0;q < CloudyCoolingData.CloudyCoolingGridRank;q++) {
 
     if (q < CloudyCoolingData.CloudyCoolingGridRank - 1) {
-      sprintf(parameter_name,"/Parameter%"ISYM,(q+1));
+      sprintf(parameter_name,"/Parameter%" ISYM,(q+1));
     }
     else {
       sprintf(parameter_name,"/Temperature");
@@ -270,7 +270,7 @@ int InitializeCloudyCooling(FLOAT Time)
       return FAIL;
     }
 
-    if (debug) fprintf(stderr,"%s: %"GSYM" to %"GSYM" (%"ISYM" steps).\n",parameter_name,
+    if (debug) fprintf(stderr,"%s: %" GSYM" to %" GSYM" (%" ISYM" steps).\n",parameter_name,
 		       CloudyCoolingData.CloudyCoolingGridParameters[q][0],
 		       CloudyCoolingData.CloudyCoolingGridParameters[q][CloudyCoolingData.CloudyCoolingGridDimension[q]-1],
 		       CloudyCoolingData.CloudyCoolingGridDimension[q]);
@@ -280,7 +280,7 @@ int InitializeCloudyCooling(FLOAT Time)
   status = H5Fclose (file_id);
 
   if (CloudyCoolingData.CloudyCoolingGridRank > CLOUDY_COOLING_MAX_DIMENSION) {
-    fprintf(stderr,"Error: rank of Cloudy cooling data must be less than or equal to %"ISYM".\n",
+    fprintf(stderr,"Error: rank of Cloudy cooling data must be less than or equal to %d.\n",
 	    CLOUDY_COOLING_MAX_DIMENSION);
     return FAIL;
   }

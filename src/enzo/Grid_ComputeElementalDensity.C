@@ -267,7 +267,7 @@ int grid::ComputeElementalDensity(float *temperature,
   case 5: LookupTable = FeXXVILookupTable; break;
   case 6: break; /* general Oxygen */
   default:
-    ENZO_VFAIL("Unrecognized element type: %"ISYM"\n", Type)
+    ENZO_VFAIL("Unrecognized element type: %" ISYM"\n", Type)
   }
  
   if (Type < 6) {
@@ -292,23 +292,23 @@ int grid::ComputeElementalDensity(float *temperature,
       if ((fptr = fopen(filename, "r")) == NULL) {
 	ENZO_VFAIL("Erroring opening %s.\n", filename)
       }
-      if (fscanf(fptr, "NumberOfDensityPoints = %"ISYM"\n", TableSize) != 1) {
+      if (fscanf(fptr, "NumberOfDensityPoints = %" ISYM"\n", TableSize) != 1) {
 	ENZO_FAIL("Erroring reading number of density points\n");
       }
-      if (fscanf(fptr, "NumberOfTemperaturePoints = %"ISYM"\n", TableSize+1) != 1) {
+      if (fscanf(fptr, "NumberOfTemperaturePoints = %" ISYM"\n", TableSize+1) != 1) {
 	ENZO_FAIL("Erroring reading number of temperature points\n");
       }
-      printf("NumberOfBins (temp,dens) = %"ISYM",%"ISYM"\n", TableSize[0], TableSize[1]);
+      printf("NumberOfBins (temp,dens) = %" ISYM",%" ISYM"\n", TableSize[0], TableSize[1]);
  
       TableDensity     = new float[TableSize[0]];
       TableTemperature = new float[TableSize[1]];
       LookupTable      = new float[TableSize[0]*TableSize[1]];
       for (n = 0, j = 0; j < TableSize[1]; j++)
 	for (i = 0; i < TableSize[0]; i++, n++)
-	  if (fscanf(fptr, "%"FSYM" %"FSYM" %"FSYM" %"FSYM,
+	  if (fscanf(fptr, "%" FSYM" %" FSYM" %" FSYM" %" FSYM,
 		     TableDensity+i, TableTemperature+j,
 		     LookupTable+n, &DummyFloat) != 4) {
-	    ENZO_VFAIL("Error reading table %"ISYM" %"ISYM"\n", i, j)
+	    ENZO_VFAIL("Error reading table %" ISYM" %" ISYM"\n", i, j)
 	  }
       fclose(fptr);
       TableRead = TRUE;

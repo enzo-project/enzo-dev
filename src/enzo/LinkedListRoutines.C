@@ -98,7 +98,7 @@ void QSprintlist(PhotonPackageEntry *Node)
 {
   PhotonPackageEntry *t = Node;
   while (t) {
-    printf("Photon %x :: level %"ISYM", ipix %"ISYM"\n", t, t->level, t->ipix);
+    printf("Photon %x :: level %" ISYM", ipix %" ISYM"\n", t, t->level, t->ipix);
     t = t->NextPackage;
   }
   return;

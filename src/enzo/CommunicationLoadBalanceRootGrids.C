@@ -67,8 +67,7 @@ int CommunicationLoadBalanceRootGrids(LevelHierarchyEntry *LevelArray[],
 
   LevelHierarchyEntry *Temp;
 
-  char line[MAX_LINE_LENGTH];
-  int i, level, dim, Rank, ThisLevel, dummy, ThisTask;
+  int i, level, dim, Rank;
   int size, grid_num, RootGridID, NumberOfRootGrids;
   int Layout[MAX_DIMENSION], LayoutTemp[MAX_DIMENSION], GridPosition[MAX_DIMENSION];
   int GridDims[MAX_DIMENSION];
@@ -184,7 +183,7 @@ int CommunicationLoadBalanceRootGrids(LevelHierarchyEntry *LevelArray[],
       Done = true;
 
 //    if (debug) 
-//      printf("LBRoot: done = %d, grids %d -> %d, nmove = %d\n", 
+//      printf("LBRoot: done = %" ISYM ", grids %" ISYM " -> %" ISYM ", nmove = %" ISYM "\n", 
 //	     Done, StartGrid, EndGrid, nmove);
 
     /* Post receives */

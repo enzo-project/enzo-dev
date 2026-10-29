@@ -70,7 +70,7 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
   
   NumberOfNewPhotonPackages = BasePackages*stype;
   if (MYPROC && DEBUG) 
-    fprintf(stdout, "grid::Shine: Maximum Number of New Photon Packages %"ISYM"\n",
+    fprintf(stdout, "grid::Shine: Maximum Number of New Photon Packages %" ISYM"\n",
 	    NumberOfNewPhotonPackages);
 
   if (MyProcessorNumber != ProcessorNumber) {
@@ -124,7 +124,7 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
   //ShakeSource[dim] = (-0.01 + 0.02*float(rand())/RAND_MAX) * CellWidth[dim][0];
 
   if (MYPROC && DEBUG)
-    printf("Shine: ramp = %lf, lapsed = %lf/%"FSYM", L = %"GSYM"\n", RampPercent, 
+    printf("Shine: ramp = %lf, lapsed = %lf/%" FSYM", L = %" GSYM"\n", RampPercent, 
 	   PhotonTime-RS->CreationTime+dtPhoton, RS->LifeTime, 
 	   RS->Luminosity);
 
@@ -185,9 +185,9 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
 
     if (MYPROC && DEBUG)
       {
-	fprintf(stdout, "Shine: Photons/package[%"ISYM"]: %"GSYM" eV, Luminosity = %"GSYM"\n " \
-		"Ramp Luminosity = %"GSYM" \n " \
-		"SED = %"GSYM"\n Photons per Package = %"GSYM"\n Type = %"ISYM"\n",
+	fprintf(stdout, "Shine: Photons/package[%" ISYM"]: %" GSYM" eV, Luminosity = %" GSYM"\n " \
+		"Ramp Luminosity = %" GSYM" \n " \
+		"SED = %" GSYM"\n Photons per Package = %" GSYM"\n Type = %" ISYM"\n",
 		ebin, RS->Energy[ebin], RS->Luminosity, RampPercent*RS->Luminosity, 
 		RS->SED[ebin], photons_per_package, this_type);
       }
@@ -268,7 +268,7 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
 	  NewPack->PrintInfo();
 
 //	if (DEBUG) {
-//	  printf("Shine: MBH = %d, RS->Type = %d, E=%g, NewPack->Type = %d\n", 
+//	  printf("Shine: MBH = %" ISYM ", RS->Type = %" ISYM ", E=%g, NewPack->Type = %" ISYM "\n", 
 //	         MBH, RS->Type, RS->Energy[ebin], NewPack->Type);  
 //	  NewPack->PrintInfo();
 //	}
@@ -283,7 +283,7 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
   NumberOfPhotonPackages += NumberOfNewPhotonPackages;
 
   if (MYPROC && DEBUG) {
-    printf("Shine: created %"ISYM" packages \n", count);
+    printf("Shine: created %" ISYM" packages \n", count);
     PhotonPackageEntry *PP;
     PP = PhotonPackages;
     count = 0;
@@ -292,7 +292,7 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
       PP = PP->NextPackage;
     }
     if (DEBUG) fprintf(stdout,"Shine: done.\n");
-    if (DEBUG) fprintf(stdout,"counted %"ISYM" packages\n", count);
+    if (DEBUG) fprintf(stdout,"counted %" ISYM" packages\n", count);
   }
 
   if (DEBUG) fprintf(stdout, "Shine: PhotonPackages : %p   NextPackage  %p\n", 

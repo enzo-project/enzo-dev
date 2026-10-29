@@ -268,7 +268,7 @@ int ComputePotentialFieldLevelZeroPer(TopGridData *MetaData,
   /* Quick error check. */
  
   if (NumberOfOutRegions != NumberOfGreensRegions) {
-    ENZO_VFAIL("OutRegion(%"ISYM") != GreensRegion(%"ISYM")\n", NumberOfOutRegions,
+    ENZO_VFAIL("OutRegion(%" ISYM") != GreensRegion(%" ISYM")\n", NumberOfOutRegions,
 	    NumberOfGreensRegions)
   }
  

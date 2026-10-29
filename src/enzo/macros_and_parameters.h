@@ -123,7 +123,13 @@
 #define ENZO_VFAIL(A, ...) raise(SIGABRT);
 #else
 #define ENZO_FAIL(A) throw(EnzoFatalException(A, __FILE__, __LINE__));
-#define ENZO_VFAIL(format, ...) {snprintf(current_error, 254, format, ##__VA_ARGS__); throw(EnzoFatalException(current_error, __FILE__, __LINE__));}
+#define ENZO_VFAIL(format, ...) { \
+  _Pragma("GCC diagnostic push") \
+  _Pragma("GCC diagnostic ignored \"-Wformat-truncation\"") \
+  snprintf(current_error, 254, format, ##__VA_ARGS__); \
+  _Pragma("GCC diagnostic pop") \
+  throw(EnzoFatalException(current_error, __FILE__, __LINE__)); \
+}
 #endif
 
 /* Fortran name generator (cpp blues) */
@@ -643,7 +649,7 @@ typedef long long int   HDF5_hid_t;
   time (&rawtime); \
   timeinfo = localtime(&rawtime); \
   if (MyProcessorNumber % (NumberOfProcessors/PROCS_PER_NODE) == 0) \
-    printf("%s :: P%d :: %s", A, MyProcessorNumber, asctime(timeinfo));
+    printf("%s :: P%" ISYM " :: %s", A, MyProcessorNumber, asctime(timeinfo));
 #else
 #define TIME_MSG(A) ;
 #endif

@@ -76,34 +76,23 @@ int grid::WriteNewMovieData(FLOAT RegionLeftEdge[], FLOAT RegionRightEdge[],
 			    int NumberOfStarParticlesOnProcOnLvl[][MAX_DEPTH_OF_HIERARCHY])
 {
 
-  static char suffix[] = ".mdat";
-  static char partSuffix[] = ".part";
 
-  static char indexSuffix[] = ".idx";
-
-  static long maxEntriesAll = 40000;    // Maximum entries for all processors
-  long maxEntries = maxEntriesAll;      // / NumberOfProcessors;
 
   /* Declarations */
   int i, j, k, dim, field, size=1, allsize=1, vcsize = 1;
-  int ret, gridindex, tempindex;
-  int ActiveDim[MAX_DIMENSION], instance;
-  int dataWritten, StartNewFile = FALSE;
+  int gridindex, tempindex;
+  int ActiveDim[MAX_DIMENSION];
+  int dataWritten;
   FLOAT CurrentRedshift, Left[MAX_DIMENSION], Right[MAX_DIMENSION], a = 1, dadt;
   float *temp, *ThisField;
   float *temperature;
-  char fileID[3], pid[6];
   const double ln2 = 0.69314718;
   int TemperatureField = NumberOfBaryonFields+1;
   int thislevel;   
   float root_dx = 1.0 / RootResolution;
   
-  double doubleTime, doubleRedshift, *doubletemp;
-  char *referenceFileName = NULL, *referenceDataPath = NULL;
+  double doubleTime, doubleRedshift;
 
-  FILE *index = NULL; 
-  FILE *index2 = NULL;
-  FILE *movie = NULL;
 
   if (MyProcessorNumber != ProcessorNumber)
     return SUCCESS;
@@ -114,7 +103,6 @@ int grid::WriteNewMovieData(FLOAT RegionLeftEdge[], FLOAT RegionRightEdge[],
 
   /* Determine whether to output, its instance, and if to increment
      the counter */
-  instance = (lastMovieStep) ? 2 : 0;
 
   // Flag to write data if it's the last timestep or the n-th timestep
   dataWritten = (lastMovieStep || WriteMe);
@@ -142,7 +130,6 @@ int grid::WriteNewMovieData(FLOAT RegionLeftEdge[], FLOAT RegionRightEdge[],
 
   /* Find the density field. */
 
-  int DensNum = FindField(Density, FieldType, NumberOfBaryonFields);
 
   /* Get expansion factor */
   if (ComovingCoordinates) {
@@ -157,8 +144,7 @@ int grid::WriteNewMovieData(FLOAT RegionLeftEdge[], FLOAT RegionRightEdge[],
   /* Check if we need to start a new moviefile (at top grid timesteps). */
 
   if (NewMovieDumpNumber < TopGridCycle && !open) {
-    //printf("Inside: %d %d %d\n", NewMovieDumpNumber, TopGridCycle, open);
-    StartNewFile = TRUE;
+    //printf("Inside: %" ISYM " %" ISYM " %" ISYM "\n", NewMovieDumpNumber, TopGridCycle, open);
     NewMovieDumpNumber = TopGridCycle;
 
     char **FieldNames = new char*[nFields];
@@ -174,14 +160,14 @@ int grid::WriteNewMovieData(FLOAT RegionLeftEdge[], FLOAT RegionRightEdge[],
     int *RefineByArray = new int[3];
     bool error = FALSE;
     hid_t DataType = H5T_NATIVE_FLOAT;
-    char Amira_fileID[5], Amira_pid[6];
+    char Amira_fileID[16], Amira_pid[16];
   
     staggering stag = (MovieVertexCentered) ? VERTEX_CENTERED : CELL_CENTERED;
     fieldtype field_type = SCALAR;
     for (dim = 0; dim < MAX_DIMENSION; dim++) RefineByArray[dim] = RefineBy;
 
-    sprintf(Amira_pid, "_P%3.3d", MyProcessorNumber);
-    sprintf(Amira_fileID, "%4.4d", NewMovieDumpNumber);
+    sprintf(Amira_pid, "_P%3.3" ISYM, MyProcessorNumber);
+    sprintf(Amira_fileID, "%4.4" ISYM, NewMovieDumpNumber);
 
     strcpy(AmiraFileName, NewMovieName);
     strcat(AmiraFileName, Amira_fileID);
@@ -403,8 +389,8 @@ int grid::WriteNewMovieData(FLOAT RegionLeftEdge[], FLOAT RegionRightEdge[],
       fprintf(stderr, "Error in AMRHDF5Writer->writeParticles\n");
       return FAIL;
     }
-//  fprintf(stdout, "grid::WriteNewMovieData: NumberOfParticles = %d\n", NumberOfParticles); 
-//    fprintf(stdout, "ParticleNumber[j][0] = %d", ParticleNumber[j][0]);
+//  fprintf(stdout, "grid::WriteNewMovieData: NumberOfParticles = %" ISYM "\n", NumberOfParticles); 
+//    fprintf(stdout, "ParticleNumber[j][0] = %" ISYM "", ParticleNumber[j][0]);
   } /* ENDIF: output all particles */
 
   if (NewMovieParticleOn == NON_DM_PARTICLES) {
@@ -415,7 +401,7 @@ int grid::WriteNewMovieData(FLOAT RegionLeftEdge[], FLOAT RegionRightEdge[],
 
     int *NonDMParticleIndices = new int[NumberOfParticles];
     int NumberOfNonDMParticles = 0;
-    int ii, iattr;
+    int iattr;
 
     FLOAT *TempPosition[3];
     float *TempVelocity[3], *TempMass;
@@ -513,7 +499,7 @@ int grid::WriteNewMovieData(FLOAT RegionLeftEdge[], FLOAT RegionRightEdge[],
 
     int *NonDMParticleIndices = new int[NumberOfParticles];
     int NumberOfNonDMParticles = 0, filled_upto_here = 0;
-    int ii, iattr;
+    int iattr;
 
     for (i = 0; i < NumberOfParticles; i++)
       NonDMParticleIndices[i] = -1;

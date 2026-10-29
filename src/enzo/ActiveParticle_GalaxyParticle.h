@@ -124,7 +124,7 @@ int ActiveParticleType_GalaxyParticle::AfterEvolveLevel(HierarchyEntry *Grids[],
     {
 
       /* Generate a list of all galaxy particles in the simulation box */
-      int i,nParticles;
+      int nParticles;
       ActiveParticleList<ActiveParticleType> ParticleList;
 
       ActiveParticleFindAll(LevelArray, &nParticles, GalaxyParticleID, 
@@ -170,7 +170,7 @@ int ActiveParticleType_GalaxyParticle::DepositMass(HierarchyEntry *Grids[], TopG
     {
 
       /* Generate a list of all galaxy particles in the simulation box */
-      int i,nParticles;
+      int nParticles;
       ActiveParticleList<ActiveParticleType> ParticleList;
 
       ActiveParticleFindAll(LevelArray, &nParticles, GalaxyParticleID, 

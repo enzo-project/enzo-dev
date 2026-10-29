@@ -51,7 +51,6 @@ int OutputSmoothedDarkMatterOnly(char *ParameterFile,
                 )
 {
 
-  int level;
 
   /* Determine the parameter name prefix */
 

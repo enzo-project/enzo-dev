@@ -69,14 +69,14 @@ int TracerParticleCreation(FILE *fptr, HierarchyEntry &TopGrid,
  
     // Read tracer particle parameters
  
-    sscanf(line, "TracerParticleCreation = %"ISYM, &MetaData.CycleNumber);
-    sscanf(line, "TracerParticleCreationSpacing = %"PSYM,
+    sscanf(line, "TracerParticleCreation = %" ISYM, &MetaData.CycleNumber);
+    sscanf(line, "TracerParticleCreationSpacing = %" PSYM,
 	   &TracerParticleCreationSpacing);
-    sscanf(line, "TracerParticleCreationLeftEdge = %"PSYM" %"PSYM" %"PSYM,
+    sscanf(line, "TracerParticleCreationLeftEdge = %" PSYM" %" PSYM" %" PSYM,
 		  TracerParticleCreationLeftEdge,
 		  TracerParticleCreationLeftEdge+1,
 		  TracerParticleCreationLeftEdge+2);
-    sscanf(line, "TracerParticleCreationRightEdge = %"PSYM" %"PSYM" %"PSYM,
+    sscanf(line, "TracerParticleCreationRightEdge = %" PSYM" %" PSYM" %" PSYM,
 		  TracerParticleCreationRightEdge,
 		  TracerParticleCreationRightEdge+1,
 		  TracerParticleCreationRightEdge+2);
@@ -84,13 +84,13 @@ int TracerParticleCreation(FILE *fptr, HierarchyEntry &TopGrid,
   }
  
 /*
-  fprintf(stderr, "TracerParticleCreation = %"ISYM"\n", MetaData.CycleNumber);
-  fprintf(stderr, "TracerParticleCreationSpacing = %"PSYM"\n", TracerParticleCreationSpacing);
-  fprintf(stderr, "TracerParticleCreationLeftEdge = %"PSYM" %"PSYM" %"PSYM"\n",
+  fprintf(stderr, "TracerParticleCreation = %" ISYM"\n", MetaData.CycleNumber);
+  fprintf(stderr, "TracerParticleCreationSpacing = %" PSYM"\n", TracerParticleCreationSpacing);
+  fprintf(stderr, "TracerParticleCreationLeftEdge = %" PSYM" %" PSYM" %" PSYM"\n",
                   TracerParticleCreationLeftEdge[0],
                   TracerParticleCreationLeftEdge[1],
                   TracerParticleCreationLeftEdge[2]);
-  fprintf(stderr, "TracerParticleCreationRightEdge = %"PSYM" %"PSYM" %"PSYM"\n",
+  fprintf(stderr, "TracerParticleCreationRightEdge = %" PSYM" %" PSYM" %" PSYM"\n",
                   TracerParticleCreationRightEdge[0],
                   TracerParticleCreationRightEdge[1],
                   TracerParticleCreationRightEdge[2]);

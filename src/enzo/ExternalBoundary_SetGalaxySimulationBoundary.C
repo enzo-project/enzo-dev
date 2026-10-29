@@ -44,7 +44,6 @@ int ExternalBoundary::SetGalaxySimulationBoundary(FLOAT time)
   int i, j, dim, index;
   int NumberOfZones[MAX_DIMENSION], Offset[MAX_DIMENSION];
   float deltime, distance, pos[MAX_DIMENSION];
-  const float TwoPi = 6.283185;
  
   /* Compute size of entire mesh. */
  
@@ -209,7 +208,7 @@ int ExternalBoundary::SetGalaxySimulationBoundary(FLOAT time)
 				int f_index = 0;
 				while (fgets(line, MAX_LINE_LENGTH, fptr) != NULL) {
 					if (line[0] == 'N') {
-						(sscanf(line, "NumberOfSteps = %"ISYM"\n", &ICMTableSize));
+						(sscanf(line, "NumberOfSteps = %" ISYM"\n", &ICMTableSize));
 						ICMTimeTable        = new double[ICMTableSize];
 						ICMDensityTable     = new double[ICMTableSize];
 						ICMTotalEnergyTable = new double[ICMTableSize];
@@ -270,7 +269,7 @@ int ExternalBoundary::SetGalaxySimulationBoundary(FLOAT time)
 
 				/* interpolate w/ lookup table */
 
-				float t_ratio,v1,v2;
+				float t_ratio;
 				int i1,i2=-1;
 				
 				// find times that bracket what we want

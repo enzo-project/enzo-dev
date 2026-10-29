@@ -48,19 +48,19 @@ int CosmologyComputeTimeFromRedshift(FLOAT Redshift, FLOAT *TimeCodeUnits);
 int AdiabaticExpansionInitialize(FILE *fptr, FILE *Outfptr,
 			       HierarchyEntry &TopGrid)
 {
-  char *DensName = "Density";
-  char *TEName   = "TotalEnergy";
-  char *GEName   = "GasEnergy";
-  char *Vel1Name = "x-velocity";
-  char *Vel2Name = "y-velocity";
-  char *Vel3Name = "z-velocity";
-  char *BxName = "Bx";
-  char *ByName = "By";
-  char *BzName = "Bz";
-  char *PhiName = "Phi";
-  char *Phi_pName = "Phip";
-  char *CRName = "CREnergyDensity";
-  char *GPotName  = "Grav_Potential";
+  const char *DensName = "Density";
+  const char *TEName   = "TotalEnergy";
+  const char *GEName   = "GasEnergy";
+  const char *Vel1Name = "x-velocity";
+  const char *Vel2Name = "y-velocity";
+  const char *Vel3Name = "z-velocity";
+  const char *BxName = "Bx";
+  const char *ByName = "By";
+  const char *BzName = "Bz";
+  const char *PhiName = "Phi";
+  const char *Phi_pName = "Phip";
+  const char *CRName = "CREnergyDensity";
+  const char *GPotName  = "Grav_Potential";
 
   /* declarations */
  
@@ -96,19 +96,19 @@ int AdiabaticExpansionInitialize(FILE *fptr, FILE *Outfptr,
  
     /* read parameters */
  
-    ret += sscanf(line, "AdiabaticExpansionOmegaBaryonNow = %"FSYM,
+    ret += sscanf(line, "AdiabaticExpansionOmegaBaryonNow = %" FSYM,
 		  &AdiabaticExpansionOmegaBaryonNow);
-    ret += sscanf(line, "AdiabaticExpansionOmegaCDMNow = %"FSYM,
+    ret += sscanf(line, "AdiabaticExpansionOmegaCDMNow = %" FSYM,
 		  &AdiabaticExpansionOmegaCDMNow);
-    ret += sscanf(line, "AdiabaticExpansionInitialTemperature = %"FSYM,
+    ret += sscanf(line, "AdiabaticExpansionInitialTemperature = %" FSYM,
 		  &AdiabaticExpansionInitialTemperature);
-    ret += sscanf(line, "AdiabaticExpansionInitialUniformBField = %"FSYM" %"FSYM" %"FSYM,
+    ret += sscanf(line, "AdiabaticExpansionInitialUniformBField = %" FSYM" %" FSYM" %" FSYM,
 		  AdiabaticExpansionInitialUniformBField,
 		  AdiabaticExpansionInitialUniformBField+1,
 		  AdiabaticExpansionInitialUniformBField+2);
-    ret += sscanf(line, "AdiabaticExpansionInitialVelocity = %"FSYM,
+    ret += sscanf(line, "AdiabaticExpansionInitialVelocity = %" FSYM,
 		  &AdiabaticExpansionInitialVelocity);
-    ret += sscanf(line, "AdiabaticExpansionInitialCR = %"FSYM,
+    ret += sscanf(line, "AdiabaticExpansionInitialCR = %" FSYM,
       &AdiabaticExpansionInitialCR);
  
     /* if the line is suspicious, issue a warning */
@@ -121,15 +121,14 @@ int AdiabaticExpansionInitialize(FILE *fptr, FILE *Outfptr,
   /* error checking */
   if (Mu != DEFAULT_MU) {
     if (MyProcessorNumber == ROOT_PROCESSOR)
-      fprintf(stderr, "warning: mu =%f assumed in initialization; setting Mu = %f for consistency.\n", DEFAULT_MU);
+      fprintf(stderr, "warning: mu = %" FSYM " assumed in initialization; setting Mu = %lf for consistency.\n", Mu, DEFAULT_MU);
     Mu = DEFAULT_MU;
   }
 
  
   /* Get the units so we can convert temperature later. */
  
-  float DensityUnits=1, LengthUnits=1, TemperatureUnits=1, TimeUnits=1,
-    VelocityUnits=1, PressureUnits=1.,MagneticUnits=1., a=1,dadt=0,CRUnits=1;
+  float DensityUnits=1, LengthUnits=1, TemperatureUnits=1, TimeUnits=1, VelocityUnits=1, PressureUnits=1., MagneticUnits=1., CRUnits=1;
 
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, InitialTimeInCodeUnits) == FAIL) {
@@ -223,18 +222,18 @@ int AdiabaticExpansionInitialize(FILE *fptr, FILE *Outfptr,
   /* Write parameters to parameter output file */
  
   if (MyProcessorNumber == ROOT_PROCESSOR) {
-    fprintf(Outfptr, "AdiabaticExpansionOmegaBaryonNow     = %"FSYM"\n",
+    fprintf(Outfptr, "AdiabaticExpansionOmegaBaryonNow     = %" FSYM"\n",
 	    AdiabaticExpansionOmegaBaryonNow);
-    fprintf(Outfptr, "AdiabaticExpansionOmegaCDMNow        = %"FSYM"\n",
+    fprintf(Outfptr, "AdiabaticExpansionOmegaCDMNow        = %" FSYM"\n",
 	    AdiabaticExpansionOmegaCDMNow);
-    fprintf(Outfptr, "AdiabaticExpansionInitialTemperature = %"FSYM"\n",
+    fprintf(Outfptr, "AdiabaticExpansionInitialTemperature = %" FSYM"\n",
 	    AdiabaticExpansionInitialTemperature);
     fprintf(Outfptr, "AdiabaticExpansionInitialUniformBField = ");
     WriteListOfFloats(Outfptr, 3, AdiabaticExpansionInitialUniformBField);
 
-    fprintf(Outfptr, "AdiabaticExpansionInitialVelocity    = %"FSYM"\n\n",
+    fprintf(Outfptr, "AdiabaticExpansionInitialVelocity    = %" FSYM"\n\n",
 	    AdiabaticExpansionInitialVelocity);
-    fprintf(Outfptr, "AdiabaticExpansionInitialCR          = %"FSYM"\n\n",
+    fprintf(Outfptr, "AdiabaticExpansionInitialCR          = %" FSYM"\n\n",
       AdiabaticExpansionInitialCR);
   }
  

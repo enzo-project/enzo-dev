@@ -39,12 +39,11 @@ int ReadUnits(FILE *fptr)
 
   while (fgets(line, MAX_LINE_LENGTH, fptr) != NULL) {
 
-    int ret = 0;
     /* read parameters */
-    ret += sscanf(line, "MassUnits = %lf", &GlobalMassUnits);
-    ret += sscanf(line, "DensityUnits = %"FSYM, &GlobalDensityUnits);
-    ret += sscanf(line, "LengthUnits = %"FSYM, &GlobalLengthUnits);
-    ret += sscanf(line, "TimeUnits = %"FSYM, &GlobalTimeUnits);
+    sscanf(line, "MassUnits = %lf", &GlobalMassUnits);
+    sscanf(line, "DensityUnits = %" FSYM, &GlobalDensityUnits);
+    sscanf(line, "LengthUnits = %" FSYM, &GlobalLengthUnits);
+    sscanf(line, "TimeUnits = %" FSYM, &GlobalTimeUnits);
   }
 
   /* If both mass and density units specified, use only mass and print warning */

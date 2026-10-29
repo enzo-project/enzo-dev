@@ -118,7 +118,7 @@ int grid::FastSiblingLocatorFindSiblings(ChainingMeshStructure *Mesh,
  
 	    AlreadyPresent = FALSE;
             if ( list->NumberOfSiblings > MAX_NUMBER_OF_SUBGRIDS ) {
-              ENZO_VFAIL("DC no of sibs > MAX_NUMBER_OF_SUBGRIDS %"ISYM"\n", list->NumberOfSiblings)
+              ENZO_VFAIL("DC no of sibs > MAX_NUMBER_OF_SUBGRIDS %" ISYM"\n", list->NumberOfSiblings)
             }
 	    for (n = 0; n < list->NumberOfSiblings; n++)
 	      if (current_link->GridData == TempList[n])
@@ -134,7 +134,7 @@ int grid::FastSiblingLocatorFindSiblings(ChainingMeshStructure *Mesh,
 					 LeftBoundaryCondition,
 					 RightBoundaryCondition) == TRUE) {
                 if ( list->NumberOfSiblings > MAX_NUMBER_OF_SUBGRIDS ) {
-                  ENZO_VFAIL("DC2 no of sibs > MAX_NUMBER_OF_SUBGRIDS %"ISYM"\n", list->NumberOfSiblings)
+                  ENZO_VFAIL("DC2 no of sibs > MAX_NUMBER_OF_SUBGRIDS %" ISYM"\n", list->NumberOfSiblings)
                 }
 		TempList[list->NumberOfSiblings++] = current_link->GridData;
 	      } 
@@ -168,7 +168,7 @@ int grid::FastSiblingLocatorFindSiblings(ChainingMeshStructure *Mesh,
 					  LeftBoundaryCondition,
 					  RightBoundaryCondition) == TRUE) {
           if ( list->NumberOfSiblings > MAX_NUMBER_OF_SUBGRIDS ) {
-            ENZO_VFAIL("DC3 no of sibs > MAX_NUMBER_OF_SUBGRIDS %"ISYM"\n", list->NumberOfSiblings)
+            ENZO_VFAIL("DC3 no of sibs > MAX_NUMBER_OF_SUBGRIDS %" ISYM"\n", list->NumberOfSiblings)
           }
 
 	  TempList[list->NumberOfSiblings++] = current_link->GridData;
@@ -192,7 +192,7 @@ int grid::FastSiblingLocatorFindSiblings(ChainingMeshStructure *Mesh,
     for (i = 0; i < list->NumberOfSiblings; i++) {
       if ( i > MAX_NUMBER_OF_SUBGRIDS ) {
 
-        fprintf(stderr, "DC4 no of sibs > MAX_NUMBER_OF_SUBGRIDS %"ISYM"\n", i);
+        fprintf(stderr, "DC4 no of sibs > MAX_NUMBER_OF_SUBGRIDS %" ISYM"\n", i);
       }
       list->GridList[i] = TempList[i];
     }

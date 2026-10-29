@@ -44,7 +44,7 @@ void AddLevel(LevelHierarchyEntry *LevelArray[], HierarchyEntry *Grid,
 int FindSubgrids(HierarchyEntry *Grid, int level, int &TotalFlaggedCells,
 		 int &FlaggedGrids);
 void WriteListOfInts(FILE *fptr, int N, int nums[]);
-int ReportMemoryUsage(char *header = NULL);
+int ReportMemoryUsage(const char *header = NULL);
 int DepositParticleMassFlaggingField(LevelHierarchyEntry* LevelArray[],
 				     int level, bool AllLocal);
 int DepositActiveParticleMassFlaggingField(LevelHierarchyEntry* LevelArray[],
@@ -114,7 +114,7 @@ int RebuildHierarchy(TopGridData *MetaData,
     }
   }
 
-  double tt0, tt1, tt2, tt3;
+  double tt0, tt1;
  
   /* declarations */
 
@@ -123,7 +123,7 @@ int RebuildHierarchy(TopGridData *MetaData,
   LCAPERF_START("RebuildHierarchy");
   TIMER_START("RebuildHierarchy");
 
-  if (debug) printf("RebuildHierarchy: level = %"ISYM"\n", level);
+  if (debug) printf("RebuildHierarchy: level = %" ISYM"\n", level);
   ReportMemoryUsage("Rebuild pos 1");
  
   bool ParticlesAreLocal, SyncNumberOfParticles = true;
@@ -131,12 +131,11 @@ int RebuildHierarchy(TopGridData *MetaData,
   long_int ncells;
   int i, j, k, grids, grids2, subgrids, MoveParticles;
   int TotalFlaggedCells, FlaggedGrids;
-  FLOAT ZeroVector[MAX_DIMENSION];
   LevelHierarchyEntry *Temp;
   HierarchyEntry *GridHierarchyPointer[MAX_NUMBER_OF_SUBGRIDS];
  
   for (i = 0; i < MAX_DIMENSION; i++)
-    ZeroVector[i] = 0;
+    ;
 
   if (_first) {
     for (i = 0; i < 16; i++)
@@ -425,8 +424,8 @@ int RebuildHierarchy(TopGridData *MetaData,
       CommunicationSumValues(&TotalFlaggedCells, 1);
       CommunicationSumValues(&FlaggedGrids, 1);
       if (debug)
-	printf("RebuildHierarchy[%"ISYM"]: "
-	       "Flagged %"ISYM"/%"ISYM" grids. %"ISYM" flagged cells\n", 
+	printf("RebuildHierarchy[%" ISYM"]: "
+	       "Flagged %" ISYM"/%" ISYM" grids. %" ISYM" flagged cells\n", 
 	       i, FlaggedGrids, grids, TotalFlaggedCells);
       tt1 = ReturnWallTime();
       RHperf[4] += tt1-tt0;

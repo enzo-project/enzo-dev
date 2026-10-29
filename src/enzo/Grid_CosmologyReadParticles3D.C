@@ -34,7 +34,7 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, FLOAT Time);
 
-int ReadFile(char *name, int Rank, int Dim[], int StartIndex[],
+int ReadFile(const char *name, int Rank, int Dim[], int StartIndex[],
 	     int EndIndex[], int BufferOffset[], float *buffer,
 	     inits_type **tempbuffer, int Part, int Npart);
 
@@ -54,7 +54,7 @@ int grid::CosmologyReadParticles3D(
 		   int *Offset, int level)
 {
 
-  int dim, i, j, k, index, index1, index2;
+  int dim, i, j, k, index;
 
   float DensityUnits=1, LengthUnits=1, TemperatureUnits=1, TimeUnits=1,
     VelocityUnits=1;
@@ -119,8 +119,6 @@ int grid::CosmologyReadParticles3D(
     } // ENDIF level
   } // ENDFOR region
 
-  hid_t file_id;
-  herr_t err = 0, h5_error = -1;
 
   /* Read in particle velocities, positions (with displacements),
      store velocities, and then clean up. */
@@ -137,7 +135,7 @@ int grid::CosmologyReadParticles3D(
     if (ReadFile(CosmologySimulationParticlePositionNames[dim], GridRank,
 		 GridDimension, GridStartIndex, GridEndIndex, Offset,
 		 NULL, &tempbuffer, 0, 1) == FAIL)
-      ENZO_VFAIL("Error reading particle position field %"ISYM".\n", dim)
+      ENZO_VFAIL("Error reading particle position field %" ISYM".\n", dim)
     temp_pos[dim] = new FLOAT[size];
     for (i = 0; i < size; i++)
       temp_pos[dim][i] = (FLOAT) tempbuffer[i];
@@ -146,7 +144,7 @@ int grid::CosmologyReadParticles3D(
     if (ReadFile(CosmologySimulationParticleVelocityNames[dim], GridRank,
 		 GridDimension, GridStartIndex, GridEndIndex, Offset,
 		 NULL, &tempbuffer, 0, 1) == FAIL)
-      ENZO_VFAIL("Error reading particle velocity field %"ISYM".\n", dim)
+      ENZO_VFAIL("Error reading particle velocity field %" ISYM".\n", dim)
     temp_vel[dim] = new float[size];
     for (i = 0; i < size; i++)
       temp_vel[dim][i] = (float) tempbuffer[i];

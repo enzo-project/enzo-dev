@@ -43,7 +43,7 @@ int InitializeLymanWernerTable()
   rewind(fptr);
   while (fgets(line, MAX_LINE_LENGTH, fptr) != NULL)
     if (line[0] != '#')
-      if (sscanf(line, "%"ESYM" %"ESYM,
+      if (sscanf(line, "%" ESYM" %" ESYM,
 		 &RadiationData.LymanWerner_redshift[index],
 		 &RadiationData.LymanWerner_J21[index]) == 2) {
 	index++;
@@ -52,11 +52,11 @@ int InitializeLymanWernerTable()
   fclose(fptr);
  
   if (debug) {
-    printf("InitializeLymanWernerTable: NumberOfLWRedshiftBins = %"ISYM"\n",
+    printf("InitializeLymanWernerTable: NumberOfLWRedshiftBins = %" ISYM"\n",
 	   RadiationData.NumberOfLWRedshiftBins);
-    printf("InitializeLymanWernerTable: RedshiftStart = %"ESYM"\n",
+    printf("InitializeLymanWernerTable: RedshiftStart = %" ESYM"\n",
 	   RadiationData.LymanWerner_redshift[0]);
-    printf("InitializeLymanWernerTable: RedshiftEnd = %"ESYM"\n",
+    printf("InitializeLymanWernerTable: RedshiftEnd = %" ESYM"\n",
 	   RadiationData.LymanWerner_redshift[RadiationData.NumberOfLWRedshiftBins-1]);
   }
  

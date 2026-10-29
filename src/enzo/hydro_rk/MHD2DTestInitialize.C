@@ -43,24 +43,23 @@ int MHD2DTestInitialize(FILE *fptr, FILE *Outfptr,
 			HierarchyEntry &TopGrid,
 			TopGridData &MetaData, int SetBaryonFields) 
 {
-  char *DensName = "Density";
-  char *PresName = "Pressure";
-  char *TEName   = "TotalEnergy";
-  char *GEName   = "GasEnergy";
-  char *Vel1Name = "x-velocity";
-  char *Vel2Name = "y-velocity";
-  char *Vel3Name = "z-velocity";
-  char *ColourName = "colour";
-  char *BxName = "Bx";
-  char *ByName = "By";
-  char *BzName = "Bz";
-  char *PhiName = "Phi";
-  char *Phi_pName = "Phip";
+  const char *DensName = "Density";
+  const char *TEName   = "TotalEnergy";
+  const char *GEName   = "GasEnergy";
+  const char *Vel1Name = "x-velocity";
+  const char *Vel2Name = "y-velocity";
+  const char *Vel3Name = "z-velocity";
+  const char *ColourName = "colour";
+  const char *BxName = "Bx";
+  const char *ByName = "By";
+  const char *BzName = "Bz";
+  const char *PhiName = "Phi";
+  const char *Phi_pName = "Phip";
 
   /* declarations */
 
   char  line[MAX_LINE_LENGTH];
-  int   dim, ret, level, sphere, i;
+  int level, i;
 
   /* set default parameters */
 
@@ -80,43 +79,42 @@ int MHD2DTestInitialize(FILE *fptr, FILE *Outfptr,
 
   while (fgets(line, MAX_LINE_LENGTH, fptr) != NULL) {
 
-    ret = 0;
 
     /* read parameters */
-    ret += sscanf(line, "RefineAtStart = %"ISYM, 
+    sscanf(line, "RefineAtStart = %" ISYM, 
 		  &RefineAtStart);
-    ret += sscanf(line, "LowerVelocityX = %"FSYM,
+    sscanf(line, "LowerVelocityX = %" FSYM,
 		  &LowerVelocityX);
-    ret += sscanf(line, "LowerVelocityY = %"FSYM,
+    sscanf(line, "LowerVelocityY = %" FSYM,
 		  &LowerVelocityY);
-    ret += sscanf(line, "LowerPressure = %"FSYM, 
+    sscanf(line, "LowerPressure = %" FSYM, 
 		  &LowerPressure);
-    ret += sscanf(line, "LowerDensity = %"FSYM, 
+    sscanf(line, "LowerDensity = %" FSYM, 
 		  &LowerDensity);
-    ret += sscanf(line, "LowerBx = %"FSYM,
+    sscanf(line, "LowerBx = %" FSYM,
 		  &LowerBx);
-    ret += sscanf(line, "LowerBy = %"FSYM,
+    sscanf(line, "LowerBy = %" FSYM,
 		  &LowerBy);
-    ret += sscanf(line, "UpperVelocityX = %"FSYM, 
+    sscanf(line, "UpperVelocityX = %" FSYM, 
 		  &UpperVelocityX);
-    ret += sscanf(line, "UpperVelocityY = %"FSYM, 
+    sscanf(line, "UpperVelocityY = %" FSYM, 
 		  &UpperVelocityY);
-    ret += sscanf(line, "UpperPressure = %"FSYM, 
+    sscanf(line, "UpperPressure = %" FSYM, 
 		  &UpperPressure);
-    ret += sscanf(line, "UpperDensity = %"FSYM,
+    sscanf(line, "UpperDensity = %" FSYM,
                   &UpperDensity);
-    ret += sscanf(line, "UpperBx = %"FSYM,
+    sscanf(line, "UpperBx = %" FSYM,
 		  &UpperBx);
-    ret += sscanf(line, "UpperBy = %"FSYM,
+    sscanf(line, "UpperBy = %" FSYM,
 		  &UpperBy);
-    ret += sscanf(line, "MHD2DProblemType = %"ISYM,
+    sscanf(line, "MHD2DProblemType = %" ISYM,
 		  &MHD2DProblemType);
-    ret += sscanf(line, "RampWidth = %"FSYM,
+    sscanf(line, "RampWidth = %" FSYM,
 		  &RampWidth);
-    ret += sscanf(line, "UseColour = %"ISYM, 
+    sscanf(line, "UseColour = %" ISYM, 
 		  &UseColour);
     
-    //        fprintf(stderr, "%"ISYM" MHD2DTestInitialize !!!!!!!!!!\n", RefineAtStart);
+    //        fprintf(stderr, "%" ISYM" MHD2DTestInitialize !!!!!!!!!!\n", RefineAtStart);
     /* if the line is suspicious, issue a warning */
 
     /*
@@ -142,7 +140,7 @@ int MHD2DTestInitialize(FILE *fptr, FILE *Outfptr,
   CurrentGrid = &TopGrid;
   int count = 0;
   while (CurrentGrid != NULL) {
-    printf("count %i %i\n", count++, MyProcessorNumber);
+    printf("count %" ISYM " %" ISYM "\n", count++, MyProcessorNumber);
     if (CurrentGrid->GridData->MHD2DTestInitializeGrid(MHD2DProblemType, UseColour,
 						RampWidth,
 						LowerDensity, UpperDensity,
@@ -185,7 +183,7 @@ int MHD2DTestInitialize(FILE *fptr, FILE *Outfptr,
        and re-initialize the level after it is created. */
 
     for (level = 0; level < MaximumRefinementLevel; level++) {
-      printf("In level %"ISYM"\n", level);
+      printf("In level %" ISYM"\n", level);
       if (RebuildHierarchy(&MetaData, LevelArray, level) == FAIL) {
 	fprintf(stderr, "Error in RebuildHierarchy.\n");
 	return FAIL;

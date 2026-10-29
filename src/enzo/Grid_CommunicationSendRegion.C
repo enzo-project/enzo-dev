@@ -49,11 +49,8 @@ int grid::CommunicationSendRegion(grid *ToGrid, int ToProcessor,int SendField,
 			      int NewOrOld, int RegionStart[], int RegionDim[])
 {
 #ifdef USE_MPI 
-  MPI_Request  RequestHandle;
   MPI_Status Status;
   MPI_Datatype DataType = (sizeof(float) == 4) ? MPI_FLOAT : MPI_DOUBLE;
-  MPI_Arg Count;
-  MPI_Arg Source;
 
   /* Return if not on processor. */
 
@@ -114,7 +111,7 @@ int grid::CommunicationSendRegion(grid *ToGrid, int ToProcessor,int SendField,
  
   if (MyProcessorNumber == ProcessorNumber) {
  
-//  printf("SendRegion: RegionStart = %"ISYM" %"ISYM" %"ISYM"\n", RegionStart[0], RegionStart[1], RegionStart[2]);
+//  printf("SendRegion: RegionStart = %" ISYM" %" ISYM" %" ISYM"\n", RegionStart[0], RegionStart[1], RegionStart[2]);
  
     index = 0;
  
@@ -223,7 +220,7 @@ int grid::CommunicationSendRegion(grid *ToGrid, int ToProcessor,int SendField,
     starttime = MPI_Wtime();
 #endif
 
-//    fprintf(stderr, "P(%d) communication for %d floats from %d to %d (phase %d)\n",
+//    fprintf(stderr, "P(%" ISYM ") communication for %" ISYM " floats from %" ISYM " to %" ISYM " (phase %" ISYM ")\n",
 //    	    MyProcessorNumber, TransferSize, ProcessorNumber,
 //    	    ToProcessor, CommunicationDirection);
 
@@ -233,7 +230,7 @@ int grid::CommunicationSendRegion(grid *ToGrid, int ToProcessor,int SendField,
     if (MyProcessorNumber == ProcessorNumber) {
 #ifdef MPI_INSTRUMENTATION
       if (traceMPI) 
-	fprintf(tracePtr, "CSR Sending %"ISYM" floats from %"ISYM" to %"ISYM"\n", 
+	fprintf(tracePtr, "CSR Sending %" ISYM" floats from %" ISYM" to %" ISYM"\n", 
 		TransferSize, MyProcessorNumber, ToProcessor);
 #endif
       CommunicationBufferedSend(buffer, TransferSize, DataType, ToProcessor, 
@@ -242,7 +239,7 @@ int grid::CommunicationSendRegion(grid *ToGrid, int ToProcessor,int SendField,
 
     if (MyProcessorNumber == ToProcessor) {
 
-//      fprintf(stderr, "Waiting for %d floats at %d from %d\n", TransferSize, 
+//      fprintf(stderr, "Waiting for %" ISYM " floats at %" ISYM " from %" ISYM "\n", TransferSize, 
 //	      MyProcessorNumber, ProcessorNumber);
 
       /* Post the receive message without waiting for the message to
@@ -251,8 +248,8 @@ int grid::CommunicationSendRegion(grid *ToGrid, int ToProcessor,int SendField,
 
       if (CommunicationDirection == COMMUNICATION_POST_RECEIVE) {
 
-//	printf("Posting receive from P%"ISYM" for %"ISYM" floats in "
-//	       "comm index %"ISYM"\n", ProcessorNumber, TransferSize, 
+//	printf("Posting receive from P%" ISYM" for %" ISYM" floats in "
+//	       "comm index %" ISYM"\n", ProcessorNumber, TransferSize, 
 //	       CommunicationReceiveIndex);
 
 	MPI_Irecv(buffer, TransferSize, DataType, ProcessorNumber, 
@@ -293,7 +290,7 @@ int grid::CommunicationSendRegion(grid *ToGrid, int ToProcessor,int SendField,
        CommunicationDirection == COMMUNICATION_RECEIVE)) {
 
 //    if (ToProcessor != ProcessorNumber)
-//      fprintf(stderr, "Received %d floats at %d from %d\n", TransferSize, 
+//      fprintf(stderr, "Received %" ISYM " floats at %" ISYM " from %" ISYM "\n", TransferSize, 
 //	      MyProcessorNumber, ProcessorNumber);
 
     index = 0;

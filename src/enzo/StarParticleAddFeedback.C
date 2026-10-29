@@ -56,8 +56,7 @@ int StarParticleAddFeedback(TopGridData *MetaData,
   Star *cstar;
   bool MarkedSubgrids = false;
   bool SphereCheck;
-  int i, l, dim, temp_int, SkipMassRemoval, SphereContained,
-      SphereContainedNextLevel, dummy, count;
+  int l, SkipMassRemoval, SphereContained, SphereContainedNextLevel, dummy, count;
   float influenceRadius, RootCellWidth, SNe_dt, dtForThisStar, MassLoss;
   double EjectaThermalEnergy, EjectaDensity, EjectaMetalDensity;
   FLOAT Time;
@@ -169,7 +168,7 @@ int StarParticleAddFeedback(TopGridData *MetaData,
 
 //    if (debug) {
 //      fprintf(stdout, "EjectaDensity=%g, influenceRadius=%g\n", EjectaDensity, influenceRadius); 
-//      fprintf(stdout, "SkipMassRemoval=%d, SphereContained=%d, SphereContainedNextLevel=%d\n", 
+//      fprintf(stdout, "SkipMassRemoval=%" ISYM ", SphereContained=%" ISYM ", SphereContainedNextLevel=%" ISYM "\n", 
 //	      SkipMassRemoval, SphereContained, SphereContainedNextLevel); 
 //    }
 
@@ -229,8 +228,8 @@ int StarParticleAddFeedback(TopGridData *MetaData,
 	     CellsModified);
     } // ENDIF
 
-//    fprintf(stdout, "StarParticleAddFeedback[%"ISYM"][%"ISYM"]: "
-//	    "Radius = %e pc_cm, changed %"ISYM" cells.\n", 
+//    fprintf(stdout, "StarParticleAddFeedback[%" ISYM"][%" ISYM"]: "
+//	    "Radius = %e pc_cm, changed %" ISYM" cells.\n", 
 //	    cstar->ReturnID(), level, influenceRadius*LengthUnits/pc_cm, CellsModified); 
 
     /* Remove mass from the star that is added to grids. Also, because EjectaDensity 
@@ -261,19 +260,19 @@ int StarParticleAddFeedback(TopGridData *MetaData,
 
     if (debug) {
       if (cstar->ReturnFeedbackFlag() != FORMATION)
-	fprintf(stdout, "StarParticleAddFeedback[%"ISYM"][%"ISYM"]: "
-		"Radius = %"GSYM" pc\n",
+	fprintf(stdout, "StarParticleAddFeedback[%" ISYM"][%" ISYM"]: "
+		"Radius = %" GSYM" pc\n",
 		cstar->ReturnID(), level, influenceRadius*LengthUnits/pc_cm);
       if (cstar->ReturnFeedbackFlag() == DEATH || 
 
 	  cstar->ReturnFeedbackFlag() == CONT_SUPERNOVA ||
 	  cstar->ReturnFeedbackFlag() == MBH_THERMAL ||
 	  cstar->ReturnFeedbackFlag() == MBH_JETS )
-	fprintf(stdout, "StarParticleAddFeedback[%"ISYM"][%"ISYM"]: "
-		"Energy = %"GSYM"  , skip = %"ISYM"\n",
+	fprintf(stdout, "StarParticleAddFeedback[%" ISYM"][%" ISYM"]: "
+		"Energy = %" GSYM"  , skip = %" ISYM"\n",
 		cstar->ReturnID(), level, EjectaThermalEnergy, SkipMassRemoval);
-      fprintf(stdout, "StarParticleAddFeedback[%"ISYM"][%"ISYM"]: "
-	      "changed %"ISYM" cells.  AddedFeedback[%d] = %d\n", 
+      fprintf(stdout, "StarParticleAddFeedback[%" ISYM"][%" ISYM"]: "
+	      "changed %" ISYM" cells.  AddedFeedback[%d] = %d\n", 
 	      cstar->ReturnID(), level, CellsModified, 
 	      count, AddedFeedback[count]);
     }

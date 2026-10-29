@@ -22,8 +22,8 @@ class ealInt{
   int GlobalMax();
 
   void Bcast(int FromProcessor);
-  void Print(const char *fmt="%6"ISYM, FILE *stream=NULL);
-  void PrintWithIndex(const char *fmt="%"ISYM"  %6"ISYM, FILE *stream=NULL);
+  void Print(const char *fmt="%6" ISYM, FILE *stream=NULL);
+  void PrintWithIndex(const char *fmt="%" ISYM"  %6" ISYM, FILE *stream=NULL);
   int *Array;
  
   int &operator[](int);

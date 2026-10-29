@@ -62,8 +62,7 @@ int CommunicationTransferStars(grid *GridPointer[], int NumberOfGrids,
   int *GridMap = new int[NumberOfGrids];
   int *StartIndex[MAX_DIMENSION];
   int Layout[MAX_DIMENSION], LayoutTemp[MAX_DIMENSION];
-  int Rank, grid_num, bin, CenterIndex;
-  int *pbin;
+  int Rank, grid_num, CenterIndex;
   int GridPosition[MAX_DIMENSION], Dims[MAX_DIMENSION];
   FLOAT Left[MAX_DIMENSION], Right[MAX_DIMENSION];
 
@@ -141,7 +140,7 @@ int CommunicationTransferStars(grid *GridPointer[], int NumberOfGrids,
 #ifdef DEBUG_CTP
   if (MyProcessorNumber == ROOT_PROCESSOR) 
   for (j = 0; j < NumberOfGrids; j++)
-    fprintf(stderr, "Pa(%"ISYM") CTP grid[%"ISYM"] = %"ISYM"\n",
+    fprintf(stderr, "Pa(%" ISYM") CTP grid[%" ISYM"] = %" ISYM"\n",
 	    MyProcessorNumber, j, GridPointer[j]->ReturnNumberOfStars());
 #endif
  
@@ -165,7 +164,6 @@ int CommunicationTransferStars(grid *GridPointer[], int NumberOfGrids,
 
   SharedList = SendList;
   NumberOfReceives = TotalNumberToMove;
-  int star_data_size = sizeof(star_data);
   //qsort(SharedList, TotalNumberToMove, star_data_size, compare_star_grid);
   std::sort(SharedList, SharedList+TotalNumberToMove, cmp_star_grid());
 
@@ -221,7 +219,7 @@ int CommunicationTransferStars(grid *GridPointer[], int NumberOfGrids,
 
   CommunicationSumValues(&TotalNumberToMove, 1);
   if (debug)
-    printf("CommunicationTransferStars: moved = %"ISYM"\n",
+    printf("CommunicationTransferStars: moved = %" ISYM"\n",
   	   TotalNumberToMove);
 
   return SUCCESS;

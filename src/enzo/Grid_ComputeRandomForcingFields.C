@@ -115,7 +115,7 @@ int grid::ComputeRandomForcingFields(int mode)
 	      (*(CellWidth[0])));
 
    if (debug)
-    printf("GCRFF: nbox = %d %d %d %d\n",
+    printf("GCRFF: nbox = %" ISYM " %" ISYM " %" ISYM " %" ISYM "\n",
             nbox, Offset[0], Offset[1], Offset[2]);
 
   FORTRAN_NAME(turboinit)(&GridRank, &nbox, velocity1, velocity2, velocity3,

@@ -33,7 +33,7 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, FLOAT Time);
 
-int ReadFile(char *name, int Rank, int Dim[], int StartIndex[],
+int ReadFile(const char *name, int Rank, int Dim[], int StartIndex[],
 	     int EndIndex[], int BufferOffset[], float *buffer,
 	     inits_type **tempbuffer, int Part, int Npart);
 
@@ -54,7 +54,7 @@ int grid::CosmologyInitializeParticles(
 		   int *Offset, int level)
 {
 
-  int dim, i, j, k, index, index1, index2;
+  int dim, i, j, k, index;
   bool OneComponentPerFile;
 
   float DensityUnits=1, LengthUnits=1, TemperatureUnits=1, TimeUnits=1,
@@ -165,13 +165,13 @@ int grid::CosmologyInitializeParticles(
       if (ReadFile(CosmologySimulationParticleVelocityNames[dim], GridRank,
 		   GridDimension, GridStartIndex, GridEndIndex, Offset,
 		   NULL, &tempbuffer, 0, 1) == FAIL) {
-	ENZO_VFAIL("Error reading particle velocity field %"ISYM".\n", dim)
+	ENZO_VFAIL("Error reading particle velocity field %" ISYM".\n", dim)
       }
     } else {
       if (ReadFile(CosmologySimulationParticleVelocityName, GridRank,
 		   GridDimension, GridStartIndex, GridEndIndex, Offset,
 		   NULL, &tempbuffer, dim, 3) == FAIL) {
-      ENZO_VFAIL("Error reading particle velocity field %"ISYM".\n", dim)
+      ENZO_VFAIL("Error reading particle velocity field %" ISYM".\n", dim)
       }
     } // ENDELSE OneComponentPerFile
     temp_vel[dim] = new float[size];
@@ -263,13 +263,13 @@ int grid::CosmologyInitializeParticles(
 	  if (ReadFile(CosmologySimulationParticleDisplacementNames[dim], GridRank,
 		       GridDimension, GridStartIndex, GridEndIndex, Offset,
 		       NULL, &tempbuffer, 0, 1) == FAIL) {
-	    ENZO_VFAIL("Error reading particle displacement field %"ISYM".\n", dim)
+	    ENZO_VFAIL("Error reading particle displacement field %" ISYM".\n", dim)
 	      }
 	} else {
 	  if (ReadFile(CosmologySimulationParticleDisplacementName, GridRank,
 		       GridDimension, GridStartIndex, GridEndIndex, Offset,
 		       NULL, &tempbuffer, dim, 3) == FAIL) {
-	    ENZO_VFAIL("Error reading particle displacement field %"ISYM".\n", dim)
+	    ENZO_VFAIL("Error reading particle displacement field %" ISYM".\n", dim)
 	      }
 	} // ENDELSE OneComponentPerFile
 
@@ -335,7 +335,7 @@ int grid::CosmologyInitializeParticles(
 	  } // ENDIF mask
       } // ENDFOR j
   } // ENDIF types
-  printf("Number of MRPs created on level %d is %d.\n",level,num_flip);
+  printf("Number of MRPs created on level %" ISYM " is %" ISYM ".\n",level,num_flip);
   
 #ifdef ICPART_SHIFT8
   /* Check to see if the particle is adjacent to static grid boundary

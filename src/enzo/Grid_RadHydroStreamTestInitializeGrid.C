@@ -97,7 +97,7 @@ int grid::RadHydroStreamTestInitializeGrid(float DensityConstant,
  
   // allocate fields
   if (NewData == TRUE) {
-//     printf("\n  P%"ISYM": Allocating %"ISYM" baryon fields of size %"ISYM" (%"ISYM"x%"ISYM"x%"ISYM")\n",
+//     printf("\n  P%" ISYM": Allocating %" ISYM" baryon fields of size %" ISYM" (%" ISYM"x%" ISYM"x%" ISYM")\n",
 // 	   MyProcessorNumber, NumberOfBaryonFields, size, 
 // 	   GridDimension[0], GridDimension[1], GridDimension[2]);
 
@@ -125,9 +125,9 @@ int grid::RadHydroStreamTestInitializeGrid(float DensityConstant,
 
     if (debug) {
       printf("RadHydroStreamTestInitializeGrid:\n");
-      printf("       RadStreamDim = %"ISYM"\n",MyProcessorNumber,RadStreamDim);
-      printf("       RadStreamDir = %"ISYM"\n",MyProcessorNumber,RadStreamDir);
-      printf("     MaxRadiationDt = %g\n",MyProcessorNumber,MaxRadiationDt);
+      printf("       RadStreamDim = %" ISYM"\n", RadStreamDim);
+      printf("       RadStreamDir = %" ISYM"\n", RadStreamDir);
+      printf("     MaxRadiationDt = %g\n", MaxRadiationDt);
 
       printf("    DensityConstant = %g\n",DensityConstant);    
       printf("         TEConstant = %g\n",TEConstant);    
@@ -167,7 +167,7 @@ int grid::RadHydroStreamTestInitializeGrid(float DensityConstant,
 	}
       }
       else {
-	fprintf(stderr,"RHStreamTest Error: illegal direction = %"ISYM"\n",
+	fprintf(stderr,"RHStreamTest Error: illegal direction = %" ISYM"\n",
 		RadStreamDir);
 	return FAIL;
       }
@@ -194,7 +194,7 @@ int grid::RadHydroStreamTestInitializeGrid(float DensityConstant,
 	}
       }
       else {
-	fprintf(stderr,"RHStreamTest Error: illegal direction = %"ISYM"\n",
+	fprintf(stderr,"RHStreamTest Error: illegal direction = %" ISYM"\n",
 		RadStreamDir);
 	return FAIL;
       }
@@ -221,13 +221,13 @@ int grid::RadHydroStreamTestInitializeGrid(float DensityConstant,
 	}
       }
       else {
-	fprintf(stderr,"RHStreamTest Error: illegal direction = %"ISYM"\n",
+	fprintf(stderr,"RHStreamTest Error: illegal direction = %" ISYM"\n",
 		RadStreamDir);
 	return FAIL;
       }
     }
     else {
-      fprintf(stderr,"RHStreamTest Error: illegal dimension = %"ISYM"\n",
+      fprintf(stderr,"RHStreamTest Error: illegal dimension = %" ISYM"\n",
 	      RadStreamDim);
       return FAIL;    
     }

@@ -57,11 +57,11 @@
 int ShockPoolInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 		       TopGridData &MetaData)
 {
-  char *DensName = "Density";
-  char *TEName   = "TotalEnergy";
-  char *Vel1Name = "x-velocity";
-  char *Vel2Name = "y-velocity";
-  char *Vel3Name = "z-velocity";
+  const char *DensName = "Density";
+  const char *TEName   = "TotalEnergy";
+  const char *Vel1Name = "x-velocity";
+  const char *Vel2Name = "y-velocity";
+  const char *Vel3Name = "z-velocity";
  
   /* parameter declarations */
  
@@ -101,18 +101,18 @@ int ShockPoolInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
  
     /* read parameters */
  
-    ret += sscanf(line, "ShockPoolAngle = %"FSYM, &ShockPoolAngle);
-    ret += sscanf(line, "ShockPoolMachNumber = %"FSYM, &ShockPoolMachNumber);
+    ret += sscanf(line, "ShockPoolAngle = %" FSYM, &ShockPoolAngle);
+    ret += sscanf(line, "ShockPoolMachNumber = %" FSYM, &ShockPoolMachNumber);
  
-    ret += sscanf(line, "ShockPoolDensity = %"FSYM, &ShockPoolDensity);
-    ret += sscanf(line, "ShockPoolPressure = %"FSYM, &ShockPoolPressure);
-    ret += sscanf(line, "ShockPoolVelocity1 = %"FSYM, &ShockPoolVelocity[0]);
-    ret += sscanf(line, "ShockPoolVelocity2 = %"FSYM, &ShockPoolVelocity[1]);
-    ret += sscanf(line, "ShockPoolVelocity3 = %"FSYM, &ShockPoolVelocity[2]);
+    ret += sscanf(line, "ShockPoolDensity = %" FSYM, &ShockPoolDensity);
+    ret += sscanf(line, "ShockPoolPressure = %" FSYM, &ShockPoolPressure);
+    ret += sscanf(line, "ShockPoolVelocity1 = %" FSYM, &ShockPoolVelocity[0]);
+    ret += sscanf(line, "ShockPoolVelocity2 = %" FSYM, &ShockPoolVelocity[1]);
+    ret += sscanf(line, "ShockPoolVelocity3 = %" FSYM, &ShockPoolVelocity[2]);
  
-    ret += sscanf(line, "ShockPoolSubgridLeft = %"PSYM, &ShockPoolSubgridLeft);
-    ret += sscanf(line, "ShockPoolSubgridRight = %"PSYM, &ShockPoolSubgridRight);
-    ret += sscanf(line, "ShockPoolDelay = %"FSYM, &ShockPoolDelay);
+    ret += sscanf(line, "ShockPoolSubgridLeft = %" PSYM, &ShockPoolSubgridLeft);
+    ret += sscanf(line, "ShockPoolSubgridRight = %" PSYM, &ShockPoolSubgridRight);
+    ret += sscanf(line, "ShockPoolDelay = %" FSYM, &ShockPoolDelay);
  
     /* if the line is suspicious, issue a warning */
  
@@ -224,17 +224,17 @@ int ShockPoolInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   /* Write parameters to parameter output file */
  
   if (MyProcessorNumber == ROOT_PROCESSOR) {
-    fprintf(Outfptr, "ShockPoolAngle        = %"FSYM"\n"  , ShockPoolAngle);
-    fprintf(Outfptr, "ShockPoolMachNumber   = %"FSYM"\n\n", ShockPoolMachNumber);
+    fprintf(Outfptr, "ShockPoolAngle        = %" FSYM"\n"  , ShockPoolAngle);
+    fprintf(Outfptr, "ShockPoolMachNumber   = %" FSYM"\n\n", ShockPoolMachNumber);
  
-    fprintf(Outfptr, "ShockPoolDensity      = %"FSYM"\n"  , ShockPoolDensity);
-    fprintf(Outfptr, "ShockPoolPressure     = %"FSYM"\n"  , ShockPoolPressure);
-    fprintf(Outfptr, "ShockPoolVelocity1    = %"FSYM"\n"  , ShockPoolVelocity[0]);
-    fprintf(Outfptr, "ShockPoolVelocity2    = %"FSYM"\n"  , ShockPoolVelocity[1]);
-    fprintf(Outfptr, "ShockPoolVelocity3    = %"FSYM"\n\n", ShockPoolVelocity[2]);
+    fprintf(Outfptr, "ShockPoolDensity      = %" FSYM"\n"  , ShockPoolDensity);
+    fprintf(Outfptr, "ShockPoolPressure     = %" FSYM"\n"  , ShockPoolPressure);
+    fprintf(Outfptr, "ShockPoolVelocity1    = %" FSYM"\n"  , ShockPoolVelocity[0]);
+    fprintf(Outfptr, "ShockPoolVelocity2    = %" FSYM"\n"  , ShockPoolVelocity[1]);
+    fprintf(Outfptr, "ShockPoolVelocity3    = %" FSYM"\n\n", ShockPoolVelocity[2]);
  
-    fprintf(Outfptr, "ShockPoolSubgridLeft  = %"GOUTSYM"\n"  , ShockPoolSubgridLeft);
-    fprintf(Outfptr, "ShockPoolSubgridRight = %"GOUTSYM"\n\n", ShockPoolSubgridRight);
+    fprintf(Outfptr, "ShockPoolSubgridLeft  = %" GOUTSYM"\n"  , ShockPoolSubgridLeft);
+    fprintf(Outfptr, "ShockPoolSubgridRight = %" GOUTSYM"\n\n", ShockPoolSubgridRight);
   }
  
   /* For Zeus solver, subtract kinetic component from TotalEnergy. */

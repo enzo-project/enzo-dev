@@ -115,10 +115,10 @@ int grid::ZeusSolver(float *gamma, int igamfield, int nhy,
 
   /*  Locals */
 
-  int i, ie, is, j, je, js, k, ks, ke, n, ixyz, ret;
+  int i, ie, is, je, js, ks, ke, n, ixyz, ret;
   int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, CRNum;
   float pmin;
-  float *d, *e, *u, *v, *w, *cr, *m;
+  float *d, *e, *u, *v, *w, *cr;
 
   /* Error Check */
 
@@ -205,7 +205,7 @@ int grid::ZeusSolver(float *gamma, int igamfield, int nhy,
     if (fabs(u[i]) > dx[0]/dtFixed ||
 	fabs(v[i]) > dy[0]/dtFixed ||
 	fabs(w[i]) > dz[0]/dtFixed) {
-      fprintf(stderr, "u,v,w,d,e=%"GSYM",%"GSYM",%"GSYM",%"GSYM",%"GSYM"  dx=%"GSYM"  dt=%"GSYM"\n", 
+      fprintf(stderr, "u,v,w,d,e=%" GSYM",%" GSYM",%" GSYM",%" GSYM",%" GSYM"  dx=%" GSYM"  dt=%" GSYM"\n", 
 	      u[i],v[i],w[i],d[i],e[i], dx[0], dtFixed);
       ENZO_FAIL("Velocity too fast! (pre-call)\n");
     }
@@ -246,8 +246,8 @@ int grid::ZeusSolver(float *gamma, int igamfield, int nhy,
 		gravity, AccelerationField[0], AccelerationField[1],
 		AccelerationField[2],
 		minsupecoef,lapcoef) == FAIL) {
-      fprintf(stderr, "P(%"ISYM"): Error in ZeusFDM on step %"ISYM" (dt=%"GSYM")\n", MyProcessorNumber, nhy, dtFixed);
-      fprintf(stderr, "  grid dims = %"ISYM" %"ISYM" %"ISYM"\n", GridDimension[0], GridDimension[1], GridDimension[2]);
+      fprintf(stderr, "P(%" ISYM"): Error in ZeusFDM on step %" ISYM" (dt=%" GSYM")\n", MyProcessorNumber, nhy, dtFixed);
+      fprintf(stderr, "  grid dims = %" ISYM" %" ISYM" %" ISYM"\n", GridDimension[0], GridDimension[1], GridDimension[2]);
       ENZO_FAIL("Error in ZeusFDM!\n");
     }
 
@@ -263,9 +263,9 @@ int grid::ZeusSolver(float *gamma, int igamfield, int nhy,
 		 gravity, AccelerationField[0], AccelerationField[1],
 		 AccelerationField[2],
 		 bottom, minsupecoef, CRModel, CRgamma) == FAIL) {
-    fprintf(stderr, "P(%"ISYM"): Error in ZeusSource on step %"ISYM" (dt=%"GSYM")\n", MyProcessorNumber,
+    fprintf(stderr, "P(%" ISYM"): Error in ZeusSource on step %" ISYM" (dt=%" GSYM")\n", MyProcessorNumber,
 	    nhy, dtFixed);
-    fprintf(stderr, "  grid dims = %"ISYM" %"ISYM" %"ISYM"\n", GridDimension[0], GridDimension[1], GridDimension[2]);
+    fprintf(stderr, "  grid dims = %" ISYM" %" ISYM" %" ISYM"\n", GridDimension[0], GridDimension[1], GridDimension[2]);
     ENZO_FAIL("Error in ZeusSource!\n");
   }
 }
@@ -276,7 +276,7 @@ int grid::ZeusSolver(float *gamma, int igamfield, int nhy,
   if (CRmaxSoundSpeed != 0.0){
 		  // Get system of units
     float CRsound,DensityUnits,LengthUnits,TemperatureUnits,
-          TimeUnits,VelocityUnits,Time;
+          TimeUnits,VelocityUnits;
     if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 		 &TimeUnits, &VelocityUnits, Time) == FAIL) {
       ENZO_FAIL("Error in GetUnits.");
@@ -290,7 +290,7 @@ int grid::ZeusSolver(float *gamma, int igamfield, int nhy,
     if (fabs(u[i]) > dx[0]/dtFixed ||
 	fabs(v[i]) > dy[0]/dtFixed ||
 	fabs(w[i]) > dz[0]/dtFixed) {
-      fprintf(stderr, "u,v,w,d,e=%"GSYM",%"GSYM",%"GSYM",%"GSYM",%"GSYM"  dx=%"GSYM"  dt=%"GSYM"\n", 
+      fprintf(stderr, "u,v,w,d,e=%" GSYM",%" GSYM",%" GSYM",%" GSYM",%" GSYM"  dx=%" GSYM"  dt=%" GSYM"\n", 
 	      u[i],v[i],w[i],d[i],e[i], dx[0], dtFixed);
       ENZO_FAIL("Velocity too fast! (post-call)\n");
     }
@@ -346,9 +346,9 @@ int grid::ZeusSolver(float *gamma, int igamfield, int nhy,
 			    NumberOfColours, colnum);
   
     if (ret == FAIL) {
-      fprintf(stderr, "P(%"ISYM"): Error on ZeusTransport dim=%"ISYM" (Cycle = %"ISYM", dt=%"GSYM")\n", 
+      fprintf(stderr, "P(%" ISYM"): Error on ZeusTransport dim=%" ISYM" (Cycle = %" ISYM", dt=%" GSYM")\n", 
 	      MyProcessorNumber, n % GridRank, nhy, dtFixed);
-    fprintf(stderr, "  grid dims = %"ISYM" %"ISYM" %"ISYM"\n", GridDimension[0], GridDimension[1], GridDimension[2]);
+    fprintf(stderr, "  grid dims = %" ISYM" %" ISYM" %" ISYM"\n", GridDimension[0], GridDimension[1], GridDimension[2]);
       ENZO_FAIL("Error in ZeusSource!\n");
       }
   

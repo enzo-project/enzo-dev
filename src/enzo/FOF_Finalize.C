@@ -101,14 +101,12 @@ void FOF_Finalize(FOFData &D, LevelHierarchyEntry *LevelArray[],
 
   int level, n, ngrids = 0;
   grid *GridPointer[MAX_NUMBER_OF_TASKS];
-  HierarchyEntry *GridHierarchyPointer[MAX_NUMBER_OF_TASKS];
 
   for (Temp = LevelArray[0]; Temp; Temp = Temp->NextGridThisLevel)
     ngrids++;
 
   for (n = 0, Temp = LevelArray[0]; Temp; Temp = Temp->NextGridThisLevel) {
     GridPointer[n] = Temp->GridData;
-    GridHierarchyPointer[n] = Temp->GridHierarchyEntry;
     n++;
   }
 

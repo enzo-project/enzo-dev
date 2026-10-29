@@ -132,7 +132,7 @@ void ealFloat::ReduceSum(){
 			       FloatDataType, MPI_SUM, MPI_COMM_WORLD );
 
   if( mpi_err != MPI_SUCCESS ){
-    fprintf(stderr, "ealFloat::ReduceSum, mpi_err = %"ISYM", exiting.\n", mpi_err);
+    fprintf(stderr, "ealFloat::ReduceSum, mpi_err = %" ISYM", exiting.\n", mpi_err);
     my_exit(EXIT_FAILURE);
   }
 
@@ -153,7 +153,7 @@ void ealFloat::ReduceMin(){
 			       FloatDataType, MPI_MIN, MPI_COMM_WORLD );
 
   if( mpi_err != MPI_SUCCESS ){
-    fprintf(stderr, "ealFloat::ReduceMax, mpi_err = %"ISYM", exiting.\n", mpi_err);
+    fprintf(stderr, "ealFloat::ReduceMax, mpi_err = %" ISYM", exiting.\n", mpi_err);
     my_exit(EXIT_FAILURE);
   }
 
@@ -174,7 +174,7 @@ void ealFloat::ReduceMax(){
 			       FloatDataType, MPI_MAX, MPI_COMM_WORLD );
 
   if( mpi_err != MPI_SUCCESS ){
-    fprintf(stderr, "ealFloat::ReduceMax, mpi_err = %"ISYM", exiting.\n", mpi_err);
+    fprintf(stderr, "ealFloat::ReduceMax, mpi_err = %" ISYM", exiting.\n", mpi_err);
     my_exit(EXIT_FAILURE);
   }
 
@@ -225,7 +225,7 @@ void ealFloat::Bcast(int FromProcessor){
 			     MPI_COMM_WORLD);
 
   if( mpi_err != MPI_SUCCESS ){
-    fprintf(stderr, "ealFloat::Bcast, mpi_err = %"ISYM", exiting.\n", mpi_err);
+    fprintf(stderr, "ealFloat::Bcast, mpi_err = %" ISYM", exiting.\n", mpi_err);
     my_exit(EXIT_FAILURE);
   }
 #endif
@@ -236,7 +236,7 @@ void ealFloat::Bcast(int FromProcessor){
 float &ealFloat::operator[](int subscript){
 
   if(subscript < 0 || subscript >=Size){
-    fprintf(stderr, "ealFloat: subscript %"ISYM" out of range.\n", subscript);
+    fprintf(stderr, "ealFloat: subscript %" ISYM" out of range.\n", subscript);
     my_exit(EXIT_FAILURE);
   }
 
@@ -248,7 +248,7 @@ float ealFloat::operator[](int subscript) const
 { 
 
   if(subscript < 0 || subscript >=Size){
-    fprintf(stderr, "ealFloat: subscript %"ISYM" out of range.\n", subscript);
+    fprintf(stderr, "ealFloat: subscript %" ISYM" out of range.\n", subscript);
     my_exit(EXIT_FAILURE);
   }
 
@@ -258,7 +258,7 @@ float ealFloat::operator[](int subscript) const
 const ealFloat &ealFloat::operator=(const ealFloat &right){
 
   if(Size != right.Size && right.Size != 1){
-    fprintf(stderr, "ealFloat::assignment Size %"ISYM" != right.Size %"ISYM".\n", Size, right.Size);
+    fprintf(stderr, "ealFloat::assignment Size %" ISYM" != right.Size %" ISYM".\n", Size, right.Size);
     my_exit(EXIT_FAILURE);
   }
 
@@ -289,7 +289,7 @@ const ealFloat
 &ealFloat::operator+=(const ealFloat &right){
 
   if(Size != right.Size && right.Size != 1){
-    fprintf(stderr, "ealFloat::Math Error Size %"ISYM" != right.Size %"ISYM".\n", Size, right.Size);
+    fprintf(stderr, "ealFloat::Math Error Size %" ISYM" != right.Size %" ISYM".\n", Size, right.Size);
     my_exit(EXIT_FAILURE);
   }
 
@@ -319,7 +319,7 @@ const ealFloat
 &ealFloat::operator-=(const ealFloat &right){
 
   if(Size != right.Size && right.Size != 1){
-    fprintf(stderr, "ealFloat::Math Error Size %"ISYM" != right.Size %"ISYM".\n", Size, right.Size);
+    fprintf(stderr, "ealFloat::Math Error Size %" ISYM" != right.Size %" ISYM".\n", Size, right.Size);
     my_exit(EXIT_FAILURE);
   }
 
@@ -349,7 +349,7 @@ const ealFloat
 &ealFloat::operator*=(const ealFloat &right){
 
   if(Size != right.Size && right.Size != 1){
-    fprintf(stderr, "ealFloat::Math Error Size %"ISYM" != right.Size %"ISYM".\n", Size, right.Size);
+    fprintf(stderr, "ealFloat::Math Error Size %" ISYM" != right.Size %" ISYM".\n", Size, right.Size);
     my_exit(EXIT_FAILURE);
   }
 
@@ -379,7 +379,7 @@ const ealFloat
 &ealFloat::operator/=(const ealFloat &right){
 
   if(Size != right.Size && right.Size != 1){
-    fprintf(stderr, "ealFloat::Math Error Size %"ISYM" != right.Size %"ISYM".\n", Size, right.Size);
+    fprintf(stderr, "ealFloat::Math Error Size %" ISYM" != right.Size %" ISYM".\n", Size, right.Size);
     my_exit(EXIT_FAILURE);
   }
 

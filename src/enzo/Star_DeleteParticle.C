@@ -33,7 +33,7 @@ int GenerateGridArray(LevelHierarchyEntry *LevelArray[], int level,
 int Star::DeleteParticle(LevelHierarchyEntry *LevelArray[])
 {
 
-  int i, nPart, NumberOfGrids, changedGrid = INT_UNDEFINED, found = FALSE;
+  int i, NumberOfGrids, changedGrid = INT_UNDEFINED, found = FALSE;
   HierarchyEntry **Grids;
   
   NumberOfGrids = GenerateGridArray(LevelArray, this->level, &Grids);
@@ -55,7 +55,7 @@ int Star::DeleteParticle(LevelHierarchyEntry *LevelArray[])
   if (changedGrid == INT_UNDEFINED) {
     if (debug)
       fprintf(stdout, "RemoveParticles: WARNING -- "
-	      "particle %"ISYM" not found...\n", this->Identifier);
+	      "particle %" ISYM" not found...\n", this->Identifier);
     delete [] Grids;
     return SUCCESS;
   }

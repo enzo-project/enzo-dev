@@ -73,9 +73,9 @@ int Star::CalculateMassAccretion(float &BondiRadius, float &density)
     }
 
   int igrid[MAX_DIMENSION], dim, index, size = 1;
-  float c_s, mu, number_density, old_mass, delta_mass, mdot;
-  float mdot_original = 0.0, mdot_UpperLimit, mdot_Edd;
-  float *temperature, v_rel, dvel;
+  float c_s, mu, number_density, old_mass, mdot;
+  float mdot_original = 0.0, mdot_Edd;
+  float *temperature, v_rel;
 
   for (dim = 0; dim < MAX_DIMENSION; dim++) {
     size *= CurrentGrid->GridDimension[dim];
@@ -145,9 +145,9 @@ int Star::CalculateMassAccretion(float &BondiRadius, float &density)
     this->accretion_time[0] = time;
 
     if (mdot > 0.0)
-      fprintf(stdout, "BH Accretion[%"ISYM"]: time = %"FSYM", mdot = %"GSYM" SolarMass/yr, "
-	      "M_BH = %lf SolarMass, rho = %"GSYM" g/cm3, T = %"GSYM" K, v_rel = %"GSYM" cm/s, "
-	      "pos = %"GOUTSYM" %"GOUTSYM" %"GOUTSYM", vel = %f %f %f\n",
+      fprintf(stdout, "BH Accretion[%" ISYM"]: time = %" FSYM", mdot = %" GSYM" SolarMass/yr, "
+	      "M_BH = %lf SolarMass, rho = %" GSYM" g/cm3, T = %" GSYM" K, v_rel = %" GSYM" cm/s, "
+	      "pos = %" GOUTSYM" %" GOUTSYM" %" GOUTSYM", vel = %f %f %f\n",
 	      Identifier, time, mdot*yr_s, Mass, density*DensityUnits,
 	      temperature[index], v_rel,
 	      pos[0], pos[1], pos[2], vel[0], vel[1], vel[2]);
@@ -171,12 +171,12 @@ int Star::CalculateMassAccretion(float &BondiRadius, float &density)
       igrid[0] + CurrentGrid->GridStartIndex[0];
     density = CurrentGrid->BaryonField[DensNum][index];
 
-//     fprintf(stdout, "index = %d, density = %g\n", index, density);  
-//     fprintf(stdout, "igrid[0], igrid[1], igrid[2] = %d, %d, %d\n", igrid[0], igrid[1], igrid[2]); 
+//     fprintf(stdout, "index = %" ISYM ", density = %g\n", index, density);  
+//     fprintf(stdout, "igrid[0], igrid[1], igrid[2] = %" ISYM ", %" ISYM ", %" ISYM "\n", igrid[0], igrid[1], igrid[2]); 
 //     fprintf(stdout, "pos[0], [1], [2] = %g %g %g\n", pos[0], pos[1], pos[2]); 
 //     fprintf(stdout, "GridLeftEdge[0], [1], [2] = %g, %g, %g\n",
 // 	    CurrentGrid->GridLeftEdge[0], CurrentGrid->GridLeftEdge[1], CurrentGrid->GridLeftEdge[2]);
-//     fprintf(stdout, "GridDimension[0], [1], [2] = %d, %d, %d\n",
+//     fprintf(stdout, "GridDimension[0], [1], [2] = %" ISYM ", %" ISYM ", %" ISYM "\n",
 // 	    CurrentGrid->GridDimension[0], CurrentGrid->GridDimension[1], CurrentGrid->GridDimension[2]);
 
     if (MultiSpecies == 0) {
@@ -184,7 +184,7 @@ int Star::CalculateMassAccretion(float &BondiRadius, float &density)
       mu = Mu;
     } else {
       /*
-      printf("star::CMA: HI, HII, De, HeI, HeII, HeIII, index = %d %d %d %d %d %d %d\n",
+      printf("star::CMA: HI, HII, De, HeI, HeII, HeIII, index = %" ISYM " %" ISYM " %" ISYM " %" ISYM " %" ISYM " %" ISYM " %" ISYM "\n",
 	     HINum, HIINum, DeNum, HeINum, HeIINum, HeIIINum, index);
       */
       number_density = 
@@ -307,9 +307,9 @@ int Star::CalculateMassAccretion(float &BondiRadius, float &density)
       mdot *= POW(1 + POW(0.34 / (1 + POW(vorticity, 0.9)), -2.0), -0.5);
 
       if (mdot > 0.0) {
-	fprintf(stdout, "BH Accretion[%"ISYM"]: time = %"FSYM", mdot = %"GSYM" SolarMass/yr, "
-		"M_BH = %lf SolarMass, rho = %"GSYM" g/cm3, c_s = %"GSYM" cm/s, "
-		"vorticity = %"GSYM" /s, suppression factor = %"GSYM"\n",
+	fprintf(stdout, "BH Accretion[%" ISYM"]: time = %" FSYM", mdot = %" GSYM" SolarMass/yr, "
+		"M_BH = %lf SolarMass, rho = %" GSYM" g/cm3, c_s = %" GSYM" cm/s, "
+		"vorticity = %" GSYM" /s, suppression factor = %" GSYM"\n",
 		Identifier, time, mdot*yr_s, Mass, density*DensityUnits, c_s, vorticity,
 		POW(1 + POW(0.34 / (1 + POW(vorticity, 0.9)), -2.0), -0.5));
 //	this->PrintInfo();  
@@ -334,9 +334,9 @@ int Star::CalculateMassAccretion(float &BondiRadius, float &density)
 	     GravConst * (old_mass * SolarMass) / POW(CurrentGrid->CellWidth[0][0]*LengthUnits/2.0, 3.0));
 
       if (mdot > 0.0) {
-	fprintf(stdout, "BH Accretion[%"ISYM"]: time = %"FSYM", mdot = %"GSYM" SolarMass/yr, "
-		"M_BH = %lf SolarMass, rho = %"GSYM" g/cm3, c_s = %"GSYM" cm/s, T = %"GSYM" K, "
-                "Omega1 = %"GSYM" /s, Omeag2 = %"GSYM" /s\n",
+	fprintf(stdout, "BH Accretion[%" ISYM"]: time = %" FSYM", mdot = %" GSYM" SolarMass/yr, "
+		"M_BH = %lf SolarMass, rho = %" GSYM" g/cm3, c_s = %" GSYM" cm/s, T = %" GSYM" K, "
+                "Omega1 = %" GSYM" /s, Omeag2 = %" GSYM" /s\n",
 		Identifier, time, mdot*yr_s, Mass, density*DensityUnits, c_s, temperature[index],
 		sqrt(GravConst * density * DensityUnits * 8.0), 	     
 		sqrt(GravConst * old_mass * SolarMass / POW(CurrentGrid->CellWidth[0][0]*LengthUnits/2.0, 3.0)));
@@ -439,8 +439,8 @@ int Star::CalculateMassAccretion(float &BondiRadius, float &density)
 	CurrentGrid->CellWidth[0][0]*LengthUnits * POW(lambda, -7.0/3.0);
 
 //    if (mdot > 0.0) {
-// 	fprintf(stdout, "BH Accretion[%"ISYM"]: time = %"FSYM", mdot = %"GSYM" SolarMass/yr, "
-// 		"M_BH = %lf SolarMass, rho = %"GSYM" g/cm3, c_s = %"GSYM" cm/s, T = %"GSYM" K\n",
+// 	fprintf(stdout, "BH Accretion[%" ISYM"]: time = %" FSYM", mdot = %" GSYM" SolarMass/yr, "
+// 		"M_BH = %lf SolarMass, rho = %" GSYM" g/cm3, c_s = %" GSYM" cm/s, T = %" GSYM" K\n",
 // 		Identifier, time, mdot*yr, Mass, density*DensityUnits, c_s, temperature[index]);
 //	this->PrintInfo();  
 //    }
@@ -526,8 +526,8 @@ int Star::CalculateMassAccretion(float &BondiRadius, float &density)
     this->accretion_time[0] = time;
     
     if (mdot > 0.0) {
-      fprintf(stdout, "BH Accretion[%"ISYM"]: time = %"FSYM", mdot = %"GSYM" (%"GSYM"/%"GSYM") SolarMass/yr, "
-	      "M_BH = %lf SolarMass, rho = %"GSYM" g/cm3, T = %"GSYM" K, v_rel = %"GSYM" cm/s\n",
+      fprintf(stdout, "BH Accretion[%" ISYM"]: time = %" FSYM", mdot = %" GSYM" (%" GSYM"/%" GSYM") SolarMass/yr, "
+	      "M_BH = %lf SolarMass, rho = %" GSYM" g/cm3, T = %" GSYM" K, v_rel = %" GSYM" cm/s\n",
 	      Identifier, time, mdot*yr_s, mdot_original*yr_s, mdot_Edd*yr_s, Mass, density*DensityUnits,
 	      temperature[index], v_rel);
       //    this->PrintInfo();  
@@ -543,7 +543,7 @@ int Star::CalculateMassAccretion(float &BondiRadius, float &density)
 
   if (AccretionType == BONDI_ACCRETION ||
       AccretionType == RADIAL_ACCRETION) {
-    ENZO_VFAIL("AccretionType = %"ISYM" not implemented yet.\n", AccretionType);
+    ENZO_VFAIL("AccretionType = %" ISYM" not implemented yet.\n", AccretionType);
   }
 
   delete [] temperature;

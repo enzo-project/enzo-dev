@@ -16,7 +16,7 @@
 /         the grid in solar masses. However, this could (in principle)
 /         be generalized to compute flux of any quantity in any units
 /
-/*********************************************************************/
+*********************************************************************/
 
 #ifdef USE_MPI
 #include "mpi.h"
@@ -94,10 +94,10 @@ int ComputeDomainBoundaryMassFlux(HierarchyEntry *Grids[], int level,
       ENZO_VFAIL("Error opening file %s\n", BoundaryMassFluxFilename);
     }
 
-    fprintf(fptr, "%"ISYM" %"GSYM" ", MetaData->CycleNumber, MetaData->Time);
+    fprintf(fptr, "%" ISYM" %" GSYM" ", MetaData->CycleNumber, MetaData->Time);
     for (int i = 0; i < MAX_NUMBER_OF_BARYON_FIELDS; i++){
       if( BoundaryMassFluxFieldNumbers[i] < 0) break;
-      fprintf(fptr, "%"GSYM" ", allgrid_BoundaryMassFluxContainer[i]);
+      fprintf(fptr, "%" GSYM" ", allgrid_BoundaryMassFluxContainer[i]);
     }
     fprintf(fptr, "\n");
     fclose(fptr);

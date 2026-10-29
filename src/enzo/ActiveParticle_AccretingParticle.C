@@ -94,7 +94,7 @@ int ActiveParticleType_AccretingParticle::EvaluateFormation
   AccretingParticleGrid *thisGrid =
     static_cast<AccretingParticleGrid *>(thisgrid_orig);
 
-  int i,j,k,index,method,MassRefinementMethod;
+  int i, j, k, index, method;
 
   float *density = thisGrid->BaryonField[data.DensNum];
 
@@ -105,7 +105,6 @@ int ActiveParticleType_AccretingParticle::EvaluateFormation
   float JeansDensityUnitConversion = (Gamma*pi*kboltz) / (Mu*mh*GravConst);
   float CellTemperature = 0;
   float JeansDensity = 0;
-  float MassRefinementDensity = 0;
   float DensityThreshold = huge_number;
   float ExtraDensity = 0;
 
@@ -117,15 +116,12 @@ int ActiveParticleType_AccretingParticle::EvaluateFormation
 
   bool HasMetalField = (data.MetalNum != -1 || data.ColourNum != -1);
   bool JeansRefinement = false;
-  bool MassRefinement = false;
 
   const int offset[] = {1, GridDimension[0], GridDimension[0]*GridDimension[1]};
 
   // determine refinement criteria
   for (method = 0; method < MAX_FLAGGING_METHODS; method++) {
     if (CellFlaggingMethod[method] == 2) {
-      MassRefinement = true;
-      MassRefinementMethod = method;
     }
     if (CellFlaggingMethod[method] == 6)
       JeansRefinement = true;
@@ -151,9 +147,9 @@ int ActiveParticleType_AccretingParticle::EvaluateFormation
 	}
 	if (DensityThreshold == huge_number)
 	  ENZO_VFAIL("Error in Accreting Particles: DensityThreshold = huge_number! \n"
-		     "JeansDensity = %"GOUTSYM" \n"
-		     "data.DensityUnits = %"GOUTSYM" \n"
-		     "CellTemperature = %"GOUTSYM" \n",
+		     "JeansDensity = %" GOUTSYM" \n"
+		     "data.DensityUnits = %" GOUTSYM" \n"
+		     "CellTemperature = %" GOUTSYM" \n",
 		     JeansDensity, data.DensityUnits, CellTemperature);
 
 	if (density[index] <= DensityThreshold)
@@ -250,7 +246,7 @@ int ActiveParticleType_AccretingParticle::BeforeEvolveLevel
   GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	   &TimeUnits, &VelocityUnits, Time);
 
-  int j, dim, ipart, nParticles;
+  int j, ipart, nParticles;
   ActiveParticleList<ActiveParticleType> AccretingParticleList;
   if (CallEvolvePhotons)
     ActiveParticleFindAll(LevelArray, &nParticles, AccretingParticleID, 
@@ -329,13 +325,9 @@ int ActiveParticleType_AccretingParticle::Accrete(int nParticles,
      if the grid overlaps with the accretion zone                   */
 
   int i, NumberOfGrids;
-  int *FeedbackRadius = NULL;
   HierarchyEntry **Grids = NULL;
-  grid *sinkGrid = NULL;
 
-  bool SinkIsOnThisProc, SinkIsOnThisGrid;
 
-  float SubtractedMass, SubtractedMomentum[3] = {};
 
   NumberOfGrids = GenerateGridArray(LevelArray, ThisLevel, &Grids);
 

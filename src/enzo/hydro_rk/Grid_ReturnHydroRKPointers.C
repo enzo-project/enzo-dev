@@ -78,7 +78,7 @@ int grid::ReturnHydroRKPointers(float **Prim, bool ReturnMassFractions)
   }
 
   /*
-  printf("Physical Quantities: %"ISYM" %"ISYM"  %"ISYM" %"ISYM" %"ISYM"  %"ISYM"  %"ISYM" %"ISYM" %"ISYM" %"ISYM"\n", 
+  printf("Physical Quantities: %" ISYM" %" ISYM"  %" ISYM" %" ISYM" %" ISYM"  %" ISYM"  %" ISYM" %" ISYM" %" ISYM" %" ISYM"\n", 
 	 DensNum, GENum, Vel1Num, Vel2Num, 
 	 Vel3Num, TENum, B1Num, B2Num, B3Num, 
 	 PhiNum);
@@ -150,7 +150,7 @@ int grid::ReturnHydroRKPointers(float **Prim, bool ReturnMassFractions)
       for (i = 0; i < size; i++) 
 	Prim[n][i] /= Prim[iden][i];
 
-  //  fprintf(stdout, "grid::ReturnHydroRKPointers: nfield = %"ISYM"\n", nfield);  
+  //  fprintf(stdout, "grid::ReturnHydroRKPointers: nfield = %" ISYM"\n", nfield);  
 
   return SUCCESS;
 

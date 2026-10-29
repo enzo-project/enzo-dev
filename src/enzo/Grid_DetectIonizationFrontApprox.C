@@ -74,7 +74,7 @@ int grid::DetectIonizationFrontApprox(float TemperatureUnits)
     } // ENDFOR j
 
   ret = (maxDT > TOLERANCE) ? TRUE : FALSE;
-  //printf("DetectIFront[P%"ISYM"]: max (ret) = %"GSYM" (%"ISYM")\n", MyProcessorNumber, maxDT, ret);
+  //printf("DetectIFront[P%" ISYM"]: max (ret) = %" GSYM" (%" ISYM")\n", MyProcessorNumber, maxDT, ret);
 
   return ret;
 

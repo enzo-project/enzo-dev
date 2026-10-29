@@ -31,7 +31,7 @@ void StochasticForcing::CommunicationBroadcastFlags(void)
     
 #ifdef USE_MPI
  
-  if (debug) printf("Broadcasting flags, proc #%"ISYM"\n",MyProcessorNumber);
+  if (debug) printf("Broadcasting flags, proc #%" ISYM"\n",MyProcessorNumber);
  
 #ifdef MPI_INSTRUMENTATION
   starttime = MPI_Wtime();

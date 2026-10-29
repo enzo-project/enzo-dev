@@ -27,11 +27,11 @@ int ProtoSubgrid::FindGridsByZeroSignature(int dim, int &NumberOfNewGrids,
   /* Error check */
  
   if (dim >= GridRank) {
-    ENZO_VFAIL("Passed dim(%"ISYM") > GridRank(%"ISYM")\n", dim, GridRank)
+    ENZO_VFAIL("Passed dim(%" ISYM") > GridRank(%" ISYM")\n", dim, GridRank)
   }
  
   if (Signature[dim] == NULL) {
-    ENZO_VFAIL("Signature %"ISYM" not yet computed.\n", dim)
+    ENZO_VFAIL("Signature %" ISYM" not yet computed.\n", dim)
   }
  
   /* Initialize */
@@ -55,7 +55,7 @@ int ProtoSubgrid::FindGridsByZeroSignature(int dim, int &NumberOfNewGrids,
       GridEnds[NumberOfNewGrids++][1] = StartIndex[dim] + i-1;
 
       if ( NumberOfNewGrids > MAX_NUMBER_OF_SUBGRIDS ) {
-        ENZO_VFAIL("PE %"ISYM" NumberOfNewGrids > MAX_NUMBER_OF_SUBGRIDS in ProtoSubgrid_FindGridsByZeroSignature\n", MyProcessorNumber)
+        ENZO_VFAIL("PE %" ISYM" NumberOfNewGrids > MAX_NUMBER_OF_SUBGRIDS in ProtoSubgrid_FindGridsByZeroSignature\n", MyProcessorNumber)
 
       }
 

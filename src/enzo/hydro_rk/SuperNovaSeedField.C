@@ -181,8 +181,6 @@ snsf_source_terms SuperNova::getSourceTerms(double dx, double dy, double dz, dou
 	FLOAT r_scale = (r_cyl/characteristicLength)*\
 				exp(- r_s*r_s /(characteristicLength*characteristicLength));
 
-	FLOAT db_r_scale = (r_cyl/characteristicLength)*\
-	                        exp(- r_s*r_s /(2.0*characteristicLength*characteristicLength));
 	FLOAT t_exp = exp(-t_s/characteristicTime);
 	
 	FLOAT db_t_exp = t_exp / characteristicTime;

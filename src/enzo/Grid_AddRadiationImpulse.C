@@ -38,7 +38,7 @@ int grid::AddRadiationImpulse(int field, double Luminosity, double sigma,
   float kdiss_r2;
   FLOAT delx, dely, delz, DomainWidth[MAX_DIMENSION];
   FLOAT innerFront, outerFront;
-  double r2, radius2;
+  double radius2;
 
   if (MyProcessorNumber != ProcessorNumber)
     return SUCCESS;

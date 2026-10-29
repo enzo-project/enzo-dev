@@ -33,7 +33,7 @@ int grid::MoveAllParticles(int NumberOfGrids, grid* FromGrid[])
 {
 
   if (NumberOfGrids < 1) {
-    ENZO_VFAIL("NumberOfGrids(%"ISYM") must be > 0.\n", NumberOfGrids)
+    ENZO_VFAIL("NumberOfGrids(%" ISYM") must be > 0.\n", NumberOfGrids)
   }
  
   /* Determine total number of local particles. */
@@ -59,8 +59,8 @@ int grid::MoveAllParticles(int NumberOfGrids, grid* FromGrid[])
   /* Debugging info. */
 
   if (debug1)
-    printf("MoveAllParticles: %"ISYM",%"ISYM
-           " (before: ThisGrid = %"ISYM",%"ISYM").\n",
+    printf("MoveAllParticles: %" ISYM",%" ISYM
+           " (before: ThisGrid = %" ISYM",%" ISYM").\n",
            TotalNumberOfParticles, TotalNumberOfActiveParticles,
            NumberOfParticles, NumberOfActiveParticles);
  
@@ -195,7 +195,7 @@ int grid::MoveAllParticlesOld(int NumberOfGrids, grid* FromGrid[])
 {
 
   if (NumberOfGrids < 1) {
-    fprintf(stderr, "NumberOfGrids(%d) must be > 0.\n", NumberOfGrids);
+    fprintf(stderr, "NumberOfGrids(%" ISYM ") must be > 0.\n", NumberOfGrids);
     return FAIL;
   }
 
@@ -212,7 +212,7 @@ int grid::MoveAllParticlesOld(int NumberOfGrids, grid* FromGrid[])
 
   /* Debugging info. */
 
-  if (debug) printf("MoveAllParticles: %d (before: ThisGrid = %d).\n",
+  if (debug) printf("MoveAllParticles: %" ISYM " (before: ThisGrid = %" ISYM ").\n",
 		    TotalNumberOfParticles, NumberOfParticles);
 
   /* Allocate space for the particles. */
@@ -287,7 +287,7 @@ int grid::MoveAllParticlesOld(int NumberOfGrids, grid* FromGrid[])
     if (MyProcessorNumber == ProcessorNumber &&
         MyProcessorNumber == FromGrid[grid]->ProcessorNumber) {
 
-      //      fprintf(stderr, "P(%d) copying %d particles\n", MyProcessorNumber,
+      //      fprintf(stderr, "P(%" ISYM ") copying %" ISYM " particles\n", MyProcessorNumber,
       //	     FromGrid[grid]->NumberOfParticles);
 
       for (i = 0; i < FromGrid[grid]->NumberOfParticles; i++) {

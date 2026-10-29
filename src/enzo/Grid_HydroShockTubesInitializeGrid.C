@@ -62,9 +62,8 @@ int grid::HydroShockTubesInitializeGrid(float x0,
   }
 
 
-  int size = 1, index, dim;
+  int index, dim;
   for (dim = 0; dim < GridRank; dim++)
-    size *= GridDimension[dim];
 
   this->AllocateGrids();
 
@@ -178,9 +177,8 @@ int grid::HydroShockTubesInitializeGrid(float x0, float x1,
   }
 
 
-  int size = 1, dim, index;
+  int dim, index;
   for (dim = 0; dim < GridRank; dim++)
-    size *= GridDimension[dim];
 
   this->AllocateGrids();
   

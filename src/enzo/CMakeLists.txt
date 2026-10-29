@@ -34,6 +34,8 @@ target_include_directories(enzo_lib PUBLIC
 if (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
     set_source_files_properties(BlockSolve.F FOF_InitialGuess.F90 FSProb_InitialGuess.F90 FSProb_RadiationSource.F90 FSProb_SetupSystem.F90
         PROPERTIES COMPILE_FLAGS "-fno-second-underscore -std=legacy")
+    set_source_files_properties(ffte4X.F90
+        PROPERTIES COMPILE_FLAGS "-w")
 endif()
 
 # Dependencies & Linking for enzo_lib

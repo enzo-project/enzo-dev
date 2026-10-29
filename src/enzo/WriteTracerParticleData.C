@@ -45,7 +45,6 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 void WriteListOfFloats(FILE *fptr, int N, FLOAT floats[]);
 void WriteListOfInts(FILE *fptr, int N, int nums[]);
  
-static char SummarySuffix[] = ".summary";
  
 int WriteTracerParticleData(char *basename, int dumpnumber,
 		   LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
@@ -79,7 +78,7 @@ int WriteTracerParticleData(char *basename, int dumpnumber,
   /* Create output filename */
  
   strcpy(name, basename);
-  sprintf(id, "%-d", MyProcessorNumber);  /* create processor # */
+  sprintf(id, "%-" ISYM, MyProcessorNumber);  /* create processor # */
   strcat(name, id);
  
   if (debug)
@@ -120,7 +119,7 @@ int WriteTracerParticleData(char *basename, int dumpnumber,
     int_temp += MetaData->TopGridRank;  // TopGridRank velocity fields
 
 
-  // printf("tracer particle: writing %d fields and sizeof(int) is %d\n",int_temp,sizeof(int));
+  // printf("tracer particle: writing %" ISYM " fields and sizeof(int) is %" ISYM "\n",int_temp,sizeof(int));
 
   fwrite((void*) &int_temp, sizeof(int), 1, fptr);  // write number of fields
  

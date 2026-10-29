@@ -51,7 +51,7 @@ int grid::IdentifySpeciesFields(int &DeNum, int &HINum, int &HIINum,
  
   if (DeNum < 0 || HINum < 0 || HIINum < 0 || HeINum < 0 || HeIINum < 0 ||
       HeIIINum < 0) {
-    ENZO_VFAIL("De=%"ISYM", HI=%"ISYM", HII=%"ISYM", HeI=%"ISYM", HeII=%"ISYM", HeIII=%"ISYM"\n",
+    ENZO_VFAIL("De=%" ISYM", HI=%" ISYM", HII=%" ISYM", HeI=%" ISYM", HeII=%" ISYM", HeIII=%" ISYM"\n",
 	    DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum)
   }
  

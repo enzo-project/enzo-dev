@@ -34,12 +34,12 @@ int FSProb::Dump(EnzoVector *ucur)
     fprintf(stderr,"  tnew = %g\n",tnew);
     fprintf(stderr,"  dt = %g\n",dt);
     fprintf(stderr,"  theta = %g\n",theta);
-    fprintf(stderr,"  kappa = %g\n",kappa);
+    fprintf(stderr,"  kappa = %g\n",kappa0);
     fprintf(stderr,"  NGammaDot = %g\n", NGammaDot);
     fprintf(stderr,"  EtaRadius = %g\n", EtaRadius);
     fprintf(stderr,"  EtaCenter = %g %g %g\n", 
 	    EtaCenter[0], EtaCenter[1], EtaCenter[2]);
-    fprintf(stderr,"  LimType = %"ISYM"\n",LimType);
+    fprintf(stderr,"  LimType = %" ISYM"\n",LimType);
     fprintf(stderr,"  dt_suggest = %g\n",dt_suggest);
     fprintf(stderr,"  aUnits = %g\n",aUnits);
     fprintf(stderr,"  EUnits = %g\n",EUnits);

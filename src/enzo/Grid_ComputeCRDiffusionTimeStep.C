@@ -54,9 +54,6 @@ int grid::ComputeCRDiffusionTimeStep (float &dt) {
 
   double units = ((double)LengthUnits)*LengthUnits/TimeUnits;
 
-  int size = 1; 
-  for (int dim = 0; dim < GridRank; dim++) {size *= GridDimension[dim];};
-
   FLOAT dx = CellWidth[0][0];
 
 

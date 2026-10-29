@@ -61,7 +61,7 @@ int CommunicationCombineGrids(HierarchyEntry *OldHierarchy,
                    + ((dim < Rank) ? 2*NumberOfGhostZones : 0);
   }
   if (debug)
-    printf("CombineGrids: NewDims = %"ISYM" %"ISYM" %"ISYM"\n",
+    printf("CombineGrids: NewDims = %" ISYM" %" ISYM" %" ISYM"\n",
 	   NewDims[0], NewDims[1], NewDims[2]);
 
   switch (OutputSmoothedDarkMatter) {
@@ -107,12 +107,10 @@ int CommunicationCombineGrids(HierarchyEntry *OldHierarchy,
     }
     /* Copy grid region. */
  
-    int RecvType = ((WriteTime < 0) && (RestartDump == FALSE)) ? 
-                     NEW_ONLY : NEW_AND_OLD;
     int OldProc = OldGrid->ReturnProcessorNumber(),
         NewProc = NewGrid->ReturnProcessorNumber();
     CommunicationDirection = COMMUNICATION_SEND_RECEIVE;
-//  printf("(%"ISYM"): %"ISYM" --> %"ISYM"\n", MyProcessorNumber, OldProc, NewProc);
+//  printf("(%" ISYM"): %" ISYM" --> %" ISYM"\n", MyProcessorNumber, OldProc, NewProc);
     if (MyProcessorNumber == NewProc || MyProcessorNumber == OldProc)
       if (NewGrid->CommunicationReceiveRegion(OldGrid, OldProc, ALL_FIELDS,
 			      ((WriteTime < 0) ? NEW_ONLY : NEW_AND_OLD),
@@ -152,7 +150,7 @@ int CommunicationCombineGrids(HierarchyEntry *OldHierarchy,
  
     Temp = Temp->NextGridThisLevel;
   }
-//  printf("(%"ISYM"): done\n", MyProcessorNumber);
+//  printf("(%" ISYM"): done\n", MyProcessorNumber);
  
   /* Create a new first level of hierarchy entries that are all below the
      new one.  Below that, just point back into the old hierarchy. */

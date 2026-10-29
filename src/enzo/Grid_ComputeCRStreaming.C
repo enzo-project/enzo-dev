@@ -43,7 +43,7 @@ int grid::ComputeCRStreaming(){
 
   // Some locals
   int size = 1, idx, i,j,k; 
-  float *cr, *Bx, *By, *Bz, crOld, rho, inv_sqrt_rho,  stability_factor;
+  float *cr, *Bx, *By, *Bz, rho, inv_sqrt_rho, stability_factor;
   float dCRdt, dCRdx, dCRdy, dCRdz, va_x, va_y, va_z, ecr;
   
   float *dx = new float[GridRank];
@@ -126,7 +126,6 @@ int grid::ComputeCRStreaming(){
     for (j = GridStart[1]; j <= GridEnd[1]; j++) 
       for (i = GridStart[0]; i <= GridEnd[0]; i++) {
 	idx = ELT(i,j,k);
-	crOld = cr[idx];
 
 	dCRdt = 0.5 * (Fcx[ELT(i+1,j,k)]-Fcx[ELT(i-1,j,k)])/dx[0]; 
 	if( GridRank > 1 )
@@ -137,8 +136,8 @@ int grid::ComputeCRStreaming(){
 	BaryonField[CRNum][idx] += CRStreamVelocityFactor * dCRdt * dtFixed;
 
 	if((cr[idx]< 0) || isnan(cr[idx])){
-	      printf("CR = %e < 0 (after stream), i,j,k = (%"ISYM", %"ISYM", %"
-		     ISYM"), grid lims = (%"ISYM", %"ISYM", %"ISYM"), (%"ISYM", %"ISYM", %"ISYM")\n",
+	      printf("CR = %e < 0 (after stream), i,j,k = (%" ISYM", %" ISYM", %"
+		     ISYM"), grid lims = (%" ISYM", %" ISYM", %" ISYM"), (%" ISYM", %" ISYM", %" ISYM")\n",
                      cr[idx], i, j, k, GridStart[0],
                      GridStart[1], GridStart[2], GridEnd[0], GridEnd[1], GridEnd[2]);		  
 	      cr[idx] = CRdensFloor; 

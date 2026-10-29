@@ -60,7 +60,7 @@ void DeleteStarList(Star * &Node)
 
 Star *StarListToArray(Star *Node, int n)
 {
-  int dim, count = 0;
+  int count = 0;
   Star *result = new Star[n];
   Star *tmp = Node;
   while (tmp != NULL) {

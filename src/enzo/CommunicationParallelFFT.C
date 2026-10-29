@@ -32,7 +32,7 @@ int CommunicationTranspose(region *FromRegion, int NumberOfFromRegions,
 			   int TransposeOrder);
 int FastFourierTransform(float *buffer, int Rank, int DimensionReal[],
 			 int Dimension[], int direction, int type);
-void PrintMemoryUsage(char *str);
+void PrintMemoryUsage(const char *str);
  
 int CommunicationParallelFFT(region *InRegion, int NumberOfInRegions,
 			     region **OutRegion, int *NumberOfOutRegions,
@@ -93,7 +93,7 @@ int CommunicationParallelFFT(region *InRegion, int NumberOfInRegions,
  
     /* Copy initial regions to striped1 regions. */
  
-//    fprintf(stderr, "FFT(%"ISYM"): initial -> strip1\n", MyProcessorNumber);
+//    fprintf(stderr, "FFT(%" ISYM"): initial -> strip1\n", MyProcessorNumber);
     if (CommunicationTranspose(InRegion, NumberOfInRegions, strip1,
 			       NumberOfProcessors, NORMAL_ORDER) == FAIL) {
       ENZO_FAIL("Error in CommunicationTranspose.\n");
@@ -111,7 +111,7 @@ int CommunicationParallelFFT(region *InRegion, int NumberOfInRegions,
  
     /* FFT all dims except last (real to complex). */
  
-//    fprintf(stderr, "FFT(%"ISYM"): FFT strip1\n", MyProcessorNumber);
+//    fprintf(stderr, "FFT(%" ISYM"): FFT strip1\n", MyProcessorNumber);
     for (i=0, j=0; i < strip1[MyProcessorNumber].RegionDim[LastIndex]; i++)
       if (strip1[MyProcessorNumber].Data != NULL) {
 	if (FastFourierTransform(strip1[MyProcessorNumber].Data+j, LastIndex,
@@ -126,7 +126,7 @@ int CommunicationParallelFFT(region *InRegion, int NumberOfInRegions,
  
       /* Transpose to striped0 regions (reverse order within blocks). */
  
-//      fprintf(stderr, "FFT(%"ISYM"): strip1 -> strip0\n", MyProcessorNumber);
+//      fprintf(stderr, "FFT(%" ISYM"): strip1 -> strip0\n", MyProcessorNumber);
       if (CommunicationTranspose(strip1, NumberOfProcessors, strip0,
 			      NumberOfProcessors, TRANSPOSE_FORWARD) == FAIL) {
 	ENZO_FAIL("Error in CommunicationTranspose (forward).\n");
@@ -140,7 +140,7 @@ int CommunicationParallelFFT(region *InRegion, int NumberOfInRegions,
       for (j = 0; j < Rank-1; j++)
 	nffts *= strip0[MyProcessorNumber].RegionDim[j];
       nffts /= 2;  // since these are complex ffts
-//      fprintf(stderr, "FFT(%"ISYM"): FFT strip0\n", MyProcessorNumber);
+//      fprintf(stderr, "FFT(%" ISYM"): FFT strip0\n", MyProcessorNumber);
       for (j = 0; j < nffts; j++)
 	if (FastFourierTransform(strip0[MyProcessorNumber].Data+j*fft_size*2,
 				 1, &fft_size, &fft_size, direction,
@@ -158,7 +158,7 @@ int CommunicationParallelFFT(region *InRegion, int NumberOfInRegions,
     /* Return data to original layout if requested. */
  
     if (TransposeOnCompletion) {
-//      fprintf(stderr, "FFT(%"ISYM"): Transpose on Completion\n", MyProcessorNumber);
+//      fprintf(stderr, "FFT(%" ISYM"): Transpose on Completion\n", MyProcessorNumber);
       if (CommunicationTranspose(*OutRegion, NumberOfProcessors,
 				InRegion, NumberOfInRegions,
 				((Rank>1) ? TRANSPOSE_REVERSE : NORMAL_ORDER))
@@ -178,7 +178,7 @@ int CommunicationParallelFFT(region *InRegion, int NumberOfInRegions,
     /* Tranpose from original layout to strip0/1 (if necessary). */
  
     if (TransposeOnCompletion) {
-//      fprintf(stderr, "FFT(%"ISYM"): Transpose on Start\n", MyProcessorNumber);
+//      fprintf(stderr, "FFT(%" ISYM"): Transpose on Start\n", MyProcessorNumber);
       if (CommunicationTranspose(InRegion, NumberOfInRegions,
 			     ((Rank>1) ? strip0 : strip1), NumberOfProcessors,
 			     ((Rank>1) ? TRANSPOSE_FORWARD : NORMAL_ORDER) )

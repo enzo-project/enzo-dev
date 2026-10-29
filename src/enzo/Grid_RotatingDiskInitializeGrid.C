@@ -93,7 +93,7 @@ int grid::RotatingDiskInitializeGrid(float RDScaleRadius,
 	
    int dim, i, j, k;
    FLOAT density, velocity[MAX_DIMENSION], temperature;
-   FLOAT r, x, y = 0, z = 0, vx, vy, vz, velocity_mag;
+   FLOAT x, y = 0, z = 0, velocity_mag;
    int n = 0;
    
 		

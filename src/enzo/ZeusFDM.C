@@ -45,35 +45,28 @@ int ZeusFDM(float *d, float *e, float *u, float *v, float *w, float *p,
 	       int gravity, float *gr_xacc, float *gr_yacc, float *gr_zacc, 
 	       float minsupecoef, float lapcoef)
 {
-  int ijk = MAX_ANY_SINGLE_DIRECTION;
 
   /* Local declarations */
 
-  int i, j, k, jsm1, ksm1, jep1, kep1, ism2, jsm2, ksm2, jep2, kep2, n, nstep;
+  int i, j, k, jsm1, ksm1, jep2, kep2;
   int size = in*jn*kn;
-  float gamma1 = gamma[0];
-  float  deltav, dt1, e1;
+  float deltav;
   float *logd = new float[size];
-  float q[ijk];
 
   /* ======================================================================= */
 
   /* Compute varients on start indexes */
 
   jsm1 = max(js-1, 0);
-  jsm2 = max(js-2, 0);
-  jep1 = min(je+1, jn-1);
   jep2 = min(je+2, jn-1);
   ksm1 = max(ks-1, 0);
-  ksm2 = max(ks-2, 0);
-  kep1 = min(ke+1, kn-1);
   kep2 = min(ke+2, kn-1);
 
   /* compute log of density */
   
    for (i = 0; i < size; i++) {
     if (d[i] < 0) {
-      fprintf(stderr, "u,v,w,d,e=%"GSYM",%"GSYM",%"GSYM",%"GSYM",%"GSYM"  dx=%"GSYM"  dt=%"GSYM"\n", 
+      fprintf(stderr, "u,v,w,d,e=%" GSYM",%" GSYM",%" GSYM",%" GSYM",%" GSYM"  dx=%" GSYM"  dt=%" GSYM"\n", 
         u[i],v[i],w[i],d[i],p[i], dx[0], dt);
       ENZO_FAIL("ZeusSolver: Negative Density! \n");
     } else{

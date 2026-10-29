@@ -84,7 +84,7 @@ int grid::InterpolateRadiationFromParent(grid *ParentGrid, int Field)
   int ZeroVector[MAX_DIMENSION], ParentTempStartIndex[MAX_DIMENSION];
   int ParentTempDim[MAX_DIMENSION], TempDim[MAX_DIMENSION];
   int ParentDim[MAX_DIMENSION];
-  int ParentTempSize, WorkSize, TempSize, GridSize, One = 1, Zero = 0;
+  int ParentTempSize, WorkSize, TempSize, GridSize, Zero = 0;
   int dim, interp_error;
   float *TemporaryField, *Work, *ParentTemp;
 
@@ -163,7 +163,7 @@ int grid::InterpolateRadiationFromParent(grid *ParentGrid, int Field)
     if (ParentStartIndex[dim] < 0 ||
 	ParentStartIndex[dim]+ParentTempDim[dim] >
 	ParentGrid->GridDimension[dim]) {
-      ENZO_VFAIL("Parent grid not big enough for interpolation!  ParentStartIndex[%"ISYM"] = %"ISYM"  ParentTempDim = %"ISYM"\n", dim, ParentStartIndex[dim], ParentTempDim[dim])
+      ENZO_VFAIL("Parent grid not big enough for interpolation!  ParentStartIndex[%" ISYM"] = %" ISYM"  ParentTempDim = %" ISYM"\n", dim, ParentStartIndex[dim], ParentTempDim[dim])
     }
  
     /* Compute the dimensions of the current grid temporary field. */
@@ -234,13 +234,13 @@ int grid::InterpolateRadiationFromParent(grid *ParentGrid, int Field)
 			    &SecondOrderBFlag, &interp_error);
  
     if (interp_error) {
-      ENZO_VFAIL("P%d: Error interpolating emissivity.\n"
-		 "ParentGrid ID = %d\n"
-		 "\t LeftEdge  = %"PSYM" %"PSYM" %"PSYM"\n"
-		 "\t RightEdge = %"PSYM" %"PSYM" %"PSYM"\n"
-		 "ThisGrid ID = %d\n"
-		 "\t LeftEdge  = %"PSYM" %"PSYM" %"PSYM"\n"
-		 "\t RightEdge = %"PSYM" %"PSYM" %"PSYM"\n",
+      ENZO_VFAIL("P%" ISYM ": Error interpolating emissivity.\n"
+		 "ParentGrid ID = %" ISYM"\n"
+		 "\t LeftEdge  = %" PSYM" %" PSYM" %" PSYM"\n"
+		 "\t RightEdge = %" PSYM" %" PSYM" %" PSYM"\n"
+		 "ThisGrid ID = %" ISYM"\n"
+		 "\t LeftEdge  = %" PSYM" %" PSYM" %" PSYM"\n"
+		 "\t RightEdge = %" PSYM" %" PSYM" %" PSYM"\n",
 		 MyProcessorNumber, ParentGrid->ID, 
 		 ParentGrid->GridLeftEdge[0], ParentGrid->GridLeftEdge[1], 
 		 ParentGrid->GridLeftEdge[2], ParentGrid->GridRightEdge[0], 

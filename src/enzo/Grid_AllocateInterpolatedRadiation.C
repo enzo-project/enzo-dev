@@ -34,7 +34,7 @@ int grid::AllocateInterpolatedRadiation()
   IdentifyRadiativeTransferFields(kphHINum, gammaNum, kphHeINum, 
 				  kphHeIINum, kdissH2INum, kphHMNum, kdissH2IINum);
 
-  int i,j,k, index, field, dim, vcsize = 1;
+  int i, field, dim, vcsize = 1;
 
   for (dim = 0; dim < GridRank; dim++)
     vcsize *= GridEndIndex[dim] - GridStartIndex[dim] + 2;

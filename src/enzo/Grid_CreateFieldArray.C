@@ -67,7 +67,7 @@ int FindField(int field, int farray[], int numfields);
 
 struct field_map{
   field_type field;
-  char *field_name;
+  const char *field_name;
   // 0 for float
   // 1 for FLOAT
   // 2 for int
@@ -118,7 +118,7 @@ const field_map field_map_list[] = {
   {gFlaggingField,"FlaggingField", 3},
   {gVelocity, "Velocity", 0}};
 
-field_type get_field_id(char *field_name){
+field_type get_field_id(const char *field_name){
   
   // loops over list above
   // if the field isn't found, returns -1
@@ -137,28 +137,28 @@ field_type get_field_id(char *field_name){
 }
 
 
-EnzoArray<FLOAT> *grid::CreateFieldArrayFLOAT(char *field_name){
+EnzoArray<FLOAT> *grid::CreateFieldArrayFLOAT(const char *field_name){
 
   field_type field_id = get_field_id(field_name);
 
   return this->CreateFieldArrayFLOAT(field_id);
 }
 
-EnzoArray<float> *grid::CreateFieldArrayFloat(char *field_name){
+EnzoArray<float> *grid::CreateFieldArrayFloat(const char *field_name){
 
   field_type field_id = get_field_id(field_name);
 
   return this->CreateFieldArrayFloat(field_id);
 }
 
-EnzoArray<int> *grid::CreateFieldArrayInt(char *field_name){
+EnzoArray<int> *grid::CreateFieldArrayInt(const char *field_name){
 
   field_type field_id = get_field_id(field_name);
 
   return this->CreateFieldArrayInt(field_id);
 }
 
-EnzoArray<bool> *grid::CreateFieldArrayBool(char *field_name){
+EnzoArray<bool> *grid::CreateFieldArrayBool(const char *field_name){
 
   field_type field_id = get_field_id(field_name);
 
@@ -344,7 +344,6 @@ EnzoArray<FLOAT> *grid::CreateFieldArrayFLOAT(field_type field){
   int i, dims[MAX_DIMENSION], sindex[MAX_DIMENSION], eindex[MAX_DIMENSION];
   EnzoArray<FLOAT> *array = NULL;
   //  float cell_width[] = {0, 0, 0};
-  field_type field_index;
   
   //  for(i = 0; i < this->GridRank; i++){
   //    cell_width[i] = this->CellWidth[i][0];
@@ -376,7 +375,6 @@ EnzoArray<int> *grid::CreateFieldArrayInt(field_type field){
   int i, dims[MAX_DIMENSION], sindex[MAX_DIMENSION], eindex[MAX_DIMENSION];
   EnzoArray<int> *array = NULL;
   FLOAT cell_width[] = {0, 0, 0};
-  field_type field_index;
   
   for(i = 0; i < this->GridRank; i++){
     cell_width[i] = this->CellWidth[i][0];
@@ -417,11 +415,8 @@ EnzoArray<PINT> *grid::CreateFieldArrayPINT(field_type field){
 
   int i, dims[MAX_DIMENSION], sindex[MAX_DIMENSION], eindex[MAX_DIMENSION];
   EnzoArray<PINT> *array = NULL;
-  FLOAT cell_width[] = {0, 0, 0};
-  field_type field_index;
   
   for(i = 0; i < this->GridRank; i++){
-    cell_width[i] = this->CellWidth[i][0];
   }
 
   switch (field){
@@ -444,13 +439,10 @@ EnzoArray<PINT> *grid::CreateFieldArrayPINT(field_type field){
 
 EnzoArray<bool> *grid::CreateFieldArrayBool(field_type field){
 
-  int i, dims[MAX_DIMENSION], sindex[MAX_DIMENSION], eindex[MAX_DIMENSION];
+  int i;
   EnzoArray<bool> *array = NULL;
-  FLOAT cell_width[] = {0, 0, 0};
-  field_type field_index;
   
   for(i = 0; i < this->GridRank; i++){
-    cell_width[i] = this->CellWidth[i][0];
   }
 
   // No booleans yet.

@@ -35,7 +35,7 @@ int grid::UpdateElectronDensity(void)
   if (MultiSpecies == 0)
     return SUCCESS;
 
-  int i, n, dim, size, nfield, n0;
+  int i, dim, size;
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
       DINum, DIINum, HDINum;
 

@@ -71,8 +71,8 @@ int grid::AddRadiationPressureAcceleration()
 	  if (fabs(BaryonField[RPresNum1+dim][index]) > 
 
 	      fabs(0.05*AccelerationField[dim][index]))  
-	    fprintf(stdout, "AddRPAccel[dim %"ISYM" :: %"ISYM" %"ISYM" %"ISYM"]: "
-		    "Accel = %"GSYM", RPAccel = %"GSYM"\n", 
+	    fprintf(stdout, "AddRPAccel[dim %" ISYM" :: %" ISYM" %" ISYM" %" ISYM"]: "
+		    "Accel = %" GSYM", RPAccel = %" GSYM"\n", 
 		    dim, i, j, k, AccelerationField[dim][index],
 		    BaryonField[RPresNum1+dim][index]);  
 	  */

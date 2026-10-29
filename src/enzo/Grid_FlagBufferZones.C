@@ -209,7 +209,7 @@ int grid::FlagBufferZones()
     size *= GridEndIndex[dim] - GridStartIndex[dim] + 1;
  
   if (debug1)
-    printf("FlagBufferZones: NumberOfFlaggedCells = %"ISYM" (%.1"FSYM"%%)\n",
+    printf("FlagBufferZones: NumberOfFlaggedCells = %" ISYM" (%.1" FSYM"%%)\n",
 	   NumberOfFlaggedCells, float(NumberOfFlaggedCells)*100.0/
 	   float(size));
  

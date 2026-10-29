@@ -135,7 +135,7 @@ class ProblemType_CollapsingCoolingCloud : public EnzoProblemType
       /* make sure it is 3D */
 
       if (MetaData.TopGridRank != 3) {
-        printf("Cannot do CollapsingCoolingCloud in %"ISYM" dimension(s)\n", MetaData.TopGridRank);
+        printf("Cannot do CollapsingCoolingCloud in %" ISYM" dimension(s)\n", MetaData.TopGridRank);
         ENZO_FAIL("");
       }
 
@@ -177,65 +177,65 @@ class ProblemType_CollapsingCoolingCloud : public EnzoProblemType
 
         /* read parameters specifically for radiating shock problem*/
 
-        ret += sscanf(line, "CollapsingCoolingCloudCentralDensity  = %"FSYM, &CollapsingCoolingCloudCentralDensity);
-        ret += sscanf(line, "CollapsingCoolingCloudExternalDensity  = %"FSYM, &CollapsingCoolingCloudExternalDensity);
-        ret += sscanf(line, "CollapsingCoolingCloudCentralTemperature  = %"FSYM, &CollapsingCoolingCloudCentralTemperature);
-        ret += sscanf(line, "CollapsingCoolingCloudExternalTemperature  = %"FSYM, &CollapsingCoolingCloudExternalTemperature);
+        ret += sscanf(line, "CollapsingCoolingCloudCentralDensity  = %" FSYM, &CollapsingCoolingCloudCentralDensity);
+        ret += sscanf(line, "CollapsingCoolingCloudExternalDensity  = %" FSYM, &CollapsingCoolingCloudExternalDensity);
+        ret += sscanf(line, "CollapsingCoolingCloudCentralTemperature  = %" FSYM, &CollapsingCoolingCloudCentralTemperature);
+        ret += sscanf(line, "CollapsingCoolingCloudExternalTemperature  = %" FSYM, &CollapsingCoolingCloudExternalTemperature);
 
-        ret += sscanf(line, "CollapsingCoolingCloudSubgridLeft = %"PSYM,
+        ret += sscanf(line, "CollapsingCoolingCloudSubgridLeft = %" PSYM,
             &CollapsingCoolingCloudSubgridLeft);
-        ret += sscanf(line, "CollapsingCoolingCloudSubgridRight = %"PSYM,
+        ret += sscanf(line, "CollapsingCoolingCloudSubgridRight = %" PSYM,
             &CollapsingCoolingCloudSubgridRight);
-        ret += sscanf(line, "CollapsingCoolingCloudLambda = %"FSYM,
+        ret += sscanf(line, "CollapsingCoolingCloudLambda = %" FSYM,
             &CollapsingCoolingCloudLambda);
 
-        ret += sscanf(line, "CollapsingCoolingCloudTotalEnergy = %"FSYM,
+        ret += sscanf(line, "CollapsingCoolingCloudTotalEnergy = %" FSYM,
             &CollapsingCoolingCloudTotalEnergy);
 
-        ret += sscanf(line, "CollapsingCoolingCloudRadius = %"PSYM,
+        ret += sscanf(line, "CollapsingCoolingCloudRadius = %" PSYM,
             &CollapsingCoolingCloudRadius);
-        ret += sscanf(line, "CollapsingCoolingCloudCenterPosition = %"PSYM" %"PSYM" %"PSYM,
+        ret += sscanf(line, "CollapsingCoolingCloudCenterPosition = %" PSYM" %" PSYM" %" PSYM,
             CollapsingCoolingCloudCenterPosition, CollapsingCoolingCloudCenterPosition+1,
             CollapsingCoolingCloudCenterPosition+2);
 
-        ret += sscanf(line, "CollapsingCoolingCloudUseDensityFluctuations = %"ISYM,
+        ret += sscanf(line, "CollapsingCoolingCloudUseDensityFluctuations = %" ISYM,
             &CollapsingCoolingCloudUseDensityFluctuations);
-        ret += sscanf(line, "CollapsingCoolingCloudRandomSeed = %"ISYM,
+        ret += sscanf(line, "CollapsingCoolingCloudRandomSeed = %" ISYM,
             &CollapsingCoolingCloudRandomSeed);
-        ret += sscanf(line, "CollapsingCoolingCloudFluctuationLevel = %"FSYM,
+        ret += sscanf(line, "CollapsingCoolingCloudFluctuationLevel = %" FSYM,
             &CollapsingCoolingCloudFluctuationLevel);
 
 
-	ret += sscanf(line, "TestProblemInitialHIFraction  = %"FSYM, &TestProblemData.HI_Fraction);
-	ret += sscanf(line, "TestProblemInitialHIIFraction  = %"FSYM, &TestProblemData.HII_Fraction);
-	ret += sscanf(line, "TestProblemInitialHeIFraction  = %"FSYM, &TestProblemData.HeI_Fraction);
-	ret += sscanf(line, "TestProblemInitialHeIIFraction  = %"FSYM, &TestProblemData.HeII_Fraction);
-	ret += sscanf(line, "TestProblemInitialHeIIIFraction  = %"FSYM, &TestProblemData.HeIII_Fraction);
-	ret += sscanf(line, "TestProblemInitialHMFraction  = %"FSYM, &TestProblemData.HM_Fraction);
-	ret += sscanf(line, "TestProblemInitialH2IFraction  = %"FSYM, &TestProblemData.H2I_Fraction);
-	ret += sscanf(line, "TestProblemInitialH2IIFraction  = %"FSYM, &TestProblemData.H2II_Fraction);
-	ret += sscanf(line, "TestProblemInitialDIFraction  = %"FSYM, &TestProblemData.DI_Fraction);
-	ret += sscanf(line, "TestProblemInitialDIIFraction  = %"FSYM, &TestProblemData.DII_Fraction);
-	ret += sscanf(line, "TestProblemInitialHDIFraction  = %"FSYM, &TestProblemData.HDI_Fraction);
+	ret += sscanf(line, "TestProblemInitialHIFraction  = %" FSYM, &TestProblemData.HI_Fraction);
+	ret += sscanf(line, "TestProblemInitialHIIFraction  = %" FSYM, &TestProblemData.HII_Fraction);
+	ret += sscanf(line, "TestProblemInitialHeIFraction  = %" FSYM, &TestProblemData.HeI_Fraction);
+	ret += sscanf(line, "TestProblemInitialHeIIFraction  = %" FSYM, &TestProblemData.HeII_Fraction);
+	ret += sscanf(line, "TestProblemInitialHeIIIFraction  = %" FSYM, &TestProblemData.HeIII_Fraction);
+	ret += sscanf(line, "TestProblemInitialHMFraction  = %" FSYM, &TestProblemData.HM_Fraction);
+	ret += sscanf(line, "TestProblemInitialH2IFraction  = %" FSYM, &TestProblemData.H2I_Fraction);
+	ret += sscanf(line, "TestProblemInitialH2IIFraction  = %" FSYM, &TestProblemData.H2II_Fraction);
+	ret += sscanf(line, "TestProblemInitialDIFraction  = %" FSYM, &TestProblemData.DI_Fraction);
+	ret += sscanf(line, "TestProblemInitialDIIFraction  = %" FSYM, &TestProblemData.DII_Fraction);
+	ret += sscanf(line, "TestProblemInitialHDIFraction  = %" FSYM, &TestProblemData.HDI_Fraction);
 
-	ret += sscanf(line, "TestProblemInitialHIFractionInner  = %"FSYM, &TestProblemData.HI_Fraction_Inner);
-	ret += sscanf(line, "TestProblemInitialHIIFractionInner  = %"FSYM, &TestProblemData.HII_Fraction_Inner);
-	ret += sscanf(line, "TestProblemInitialHeIFractionInner  = %"FSYM, &TestProblemData.HeI_Fraction_Inner);
-	ret += sscanf(line, "TestProblemInitialHeIIFractionInner  = %"FSYM, &TestProblemData.HeII_Fraction_Inner);
-	ret += sscanf(line, "TestProblemInitialHeIIIFractionInner  = %"FSYM, &TestProblemData.HeIII_Fraction_Inner);
-	ret += sscanf(line, "TestProblemInitialHMFractionInner  = %"FSYM, &TestProblemData.HM_Fraction_Inner);
-	ret += sscanf(line, "TestProblemInitialH2IFractionInner  = %"FSYM, &TestProblemData.H2I_Fraction_Inner);
-	ret += sscanf(line, "TestProblemInitialH2IIFractionInner  = %"FSYM, &TestProblemData.H2II_Fraction_Inner);
-	ret += sscanf(line, "TestProblemInitialDIFractionInner  = %"FSYM, &TestProblemData.DI_Fraction_Inner);
-	ret += sscanf(line, "TestProblemInitialDIIFractionInner  = %"FSYM, &TestProblemData.DII_Fraction_Inner);
-	ret += sscanf(line, "TestProblemInitialHDIFractionInner  = %"FSYM, &TestProblemData.HDI_Fraction_Inner);
+	ret += sscanf(line, "TestProblemInitialHIFractionInner  = %" FSYM, &TestProblemData.HI_Fraction_Inner);
+	ret += sscanf(line, "TestProblemInitialHIIFractionInner  = %" FSYM, &TestProblemData.HII_Fraction_Inner);
+	ret += sscanf(line, "TestProblemInitialHeIFractionInner  = %" FSYM, &TestProblemData.HeI_Fraction_Inner);
+	ret += sscanf(line, "TestProblemInitialHeIIFractionInner  = %" FSYM, &TestProblemData.HeII_Fraction_Inner);
+	ret += sscanf(line, "TestProblemInitialHeIIIFractionInner  = %" FSYM, &TestProblemData.HeIII_Fraction_Inner);
+	ret += sscanf(line, "TestProblemInitialHMFractionInner  = %" FSYM, &TestProblemData.HM_Fraction_Inner);
+	ret += sscanf(line, "TestProblemInitialH2IFractionInner  = %" FSYM, &TestProblemData.H2I_Fraction_Inner);
+	ret += sscanf(line, "TestProblemInitialH2IIFractionInner  = %" FSYM, &TestProblemData.H2II_Fraction_Inner);
+	ret += sscanf(line, "TestProblemInitialDIFractionInner  = %" FSYM, &TestProblemData.DI_Fraction_Inner);
+	ret += sscanf(line, "TestProblemInitialDIIFractionInner  = %" FSYM, &TestProblemData.DII_Fraction_Inner);
+	ret += sscanf(line, "TestProblemInitialHDIFractionInner  = %" FSYM, &TestProblemData.HDI_Fraction_Inner);
 
-        ret += sscanf(line, "TestProblemUseMetallicityField  = %"ISYM, &TestProblemData.UseMetallicityField);
-        ret += sscanf(line, "TestProblemInitialMetallicityFraction  = %"FSYM, &TestProblemData.MetallicityField_Fraction);
+        ret += sscanf(line, "TestProblemUseMetallicityField  = %" ISYM, &TestProblemData.UseMetallicityField);
+        ret += sscanf(line, "TestProblemInitialMetallicityFraction  = %" FSYM, &TestProblemData.MetallicityField_Fraction);
 
-	ret += sscanf(line, "TestProblemMultiMetals  = %"ISYM, &TestProblemData.MultiMetals);
-	ret += sscanf(line, "TestProblemInitialMultiMetalsField1Fraction  = %"FSYM, &TestProblemData.MultiMetalsField1_Fraction);
-	ret += sscanf(line, "TestProblemInitialMultiMetalsField2Fraction  = %"FSYM, &TestProblemData.MultiMetalsField2_Fraction);
+	ret += sscanf(line, "TestProblemMultiMetals  = %" ISYM, &TestProblemData.MultiMetals);
+	ret += sscanf(line, "TestProblemInitialMultiMetalsField1Fraction  = %" FSYM, &TestProblemData.MultiMetalsField1_Fraction);
+	ret += sscanf(line, "TestProblemInitialMultiMetalsField2Fraction  = %" FSYM, &TestProblemData.MultiMetalsField2_Fraction);
 
         /* if the line is suspicious, issue a warning */
 
@@ -314,7 +314,7 @@ class ProblemType_CollapsingCoolingCloud : public EnzoProblemType
             *int(POW(RefineBy, lev + 1));
 
         if (debug)
-          printf("CollapsingCoolingCloud:: Level[%"ISYM"]: NumberOfSubgridZones[0] = %"ISYM"\n", lev+1,
+          printf("CollapsingCoolingCloud:: Level[%" ISYM"]: NumberOfSubgridZones[0] = %" ISYM"\n", lev+1,
               NumberOfSubgridZones[0]);
 
         if (NumberOfSubgridZones[0] > 0) {
@@ -421,52 +421,52 @@ class ProblemType_CollapsingCoolingCloud : public EnzoProblemType
       /* Write parameters to parameter output file */
 
       if (MyProcessorNumber == ROOT_PROCESSOR) {
-        fprintf(Outfptr, "CollapsingCoolingCloudCentralDensity         = %"FSYM"\n"  , CollapsingCoolingCloudCentralDensity);
-        fprintf(Outfptr, "CollapsingCoolingCloudExternalDensity         = %"FSYM"\n"  , CollapsingCoolingCloudExternalDensity);
-        fprintf(Outfptr, "CollapsingCoolingCloudCentralTemperature         = %"FSYM"\n"  , CollapsingCoolingCloudCentralTemperature);
-        fprintf(Outfptr, "CollapsingCoolingCloudExternalTemperature         = %"FSYM"\n"  , CollapsingCoolingCloudExternalTemperature);
+        fprintf(Outfptr, "CollapsingCoolingCloudCentralDensity         = %" FSYM"\n"  , CollapsingCoolingCloudCentralDensity);
+        fprintf(Outfptr, "CollapsingCoolingCloudExternalDensity         = %" FSYM"\n"  , CollapsingCoolingCloudExternalDensity);
+        fprintf(Outfptr, "CollapsingCoolingCloudCentralTemperature         = %" FSYM"\n"  , CollapsingCoolingCloudCentralTemperature);
+        fprintf(Outfptr, "CollapsingCoolingCloudExternalTemperature         = %" FSYM"\n"  , CollapsingCoolingCloudExternalTemperature);
 
-        fprintf(Outfptr, "CollapsingCoolingCloudLambda         = %"FSYM"\n"  , CollapsingCoolingCloudLambda);
-        fprintf(Outfptr, "CollapsingCoolingCloudTotalEnergy         = %"FSYM"\n"  , CollapsingCoolingCloudTotalEnergy);
-        fprintf(Outfptr, "CollapsingCoolingCloudRadius         = %"PSYM"\n"  , CollapsingCoolingCloudRadius);
-        fprintf(Outfptr, "CollapsingCoolingCloudCenterPosition = %"PSYM" %"PSYM" %"PSYM"\n",
+        fprintf(Outfptr, "CollapsingCoolingCloudLambda         = %" FSYM"\n"  , CollapsingCoolingCloudLambda);
+        fprintf(Outfptr, "CollapsingCoolingCloudTotalEnergy         = %" FSYM"\n"  , CollapsingCoolingCloudTotalEnergy);
+        fprintf(Outfptr, "CollapsingCoolingCloudRadius         = %" PSYM"\n"  , CollapsingCoolingCloudRadius);
+        fprintf(Outfptr, "CollapsingCoolingCloudCenterPosition = %" PSYM" %" PSYM" %" PSYM"\n",
             CollapsingCoolingCloudCenterPosition, CollapsingCoolingCloudCenterPosition+1,
             CollapsingCoolingCloudCenterPosition+2);
 
-        fprintf(Outfptr, "CollapsingCoolingCloudUseDensityFluctuations    = %"ISYM"\n"  , CollapsingCoolingCloudUseDensityFluctuations);
-        fprintf(Outfptr, "CollapsingCoolingCloudRandomSeed             = %"ISYM"\n"  , CollapsingCoolingCloudRandomSeed);
-        fprintf(Outfptr, "CollapsingCoolingCloudFluctuationLevel       = %"FSYM"\n"  , CollapsingCoolingCloudFluctuationLevel);
+        fprintf(Outfptr, "CollapsingCoolingCloudUseDensityFluctuations    = %" ISYM"\n"  , CollapsingCoolingCloudUseDensityFluctuations);
+        fprintf(Outfptr, "CollapsingCoolingCloudRandomSeed             = %" ISYM"\n"  , CollapsingCoolingCloudRandomSeed);
+        fprintf(Outfptr, "CollapsingCoolingCloudFluctuationLevel       = %" FSYM"\n"  , CollapsingCoolingCloudFluctuationLevel);
 
-	fprintf(Outfptr, "TestProblemInitialHIFraction  = %"FSYM"\n", TestProblemData.HI_Fraction);
-	fprintf(Outfptr, "TestProblemInitialHIIFraction  = %"FSYM"\n", TestProblemData.HII_Fraction);
-	fprintf(Outfptr, "TestProblemInitialHeIFraction  = %"FSYM"\n", TestProblemData.HeI_Fraction);
-	fprintf(Outfptr, "TestProblemInitialHeIIFraction  = %"FSYM"\n", TestProblemData.HeII_Fraction);
-	fprintf(Outfptr, "TestProblemInitialHeIIIFraction  = %"FSYM"\n", TestProblemData.HeIII_Fraction);
-	fprintf(Outfptr, "TestProblemInitialHMFraction  = %"FSYM"\n", TestProblemData.HM_Fraction);
-	fprintf(Outfptr, "TestProblemInitialH2IFraction  = %"FSYM"\n", TestProblemData.H2I_Fraction);
-	fprintf(Outfptr, "TestProblemInitialH2IIFraction  = %"FSYM"\n", TestProblemData.H2II_Fraction);
-	fprintf(Outfptr, "TestProblemInitialDIFraction  = %"FSYM"\n", TestProblemData.DI_Fraction);
-	fprintf(Outfptr, "TestProblemInitialDIIFraction  = %"FSYM"\n", TestProblemData.DII_Fraction);
-	fprintf(Outfptr, "TestProblemInitialHDIFraction  = %"FSYM"\n", TestProblemData.HDI_Fraction);
+	fprintf(Outfptr, "TestProblemInitialHIFraction  = %" FSYM"\n", TestProblemData.HI_Fraction);
+	fprintf(Outfptr, "TestProblemInitialHIIFraction  = %" FSYM"\n", TestProblemData.HII_Fraction);
+	fprintf(Outfptr, "TestProblemInitialHeIFraction  = %" FSYM"\n", TestProblemData.HeI_Fraction);
+	fprintf(Outfptr, "TestProblemInitialHeIIFraction  = %" FSYM"\n", TestProblemData.HeII_Fraction);
+	fprintf(Outfptr, "TestProblemInitialHeIIIFraction  = %" FSYM"\n", TestProblemData.HeIII_Fraction);
+	fprintf(Outfptr, "TestProblemInitialHMFraction  = %" FSYM"\n", TestProblemData.HM_Fraction);
+	fprintf(Outfptr, "TestProblemInitialH2IFraction  = %" FSYM"\n", TestProblemData.H2I_Fraction);
+	fprintf(Outfptr, "TestProblemInitialH2IIFraction  = %" FSYM"\n", TestProblemData.H2II_Fraction);
+	fprintf(Outfptr, "TestProblemInitialDIFraction  = %" FSYM"\n", TestProblemData.DI_Fraction);
+	fprintf(Outfptr, "TestProblemInitialDIIFraction  = %" FSYM"\n", TestProblemData.DII_Fraction);
+	fprintf(Outfptr, "TestProblemInitialHDIFraction  = %" FSYM"\n", TestProblemData.HDI_Fraction);
 
-	fprintf(Outfptr, "TestProblemInitialHIFractionInner  = %"FSYM"\n", TestProblemData.HI_Fraction_Inner);
-	fprintf(Outfptr, "TestProblemInitialHIIFractionInner  = %"FSYM"\n", TestProblemData.HII_Fraction_Inner);
-	fprintf(Outfptr, "TestProblemInitialHeIFractionInner  = %"FSYM"\n", TestProblemData.HeI_Fraction_Inner);
-	fprintf(Outfptr, "TestProblemInitialHeIIFractionInner  = %"FSYM"\n", TestProblemData.HeII_Fraction_Inner);
-	fprintf(Outfptr, "TestProblemInitialHeIIIFractionInner  = %"FSYM"\n", TestProblemData.HeIII_Fraction_Inner);
-	fprintf(Outfptr, "TestProblemInitialHMFractionInner  = %"FSYM"\n", TestProblemData.HM_Fraction_Inner);
-	fprintf(Outfptr, "TestProblemInitialH2IFractionInner  = %"FSYM"\n", TestProblemData.H2I_Fraction_Inner);
-	fprintf(Outfptr, "TestProblemInitialH2IIFractionInner  = %"FSYM"\n", TestProblemData.H2II_Fraction_Inner);
-	fprintf(Outfptr, "TestProblemInitialDIFractionInner  = %"FSYM"\n", TestProblemData.DI_Fraction_Inner);
-	fprintf(Outfptr, "TestProblemInitialDIIFractionInner  = %"FSYM"\n", TestProblemData.DII_Fraction_Inner);
-	fprintf(Outfptr, "TestProblemInitialHDIFractionInner  = %"FSYM"\n", TestProblemData.HDI_Fraction_Inner);
+	fprintf(Outfptr, "TestProblemInitialHIFractionInner  = %" FSYM"\n", TestProblemData.HI_Fraction_Inner);
+	fprintf(Outfptr, "TestProblemInitialHIIFractionInner  = %" FSYM"\n", TestProblemData.HII_Fraction_Inner);
+	fprintf(Outfptr, "TestProblemInitialHeIFractionInner  = %" FSYM"\n", TestProblemData.HeI_Fraction_Inner);
+	fprintf(Outfptr, "TestProblemInitialHeIIFractionInner  = %" FSYM"\n", TestProblemData.HeII_Fraction_Inner);
+	fprintf(Outfptr, "TestProblemInitialHeIIIFractionInner  = %" FSYM"\n", TestProblemData.HeIII_Fraction_Inner);
+	fprintf(Outfptr, "TestProblemInitialHMFractionInner  = %" FSYM"\n", TestProblemData.HM_Fraction_Inner);
+	fprintf(Outfptr, "TestProblemInitialH2IFractionInner  = %" FSYM"\n", TestProblemData.H2I_Fraction_Inner);
+	fprintf(Outfptr, "TestProblemInitialH2IIFractionInner  = %" FSYM"\n", TestProblemData.H2II_Fraction_Inner);
+	fprintf(Outfptr, "TestProblemInitialDIFractionInner  = %" FSYM"\n", TestProblemData.DI_Fraction_Inner);
+	fprintf(Outfptr, "TestProblemInitialDIIFractionInner  = %" FSYM"\n", TestProblemData.DII_Fraction_Inner);
+	fprintf(Outfptr, "TestProblemInitialHDIFractionInner  = %" FSYM"\n", TestProblemData.HDI_Fraction_Inner);
 
-        fprintf(Outfptr, "TestProblemUseMetallicityField  = %"ISYM"\n", TestProblemData.UseMetallicityField);
-        fprintf(Outfptr, "TestProblemInitialMetallicityFraction  = %"FSYM"\n", TestProblemData.MetallicityField_Fraction);
+        fprintf(Outfptr, "TestProblemUseMetallicityField  = %" ISYM"\n", TestProblemData.UseMetallicityField);
+        fprintf(Outfptr, "TestProblemInitialMetallicityFraction  = %" FSYM"\n", TestProblemData.MetallicityField_Fraction);
 
-	fprintf(Outfptr, "TestProblemMultiMetals  = %"ISYM"\n", TestProblemData.MultiMetals);
-	fprintf(Outfptr, "TestProblemInitialMultiMetalsField1Fraction  = %"FSYM"\n", TestProblemData.MultiMetalsField1_Fraction);
-	fprintf(Outfptr, "TestProblemInitialMultiMetalsField2Fraction  = %"FSYM"\n", TestProblemData.MultiMetalsField2_Fraction);
+	fprintf(Outfptr, "TestProblemMultiMetals  = %" ISYM"\n", TestProblemData.MultiMetals);
+	fprintf(Outfptr, "TestProblemInitialMultiMetalsField1Fraction  = %" FSYM"\n", TestProblemData.MultiMetalsField1_Fraction);
+	fprintf(Outfptr, "TestProblemInitialMultiMetalsField2Fraction  = %" FSYM"\n", TestProblemData.MultiMetalsField2_Fraction);
 
       } //   if (MyProcessorNumber == ROOT_PROCESSOR) 
 
@@ -624,7 +624,7 @@ This is the grid-by-grid initializer.
 
 		therandomfraction =  1.0 +  CollapsingCoolingCloudFluctuationLevel*(therandomfraction - 0.5);
 
-		//printf(stderr,"therandomfraction = %e\n"FSYM,therandomfraction);
+		//printf(stderr,"therandomfraction = %e\n" FSYM,therandomfraction);
 
 	      }
 
@@ -810,7 +810,7 @@ void calculate_radial_profiles(float central_density, float central_temperature,
     numdens_of_r[counter]=n_of_r(this_radius);  // particles/CC
     radius_bins[counter]=this_radius;  // in CGS
 
-    printf("%e    %e    %e   %e  %e  %d\n", this_radius/pc_cm, this_temperature, n_of_r(this_radius), dr, r_outer*pc_cm, counter );
+    printf("%e    %e    %e   %e  %e  %" ISYM "\n", this_radius/pc_cm, this_temperature, n_of_r(this_radius), dr, r_outer*pc_cm, counter );
 
     counter++;
 

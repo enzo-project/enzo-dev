@@ -56,7 +56,7 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
   /* declarations */
  
   int i, j, k, dim, Sign, bindex, sign_12, sign_23, area;
-  float *index, q1, q2, q3, temp_index, rho, rho1, rho2, rho3;
+  float *index, q1, q2, q3;
 
 #ifdef OOC_BOUNDARY
   hid_t       file_id, dset_id, attr_id;
@@ -85,7 +85,7 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
   /* error check: grid ranks */
  
   if (FieldRank != BoundaryRank) {
-    ENZO_VFAIL("FieldRank(%"ISYM") != BoundaryRank(%"ISYM").\n",
+    ENZO_VFAIL("FieldRank(%" ISYM") != BoundaryRank(%" ISYM").\n",
             FieldRank, BoundaryRank)
   }
  
@@ -95,7 +95,7 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
   for (field = 0; field < NumberOfBaryonFields; field++)
     if (FieldType == BoundaryFieldType[field]) break;
   if (field == NumberOfBaryonFields) {
-    ENZO_VFAIL("Field type (%"ISYM") not found in Boundary.\n", FieldType)
+    ENZO_VFAIL("Field type (%" ISYM") not found in Boundary.\n", FieldType)
   }
  
   /* error check: make sure the boundary type array exists */
@@ -106,7 +106,7 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
   for (dim = 0; dim < BoundaryRank; dim++)
     if (BoundaryDimension[dim] != 1) {
       if (BoundaryType[field][dim][0] == NULL) {
-	ENZO_VFAIL("BoundaryType not yet declared for field: %i.\n", field)
+	ENZO_VFAIL("BoundaryType not yet declared for field: %" ISYM ".\n", field)
       }
     }
 #endif
@@ -132,7 +132,7 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
       MaxFaceSize = max(MaxFaceSize, cubesize/BoundaryDimension[i]);
     }
 
-//    fprintf(stderr, "Assign new boundary_type bt_buffer[%"ISYM"]\n", MaxFaceSize);
+//    fprintf(stderr, "Assign new boundary_type bt_buffer[%" ISYM"]\n", MaxFaceSize);
     if (ExternalBoundaryTypeIO) {
       if ( ! SimpleConstantBoundary ) {
         bt_buffer = new boundary_type[MaxFaceSize];
@@ -185,7 +185,7 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
           index = Field + i + j*GridDims[0] + k*GridDims[1]*GridDims[0];
           bindex = j+GridOffset[1] + (k+GridOffset[2])*BoundaryDimension[1];
 
-//          if (bt_buffer[bindex] != 3) fprintf(stderr, "xl %"ISYM" %"ISYM"\n", bindex, bt_buffer[bindex]);
+//          if (bt_buffer[bindex] != 3) fprintf(stderr, "xl %" ISYM" %" ISYM"\n", bindex, bt_buffer[bindex]);
 //          bt_buffer[bindex] = 3;
 
           if (SimpleConstantBoundary) {
@@ -239,8 +239,8 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
           case BoundaryUndefined:
             break;
           default:
-            fprintf(stderr, "IO BoundaryType %"ISYM" not recognized (x-left).\n",btb);
-            fprintf(stderr, "field %"ISYM" dim %"ISYM" face %"ISYM" slab %"ISYM" bindex %"ISYM" btb %"ISYM"\n",
+            fprintf(stderr, "IO BoundaryType %" ISYM" not recognized (x-left).\n",btb);
+            fprintf(stderr, "field %" ISYM" dim %" ISYM" face %" ISYM" slab %" ISYM" bindex %" ISYM" btb %" ISYM"\n",
               field, dim, face, slabsize, bindex, bt_buffer[bindex]);
             ENZO_FAIL("Unrecognized IO BoundaryType!\n");
           }
@@ -313,7 +313,7 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
           case BoundaryUndefined:
             break;
 	  default:
-	    ENZO_VFAIL("BoundaryType %"ISYM" not recognized (x-left).\n",
+	    ENZO_VFAIL("BoundaryType %" ISYM" not recognized (x-left).\n",
 		    BoundaryType[field][0][0][bindex])
 	  }
 	}
@@ -362,7 +362,7 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
             j*GridDims[0] + k*GridDims[1]*GridDims[0];
           bindex = j+GridOffset[1] + (k+GridOffset[2])*BoundaryDimension[1];
 
-//          if (bt_buffer[bindex] != 3) fprintf(stderr, "xr %"ISYM" %"ISYM"\n", bindex, bt_buffer[bindex]);
+//          if (bt_buffer[bindex] != 3) fprintf(stderr, "xr %" ISYM" %" ISYM"\n", bindex, bt_buffer[bindex]);
 //          bt_buffer[bindex] = 3;
 
           if (SimpleConstantBoundary) {
@@ -416,8 +416,8 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
           case BoundaryUndefined:
             break;
           default:
-            fprintf(stderr, "IO BoundaryType %"ISYM" not recognized (x-right).\n",btb);
-            fprintf(stderr, "field %"ISYM" dim %"ISYM" face %"ISYM" slab %"ISYM" bindex %"ISYM" btb %"ISYM"\n",
+            fprintf(stderr, "IO BoundaryType %" ISYM" not recognized (x-right).\n",btb);
+            fprintf(stderr, "field %" ISYM" dim %" ISYM" face %" ISYM" slab %" ISYM" bindex %" ISYM" btb %" ISYM"\n",
               field, dim, face, slabsize, bindex, bt_buffer[bindex]);
             ENZO_FAIL("Unrecognized IO BoundaryType!\n");
           }
@@ -491,7 +491,7 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
           case BoundaryUndefined:
             break;
 	  default:
-	    ENZO_VFAIL("BoundaryType %"ISYM" not recognized (x-right).\n",
+	    ENZO_VFAIL("BoundaryType %" ISYM" not recognized (x-right).\n",
 		    BoundaryType[field][0][1][bindex])
 	  }
 	}
@@ -542,7 +542,7 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
           index = Field + i + j*GridDims[0] + k*GridDims[1]*GridDims[0];
           bindex = i+GridOffset[0] + (k+GridOffset[2])*BoundaryDimension[0];
 
-//          if (bt_buffer[bindex] != 3) fprintf(stderr, "yl %"ISYM" %"ISYM"\n", bindex, bt_buffer[bindex]);
+//          if (bt_buffer[bindex] != 3) fprintf(stderr, "yl %" ISYM" %" ISYM"\n", bindex, bt_buffer[bindex]);
 //          bt_buffer[bindex] = 3;
 
           if (SimpleConstantBoundary) {
@@ -595,9 +595,9 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
           case BoundaryUndefined:
             break;
           default:
-            fprintf(stderr, "IO BoundaryType %"ISYM" not recognized (y-left).\n",
+            fprintf(stderr, "IO BoundaryType %" ISYM" not recognized (y-left).\n",
 		    btb);
-            fprintf(stderr, "field %"ISYM" dim %"ISYM" face %"ISYM" slab %"ISYM" bindex %"ISYM" btb %"ISYM"\n",
+            fprintf(stderr, "field %" ISYM" dim %" ISYM" face %" ISYM" slab %" ISYM" bindex %" ISYM" btb %" ISYM"\n",
               field, dim, face, slabsize, bindex, bt_buffer[bindex]);
             ENZO_FAIL("Unrecognized IO BoundaryType!\n");
           }
@@ -669,7 +669,7 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
           case BoundaryUndefined:
             break;
 	  default:
-	    ENZO_VFAIL("BoundaryType %"ISYM" not recognized (y-left).\n",
+	    ENZO_VFAIL("BoundaryType %" ISYM" not recognized (y-left).\n",
 		    BoundaryType[field][1][0][bindex])
 	  }
 	}
@@ -718,7 +718,7 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
             k*GridDims[1]*GridDims[0];
           bindex = i+GridOffset[0] + (k+GridOffset[2])*BoundaryDimension[0];
 
-//          if (bt_buffer[bindex] != 3) fprintf(stderr, "yr %"ISYM" %"ISYM"\n", bindex, bt_buffer[bindex]);
+//          if (bt_buffer[bindex] != 3) fprintf(stderr, "yr %" ISYM" %" ISYM"\n", bindex, bt_buffer[bindex]);
 //          bt_buffer[bindex] = 3;
 
           if (SimpleConstantBoundary) {
@@ -771,9 +771,9 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
           case BoundaryUndefined:
             break;
           default:
-            fprintf(stderr, "IO BoundaryType %"ISYM" not recognized (y-right).\n",
+            fprintf(stderr, "IO BoundaryType %" ISYM" not recognized (y-right).\n",
 		    btb);
-            fprintf(stderr, "field %"ISYM" dim %"ISYM" face %"ISYM" slab %"ISYM" bindex %"ISYM" btb %"ISYM"\n",
+            fprintf(stderr, "field %" ISYM" dim %" ISYM" face %" ISYM" slab %" ISYM" bindex %" ISYM" btb %" ISYM"\n",
               field, dim, face, slabsize, bindex, bt_buffer[bindex]);
             ENZO_FAIL("Unrecognized IO BoundaryType!\n");
           }
@@ -846,7 +846,7 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
           case BoundaryUndefined:
             break;
 	  default:
-	    ENZO_VFAIL("BoundaryType %"ISYM" not recognized (y-right).\n",
+	    ENZO_VFAIL("BoundaryType %" ISYM" not recognized (y-right).\n",
 		    BoundaryType[field][1][1][bindex])
 	  }
 	}
@@ -897,7 +897,7 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
           index = Field + i + j*GridDims[0] + k*GridDims[1]*GridDims[0];
           bindex = i+GridOffset[0] + (j+GridOffset[1])*BoundaryDimension[0];
 
-//          if (bt_buffer[bindex] != 3) fprintf(stderr, "zl %"ISYM" %"ISYM"\n", bindex, bt_buffer[bindex]);
+//          if (bt_buffer[bindex] != 3) fprintf(stderr, "zl %" ISYM" %" ISYM"\n", bindex, bt_buffer[bindex]);
 //          bt_buffer[bindex] = 3;
 
           if (SimpleConstantBoundary) {
@@ -951,8 +951,8 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
           case BoundaryUndefined:
             break;
           default:
-            fprintf(stderr, "IO BoundaryType %"ISYM" not recognized (z-left).\n",btb);
-            fprintf(stderr, "field %"ISYM" dim %"ISYM" face %"ISYM" slab %"ISYM" bindex %"ISYM" btb %"ISYM"\n",
+            fprintf(stderr, "IO BoundaryType %" ISYM" not recognized (z-left).\n",btb);
+            fprintf(stderr, "field %" ISYM" dim %" ISYM" face %" ISYM" slab %" ISYM" bindex %" ISYM" btb %" ISYM"\n",
               field, dim, face, slabsize, bindex, bt_buffer[bindex]);
             ENZO_FAIL("Unrecognized IO BoundaryType");
           }
@@ -1025,7 +1025,7 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
           case BoundaryUndefined:
             break;
 	  default:
-	    ENZO_VFAIL("BoundaryType %"ISYM" not recognized (z-left).\n",
+	    ENZO_VFAIL("BoundaryType %" ISYM" not recognized (z-left).\n",
 		    BoundaryType[field][2][0][bindex])
 	      }
 	}
@@ -1077,7 +1077,7 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
             (k + EndIndex[2]+1)*GridDims[1]*GridDims[0];
           bindex = i+GridOffset[0] + (j+GridOffset[1])*BoundaryDimension[0];
 
-//          if (bt_buffer[bindex] != 3) fprintf(stderr, "zr %"ISYM" %"ISYM"\n", bindex, bt_buffer[bindex]);
+//          if (bt_buffer[bindex] != 3) fprintf(stderr, "zr %" ISYM" %" ISYM"\n", bindex, bt_buffer[bindex]);
 //          bt_buffer[bindex] = 3;
 
           if (SimpleConstantBoundary) {
@@ -1129,8 +1129,8 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
           case BoundaryUndefined:
             break;
           default:
-            fprintf(stderr, "IO BoundaryType %"ISYM" not recognized (z-right).\n",btb);
-            fprintf(stderr, "field %"ISYM" dim %"ISYM" face %"ISYM" slab %"ISYM" bindex %"ISYM" btb %"ISYM"\n",
+            fprintf(stderr, "IO BoundaryType %" ISYM" not recognized (z-right).\n",btb);
+            fprintf(stderr, "field %" ISYM" dim %" ISYM" face %" ISYM" slab %" ISYM" bindex %" ISYM" btb %" ISYM"\n",
               field, dim, face, slabsize, bindex, bt_buffer[bindex]);
             ENZO_FAIL("Unrecognized IO BoundaryType");
           }
@@ -1203,9 +1203,9 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
           case BoundaryUndefined:
             break;
 	  default:
-	    fprintf(stderr, "BoundaryType %"ISYM" not recognized (z-right).\n",
+	    fprintf(stderr, "BoundaryType %" ISYM" not recognized (z-right).\n",
 		    BoundaryType[field][2][1][bindex]);
-            fprintf(stderr, "field %"ISYM" dim %"ISYM"\n",field, dim);
+            fprintf(stderr, "field %" ISYM" dim %" ISYM"\n",field, dim);
 
 	    ENZO_FAIL("Unrecognized IO BoundaryType!\n");
 	  }

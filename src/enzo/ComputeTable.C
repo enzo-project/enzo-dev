@@ -67,7 +67,7 @@ int ComputeTable(float Min, float Max, float Step, float (*Function)(float),
  
   int Space = int((*TableMax - *TableMin)/(*TableStep)) + 1;
   if (debug)
-    printf("ComputeTable: building table with max = %"FSYM", n = %"ISYM".\n",
+    printf("ComputeTable: building table with max = %" FSYM", n = %" ISYM".\n",
 	   *TableMax, Space);
   *Table = new float[Space];
  

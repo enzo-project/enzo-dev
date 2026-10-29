@@ -40,8 +40,7 @@ int ConductionCloudInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid
   }
 
   char line[MAX_LINE_LENGTH];
-  float LeftEdge[MAX_DIMENSION], RightEdge[MAX_DIMENSION];
-  int i, j, dim, ret;
+  int i, j, ret;
 
   float ConductionCloudDensity = 1.0;
   float ConductionCloudTemperature = 1.0;
@@ -60,52 +59,52 @@ int ConductionCloudInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid
   // Read parameters
   while (fgets(line, MAX_LINE_LENGTH, fptr) != NULL) {
     ret = 0;
-    ret += sscanf(line, "ConductionCloudPulseHeight = %"FSYM, &ConductionCloudPulseHeight);
-    ret += sscanf(line, "ConductionCloudTotalEnergy = %"FSYM, &ConductionCloudTotalEnergy);
-    ret += sscanf(line, "ConductionCloudTemperature = %"FSYM, &ConductionCloudTemperature);
-    ret += sscanf(line, "ConductionCloudDensity = %"FSYM, &ConductionCloudDensity);
-    ret += sscanf(line, "ConductionCloudPulseWidth = %"PSYM, &ConductionCloudPulseWidth);
-    ret += sscanf(line, "ConductionCloudPulseType = %"ISYM, &ConductionCloudPulseType);
+    ret += sscanf(line, "ConductionCloudPulseHeight = %" FSYM, &ConductionCloudPulseHeight);
+    ret += sscanf(line, "ConductionCloudTotalEnergy = %" FSYM, &ConductionCloudTotalEnergy);
+    ret += sscanf(line, "ConductionCloudTemperature = %" FSYM, &ConductionCloudTemperature);
+    ret += sscanf(line, "ConductionCloudDensity = %" FSYM, &ConductionCloudDensity);
+    ret += sscanf(line, "ConductionCloudPulseWidth = %" PSYM, &ConductionCloudPulseWidth);
+    ret += sscanf(line, "ConductionCloudPulseType = %" ISYM, &ConductionCloudPulseType);
 
-    ret += sscanf(line, "TestProblemUseMetallicityField  = %"ISYM, &TestProblemData.UseMetallicityField);
-    ret += sscanf(line, "TestProblemInitialMetallicityFraction  = %"FSYM, &TestProblemData.MetallicityField_Fraction);
+    ret += sscanf(line, "TestProblemUseMetallicityField  = %" ISYM, &TestProblemData.UseMetallicityField);
+    ret += sscanf(line, "TestProblemInitialMetallicityFraction  = %" FSYM, &TestProblemData.MetallicityField_Fraction);
 
     /* read in more general test parameters to set species, turn on color fields, etc. */
-    ret += sscanf(line, "TestProblemHydrogenFractionByMass = %"FSYM, &TestProblemData.HydrogenFractionByMass);
-    ret += sscanf(line, "TestProblemDeuteriumToHydrogenRatio = %"FSYM, &TestProblemData.DeuteriumToHydrogenRatio);
+    ret += sscanf(line, "TestProblemHydrogenFractionByMass = %" FSYM, &TestProblemData.HydrogenFractionByMass);
+    ret += sscanf(line, "TestProblemDeuteriumToHydrogenRatio = %" FSYM, &TestProblemData.DeuteriumToHydrogenRatio);
 
-    ret += sscanf(line, "TestProblemInitialHIFractionInner  = %"FSYM, &TestProblemData.HI_Fraction_Inner);
-    ret += sscanf(line, "TestProblemInitialHIIFractionInner  = %"FSYM, &TestProblemData.HII_Fraction_Inner);
-    ret += sscanf(line, "TestProblemInitialHeIFractionInner  = %"FSYM, &TestProblemData.HeI_Fraction_Inner);
-    ret += sscanf(line, "TestProblemInitialHeIIFractionInner  = %"FSYM, &TestProblemData.HeII_Fraction_Inner);
-    ret += sscanf(line, "TestProblemInitialHeIIIFractionInner  = %"FSYM, &TestProblemData.HeIII_Fraction_Inner);
-    ret += sscanf(line, "TestProblemInitialHMFractionInner  = %"FSYM, &TestProblemData.HM_Fraction_Inner);
-    ret += sscanf(line, "TestProblemInitialH2IFractionInner  = %"FSYM, &TestProblemData.H2I_Fraction_Inner);
-    ret += sscanf(line, "TestProblemInitialH2IIFractionInner  = %"FSYM, &TestProblemData.H2II_Fraction_Inner);
+    ret += sscanf(line, "TestProblemInitialHIFractionInner  = %" FSYM, &TestProblemData.HI_Fraction_Inner);
+    ret += sscanf(line, "TestProblemInitialHIIFractionInner  = %" FSYM, &TestProblemData.HII_Fraction_Inner);
+    ret += sscanf(line, "TestProblemInitialHeIFractionInner  = %" FSYM, &TestProblemData.HeI_Fraction_Inner);
+    ret += sscanf(line, "TestProblemInitialHeIIFractionInner  = %" FSYM, &TestProblemData.HeII_Fraction_Inner);
+    ret += sscanf(line, "TestProblemInitialHeIIIFractionInner  = %" FSYM, &TestProblemData.HeIII_Fraction_Inner);
+    ret += sscanf(line, "TestProblemInitialHMFractionInner  = %" FSYM, &TestProblemData.HM_Fraction_Inner);
+    ret += sscanf(line, "TestProblemInitialH2IFractionInner  = %" FSYM, &TestProblemData.H2I_Fraction_Inner);
+    ret += sscanf(line, "TestProblemInitialH2IIFractionInner  = %" FSYM, &TestProblemData.H2II_Fraction_Inner);
 
-    ret += sscanf(line, "TestProblemInitialDIFractionInner  = %"FSYM, &TestProblemData.DI_Fraction_Inner);
-    ret += sscanf(line, "TestProblemInitialDIIFractionInner  = %"FSYM, &TestProblemData.DII_Fraction_Inner);
-    ret += sscanf(line, "TestProblemInitialHDIFractionInner  = %"FSYM, &TestProblemData.HDI_Fraction_Inner);
+    ret += sscanf(line, "TestProblemInitialDIFractionInner  = %" FSYM, &TestProblemData.DI_Fraction_Inner);
+    ret += sscanf(line, "TestProblemInitialDIIFractionInner  = %" FSYM, &TestProblemData.DII_Fraction_Inner);
+    ret += sscanf(line, "TestProblemInitialHDIFractionInner  = %" FSYM, &TestProblemData.HDI_Fraction_Inner);
 
-    ret += sscanf(line, "TestProblemInitialHIFraction  = %"FSYM, &TestProblemData.HI_Fraction);
-    ret += sscanf(line, "TestProblemInitialHIIFraction  = %"FSYM, &TestProblemData.HII_Fraction);
-    ret += sscanf(line, "TestProblemInitialHeIFraction  = %"FSYM, &TestProblemData.HeI_Fraction);
-    ret += sscanf(line, "TestProblemInitialHeIIFraction  = %"FSYM, &TestProblemData.HeII_Fraction);
-    ret += sscanf(line, "TestProblemInitialHeIIIFraction  = %"FSYM, &TestProblemData.HeIII_Fraction);
-    ret += sscanf(line, "TestProblemInitialHMFraction  = %"FSYM, &TestProblemData.HM_Fraction);
-    ret += sscanf(line, "TestProblemInitialH2IFraction  = %"FSYM, &TestProblemData.H2I_Fraction);
-    ret += sscanf(line, "TestProblemInitialH2IIFraction  = %"FSYM, &TestProblemData.H2II_Fraction);
+    ret += sscanf(line, "TestProblemInitialHIFraction  = %" FSYM, &TestProblemData.HI_Fraction);
+    ret += sscanf(line, "TestProblemInitialHIIFraction  = %" FSYM, &TestProblemData.HII_Fraction);
+    ret += sscanf(line, "TestProblemInitialHeIFraction  = %" FSYM, &TestProblemData.HeI_Fraction);
+    ret += sscanf(line, "TestProblemInitialHeIIFraction  = %" FSYM, &TestProblemData.HeII_Fraction);
+    ret += sscanf(line, "TestProblemInitialHeIIIFraction  = %" FSYM, &TestProblemData.HeIII_Fraction);
+    ret += sscanf(line, "TestProblemInitialHMFraction  = %" FSYM, &TestProblemData.HM_Fraction);
+    ret += sscanf(line, "TestProblemInitialH2IFraction  = %" FSYM, &TestProblemData.H2I_Fraction);
+    ret += sscanf(line, "TestProblemInitialH2IIFraction  = %" FSYM, &TestProblemData.H2II_Fraction);
 
-    ret += sscanf(line, "TestProblemInitialDIFraction  = %"FSYM, &TestProblemData.DI_Fraction);
-    ret += sscanf(line, "TestProblemInitialDIIFraction  = %"FSYM, &TestProblemData.DII_Fraction);
-    ret += sscanf(line, "TestProblemInitialHDIFraction  = %"FSYM, &TestProblemData.HDI_Fraction);
+    ret += sscanf(line, "TestProblemInitialDIFraction  = %" FSYM, &TestProblemData.DI_Fraction);
+    ret += sscanf(line, "TestProblemInitialDIIFraction  = %" FSYM, &TestProblemData.DII_Fraction);
+    ret += sscanf(line, "TestProblemInitialHDIFraction  = %" FSYM, &TestProblemData.HDI_Fraction);
 
-    ret += sscanf(line, "TestProblemUseMetallicityField  = %"ISYM, &TestProblemData.UseMetallicityField);
-    ret += sscanf(line, "TestProblemInitialMetallicityFraction  = %"FSYM, &TestProblemData.MetallicityField_Fraction);
+    ret += sscanf(line, "TestProblemUseMetallicityField  = %" ISYM, &TestProblemData.UseMetallicityField);
+    ret += sscanf(line, "TestProblemInitialMetallicityFraction  = %" FSYM, &TestProblemData.MetallicityField_Fraction);
 
-    ret += sscanf(line, "TestProblemMultiMetals  = %"ISYM, &TestProblemData.MultiMetals);
-    ret += sscanf(line, "TestProblemInitialMultiMetalsField1Fraction  = %"FSYM, &TestProblemData.MultiMetalsField1_Fraction);
-    ret += sscanf(line, "TestProblemInitialMultiMetalsField2Fraction  = %"FSYM, &TestProblemData.MultiMetalsField2_Fraction);
+    ret += sscanf(line, "TestProblemMultiMetals  = %" ISYM, &TestProblemData.MultiMetals);
+    ret += sscanf(line, "TestProblemInitialMultiMetalsField1Fraction  = %" FSYM, &TestProblemData.MultiMetalsField1_Fraction);
+    ret += sscanf(line, "TestProblemInitialMultiMetalsField2Fraction  = %" FSYM, &TestProblemData.MultiMetalsField2_Fraction);
 
     if (ret == 0 && 
 	strstr(line, "=") && strstr(line, "ConductionCloud") &&
@@ -187,49 +186,49 @@ int ConductionCloudInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid
   /* Write parameters to parameter output file */
  
   if (MyProcessorNumber == ROOT_PROCESSOR) {
-    fprintf(Outfptr, "ConductionCloudPulseHeight = %"FSYM"\n", ConductionCloudPulseHeight);
-    fprintf(Outfptr, "ConductionCloudPulseWidth = %"PSYM"\n", ConductionCloudPulseWidth);
-    fprintf(Outfptr, "ConductionCloudPulseType = %"ISYM"\n", ConductionCloudPulseType);
+    fprintf(Outfptr, "ConductionCloudPulseHeight = %" FSYM"\n", ConductionCloudPulseHeight);
+    fprintf(Outfptr, "ConductionCloudPulseWidth = %" PSYM"\n", ConductionCloudPulseWidth);
+    fprintf(Outfptr, "ConductionCloudPulseType = %" ISYM"\n", ConductionCloudPulseType);
 
-    fprintf(Outfptr, "TestProblemUseMetallicityField  = %"ISYM"\n", TestProblemData.UseMetallicityField);
-    fprintf(Outfptr, "TestProblemInitialMetallicityFraction  = %"FSYM"\n", TestProblemData.MetallicityField_Fraction);
+    fprintf(Outfptr, "TestProblemUseMetallicityField  = %" ISYM"\n", TestProblemData.UseMetallicityField);
+    fprintf(Outfptr, "TestProblemInitialMetallicityFraction  = %" FSYM"\n", TestProblemData.MetallicityField_Fraction);
 
 
-    fprintf(Outfptr, "TestProblemHydrogenFractionByMass = %"FSYM"\n",   TestProblemData.HydrogenFractionByMass);
-    fprintf(Outfptr, "TestProblemDeuteriumToHydrogenRatio = %"FSYM"\n", TestProblemData.DeuteriumToHydrogenRatio);
+    fprintf(Outfptr, "TestProblemHydrogenFractionByMass = %" FSYM"\n",   TestProblemData.HydrogenFractionByMass);
+    fprintf(Outfptr, "TestProblemDeuteriumToHydrogenRatio = %" FSYM"\n", TestProblemData.DeuteriumToHydrogenRatio);
 
-    fprintf(Outfptr, "TestProblemInitialHIFractionInner  = %"FSYM"\n", TestProblemData.HI_Fraction_Inner);
-    fprintf(Outfptr, "TestProblemInitialHIIFractionInner  = %"FSYM"\n", TestProblemData.HII_Fraction_Inner);
-    fprintf(Outfptr, "TestProblemInitialHeIFractionInner  = %"FSYM"\n", TestProblemData.HeI_Fraction_Inner);
-    fprintf(Outfptr, "TestProblemInitialHeIIFractionInner  = %"FSYM"\n", TestProblemData.HeII_Fraction_Inner);
-    fprintf(Outfptr, "TestProblemInitialHeIIIFractionInner  = %"FSYM"\n", TestProblemData.HeIII_Fraction_Inner);
-    fprintf(Outfptr, "TestProblemInitialHMFractionInner  = %"FSYM"\n", TestProblemData.HM_Fraction_Inner);
-    fprintf(Outfptr, "TestProblemInitialH2IFractionInner  = %"FSYM"\n", TestProblemData.H2I_Fraction_Inner);
-    fprintf(Outfptr, "TestProblemInitialH2IIFractionInner  = %"FSYM"\n", TestProblemData.H2II_Fraction_Inner);
+    fprintf(Outfptr, "TestProblemInitialHIFractionInner  = %" FSYM"\n", TestProblemData.HI_Fraction_Inner);
+    fprintf(Outfptr, "TestProblemInitialHIIFractionInner  = %" FSYM"\n", TestProblemData.HII_Fraction_Inner);
+    fprintf(Outfptr, "TestProblemInitialHeIFractionInner  = %" FSYM"\n", TestProblemData.HeI_Fraction_Inner);
+    fprintf(Outfptr, "TestProblemInitialHeIIFractionInner  = %" FSYM"\n", TestProblemData.HeII_Fraction_Inner);
+    fprintf(Outfptr, "TestProblemInitialHeIIIFractionInner  = %" FSYM"\n", TestProblemData.HeIII_Fraction_Inner);
+    fprintf(Outfptr, "TestProblemInitialHMFractionInner  = %" FSYM"\n", TestProblemData.HM_Fraction_Inner);
+    fprintf(Outfptr, "TestProblemInitialH2IFractionInner  = %" FSYM"\n", TestProblemData.H2I_Fraction_Inner);
+    fprintf(Outfptr, "TestProblemInitialH2IIFractionInner  = %" FSYM"\n", TestProblemData.H2II_Fraction_Inner);
 
-    fprintf(Outfptr, "TestProblemInitialDIFractionInner  = %"FSYM"\n", TestProblemData.DI_Fraction_Inner);
-    fprintf(Outfptr, "TestProblemInitialDIIFractionInner  = %"FSYM"\n", TestProblemData.DII_Fraction_Inner);
-    fprintf(Outfptr, "TestProblemInitialHDIFractionInner  = %"FSYM"\n", TestProblemData.HDI_Fraction_Inner);
+    fprintf(Outfptr, "TestProblemInitialDIFractionInner  = %" FSYM"\n", TestProblemData.DI_Fraction_Inner);
+    fprintf(Outfptr, "TestProblemInitialDIIFractionInner  = %" FSYM"\n", TestProblemData.DII_Fraction_Inner);
+    fprintf(Outfptr, "TestProblemInitialHDIFractionInner  = %" FSYM"\n", TestProblemData.HDI_Fraction_Inner);
 
-    fprintf(Outfptr, "TestProblemInitialHIFraction  = %"FSYM"\n", TestProblemData.HI_Fraction);
-    fprintf(Outfptr, "TestProblemInitialHIIFraction  = %"FSYM"\n", TestProblemData.HII_Fraction);
-    fprintf(Outfptr, "TestProblemInitialHeIFraction  = %"FSYM"\n", TestProblemData.HeI_Fraction);
-    fprintf(Outfptr, "TestProblemInitialHeIIFraction  = %"FSYM"\n", TestProblemData.HeII_Fraction);
-    fprintf(Outfptr, "TestProblemInitialHeIIIFraction  = %"FSYM"\n", TestProblemData.HeIII_Fraction);
-    fprintf(Outfptr, "TestProblemInitialHMFraction  = %"FSYM"\n", TestProblemData.HM_Fraction);
-    fprintf(Outfptr, "TestProblemInitialH2IFraction  = %"FSYM"\n", TestProblemData.H2I_Fraction);
-    fprintf(Outfptr, "TestProblemInitialH2IIFraction  = %"FSYM"\n", TestProblemData.H2II_Fraction);
+    fprintf(Outfptr, "TestProblemInitialHIFraction  = %" FSYM"\n", TestProblemData.HI_Fraction);
+    fprintf(Outfptr, "TestProblemInitialHIIFraction  = %" FSYM"\n", TestProblemData.HII_Fraction);
+    fprintf(Outfptr, "TestProblemInitialHeIFraction  = %" FSYM"\n", TestProblemData.HeI_Fraction);
+    fprintf(Outfptr, "TestProblemInitialHeIIFraction  = %" FSYM"\n", TestProblemData.HeII_Fraction);
+    fprintf(Outfptr, "TestProblemInitialHeIIIFraction  = %" FSYM"\n", TestProblemData.HeIII_Fraction);
+    fprintf(Outfptr, "TestProblemInitialHMFraction  = %" FSYM"\n", TestProblemData.HM_Fraction);
+    fprintf(Outfptr, "TestProblemInitialH2IFraction  = %" FSYM"\n", TestProblemData.H2I_Fraction);
+    fprintf(Outfptr, "TestProblemInitialH2IIFraction  = %" FSYM"\n", TestProblemData.H2II_Fraction);
 
-    fprintf(Outfptr, "TestProblemInitialDIFraction  = %"FSYM"\n", TestProblemData.DI_Fraction);
-    fprintf(Outfptr, "TestProblemInitialDIIFraction  = %"FSYM"\n", TestProblemData.DII_Fraction);
-    fprintf(Outfptr, "TestProblemInitialHDIFraction  = %"FSYM"\n", TestProblemData.HDI_Fraction);
+    fprintf(Outfptr, "TestProblemInitialDIFraction  = %" FSYM"\n", TestProblemData.DI_Fraction);
+    fprintf(Outfptr, "TestProblemInitialDIIFraction  = %" FSYM"\n", TestProblemData.DII_Fraction);
+    fprintf(Outfptr, "TestProblemInitialHDIFraction  = %" FSYM"\n", TestProblemData.HDI_Fraction);
 
-    fprintf(Outfptr, "TestProblemUseMetallicityField  = %"ISYM"\n", TestProblemData.UseMetallicityField);
-    fprintf(Outfptr, "TestProblemInitialMetallicityFraction  = %"FSYM"\n", TestProblemData.MetallicityField_Fraction);
+    fprintf(Outfptr, "TestProblemUseMetallicityField  = %" ISYM"\n", TestProblemData.UseMetallicityField);
+    fprintf(Outfptr, "TestProblemInitialMetallicityFraction  = %" FSYM"\n", TestProblemData.MetallicityField_Fraction);
 
-    fprintf(Outfptr, "TestProblemMultiMetals  = %"ISYM"\n", TestProblemData.MultiMetals);
-    fprintf(Outfptr, "TestProblemInitialMultiMetalsField1Fraction  = %"FSYM"\n", TestProblemData.MultiMetalsField1_Fraction);
-    fprintf(Outfptr, "TestProblemInitialMultiMetalsField2Fraction  = %"FSYM"\n", TestProblemData.MultiMetalsField2_Fraction);
+    fprintf(Outfptr, "TestProblemMultiMetals  = %" ISYM"\n", TestProblemData.MultiMetals);
+    fprintf(Outfptr, "TestProblemInitialMultiMetalsField1Fraction  = %" FSYM"\n", TestProblemData.MultiMetalsField1_Fraction);
+    fprintf(Outfptr, "TestProblemInitialMultiMetalsField2Fraction  = %" FSYM"\n", TestProblemData.MultiMetalsField2_Fraction);
 
   }
 

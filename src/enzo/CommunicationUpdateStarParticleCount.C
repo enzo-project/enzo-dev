@@ -101,12 +101,12 @@ int CommunicationUpdateStarParticleCount(HierarchyEntry *Grids[],
 #ifdef UNUSED
   if (MyProcessorNumber == ROOT_PROCESSOR)
     for (grid = 0; grid < NumberOfGrids; grid++) {
-      fprintf(stdout, "PartialParticleCount[%d] = %d\n", grid, PartialParticleCount[grid]); 
-      fprintf(stdout, "TotalParticleCount[%d]   = %d\n", grid, TotalParticleCount[grid]);
-      fprintf(stdout, "PartialStarParticleCount[%d] = %d\n", grid, PartialStarParticleCount[grid]); 
-      fprintf(stdout, "TotalStarParticleCount[%d]   = %d\n", grid, TotalStarParticleCount[grid]);
-      //fprintf(stdout, "TotalParticleCountPrevious[%d]   = %d\n", grid, TotalParticleCountPrevious[grid]);
-      fprintf(stdout, "TotalStarParticleCountPrevious[%d]   = %d\n\n", grid, TotalStarParticleCountPrevious[grid]);
+      fprintf(stdout, "PartialParticleCount[%" ISYM "] = %" ISYM "\n", grid, PartialParticleCount[grid]); 
+      fprintf(stdout, "TotalParticleCount[%" ISYM "]   = %" ISYM "\n", grid, TotalParticleCount[grid]);
+      fprintf(stdout, "PartialStarParticleCount[%" ISYM "] = %" ISYM "\n", grid, PartialStarParticleCount[grid]); 
+      fprintf(stdout, "TotalStarParticleCount[%" ISYM "]   = %" ISYM "\n", grid, TotalStarParticleCount[grid]);
+      //fprintf(stdout, "TotalParticleCountPrevious[%" ISYM "]   = %" ISYM "\n", grid, TotalParticleCountPrevious[grid]);
+      fprintf(stdout, "TotalStarParticleCountPrevious[%" ISYM "]   = %" ISYM "\n\n", grid, TotalStarParticleCountPrevious[grid]);
     }
 #endif
 
@@ -148,15 +148,15 @@ int CommunicationUpdateStarParticleCount(HierarchyEntry *Grids[],
 
     }
 
-    //printf("NumberOfStarParticles = %"ISYM"\n", NumberOfStarParticles); 
+    //printf("NumberOfStarParticles = %" ISYM"\n", NumberOfStarParticles); 
 
   }
 
 #ifdef UNUSED
   fprintf(stdout, "\nin CUSPC.C \n", MetaData->NumberOfParticles); 
-  fprintf(stdout, "MetaData->NumberOfParticles = %d\n", MetaData->NumberOfParticles); 
-  fprintf(stdout, "NumberOfStarParticles now = %d\n", NumberOfStarParticles);
-  fprintf(stdout, "NumberOfOtherParticles now = %d\n", NumberOfOtherParticles);
+  fprintf(stdout, "MetaData->NumberOfParticles = %" ISYM "\n", MetaData->NumberOfParticles); 
+  fprintf(stdout, "NumberOfStarParticles now = %" ISYM "\n", NumberOfStarParticles);
+  fprintf(stdout, "NumberOfOtherParticles now = %" ISYM "\n", NumberOfOtherParticles);
 #endif
 
   /* Clean up. */
@@ -266,7 +266,7 @@ int CommunicationUpdateStarParticleCountOld(HierarchyEntry *Grids[],
 
     }
 
-    //  printf("NumberOfStarParticles = %"ISYM"\n", NumberOfStarParticles); 
+    //  printf("NumberOfStarParticles = %" ISYM"\n", NumberOfStarParticles); 
 
   }
 

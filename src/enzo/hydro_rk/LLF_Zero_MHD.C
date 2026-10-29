@@ -37,7 +37,7 @@ int LLF_Zero_MHD(float **prim, float **priml, float **primr,
   int idual = (DualEnergyFormalism) ? 1 : 0;
   for (int field = 0; field < NEQ_MHD-idual; field++) {
     for (int i = 0; i < ActiveSize+1; i++) {
-      //      printf("NEQ_MHD = %d; NumberOfGhostZones =  %d; ActiveSize = %d \n", NEQ_MHD, NumberOfGhostZones, ActiveSize);  
+      //      printf("NEQ_MHD = %" ISYM "; NumberOfGhostZones =  %" ISYM "; ActiveSize = %" ISYM " \n", NEQ_MHD, NumberOfGhostZones, ActiveSize);  
       iprim = i + NumberOfGhostZones - 1;
       priml[field][i] = prim[field][iprim];
       primr[field][i] = prim[field][iprim+1];

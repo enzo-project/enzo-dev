@@ -49,7 +49,7 @@ float grid::ComputeConductionTimeStep (float &dt) {
   // Some locals
   int DensNum, TENum, GENum, Vel1Num, Vel2Num, Vel3Num;
   float TemperatureUnits = 1.0, DensityUnits = 1.0, LengthUnits = 1.0;
-  float VelocityUnits = 1.0, TimeUnits = 1.0, aUnits = 1.0;
+  float VelocityUnits = 1.0, TimeUnits = 1.0;
   FLOAT a = 1.0, dadt;
   double MassUnits = 1.0;
   float *rho;
@@ -91,7 +91,6 @@ float grid::ComputeConductionTimeStep (float &dt) {
       ENZO_FAIL("Error in CosmologyComputeExpansionFactors.\n");
     }
  
-    aUnits = 1.0/(1.0 + InitialRedshift);
  
   }
 

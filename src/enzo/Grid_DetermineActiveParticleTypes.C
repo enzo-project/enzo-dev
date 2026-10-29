@@ -30,7 +30,7 @@ int grid::DetermineActiveParticleTypes(char **ActiveParticleType)
 
 
   bool present = false;
-  int type = 0, numtypes = 0;
+  int numtypes = 0;
   
   for(int ptype = 0; ptype <=  MAX_ACTIVE_PARTICLE_TYPES; ptype++)
     {

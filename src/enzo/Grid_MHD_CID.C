@@ -73,12 +73,10 @@ int grid::MHD_CIDWorker(grid* OldFineGrid, FLOAT EdgeOffset[MAX_DIMENSION]){
   //signature by putting some extra parameters in this structure.
   int Offset[MAX_DIMENSION];
   int TempDim[MAX_DIMENSION];
-  int Refinement[MAX_DIMENSION];
 
   for(dim=0;dim<GridRank;dim++){
     Offset[dim] =CID_Params.Offset[dim];
     TempDim[dim]=CID_Params.TempDim[dim];
-    Refinement[dim]=CID_Params.Refinement[dim];
   }
 
   OnlyOneFace = -1;
@@ -107,13 +105,13 @@ int grid::MHD_CIDWorker(grid* OldFineGrid, FLOAT EdgeOffset[MAX_DIMENSION]){
       
       if( GridLeft[dim] > OldFineGrid->GridRightEdge[dim]+Some ) {
 	Overlap = FALSE;
-	if(ver==TRUE) fprintf(stderr,"MHD_CID: left too right (%"ISYM" %"FSYM" %"FSYM" %"FSYM")\n",
+	if(ver==TRUE) fprintf(stderr,"MHD_CID: left too right (%" ISYM" %" FSYM" %" FSYM" %" FSYM")\n",
 			      dim, GridLeft[dim],OldFineGrid->GridRightEdge[dim], Some );
       }
       
       if( GridRight[dim] < OldFineGrid->GridLeftEdge[dim]-Some ) {
 	Overlap = FALSE;
-	if(ver==TRUE) fprintf(stderr,"MHD_CID: right too left (%"ISYM" %"FSYM" %"FSYM" %"FSYM")\n",
+	if(ver==TRUE) fprintf(stderr,"MHD_CID: right too left (%" ISYM" %" FSYM" %" FSYM" %" FSYM")\n",
 			      dim, GridRight[dim],OldFineGrid->GridLeftEdge[dim], Some );
 	
       }
@@ -122,7 +120,7 @@ int grid::MHD_CIDWorker(grid* OldFineGrid, FLOAT EdgeOffset[MAX_DIMENSION]){
 	if( OnlyOneFace == -1 )
 	  OnlyOneFace = dim;
 	else{
-	  if(ver==TRUE) fprintf(stderr, "PFG: too many faces: %"ISYM", %"ISYM"\n",OnlyOneFace, dim);
+	  if(ver==TRUE) fprintf(stderr, "PFG: too many faces: %" ISYM", %" ISYM"\n",OnlyOneFace, dim);
 	  Overlap = FALSE;
 	}
       }
@@ -131,7 +129,7 @@ int grid::MHD_CIDWorker(grid* OldFineGrid, FLOAT EdgeOffset[MAX_DIMENSION]){
 	if( OnlyOneFace == -1 )
 	  OnlyOneFace = 10+dim;
 	else{
-	  if(ver==TRUE) fprintf(stderr, "PFG: too many faces: %"ISYM", %"ISYM"\n",OnlyOneFace, dim);
+	  if(ver==TRUE) fprintf(stderr, "PFG: too many faces: %" ISYM", %" ISYM"\n",OnlyOneFace, dim);
 	  Overlap = FALSE;
 	}
       }
@@ -164,7 +162,7 @@ int grid::MHD_CIDWorker(grid* OldFineGrid, FLOAT EdgeOffset[MAX_DIMENSION]){
       }
       
       if(ver==TRUE) 
-	fprintf(stderr, "MHD_CID:     dim %"ISYM" OverlapLeft %"FSYM" OverlapRight %"FSYM" Ss %"ISYM" %"ISYM"\n", 
+	fprintf(stderr, "MHD_CID:     dim %" ISYM" OverlapLeft %" FSYM" OverlapRight %" FSYM" Ss %" ISYM" %" ISYM"\n", 
 		dim, 16*OverlapLeft, 16*OverlapRight, Start[dim], End[dim]);
       
       StartOther[dim] = nint((OverlapLeft - OldFineGrid->CellLeftEdge[dim][0])/
@@ -374,7 +372,7 @@ int grid::MHD_CIDWorker(grid* OldFineGrid, FLOAT EdgeOffset[MAX_DIMENSION]){
 				    &Face, &Step, &Step);
       
       char oot[30];
-      sprintf(oot,"CID, loop %"ISYM"",Looper);
+      sprintf(oot,"CID, loop %" ISYM"",Looper);
     }	  
 
   }//Loop	
@@ -420,12 +418,12 @@ int grid::MHD_CID(LevelHierarchyEntry * OldFineLevel, TopGridData *MetaData, int
     CID_Params.Refinement[dim] = Refinement[dim];
   }
 
-  if(ver==TRUE) fprintf(stderr, "MHD_CID: Offset %"ISYM" %"ISYM" %"ISYM"\n", Offset[0],Offset[1],Offset[2]);
-  if(ver==TRUE) fprintf(stderr, "MHD_CID: TempDim %"ISYM" %"ISYM" %"ISYM"\n", 
+  if(ver==TRUE) fprintf(stderr, "MHD_CID: Offset %" ISYM" %" ISYM" %" ISYM"\n", Offset[0],Offset[1],Offset[2]);
+  if(ver==TRUE) fprintf(stderr, "MHD_CID: TempDim %" ISYM" %" ISYM" %" ISYM"\n", 
 			TempDim[0], TempDim[1], TempDim[2]);
-  if(ver==TRUE) fprintf(stderr, "MHD_CID: Refinement %"ISYM" %"ISYM" %"ISYM"\n", 
+  if(ver==TRUE) fprintf(stderr, "MHD_CID: Refinement %" ISYM" %" ISYM" %" ISYM"\n", 
 			Refinement[0], Refinement[1], Refinement[2]);
-  if(ver==TRUE) fprintf(stderr, "MHD_CID: MHDParentTempPermanent %"ISYM" %"ISYM" %"ISYM"\n", 
+  if(ver==TRUE) fprintf(stderr, "MHD_CID: MHDParentTempPermanent %" ISYM" %" ISYM" %" ISYM"\n", 
 	  MHDParentTempPermanent[0], MHDParentTempPermanent[1], MHDParentTempPermanent[2]);
 
   while( OldFineLevelIterator != NULL ){

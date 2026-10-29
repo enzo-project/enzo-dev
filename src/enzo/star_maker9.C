@@ -73,16 +73,12 @@ int star_maker9(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
 		float *temp, float *gamma, float *mu, int *nproc, int *nstar)
 {
 
-  int		i, j, k, index, ii, inew, n, bb, cc, nsinks, closest;
+  int i, j, k, index, ii, n, cc, nsinks;
   int           xo, yo, zo;
 #define MAX_SUPERCELL_NUMBER 1000
-  int           n_cell, ind_cell[MAX_SUPERCELL_NUMBER];
-  float		densthresh, maxdens, adddens, ugrid, vgrid, wgrid, m_cell;
+  float densthresh, ugrid, vgrid, wgrid;
   double	jeansthresh, jlsquared, dx2, dist2, total_density, nearestdx2;
   FLOAT		xpos, ypos, zpos, delx, dely, delz;
-  double        DensityFloor;
-  float nx_cell[MAX_SUPERCELL_NUMBER], 
-    ny_cell[MAX_SUPERCELL_NUMBER], nz_cell[MAX_SUPERCELL_NUMBER];
   double umass = (*d1)*POW(*x1,3)/SolarMass;
 
   //printf("Star Maker 9 running.......\n");
@@ -121,11 +117,9 @@ int star_maker9(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
   //BigStarFormationDone = CommunicationMaxValue(BigStarFormationDone);
 
   /* Loop over grid looking for a cell with mass larger than massthres */
-  //printf("BigStarFormationDone = %"ISYM" MyProcessorNumber = %"ISYM"\n", BigStarFormationDone,MyProcessorNumber);
+  //printf("BigStarFormationDone = %" ISYM" MyProcessorNumber = %" ISYM"\n", BigStarFormationDone,MyProcessorNumber);
   if(BigStarFormationDone == 0){
     if (*level == MaximumRefinementLevel) {
-      float oldrho;
-      float SinkCollapseDistance = SinkMergeDistance;
       for (k = *ibuff; k < *nz-*ibuff; k++) {
 	for (j = *ibuff; j < *ny-*ibuff; j++) {
 	  index = (k * (*ny) + j) * (*nx) + (*ibuff);
@@ -161,11 +155,10 @@ int star_maker9(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
 		/* If sink is within 5 cells of the closest one, then add to it */
 		if (dist2 < POW(BigStarSeparation,2) && dist2 < nearestdx2) {
 		  nearestdx2 = dist2;
-		  closest = n;		  
 		}
 
 	      } // ENDFOR old particles
-	      //printf("star_maker9: nearest old star = %"FSYM"\n",POW(nearestdx2,0.5) );
+	      //printf("star_maker9: nearest old star = %" FSYM"\n",POW(nearestdx2,0.5) );
 
 	      if (ii < *nmax) {
 
@@ -190,8 +183,8 @@ int star_maker9(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
 		  /* Remove mass from grid */
 	    
 // 		  d[index] = maxdens;
-		  printf("BigStarFormation: Star made at %"FSYM", %"FSYM", %"FSYM" \n ", xpos, ypos, zpos);
-		  //printf("now BigStarFormation = %"ISYM"\n", BigStarFormation);
+		  printf("BigStarFormation: Star made at %" FSYM", %" FSYM", %" FSYM" \n ", xpos, ypos, zpos);
+		  //printf("now BigStarFormation = %" ISYM"\n", BigStarFormation);
 
 		  if (*imethod == 2) {
 		    ugrid = 0.5*(u[index] + u[index+xo]);
@@ -221,7 +214,7 @@ int star_maker9(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
 		  }
 
 
-		  printf("star_maker9: making new star, type = %"ISYM"\n",*ctype );
+		  printf("star_maker9: making new star, type = %" ISYM"\n",*ctype );
 		  mp[ii] = 0.0; //adddens;
 		  type[ii] = -*ctype;
 	      
@@ -261,14 +254,14 @@ int star_maker9(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
   } // if BigStarForm
 
   if (ii > 0)
-    printf("P(%"ISYM"): star_maker9[add]: %"ISYM" new sink particles\n", *nproc, ii);
+    printf("P(%" ISYM"): star_maker9[add]: %" ISYM" new sink particles\n", *nproc, ii);
 
   if (ii >= *nmax) {
     fprintf(stdout, "star_maker9: reached max new particle count");
     return FAIL;
   }
 
-  delete sink_index;
+  delete [] sink_index;
 
   *np = ii;
   return SUCCESS;

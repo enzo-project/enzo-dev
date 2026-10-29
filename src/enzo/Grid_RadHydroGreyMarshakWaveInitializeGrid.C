@@ -53,8 +53,7 @@ int grid::RadHydroGreyMarshakWaveInitializeGrid(float DensityConstant,
 
 
   // create necessary baryon fields
-  int RhoNum, TENum, IENum, V0Num, V1Num, V2Num, EgNum, DeNum, 
-    HINum, HIINum, HeINum, HeIINum, HeIIINum;
+  int RhoNum, TENum, IENum, V0Num, V1Num, V2Num, EgNum;
   NumberOfBaryonFields = 0;
   FieldType[RhoNum = NumberOfBaryonFields++] = Density;
   FieldType[TENum = NumberOfBaryonFields++]  = TotalEnergy;
@@ -101,7 +100,6 @@ int grid::RadHydroGreyMarshakWaveInitializeGrid(float DensityConstant,
     
     int i, j, k;
 
-    float StBz = 5.6704e-5;
     float Vxconstant = 0.0;
     float Vyconstant = 0.0;
     float Vzconstant = 0.0;
@@ -124,8 +122,8 @@ int grid::RadHydroGreyMarshakWaveInitializeGrid(float DensityConstant,
 
     if (debug) {
       printf("RadHydroStreamTestInitializeGrid:\n");
-      printf("       GreyMarshDir = %"ISYM"\n",MyProcessorNumber,GreyMarshDir);
-      printf("     MaxRadiationDt = %g\n",MyProcessorNumber,MaxRadiationDt);
+      printf("       GreyMarshDir = %" ISYM"\n", GreyMarshDir);
+      printf("     MaxRadiationDt = %g\n", MaxRadiationDt);
       
       printf("    DensityConstant = %g\n",DensityConstant);    
       printf("         TEConstant = %g\n",TEConstant);    
@@ -166,7 +164,7 @@ int grid::RadHydroGreyMarshakWaveInitializeGrid(float DensityConstant,
 		EgConstant/EUnits;
     } 
     else {
-      fprintf(stderr,"GreyMarshakTest Error: illegal direction = %"ISYM"\n",
+      fprintf(stderr,"GreyMarshakTest Error: illegal direction = %" ISYM"\n",
               GreyMarshDir);
       return FAIL;
     }

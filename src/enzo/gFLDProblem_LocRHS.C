@@ -76,10 +76,6 @@ int gFLDProblem::LocRHS(EnzoVector *locrhs, float time, EnzoVector *u)
   if (this->ComputeTemperature(Temp,time,a,u) == FAIL) 
     ENZO_FAIL("LocRHS: Error in ComputeTemperature routine");
 
-  int size=usz[0]*usz[1]*usz[2];
-  int ix, iy, iz, idx, dim;
-  idx = (ghZl*ArrDims[1] + ghYl)*ArrDims[0] + ghXl;
-  float *tmpArr, meanVal, minVal, maxVal;
 
   // compute opacity over domain
   if (this->Opacity(OpacityP, OpacityE, &time, n_HI, n_HeI, 

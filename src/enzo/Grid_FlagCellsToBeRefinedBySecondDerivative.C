@@ -83,7 +83,6 @@ int grid::FlagCellsToBeRefinedBySecondDerivative()
 
   bool doField=false;
   float MinimumSecondDerivativeForRefinementThis;
-  int Offset = 1;
   int Offsets[3];
   for (dim=0; dim<GridRank; dim++)
     Offsets[dim] = 1;

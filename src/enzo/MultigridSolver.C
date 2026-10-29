@@ -72,7 +72,7 @@ int MultigridSolver(float *TopRHS, float *TopSolution, int Rank, int TopDims[],
     for (MinDim = Dims[0][depth], dim = 0; dim < Rank; dim++) {
       Dims[dim][depth+1] = (Dims[dim][depth]+1)/2;
 /*      if (Dims[dim][depth+1]*2-1 != Dims[dim][depth]+1) {
-	ENZO_VFAIL("Dims[%"ISYM"]=%"ISYM" not of form 2^j+1\n", dim, Dims[dim][0])
+	ENZO_VFAIL("Dims[%" ISYM"]=%" ISYM" not of form 2^j+1\n", dim, Dims[dim][0])
       }
 */
       MinDim = min(Dims[dim][depth+1], MinDim);
@@ -91,11 +91,11 @@ int MultigridSolver(float *TopRHS, float *TopSolution, int Rank, int TopDims[],
   /* Error check */
  
   if (depth == MAX_DEPTH) {
-    ENZO_VFAIL("Depth(%"ISYM") > MAX_DEPTH\n", depth)
+    ENZO_VFAIL("Depth(%" ISYM") > MAX_DEPTH\n", depth)
   }
  
   if (start_depth > bottom) {
-    ENZO_VFAIL("Start depth(%"ISYM") > bottom(%"ISYM")!\n", start_depth, bottom)
+    ENZO_VFAIL("Start depth(%" ISYM") > bottom(%" ISYM")!\n", start_depth, bottom)
   }
  
   /* Initial smoothing of density field, if requested. */
@@ -153,7 +153,7 @@ int MultigridSolver(float *TopRHS, float *TopSolution, int Rank, int TopDims[],
  
       /* Restrict the defect. */
  
-//    printf("restricting defect %"ISYM" -> %"ISYM"\n",Dims[0][depth],Dims[0][depth+1]);
+//    printf("restricting defect %" ISYM" -> %" ISYM"\n",Dims[0][depth],Dims[0][depth+1]);
       FORTRAN_NAME(mg_restrict)(defect[depth], RHS[depth+1], &Rank,
 //      FORTRAN_NAME(mg_prolong2)(defect[depth], RHS[depth+1], &Rank,
 		      &Dims[0][depth  ], &Dims[1][depth  ], &Dims[2][depth  ],
@@ -178,7 +178,7 @@ int MultigridSolver(float *TopRHS, float *TopSolution, int Rank, int TopDims[],
  
       /* Prolong coarse correction to next level. */
  
-      //    printf("prolonging Solution %"ISYM" -> %"ISYM"\n",Dims[0][depth+1],Dims[0][depth]);
+      //    printf("prolonging Solution %" ISYM" -> %" ISYM"\n",Dims[0][depth+1],Dims[0][depth]);
       FORTRAN_NAME(mg_prolong)(Solution[depth+1], defect[depth], &Rank,
 		     &Dims[0][depth+1], &Dims[1][depth+1], &Dims[2][depth+1],
 		     &Dims[0][depth  ], &Dims[1][depth  ], &Dims[2][depth  ]);
@@ -214,7 +214,7 @@ int MultigridSolver(float *TopRHS, float *TopSolution, int Rank, int TopDims[],
   iter++;
   tol_check = norm/mean;
  
-//  printf("%"ISYM" (%"ISYM" %"ISYM" %"ISYM") %"GSYM" %"GSYM" %"GSYM"\n", iter, Dims[0][0], Dims[1][0],
+//  printf("%" ISYM" (%" ISYM" %" ISYM" %" ISYM") %" GSYM" %" GSYM" %" GSYM"\n", iter, Dims[0][0], Dims[1][0],
 //	 Dims[2][0], norm, mean, tol_check);
  
   } // end: iteration loop
@@ -231,13 +231,13 @@ int MultigridSolver(float *TopRHS, float *TopSolution, int Rank, int TopDims[],
     lmean /= float(Size[0]);
     mean = lmean;
     tol_check = norm/mean;
-    //    printf("%"ISYM" (%"ISYM" %"ISYM" %"ISYM") %"GSYM" %"GSYM" %"GSYM"\n", repeat, Dims[0][0], Dims[1][0],
+    //    printf("%" ISYM" (%" ISYM" %" ISYM" %" ISYM") %" GSYM" %" GSYM" %" GSYM"\n", repeat, Dims[0][0], Dims[1][0],
     //	   Dims[2][0], norm, mean, tol_check);
     repeat++;
   }
  
   if (tol_check > tolerance) {
-    ENZO_VFAIL("Too many iterations (%"ISYM"): tol=%"GSYM", check=%"GSYM"\n", iter,
+    ENZO_VFAIL("Too many iterations (%" ISYM"): tol=%" GSYM", check=%" GSYM"\n", iter,
 	    tolerance, tol_check)
 
   }

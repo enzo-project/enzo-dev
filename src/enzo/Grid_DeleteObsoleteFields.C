@@ -37,7 +37,7 @@ int grid::DeleteObsoleteFields(int *ObsoleteFields,
       if (FieldType[i] == ObsoleteFields[field]) {
 
 	if (debug && FirstTime)
-	  printf("Deleting unused field %d (FieldType = %d = %s)\n", 
+	  printf("Deleting unused field %" ISYM " (FieldType = %" ISYM " = %s)\n", 
 		 i, ObsoleteFields[field], DataLabel[i]);
 
 	/* Delete field */

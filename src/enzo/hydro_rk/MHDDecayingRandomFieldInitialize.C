@@ -41,22 +41,19 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 int MHDDecayingRandomFieldInitialize(FILE *fptr, FILE *Outfptr, 
 			    HierarchyEntry &TopGrid, TopGridData &MetaData, int SetBaryonFields)
 {
-  char *DensName = "Density";
-  char *TEName   = "TotalEnergy";
-  char *GEName   = "GasEnergy";
-  char *Vel1Name = "x-velocity";
-  char *Vel2Name = "y-velocity";
-  char *Vel3Name = "z-velocity";
-  char *BxName = "Bx";
-  char *ByName = "By";
-  char *BzName = "Bz";
-  char *PhiName = "Phi";
-  char *Drive1Name = "DrivingField1";
-  char *Drive2Name = "DrivingField2";
-  char *Drive3Name = "DrivingField3";
+  const char *DensName = "Density";
+  const char *TEName   = "TotalEnergy";
+  const char *GEName   = "GasEnergy";
+  const char *Vel1Name = "x-velocity";
+  const char *Vel2Name = "y-velocity";
+  const char *Vel3Name = "z-velocity";
+  const char *BxName = "Bx";
+  const char *ByName = "By";
+  const char *BzName = "Bz";
+  const char *PhiName = "Phi";
 
   char  line[MAX_LINE_LENGTH];
-  int   dim, ret, level, sphere, i;
+  int level, i;
 
   /* set default parameters */
 
@@ -69,20 +66,19 @@ int MHDDecayingRandomFieldInitialize(FILE *fptr, FILE *Outfptr,
   rewind(fptr);
   while (fgets(line, MAX_LINE_LENGTH, fptr) != NULL) {
 
-    ret = 0;
 
     /* read parameters */
 
-    ret += sscanf(line, "RefineAtStart = %"ISYM, &RefineAtStart);
-    ret += sscanf(line, "MHDDRF-Density = %"FSYM, &rho_medium);
-    ret += sscanf(line, "MHDDRF-SoundVelocity = %"FSYM, &cs);
-    ret += sscanf(line, "MHDDRF-InitialBfield = %"FSYM, &Bnaught);
-    ret += sscanf(line, "MHDDRF-RandomSeed = %"ISYM, &RandomSeed);
+    sscanf(line, "RefineAtStart = %" ISYM, &RefineAtStart);
+    sscanf(line, "MHDDRF-Density = %" FSYM, &rho_medium);
+    sscanf(line, "MHDDRF-SoundVelocity = %" FSYM, &cs);
+    sscanf(line, "MHDDRF-InitialBfield = %" FSYM, &Bnaught);
+    sscanf(line, "MHDDRF-RandomSeed = %" ISYM, &RandomSeed);
     // parameters that specify the spectrum. See Turbulence_Generator.C for definitions.
-    ret += sscanf(line, "MHDDRF-RMSAlfvenSpeed = %"FSYM, &mach);
-    ret += sscanf(line, "MHDDRF-MinimumWaveNumber = %"FSYM, &Skmin);
-    ret += sscanf(line, "MHDDRF-MaximumWaveNumber = %"FSYM, &Skmax);
-    ret += sscanf(line, "MHDDRF-SpectralIndex = %"FSYM, &Sindex);
+    sscanf(line, "MHDDRF-RMSAlfvenSpeed = %" FSYM, &mach);
+    sscanf(line, "MHDDRF-MinimumWaveNumber = %" FSYM, &Skmin);
+    sscanf(line, "MHDDRF-MaximumWaveNumber = %" FSYM, &Skmax);
+    sscanf(line, "MHDDRF-SpectralIndex = %" FSYM, &Sindex);
 
   } // end input from parameter file
 
@@ -93,8 +89,8 @@ int MHDDecayingRandomFieldInitialize(FILE *fptr, FILE *Outfptr,
 
   /* Convert to code units */
   
-  if (MyProcessorNumber == ROOT_PROCESSOR)  printf(" RAW:  rho_medium = %"GSYM",cs = %"GSYM", v_alfven_RMS = %"GSYM", Bnaught = %"GSYM" \n",rho_medium,cs,mach,Bnaught);
-   if (MyProcessorNumber == ROOT_PROCESSOR) printf(" Magnetic spectrum: n = %"GSYM",kmin = %"GSYM", kmax = %"GSYM" \n", Sindex, Skmin, Skmax);
+  if (MyProcessorNumber == ROOT_PROCESSOR)  printf(" RAW:  rho_medium = %" GSYM",cs = %" GSYM", v_alfven_RMS = %" GSYM", Bnaught = %" GSYM" \n",rho_medium,cs,mach,Bnaught);
+   if (MyProcessorNumber == ROOT_PROCESSOR) printf(" Magnetic spectrum: n = %" GSYM",kmin = %" GSYM", kmax = %" GSYM" \n", Sindex, Skmin, Skmax);
 
   float rhou = 1.0, lenu = 1.0, tempu = 1.0, tu = 1.0, velu = 1.0, 
     presu = 1.0, bfieldu = 1.0;
@@ -107,9 +103,9 @@ int MHDDecayingRandomFieldInitialize(FILE *fptr, FILE *Outfptr,
   cs /= velu;
   Bnaught /= bfieldu;
 
- if (MyProcessorNumber == ROOT_PROCESSOR)  printf("rhou=%"GSYM",velu=%"GSYM",lenu=%"GSYM",tu=%"GSYM",presu=%"GSYM",bfieldu=%"GSYM", tempu=%"GSYM"\n", 
+ if (MyProcessorNumber == ROOT_PROCESSOR)  printf("rhou=%" GSYM",velu=%" GSYM",lenu=%" GSYM",tu=%" GSYM",presu=%" GSYM",bfieldu=%" GSYM", tempu=%" GSYM"\n", 
 	 rhou, velu,lenu,tu,presu,bfieldu, tempu);
-  if (MyProcessorNumber == ROOT_PROCESSOR) printf("rho_medium=%"GSYM", cs=%"GSYM", Bnaught=%"GSYM"\n", rho_medium, cs, Bnaught);
+  if (MyProcessorNumber == ROOT_PROCESSOR) printf("rho_medium=%" GSYM", cs=%" GSYM", Bnaught=%" GSYM"\n", rho_medium, cs, Bnaught);
 
 
   HierarchyEntry *CurrentGrid;
@@ -140,14 +136,14 @@ int MHDDecayingRandomFieldInitialize(FILE *fptr, FILE *Outfptr,
 	return FAIL;
       }
       CurrentGrid = CurrentGrid->NextGridThisLevel;
-      fprintf(stderr, "v_rms, Volume: %"GSYM"  %"GSYM"\n", v_rms, Volume);
+      fprintf(stderr, "v_rms, Volume: %" GSYM"  %" GSYM"\n", v_rms, Volume);
     }
     
 #ifdef USE_MPI
     CommunicationAllReduceValues(&v_rms, 1, MPI_SUM);
     CommunicationAllReduceValues(&Volume, 1, MPI_SUM);
 #endif
-     if (MyProcessorNumber == ROOT_PROCESSOR) fprintf(stderr, "v_alfven_rms, Volume: %"GSYM"  %"GSYM"\n", v_rms, Volume);
+     if (MyProcessorNumber == ROOT_PROCESSOR) fprintf(stderr, "v_alfven_rms, Volume: %" GSYM"  %" GSYM"\n", v_rms, Volume);
     // Carry out the Normalization
 
     // Normalize Magnetic Fields now
@@ -188,7 +184,7 @@ int MHDDecayingRandomFieldInitialize(FILE *fptr, FILE *Outfptr,
        and re-initialize the level after it is created. */
 
     for (level = 0; level < MaximumRefinementLevel; level++) {
-      printf("In level %"ISYM"\n", level);
+      printf("In level %" ISYM"\n", level);
       if (RebuildHierarchy(&MetaData, LevelArray, level) == FAIL) {
 	fprintf(stderr, "Error in RebuildHierarchy.\n");
 	return FAIL;

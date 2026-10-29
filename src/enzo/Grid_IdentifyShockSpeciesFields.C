@@ -41,7 +41,7 @@ int grid::IdentifyShockSpeciesFields(int &MachNum, int &PSTempNum, int &PSDenNum
   }
 
   if ((MachNum < 0) || (PSTempNum < 0) || (PSDenNum < 0)) {
-    fprintf(stderr,"Error identifying species for ShockMethod = %"ISYM" MachNum= %"ISYM" PSTempNum = %"ISYM" PSDenNum = %"ISYM" NBaryonFs = %"ISYM".\n",
+    fprintf(stderr,"Error identifying species for ShockMethod = %" ISYM" MachNum= %" ISYM" PSTempNum = %" ISYM" PSDenNum = %" ISYM" NBaryonFs = %" ISYM".\n",
 	    ShockMethod,MachNum,PSTempNum,PSDenNum,NumberOfBaryonFields);
     return FAIL;
   }

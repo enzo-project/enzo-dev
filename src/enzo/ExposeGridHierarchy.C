@@ -53,67 +53,67 @@ void ExposeGridHierarchy(int NumberOfGrids)
 
   int counter=0;
 
-  //fprintf(stderr, "counter: %d\n", counter++); // 0
+  //fprintf(stderr, "counter: %" ISYM "\n", counter++); // 0
   flat_dimensions[1] = 3;
   temp_array = (PyArrayObject *) PyArray_SimpleNew(2, flat_dimensions, ENPY_INT);
   PyDict_SetItemString(hierarchy_information, "GridDimensions", (PyObject *) temp_array);
   Py_DECREF(temp_array);
 
-  //fprintf(stderr, "counter: %d\n", counter++); // 1
+  //fprintf(stderr, "counter: %" ISYM "\n", counter++); // 1
   flat_dimensions[1] = 3;
   temp_array = (PyArrayObject *) PyArray_SimpleNew(2, flat_dimensions, ENPY_INT);
   PyDict_SetItemString(hierarchy_information, "GridStartIndices", (PyObject *) temp_array);
   Py_DECREF(temp_array);
 
-  //fprintf(stderr, "counter: %d\n", counter++); // 2
+  //fprintf(stderr, "counter: %" ISYM "\n", counter++); // 2
   flat_dimensions[1] = 3;
   temp_array = (PyArrayObject *) PyArray_SimpleNew(2, flat_dimensions, ENPY_INT);
   PyDict_SetItemString(hierarchy_information, "GridEndIndices", (PyObject *) temp_array);
   Py_DECREF(temp_array);
 
-  //fprintf(stderr, "counter: %d\n", counter++); // 3
+  //fprintf(stderr, "counter: %" ISYM "\n", counter++); // 3
   flat_dimensions[1] = 3;
   temp_array = (PyArrayObject *) PyArray_SimpleNew(2, flat_dimensions, ENPY_PFLOAT);
   PyDict_SetItemString(hierarchy_information, "GridLeftEdge", (PyObject *) temp_array);
   Py_DECREF(temp_array);
 
-  //fprintf(stderr, "counter: %d\n", counter++); // 4
+  //fprintf(stderr, "counter: %" ISYM "\n", counter++); // 4
   flat_dimensions[1] = 3;
   temp_array = (PyArrayObject *) PyArray_SimpleNew(2, flat_dimensions, ENPY_PFLOAT);
   PyDict_SetItemString(hierarchy_information, "GridRightEdge", (PyObject *) temp_array);
   Py_DECREF(temp_array);
 
-  //fprintf(stderr, "counter: %d\n", counter++); // 5
+  //fprintf(stderr, "counter: %" ISYM "\n", counter++); // 5
   flat_dimensions[1] = 1; /* a bit iffy */
   temp_array = (PyArrayObject *) PyArray_SimpleNew(2, flat_dimensions, ENPY_INT);
   PyDict_SetItemString(hierarchy_information, "GridLevels", (PyObject *) temp_array);
   Py_DECREF(temp_array);
 
-  //fprintf(stderr, "counter: %d\n", counter++); // 6
+  //fprintf(stderr, "counter: %" ISYM "\n", counter++); // 6
   flat_dimensions[1] = 1;
   temp_array = (PyArrayObject *) PyArray_SimpleNew(2, flat_dimensions, ENPY_PFLOAT);
   PyDict_SetItemString(hierarchy_information, "GridTimes", (PyObject *) temp_array);
   Py_DECREF(temp_array);
 
-  //fprintf(stderr, "counter: %d\n", counter++); // 7
+  //fprintf(stderr, "counter: %" ISYM "\n", counter++); // 7
   flat_dimensions[1] = 1;
   temp_array = (PyArrayObject *) PyArray_SimpleNew(2, flat_dimensions, ENPY_PFLOAT);
   PyDict_SetItemString(hierarchy_information, "GridOldTimes", (PyObject *) temp_array);
   Py_DECREF(temp_array);
 
-  //fprintf(stderr, "counter: %d\n", counter++); // 8
+  //fprintf(stderr, "counter: %" ISYM "\n", counter++); // 8
   flat_dimensions[1] = 1;
   temp_array = (PyArrayObject *) PyArray_SimpleNew(2, flat_dimensions, ENPY_INT);
   PyDict_SetItemString(hierarchy_information, "GridProcs", (PyObject *) temp_array);
   Py_DECREF(temp_array);
 
-  //fprintf(stderr, "counter: %d\n", counter++); // 9
+  //fprintf(stderr, "counter: %" ISYM "\n", counter++); // 9
   flat_dimensions[1] = 1;
   temp_array = (PyArrayObject *) PyArray_SimpleNew(2, flat_dimensions, ENPY_INT);
   PyDict_SetItemString(hierarchy_information, "GridNumberOfParticles", (PyObject *) temp_array);
   Py_DECREF(temp_array);
 
-  //fprintf(stderr, "counter: %d\n", counter++); // 10
+  //fprintf(stderr, "counter: %" ISYM "\n", counter++); // 10
   flat_dimensions[1] = 1;
   temp_array = (PyArrayObject *) PyArray_SimpleNew(2, flat_dimensions, ENPY_INT);
   PyDict_SetItemString(hierarchy_information, "GridParentIDs", (PyObject *) temp_array);

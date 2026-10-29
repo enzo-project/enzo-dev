@@ -27,7 +27,7 @@
 int grid::RemoveActiveParticle(PINT ID, int NewProcessorNumber)
 {
 
-  int i,j,found = FALSE;
+  int i, found = FALSE;
 
   if (MyProcessorNumber != ProcessorNumber)
     return found;

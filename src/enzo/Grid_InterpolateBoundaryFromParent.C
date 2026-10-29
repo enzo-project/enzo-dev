@@ -225,7 +225,7 @@ int grid::InterpolateBoundaryFromParent(grid *ParentGrid)
       if (ParentStartIndex[dim] < 0 ||
           ParentStartIndex[dim]+ParentTempDim[dim] >
           ParentGrid->GridDimension[dim]) {
-        ENZO_VFAIL("Parent grid not big enough for interpolation!  ParentStartIndex[%"ISYM"] = %"ISYM"  ParentTempDim = %"ISYM"ParentGrid->GridDimension = %"ISYM"\n",dim, ParentStartIndex[dim], ParentTempDim[dim], ParentGrid->GridDimension[dim])
+        ENZO_VFAIL("Parent grid not big enough for interpolation!  ParentStartIndex[%" ISYM"] = %" ISYM"  ParentTempDim = %" ISYM"ParentGrid->GridDimension = %" ISYM"\n",dim, ParentStartIndex[dim], ParentTempDim[dim], ParentGrid->GridDimension[dim])
       }
  
       /* Compute the dimensions of the current grid temporary field. */
@@ -343,13 +343,13 @@ int grid::InterpolateBoundaryFromParent(grid *ParentGrid)
 			      &InterpolationMethod,
 			      &SecondOrderBFlag[densfield], &interp_error);
       if (interp_error) {
-	printf("P%"ISYM": Error interpolating density.\n"
-		   "ParentGrid ID = %"ISYM"\n"
-		   "\t LeftEdge  = %"PSYM" %"PSYM" %"PSYM"\n"
-		   "\t RightEdge = %"PSYM" %"PSYM" %"PSYM"\n"
-		   "ThisGrid ID = %"ISYM"\n"
-		   "\t LeftEdge  = %"PSYM" %"PSYM" %"PSYM"\n"
-		   "\t RightEdge = %"PSYM" %"PSYM" %"PSYM"\n",
+	printf("P%" ISYM": Error interpolating density.\n"
+		   "ParentGrid ID = %" ISYM"\n"
+		   "\t LeftEdge  = %" PSYM" %" PSYM" %" PSYM"\n"
+		   "\t RightEdge = %" PSYM" %" PSYM" %" PSYM"\n"
+		   "ThisGrid ID = %" ISYM"\n"
+		   "\t LeftEdge  = %" PSYM" %" PSYM" %" PSYM"\n"
+		   "\t RightEdge = %" PSYM" %" PSYM" %" PSYM"\n",
 		   MyProcessorNumber, ParentGrid->ID, 
 		   ParentGrid->GridLeftEdge[0], ParentGrid->GridLeftEdge[1], 
 		   ParentGrid->GridLeftEdge[2], ParentGrid->GridRightEdge[0], 
@@ -392,13 +392,13 @@ int grid::InterpolateBoundaryFromParent(grid *ParentGrid)
 				  &FieldInterpolationMethod,
 				  &SecondOrderBFlag[field], &interp_error);
 	if (interp_error) {
-	  printf("P%"ISYM": Error interpolating field %"ISYM" (%s).\n"
-		     "ParentGrid ID = %"ISYM"\n"
-		     "\t LeftEdge  = %"PSYM" %"PSYM" %"PSYM"\n"
-		     "\t RightEdge = %"PSYM" %"PSYM" %"PSYM"\n"
-		     "ThisGrid ID = %"ISYM"\n"
-		     "\t LeftEdge  = %"PSYM" %"PSYM" %"PSYM"\n"
-		 "\t RightEdge = %"PSYM" %"PSYM" %"PSYM"\n",
+	  printf("P%" ISYM": Error interpolating field %" ISYM" (%s).\n"
+		     "ParentGrid ID = %" ISYM"\n"
+		     "\t LeftEdge  = %" PSYM" %" PSYM" %" PSYM"\n"
+		     "\t RightEdge = %" PSYM" %" PSYM" %" PSYM"\n"
+		     "ThisGrid ID = %" ISYM"\n"
+		     "\t LeftEdge  = %" PSYM" %" PSYM" %" PSYM"\n"
+		 "\t RightEdge = %" PSYM" %" PSYM" %" PSYM"\n",
 		     MyProcessorNumber, field, DataLabel[field], ParentGrid->ID, 
 		     ParentGrid->GridLeftEdge[0], ParentGrid->GridLeftEdge[1], 
 		     ParentGrid->GridLeftEdge[2], ParentGrid->GridRightEdge[0], 
@@ -511,7 +511,7 @@ int grid::InterpolateBoundaryFromParent(grid *ParentGrid)
       
        int MHDParentTempDims[3][3], MHDChildTempDims[3][3], MHDParentDims[3][3];
 
-       int MHDParentTempSize[3]={1,1,1}, MHDChildTempSize[3]={1,1,1}, One[3] = {1,1,1};
+       int MHDParentTempSize[3]={1,1,1}, MHDChildTempSize[3]={1,1,1};
       
        *dummy = 1;
 
@@ -578,7 +578,7 @@ int grid::InterpolateBoundaryFromParent(grid *ParentGrid)
 				 ParentStartIndex+2, &Zero, &Zero);
 
 	 if(ParentGrid->ProcessorNumber != ProcessorNumber && 0==1)
-	   fprintf(stderr,"Parent StartIndex %"ISYM" %"ISYM" %"ISYM" \n"
+	   fprintf(stderr,"Parent StartIndex %" ISYM" %" ISYM" %" ISYM" \n"
 		   ,ParentStartIndex[0],ParentStartIndex[1],ParentStartIndex[2]);
 	
 	 if(ParentGrid->ProcessorNumber != ProcessorNumber && 1==0)
@@ -586,7 +586,7 @@ int grid::InterpolateBoundaryFromParent(grid *ParentGrid)
 	     for(j=0;j<MHDParentTempDims[field][1];j++)
 	       for(i=0;i<MHDParentTempDims[field][0];i++){
 		 int index =  i + MHDParentTempDims[field][0]*(j+MHDParentTempDims[field][1]*k);
-		 fprintf(stderr,"MHD: (%"ISYM",%"ISYM",%"ISYM",%"ISYM") %"FSYM"*%"FSYM" + %"FSYM"*%"FSYM" = %"FSYM"\n",
+		 fprintf(stderr,"MHD: (%" ISYM",%" ISYM",%" ISYM",%" ISYM") %" FSYM"*%" FSYM" + %" FSYM"*%" FSYM" = %" FSYM"\n",
 			 field,i,j,k,coef1,ParentOld[index],coef2,
 			 ParentGrid->MagneticField[field][index], 
 			 MHDParentTemp[field][index]);
@@ -641,7 +641,7 @@ int grid::InterpolateBoundaryFromParent(grid *ParentGrid)
 	      
 //      if(  MHDChildTemp[field][tempindex] !=  MHDChildTemp[field][tempindex] ){
 //
-//	fprintf(stderr,"Error: Bad Child Temp. %"ISYM" (%"ISYM",%"ISYM",%"ISYM")\n",
+//	fprintf(stderr,"Error: Bad Child Temp. %" ISYM" (%" ISYM",%" ISYM",%" ISYM")\n",
 //		field,i,j,k);
 //      }
 

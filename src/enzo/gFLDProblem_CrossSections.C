@@ -107,7 +107,7 @@ float gFLDProblem::CrossSections(float nu, int species)
 
 
   default:   // illegal input
-    fprintf(stderr,"gFLDProblem::CrossSections Error: species %"ISYM" undefined\n",
+    fprintf(stderr,"gFLDProblem::CrossSections Error: species %" ISYM" undefined\n",
 	    species);
     sigma = -1.0;
   }

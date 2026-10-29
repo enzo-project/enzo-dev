@@ -21,7 +21,6 @@ class GalaxyParticleGrid : private grid {
 FLOAT calc_dist2(FLOAT x1, FLOAT y1, FLOAT z1,
     FLOAT x2, FLOAT y2, FLOAT z2, FLOAT period[])
 {
-    int dim;
     float part_dist2, xdist, ydist, zdist;
     // Periodicity
     xdist = fabs(x1 - x2);
@@ -86,33 +85,23 @@ int ActiveParticleType_GalaxyParticle::EvaluateFormation
   FILE *fptr;
   char line[MAX_LINE_LENGTH];
   char fname[20];
-  sprintf(fname, "gp%04"ISYM".txt", LevelCycleCount[0]);
+  sprintf(fname, "gp%04" ISYM".txt", LevelCycleCount[0]);
 
   if ((fptr = fopen(fname, "r")) == NULL) {
     //fprintf(stderr, "galaxy particle text file not found for this cycle.\n");
     return SUCCESS;
   }
 
-  float x, y, z, dens, radius, dist, temp, vx, vy, vz;
-  float xx, yy, zz;
-  int i, j, k, index, mark;
+  float x, y, z, dens, radius, vx, vy, vz;
 
   GalaxyParticleGrid *thisGrid =
     static_cast<GalaxyParticleGrid *>(thisgrid_orig);
 
 
-  int GridDimension[3] = {thisGrid->GridDimension[0],
-                          thisGrid->GridDimension[1],
-                          thisGrid->GridDimension[2]};
-
-  float *density = thisGrid->BaryonField[data.DensNum];
-  float *velx = thisGrid->BaryonField[data.Vel1Num];
-  float *vely = thisGrid->BaryonField[data.Vel2Num];
-  float *velz = thisGrid->BaryonField[data.Vel3Num];
   //float *tvel;
 
   while (fgets(line, MAX_LINE_LENGTH, fptr) != NULL) {
-    sscanf(line, "%"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM,
+    sscanf(line, "%" FSYM" %" FSYM" %" FSYM" %" FSYM" %" FSYM" %" FSYM" %" FSYM" %" FSYM,
       &x, &y, &z, &vx, &vy, &vz, &dens, &radius);
 
     // If this particle is outside this grid,
@@ -123,7 +112,7 @@ int ActiveParticleType_GalaxyParticle::EvaluateFormation
       continue;
     }
 
-    fprintf(stderr,"%d %d inserting particle %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM"\n",
+    fprintf(stderr,"%" ISYM " %" ISYM " inserting particle %" FSYM" %" FSYM" %" FSYM" %" FSYM" %" FSYM"\n",
         MyProcessorNumber, data.GridID, x, y, z, dens, radius);
 
 	// If no more room for particles, throw an ENZO_FAIL
@@ -207,7 +196,7 @@ int ActiveParticleType_GalaxyParticle::SetFlaggingField
 {
   /* Generate a list of all galaxy particles in the simulation box */
   int i, nParticles;
-  FLOAT *pos = NULL, dx=0, rad;
+  FLOAT *pos = NULL, rad;
   ActiveParticleList<ActiveParticleType> GalaxyParticleList;
   LevelHierarchyEntry *Temp = NULL;
   
@@ -217,8 +206,6 @@ int ActiveParticleType_GalaxyParticle::SetFlaggingField
   /* Calculate CellWidth on maximum refinement level */
   
   // this will fail for noncubic boxes or simulations with MinimimMassForRefinementLevelExponent
-  dx = (DomainRightEdge[0] - DomainLeftEdge[0]) /
-    (TopGridDims[0]*POW(FLOAT(RefineBy),FLOAT(MaximumRefinementLevel)));
   
   for (i=0 ; i<nParticles; i++){
     pos = GalaxyParticleList[i]->ReturnPosition();

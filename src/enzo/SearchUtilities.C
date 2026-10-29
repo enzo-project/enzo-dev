@@ -25,13 +25,13 @@ int search_lower_bound(int *arr, int value, int low, int high,
 {
   int mid, width;
   if (high < low)
-    ENZO_VFAIL("high (%d) < low (%d) when searching for lower bound.",
+    ENZO_VFAIL("high (%" ISYM ") < low (%" ISYM ") when searching for lower bound.",
 	       high, low);
   width = high-low;
   mid = low + width/2;
   // First catch here if it's the last recursive call
 //  if (debug)
-//    printf("low high mid :: width value = %d (%d) %d (%d) %d (%d) :: %d %d\n", 
+//    printf("low high mid :: width value = %" ISYM " (%" ISYM ") %" ISYM " (%" ISYM ") %" ISYM " (%" ISYM ") :: %" ISYM " %" ISYM "\n", 
 //	   low, arr[low], high, arr[high], mid, arr[mid], width, value);
   if (width <= 1) {
     if (mid < total-1)
@@ -56,13 +56,13 @@ int search_lower_bound(float *arr, float value, int low, int high,
 {
   int mid, width;
   if (high < low)
-    ENZO_VFAIL("high (%d) < low (%d) when searching for lower bound.",
+    ENZO_VFAIL("high (%" ISYM ") < low (%" ISYM ") when searching for lower bound.",
 	       high, low);
   width = high-low;
   mid = low + width/2;
   // First catch here if it's the last recursive call
 //  if (debug)
-//    printf("low high mid :: width value = %d (%d) %d (%d) %d (%d) :: %d %d\n", 
+//    printf("low high mid :: width value = %" ISYM " (%" ISYM ") %" ISYM " (%" ISYM ") %" ISYM " (%" ISYM ") :: %" ISYM " %" ISYM "\n", 
 //	   low, arr[low], high, arr[high], mid, arr[mid], width, value);
   if (width <= 1) {
     if (mid < total-1)

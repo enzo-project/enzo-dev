@@ -51,7 +51,7 @@ int grid::MagneticFieldResetter(int level)
  
   /* initialize */
  
-  int dim, i, j, k, index, size, field, GhostZones = NumberOfGhostZones;
+  int dim, size;
   int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
   int B1Num, B2Num, B3Num, PhiNum;
 
@@ -70,11 +70,9 @@ int grid::MagneticFieldResetter(int level)
  
   /* Compute the redshift. */
  
-  float zred;
   FLOAT a = 1, dadt;
   if (ComovingCoordinates)
     CosmologyComputeExpansionFactor(Time, &a, &dadt);
-  zred = 1.0*(1.0+InitialRedshift)/a - 1.0;
  
   /* Set the units. */
  

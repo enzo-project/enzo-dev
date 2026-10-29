@@ -108,7 +108,7 @@ float ReturnValuesFromSpectrumTable(float ColumnDensity, float dColumnDensity,
     else
       photon_fraction = min(dColumnDensity * pseudo_CrossSection, 1.0);  
 
-//    fprintf(stderr, "RVFST: id_in = %d, id_out = %d, f_in =%f, f_out = %f, tau = %f, photon_f = %f\n", 
+//    fprintf(stderr, "RVFST: id_in = %" ISYM ", id_out = %" ISYM ", f_in =%f, f_out = %f, tau = %f, photon_f = %f\n", 
 //	    index_in, index_out, frac_in, frac_out, tau, photon_fraction); 
 
     return photon_fraction;

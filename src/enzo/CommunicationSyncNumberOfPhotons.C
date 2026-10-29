@@ -66,7 +66,7 @@ int CommunicationSyncNumberOfPhotons(LevelHierarchyEntry *LevelArray[])
   int total = 0;
   for (i = 0; i < NumberOfGrids; i++)
     total += NumberOfPhotons[i];
-  printf("P%d: SyncPhotons, total NumberOfPhotons = %d\n",
+  printf("P%" ISYM ": SyncPhotons, total NumberOfPhotons = %" ISYM "\n",
 	 MyProcessorNumber, total);
 #endif
 

@@ -929,7 +929,7 @@ c
 *
 *        Find pivot and test for singularity.
 *
-         JP = J - 1 + e_idamax( M-J+1, A( J, J ), 1 )
+         JP = J - 1 + e_idamax( M-J+1, A( J, J ), 1_IKIND )
          IPIV( J ) = JP
          IF( A( JP, J ).NE.ZERO ) THEN
 *
@@ -1067,7 +1067,7 @@ c
 *
 *     Determine the block size for this environment.
 *
-      NB = ILAENV( 1, 'UGETRF', ' ', M, N, -1, -1 )
+      NB = ILAENV( 1_IKIND, 'UGETRF', ' ', M, N, -1_IKIND, -1_IKIND )
       IF( NB.LE.1 .OR. NB.GE.MIN( M, N ) ) THEN
 *
 *        Use unblocked code.
@@ -2625,7 +2625,7 @@ c
 C     ILAENV = 0
       ILAENV = 1
       IF( ILAENV.EQ.1 ) THEN
-         ILAENV = IEEECK( 0, 0._RKIND, 1._RKIND ) 
+         ILAENV = IEEECK( 0_IKIND, 0._RKIND, 1._RKIND ) 
       END IF
       RETURN
 *
@@ -2636,7 +2636,7 @@ C     ILAENV = 0
 C     ILAENV = 0
       ILAENV = 1
       IF( ILAENV.EQ.1 ) THEN
-         ILAENV = IEEECK( 1, 0._RKIND, 1._RKIND ) 
+         ILAENV = IEEECK( 1_IKIND, 0._RKIND, 1._RKIND ) 
       END IF
       RETURN
 *

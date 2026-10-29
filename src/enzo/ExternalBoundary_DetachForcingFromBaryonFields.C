@@ -34,7 +34,7 @@ int ExternalBoundary::DetachForcingFromBaryonFields()
   NumberOfBaryonFields -= BoundaryRank;
  
   if (debug)
-    printf("ForcingDetachedFromBoundary NBF %"ISYM"\n", NumberOfBaryonFields);
+    printf("ForcingDetachedFromBoundary NBF %" ISYM"\n", NumberOfBaryonFields);
  
   return SUCCESS;
  

@@ -63,7 +63,7 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
 
   int l, NumberOfStars;
   float TotalMass;
-  Star *ThisStar, *MoveStar;
+  Star *ThisStar;
   LevelHierarchyEntry *Temp;
   FLOAT TimeNow = LevelArray[level]->GridData->ReturnTime();
   float Timestep = LevelArray[level]->GridData->ReturnTimeStep();
@@ -110,7 +110,7 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
     CommunicationReduceValues(&TotalMass, 1, MPI_SUM);
 #endif
     if (debug)
-      fprintf(stdout, "SinkParticle: Time = %"GOUTSYM", TotalMass = %"GSYM"\n", 
+      fprintf(stdout, "SinkParticle: Time = %" GOUTSYM", TotalMass = %" GSYM"\n", 
 	      TimeNow, TotalMass);
   }
 
@@ -137,7 +137,7 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
   for (ThisStar = AllStars; ThisStar; ThisStar = ThisStar->NextStar, count++) {
     //TimeNow = LevelArray[ThisStar->ReturnLevel()]->GridData->ReturnTime();
 //    if (debug) {
-//      printf("AddedFeedback[%d] = %d\n", count, AddedFeedback[count]);
+//      printf("AddedFeedback[%" ISYM "] = %" ISYM "\n", count, AddedFeedback[count]);
 //     ThisStar->PrintInfo();
 //    } 
     if (AddedFeedback[count]) {

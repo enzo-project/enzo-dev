@@ -485,7 +485,6 @@ namespace ActiveParticleHelpers {
 
       AttributeVector &handlers = APClass::AttributeHandlers;
       for (AttributeVector::iterator it = handlers.begin(); it != handlers.end(); ++it) {
-          const char *attr_name = (*it)->name.c_str();
 
           // Ignore multi-dimensional array (attribute that contains multiple values) for now
           // If it is ArrayHandler class and attribute name != "particle_*", then element_size = sizeof(Type) * N.
@@ -552,7 +551,6 @@ namespace ActiveParticleHelpers {
       int ndims = 1;
       hsize_t dims[2] = {1, 1};
       //const int NormCount = Count;
-      APClass *In;
 
       for (AttributeVector::iterator it = handlers.begin();
           it != handlers.end(); ++it) {

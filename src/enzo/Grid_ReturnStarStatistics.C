@@ -30,7 +30,7 @@ int grid::ReturnStarStatistics(int &Number, float &minLife)
   if (MyProcessorNumber != ProcessorNumber)
     return SUCCESS;
 
-  int i, MassConvert;
+  int i;
 
   for (i = 0; i < NumberOfParticles; i++)
     if (ParticleType[i] != PARTICLE_TYPE_DARK_MATTER &&

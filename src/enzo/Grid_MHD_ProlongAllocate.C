@@ -35,7 +35,7 @@
 //
 // Note: MHDCT only works with RefineBy = 2, thus refinement factors are hard coded.
 
-int grid::MHD_DCheck(int * ChildDim, char * mess){
+int grid::MHD_DCheck(int * ChildDim, const char * mess){
 
   if( ProcessorNumber!=MyProcessorNumber)
     return SUCCESS;

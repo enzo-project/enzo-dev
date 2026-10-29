@@ -34,7 +34,7 @@ int grid::InterpolateParticlePositions(grid *FromGrid, int DifferenceType)
  
   /* Loop over all active dimensions */
 
-  int dim, dim1;
+  int dim1;
  
   for (int dim = 0; dim < GridRank+ComputePotential; dim++) {
  
@@ -75,7 +75,7 @@ int grid::InterpolateParticlePositions(grid *FromGrid, int DifferenceType)
  
       if(ProblemType==29){
         for(int i=0; i<NumberOfParticles; i++)
-          printf("%"PISYM"  particle accelerations:  %e %e %e\n", ParticleNumber[i],
+          printf("%" PISYM"  particle accelerations:  %e %e %e\n", ParticleNumber[i],
                  ParticleAcceleration[0][i],
                  ParticleAcceleration[1][i],
                  ParticleAcceleration[2][i]);

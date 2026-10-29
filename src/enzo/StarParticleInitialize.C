@@ -59,10 +59,9 @@ int StarParticleInitialize(HierarchyEntry *Grids[], TopGridData *MetaData,
   if (PopIIIInitialMassFunction)
     StarParticlePopIII_IMFInitialize();
 
-  int level, grids;
+  int level;
   Star *cstar;
   LevelHierarchyEntry *Temp;
-  grid *GridPointer[MAX_NUMBER_OF_SUBGRIDS];
   FLOAT TimeNow = LevelArray[ThisLevel]->GridData->ReturnTime();
 
   /* Initialize all star particles if this is a restart */
@@ -117,9 +116,9 @@ int StarParticleInitialize(HierarchyEntry *Grids[], TopGridData *MetaData,
   }
 
 //  fprintf(stdout, "\nin StarParticleInitialize.C \n", MetaData->NumberOfParticles); 
-//  fprintf(stdout, "MetaData->NumberOfParticles = %d\n", MetaData->NumberOfParticles); 
-//  fprintf(stdout, "NumberOfStarParticles now = %d\n", NumberOfStarParticles);
-//  fprintf(stdout, "NumberOfOtherParticles now = %d\n", NumberOfOtherParticles);
+//  fprintf(stdout, "MetaData->NumberOfParticles = %" ISYM "\n", MetaData->NumberOfParticles); 
+//  fprintf(stdout, "NumberOfStarParticles now = %" ISYM "\n", NumberOfStarParticles);
+//  fprintf(stdout, "NumberOfOtherParticles now = %" ISYM "\n", NumberOfOtherParticles);
 
 
   LCAPERF_STOP("StarParticleInitialize");

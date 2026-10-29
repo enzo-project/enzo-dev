@@ -42,34 +42,33 @@ int RotatingSphereInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 
    // Make sure that we are working in 3D
    if (MetaData.TopGridRank != 3) {
-      ENZO_VFAIL("Cannot do RotatingSphere in %"ISYM" dimension(s)\n", MetaData.TopGridRank)
+      ENZO_VFAIL("Cannot do RotatingSphere in %" ISYM" dimension(s)\n", MetaData.TopGridRank)
       }
 
    // Field Names
-   char *DensName = "Density";
-   char *TEName    = "TotalEnergy";
-   char *GEName    = "GasEnergy";
-   char *Vel1Name = "x-velocity";
-   char *Vel2Name = "y-velocity";
-   char *Vel3Name = "z-velocity";
-   char *ElectronName = "Electron_Density";
-   char *HIName = "HI_Density";
-   char *HIIName = "HII_Density";
-   char *HeIName = "HeI_Density";
-   char *HeIIName = "HeII_Density";
-   char *HeIIIName = "HeIII_Density";
-   char *HMName = "HM_Density";
-   char *H2IName = "H2I_Density";
-   char *H2IIName = "H2II_Density";
-   char *DIName = "DI_Density";
-   char *DIIName = "DII_Density";
-   char *HDIName = "HDI_Density";
-   char *MetalName = "Metal_Density";
+   const char *DensName = "Density";
+   const char *TEName    = "TotalEnergy";
+   const char *GEName    = "GasEnergy";
+   const char *Vel1Name = "x-velocity";
+   const char *Vel2Name = "y-velocity";
+   const char *Vel3Name = "z-velocity";
+   const char *ElectronName = "Electron_Density";
+   const char *HIName = "HI_Density";
+   const char *HIIName = "HII_Density";
+   const char *HeIName = "HeI_Density";
+   const char *HeIIName = "HeII_Density";
+   const char *HeIIIName = "HeIII_Density";
+   const char *HMName = "HM_Density";
+   const char *H2IName = "H2I_Density";
+   const char *H2IIName = "H2II_Density";
+   const char *DIName = "DI_Density";
+   const char *DIIName = "DII_Density";
+   const char *HDIName = "HDI_Density";
+   const char *MetalName = "Metal_Density";
 
    /* parameter declarations */
  
    FLOAT RotatingSphereSubgridLeft[MAX_DIMENSION], RotatingSphereSubgridRight[MAX_DIMENSION];
-   FLOAT LeftEdge[MAX_DIMENSION], RightEdge[MAX_DIMENSION];
 
    float RotatingSphereNFWMass;
    float RotatingSphereNFWConcentration;
@@ -86,8 +85,7 @@ int RotatingSphereInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 
    // Local variable declarations
    char line[MAX_LINE_LENGTH];
-   int   i, j, dim, ret, NumberOfSubgridZones[MAX_DIMENSION],
-      SubgridDims[MAX_DIMENSION];
+   int i, j, ret;
 
    // Initialize parameters to default values
    RotatingSphereNFWMass = 1.0e7;
@@ -114,36 +112,36 @@ int RotatingSphereInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
    while (fgets(line, MAX_LINE_LENGTH, fptr) != NULL) {
       ret = 0;
 
-      ret += sscanf(line, "RotatingSphereNFWMass = %"FSYM, &RotatingSphereNFWMass);
-      ret += sscanf(line, "RotatingSphereNFWConcentration = %"FSYM, &RotatingSphereNFWConcentration);
-      ret += sscanf(line, "RotatingSphereCoreRadius = %"FSYM, &RotatingSphereCoreRadius);
-      ret += sscanf(line, "RotatingSphereCentralDensity = %"FSYM, &RotatingSphereCentralDensity);
-      ret += sscanf(line, "RotatingSphereCoreDensityExponent = %"FSYM, &RotatingSphereCoreDensityExponent);
-      ret += sscanf(line, "RotatingSphereOuterDensityExponent = %"FSYM, &RotatingSphereOuterDensityExponent);
-      ret += sscanf(line, "RotatingSphereExternalTemperature = %"FSYM, &RotatingSphereExternalTemperature);
-      ret += sscanf(line, "RotatingSphereSpinParameter = %"FSYM, &RotatingSphereSpinParameter);
-      ret += sscanf(line, "RotatingSphereAngularMomentumExponent = %"FSYM, &RotatingSphereAngularMomentumExponent);
-      ret += sscanf(line, "RotatingSphereUseTurbulence = %"ISYM, &RotatingSphereUseTurbulence);
-      ret += sscanf(line, "RotatingSphereTurbulenceRMS = %"FSYM, &RotatingSphereTurbulenceRMS);
-      ret += sscanf(line, "RotatingSphereRedshift = %"FSYM, &RotatingSphereRedshift);
+      ret += sscanf(line, "RotatingSphereNFWMass = %" FSYM, &RotatingSphereNFWMass);
+      ret += sscanf(line, "RotatingSphereNFWConcentration = %" FSYM, &RotatingSphereNFWConcentration);
+      ret += sscanf(line, "RotatingSphereCoreRadius = %" FSYM, &RotatingSphereCoreRadius);
+      ret += sscanf(line, "RotatingSphereCentralDensity = %" FSYM, &RotatingSphereCentralDensity);
+      ret += sscanf(line, "RotatingSphereCoreDensityExponent = %" FSYM, &RotatingSphereCoreDensityExponent);
+      ret += sscanf(line, "RotatingSphereOuterDensityExponent = %" FSYM, &RotatingSphereOuterDensityExponent);
+      ret += sscanf(line, "RotatingSphereExternalTemperature = %" FSYM, &RotatingSphereExternalTemperature);
+      ret += sscanf(line, "RotatingSphereSpinParameter = %" FSYM, &RotatingSphereSpinParameter);
+      ret += sscanf(line, "RotatingSphereAngularMomentumExponent = %" FSYM, &RotatingSphereAngularMomentumExponent);
+      ret += sscanf(line, "RotatingSphereUseTurbulence = %" ISYM, &RotatingSphereUseTurbulence);
+      ret += sscanf(line, "RotatingSphereTurbulenceRMS = %" FSYM, &RotatingSphereTurbulenceRMS);
+      ret += sscanf(line, "RotatingSphereRedshift = %" FSYM, &RotatingSphereRedshift);
 
-      ret += sscanf(line, "TestProblemHydrogenFractionByMass = %"FSYM, &TestProblemData.HydrogenFractionByMass);
-      ret += sscanf(line, "TestProblemDeuteriumToHydrogenRatio = %"FSYM, &TestProblemData.DeuteriumToHydrogenRatio);
+      ret += sscanf(line, "TestProblemHydrogenFractionByMass = %" FSYM, &TestProblemData.HydrogenFractionByMass);
+      ret += sscanf(line, "TestProblemDeuteriumToHydrogenRatio = %" FSYM, &TestProblemData.DeuteriumToHydrogenRatio);
 
-      ret += sscanf(line, "TestProblemInitialHIFraction = %"FSYM, &TestProblemData.HI_Fraction);
-      ret += sscanf(line, "TestProblemInitialHIIFraction = %"FSYM, &TestProblemData.HII_Fraction);
-      ret += sscanf(line, "TestProblemInitialHeIFraction = %"FSYM, &TestProblemData.HeI_Fraction);
-      ret += sscanf(line, "TestProblemInitialHeIIFraction = %"FSYM, &TestProblemData.HeII_Fraction);
-      ret += sscanf(line, "TestProblemInitialHeIIIFraction = %"FSYM, &TestProblemData.HeIII_Fraction);
-      ret += sscanf(line, "TestProblemInitialHMFraction = %"FSYM, &TestProblemData.HM_Fraction);
-      ret += sscanf(line, "TestProblemInitialH2IFraction = %"FSYM, &TestProblemData.H2I_Fraction);
-      ret += sscanf(line, "TestProblemInitialH2IIFraction = %"FSYM, &TestProblemData.H2II_Fraction);
-      ret += sscanf(line, "TestProblemInitialDIFraction = %"FSYM, &TestProblemData.DI_Fraction);
-      ret += sscanf(line, "TestProblemInitialDIIFraction = %"FSYM, &TestProblemData.DII_Fraction);
-      ret += sscanf(line, "TestProblemInitialHDIFraction = %"FSYM, &TestProblemData.HDI_Fraction);
+      ret += sscanf(line, "TestProblemInitialHIFraction = %" FSYM, &TestProblemData.HI_Fraction);
+      ret += sscanf(line, "TestProblemInitialHIIFraction = %" FSYM, &TestProblemData.HII_Fraction);
+      ret += sscanf(line, "TestProblemInitialHeIFraction = %" FSYM, &TestProblemData.HeI_Fraction);
+      ret += sscanf(line, "TestProblemInitialHeIIFraction = %" FSYM, &TestProblemData.HeII_Fraction);
+      ret += sscanf(line, "TestProblemInitialHeIIIFraction = %" FSYM, &TestProblemData.HeIII_Fraction);
+      ret += sscanf(line, "TestProblemInitialHMFraction = %" FSYM, &TestProblemData.HM_Fraction);
+      ret += sscanf(line, "TestProblemInitialH2IFraction = %" FSYM, &TestProblemData.H2I_Fraction);
+      ret += sscanf(line, "TestProblemInitialH2IIFraction = %" FSYM, &TestProblemData.H2II_Fraction);
+      ret += sscanf(line, "TestProblemInitialDIFraction = %" FSYM, &TestProblemData.DI_Fraction);
+      ret += sscanf(line, "TestProblemInitialDIIFraction = %" FSYM, &TestProblemData.DII_Fraction);
+      ret += sscanf(line, "TestProblemInitialHDIFraction = %" FSYM, &TestProblemData.HDI_Fraction);
 
-      ret += sscanf(line, "TestProblemUseMetallicityField = %"ISYM, &TestProblemData.UseMetallicityField);
-      ret += sscanf(line, "TestProblemInitialMetallicityFraction = %"FSYM, &TestProblemData.MetallicityField_Fraction);
+      ret += sscanf(line, "TestProblemUseMetallicityField = %" ISYM, &TestProblemData.UseMetallicityField);
+      ret += sscanf(line, "TestProblemInitialMetallicityFraction = %" FSYM, &TestProblemData.MetallicityField_Fraction);
 
 
       // Issue a warning if the line is suspicious 
@@ -193,7 +191,7 @@ int RotatingSphereInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 //            *int(POW(RefineBy, lev + 1));
 // 
 //      if (debug)
-//         printf("RotatingSphere:: Level[%"ISYM"]: NumberOfSubgridZones[0] = %"ISYM"\n", lev+1,
+//         printf("RotatingSphere:: Level[%" ISYM"]: NumberOfSubgridZones[0] = %" ISYM"\n", lev+1,
 //          NumberOfSubgridZones[0]);
 // 
 //      if (NumberOfSubgridZones[0] > 0) {
@@ -310,7 +308,7 @@ int RotatingSphereInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
          and re-initialize the level after it is created. */
  
       for (int level = 0; level < MaximumRefinementLevel; level++) {
-         printf("In level %"ISYM"\n", level);
+         printf("In level %" ISYM"\n", level);
 
          if (RebuildHierarchy(&MetaData, LevelArray, level) == FAIL) {
             fprintf(stderr, "Error in RebuildHierarchy.\n");

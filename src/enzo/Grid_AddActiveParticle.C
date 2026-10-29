@@ -29,7 +29,7 @@ int grid::AddActiveParticle(ActiveParticleType* ThisParticle)
 
   bool IsHere;
   FLOAT* TPpos;
-  int i,j;
+  int i;
 
   /* Return if this doesn't involve us */
   if (MyProcessorNumber != ProcessorNumber) return SUCCESS;

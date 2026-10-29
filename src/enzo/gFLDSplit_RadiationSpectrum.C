@@ -32,9 +32,7 @@ float gFLDSplit::RadiationSpectrum(float nu)
   float nu0 = hnu0_HI*erg_eV/h_planck;     // ionization threshold of Hydrogen (hz)
   float nu1 = 2.5*nu0;              // ionization of Wolf Reyet stars + HeliumI
   float nu2 = 4.0*nu0;              // ionization threshold of HeliumII
-  float nu3 = 100.0*nu0;            // parameter used to characterize PopII SED cutoff frequency
   float GBbrk = 2.5;                // parameters in Ricotti 2002 fig.4 fit
-  float GXray = 2.0e-3;             // parameters in Ricotti 2002 fig.4 fit
   float sigma;
 
   // check that frequency is within the allowed range

@@ -133,7 +133,6 @@ int SetAccelerationBoundary(HierarchyEntry *Grids[], int NumberOfGrids,
   //Juggle pointers around.
 
   int grid1, ConservativeTruth;
-  char basename[30];  
 
   //We don't want conservative interpolation actually being done for the acceleration field.
   ConservativeTruth = ConservativeInterpolation;

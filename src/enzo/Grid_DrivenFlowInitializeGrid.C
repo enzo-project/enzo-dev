@@ -33,7 +33,6 @@ int grid::DrivenFlowInitializeGrid(float DrivenFlowDensity,
   NumberOfBaryonFields = 0;
   FieldType[NumberOfBaryonFields++] = Density;
 
-  int vel = NumberOfBaryonFields;
 
   FieldType[NumberOfBaryonFields++] = Velocity1;
   FieldType[NumberOfBaryonFields++] = Velocity2;
@@ -57,7 +56,6 @@ int grid::DrivenFlowInitializeGrid(float DrivenFlowDensity,
       FieldType[NumberOfBaryonFields++] = Phi_pField;
   }
 
-  int accel = NumberOfBaryonFields;
 
   FieldType[NumberOfBaryonFields++] = DrivingField1;
   FieldType[NumberOfBaryonFields++] = DrivingField2;
@@ -72,9 +70,6 @@ int grid::DrivenFlowInitializeGrid(float DrivenFlowDensity,
   if (!SetBaryonFields)
     return SUCCESS;
 
-  float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits,
-        VelocityUnits;
-  FLOAT MassUnits = 1;
 
   int size = 1;
 
@@ -97,7 +92,7 @@ int grid::DrivenFlowInitializeGrid(float DrivenFlowDensity,
     for (int i = 0; i < size; i++) {
       BaryonField[ieint][i] = Energy;
     }
-  printf("DrivenFlowInitializeGrid %"FSYM" %"FSYM" %"FSYM" %"FSYM"\n",
+  printf("DrivenFlowInitializeGrid %" FSYM" %" FSYM" %" FSYM" %" FSYM"\n",
     DrivenFlowDensity,DrivenFlowPressure,Gamma,Energy);
   
   if (HydroMethod == MHD_RK) {

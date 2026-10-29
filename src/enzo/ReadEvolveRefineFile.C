@@ -45,7 +45,7 @@ int ReadEvolveRefineFile(void)
     int nret, i=0;
     EvolveRefineRegionNtimes=0;
     while ((fgets(line, MAX_LINE_LENGTH, fptr) != NULL)){
-      nret = sscanf(line, "%"FSYM" %"PSYM" %"PSYM" %"PSYM" %"PSYM" %"PSYM" %"PSYM,
+      nret = sscanf(line, "%" FSYM" %" PSYM" %" PSYM" %" PSYM" %" PSYM" %" PSYM" %" PSYM,
 		    &(EvolveRefineRegionTime[i]),
 		    &(EvolveRefineRegionLeftEdge[i][0]),
 		    &(EvolveRefineRegionLeftEdge[i][1]),
@@ -83,7 +83,7 @@ int ReadEvolveRefineFile(void)
     int nret, i=0;
     EvolveMustRefineRegionNtimes=0;
     while ((fgets(line, MAX_LINE_LENGTH, fptr) != NULL)){
-      nret = sscanf(line, "%"FSYM" %"PSYM" %"PSYM" %"PSYM" %"PSYM" %"PSYM" %"PSYM" %"ISYM,
+      nret = sscanf(line, "%" FSYM" %" PSYM" %" PSYM" %" PSYM" %" PSYM" %" PSYM" %" PSYM" %" ISYM,
 		    &(EvolveMustRefineRegionTime[i]),
 		    &(EvolveMustRefineRegionLeftEdge[i][0]),
 		    &(EvolveMustRefineRegionLeftEdge[i][1]),
@@ -94,7 +94,7 @@ int ReadEvolveRefineFile(void)
       		    &(EvolveMustRefineRegionMinLevel[i]));
       if(debug1 && MyProcessorNumber == ROOT_PROCESSOR){
          fprintf(stderr,"Here is the line (MustRefineRegion): %s \n",line);
-         fprintf(stderr,". . . and here is the value (MustRefineRegion): %i \n",EvolveMustRefineRegionMinLevel[i]);
+         fprintf(stderr,". . . and here is the value (MustRefineRegion): %" ISYM " \n",EvolveMustRefineRegionMinLevel[i]);
          } 
       if( nret != 8 ){
 	fprintf(stderr,"WARNING: ReadEvolveRefineFile (MustRefineRegion) cannot interpret line %s",line);
@@ -115,13 +115,13 @@ int ReadEvolveRefineFile(void)
     /* print out debugging information for evolving MustRefine region */
     if(debug1 && MyProcessorNumber == ROOT_PROCESSOR){
 
-      printf("ReadEvolveMustRefineFile: I have a MustRefineRegion with TimeType %"ISYM" \n",
+      printf("ReadEvolveMustRefineFile: I have a MustRefineRegion with TimeType %" ISYM" \n",
 	     MustRefineRegionTimeType);
       
       printf("ReadEvolveRefineFile: And here is what I think my times, edges, and minimum levels are:\n");
 
       for(int i=0; i<EvolveMustRefineRegionNtimes; i++){
-	printf("ReadEvolveRefineFile (MustRefineRegion): %"FSYM" %"PSYM" %"PSYM" %"PSYM" %"PSYM" %"PSYM" %"PSYM" %"ISYM"\n",
+	printf("ReadEvolveRefineFile (MustRefineRegion): %" FSYM" %" PSYM" %" PSYM" %" PSYM" %" PSYM" %" PSYM" %" PSYM" %" ISYM"\n",
 	       EvolveMustRefineRegionTime[i],
 	       EvolveMustRefineRegionLeftEdge[i][0],
 	       EvolveMustRefineRegionLeftEdge[i][1],
@@ -154,7 +154,7 @@ int ReadEvolveRefineFile(void)
     int nret, i=0, dummy;
     EvolveCoolingRefineRegionNtimes=0;
     while ((fgets(line, MAX_LINE_LENGTH, fptr) != NULL)){
-      nret = sscanf(line, "%"FSYM" %"PSYM" %"PSYM" %"PSYM" %"PSYM" %"PSYM" %"PSYM" %"ISYM,
+      nret = sscanf(line, "%" FSYM" %" PSYM" %" PSYM" %" PSYM" %" PSYM" %" PSYM" %" PSYM" %" ISYM,
 		    &(EvolveCoolingRefineRegionTime[i]),
 		    &(EvolveCoolingRefineRegionLeftEdge[i][0]),
 		    &(EvolveCoolingRefineRegionLeftEdge[i][1]),
@@ -165,7 +165,7 @@ int ReadEvolveRefineFile(void)
       		    &dummy);
       if(debug1 && MyProcessorNumber == ROOT_PROCESSOR){
          fprintf(stderr,"Here is the line (CoolingRefineRegion): %s \n",line);
-         fprintf(stderr,". . . and here is the value (CoolingRefineRegion): %i \n",dummy);
+         fprintf(stderr,". . . and here is the value (CoolingRefineRegion): %" ISYM " \n",dummy);
          } 
       if( nret != 8 ){
 	fprintf(stderr,"WARNING: ReadEvolveRefineFile cannot interpret line %s",line);
@@ -186,13 +186,13 @@ int ReadEvolveRefineFile(void)
     /* print out debugging information for evolving MustRefine region */
     if(debug1 && MyProcessorNumber == ROOT_PROCESSOR){
 
-      printf("ReadEvolveRefineFile: I have a CoolingRefineRegion with TimeType %"ISYM" \n",
+      printf("ReadEvolveRefineFile: I have a CoolingRefineRegion with TimeType %" ISYM" \n",
 	     CoolingRefineRegionTimeType);
       
       printf("ReadEvolveRefineFile: And here is what I think my times, edges, and minimum levels are:\n");
 
       for(int i=0; i<EvolveCoolingRefineRegionNtimes; i++){
-	printf("ReadEvolveRefineFile (CoolingRefineRegion): %"FSYM" %"PSYM" %"PSYM" %"PSYM" %"PSYM" %"PSYM" %"PSYM"\n",
+	printf("ReadEvolveRefineFile (CoolingRefineRegion): %" FSYM" %" PSYM" %" PSYM" %" PSYM" %" PSYM" %" PSYM" %" PSYM"\n",
 	       EvolveCoolingRefineRegionTime[i],
 	       EvolveCoolingRefineRegionLeftEdge[i][0],
 	       EvolveCoolingRefineRegionLeftEdge[i][1],

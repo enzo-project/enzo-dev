@@ -207,7 +207,7 @@ int grid::InterpolateFieldValues(grid *ParentGrid
       if (ParentStartIndex[dim] < 0 ||
           ParentStartIndex[dim]+ParentTempDim[dim] >
           ParentGrid->GridDimension[dim]) {
-        ENZO_VFAIL("Parent grid not big enough for interpolation!  ParentStartIndex[%"ISYM"] = %"ISYM"  ParentTempDim = %"ISYM"\n", dim, ParentStartIndex[dim], ParentTempDim[dim])
+        ENZO_VFAIL("Parent grid not big enough for interpolation!  ParentStartIndex[%" ISYM"] = %" ISYM"  ParentTempDim = %" ISYM"\n", dim, ParentStartIndex[dim], ParentTempDim[dim])
       }
  
       /* Compute the dimensions of the current grid temporary field. */
@@ -318,13 +318,13 @@ int grid::InterpolateFieldValues(grid *ParentGrid
 			      &InterpolationMethod,
 			      &SecondOrderBFlag[densfield], &interp_error);
     if (interp_error) {
-      printf("P%d: Error interpolating density.\n"
-		 "ParentGrid ID = %d\n"
-		 "\t LeftEdge  = %"PSYM" %"PSYM" %"PSYM"\n"
-		 "\t RightEdge = %"PSYM" %"PSYM" %"PSYM"\n"
-		 "ThisGrid ID = %d\n"
-		 "\t LeftEdge  = %"PSYM" %"PSYM" %"PSYM"\n"
-		 "\t RightEdge = %"PSYM" %"PSYM" %"PSYM"\n",
+      printf("P%" ISYM ": Error interpolating density.\n"
+		 "ParentGrid ID = %" ISYM "\n"
+		 "\t LeftEdge  = %" PSYM" %" PSYM" %" PSYM"\n"
+		 "\t RightEdge = %" PSYM" %" PSYM" %" PSYM"\n"
+		 "ThisGrid ID = %" ISYM "\n"
+		 "\t LeftEdge  = %" PSYM" %" PSYM" %" PSYM"\n"
+		 "\t RightEdge = %" PSYM" %" PSYM" %" PSYM"\n",
 		 MyProcessorNumber, ParentGrid->ID, 
 		 ParentGrid->GridLeftEdge[0], ParentGrid->GridLeftEdge[1], 
 		 ParentGrid->GridLeftEdge[2], ParentGrid->GridRightEdge[0], 
@@ -356,7 +356,7 @@ int grid::InterpolateFieldValues(grid *ParentGrid
       if (FieldTypeNoInterpolate(FieldType[field]) == TRUE)
         FieldInterpolationMethod = FirstOrderA; 
       
-      //      fprintf(stdout, "grid:: InterpolateBoundaryFromParent[4], field = %d\n", field); 
+      //      fprintf(stdout, "grid:: InterpolateBoundaryFromParent[4], field = %" ISYM "\n", field); 
 
       if (FieldType[field] != Density && FieldType[field] != DebugField) {
 	//      if (FieldType[field] != Density) {
@@ -368,13 +368,13 @@ int grid::InterpolateFieldValues(grid *ParentGrid
 				  &FieldInterpolationMethod,
 				  &SecondOrderBFlag[field], &interp_error);
 	if (interp_error) {
-	  printf("P%d: Error interpolating field %d (%s).\n"
-		     "ParentGrid ID = %d\n"
-		     "\t LeftEdge  = %"PSYM" %"PSYM" %"PSYM"\n"
-		     "\t RightEdge = %"PSYM" %"PSYM" %"PSYM"\n"
-		     "ThisGrid ID = %d\n"
-		     "\t LeftEdge  = %"PSYM" %"PSYM" %"PSYM"\n"
-		     "\t RightEdge = %"PSYM" %"PSYM" %"PSYM"\n",
+	  printf("P%" ISYM ": Error interpolating field %" ISYM " (%s).\n"
+		     "ParentGrid ID = %" ISYM "\n"
+		     "\t LeftEdge  = %" PSYM" %" PSYM" %" PSYM"\n"
+		     "\t RightEdge = %" PSYM" %" PSYM" %" PSYM"\n"
+		     "ThisGrid ID = %" ISYM "\n"
+		     "\t LeftEdge  = %" PSYM" %" PSYM" %" PSYM"\n"
+		     "\t RightEdge = %" PSYM" %" PSYM" %" PSYM"\n",
 		     MyProcessorNumber, field, DataLabel[field], ParentGrid->ID, 
 		     ParentGrid->GridLeftEdge[0], ParentGrid->GridLeftEdge[1], 
 		     ParentGrid->GridLeftEdge[2], ParentGrid->GridRightEdge[0], 
@@ -450,7 +450,7 @@ int grid::InterpolateFieldValues(grid *ParentGrid
 	  MHDChildTempSize[field] *= MHDChildTempDims[field][dim];
 	  
 	}
-	//	fprintf(stderr, "Parent Temp Size %d \n ", MHDParentTempSize[field] );
+	//	fprintf(stderr, "Parent Temp Size %" ISYM " \n ", MHDParentTempSize[field] );
 	
 	if(MHDParentTemp[field] != NULL ) 
 	  delete MHDParentTemp[field];

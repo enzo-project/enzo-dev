@@ -40,49 +40,41 @@ int CoolingTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 
   fprintf(stderr,"Initializing cooling test.\n");
 
-  char *DensName = "Density";
-  char *TEName   = "TotalEnergy";
-  char *GEName   = "GasEnergy";
-  char *Vel1Name = "x-velocity";
-  char *Vel2Name = "y-velocity";
-  char *Vel3Name = "z-velocity";
-  char *ElectronName = "Electron_Density";
-  char *HIName    = "HI_Density";
-  char *HIIName   = "HII_Density";
-  char *HeIName   = "HeI_Density";
-  char *HeIIName  = "HeII_Density";
-  char *HeIIIName = "HeIII_Density";
-  char *HMName    = "HM_Density";
-  char *H2IName   = "H2I_Density";
-  char *H2IIName  = "H2II_Density";
-  char *DIName    = "DI_Density";
-  char *DIIName   = "DII_Density";
-  char *HDIName   = "HDI_Density";
-  char *MetalName = "Metal_Density";
-  char *ExtraNames[2] = {"Z_Field1", "Z_Field2"};
+  const char *DensName = "Density";
+  const char *TEName   = "TotalEnergy";
+  const char *GEName   = "GasEnergy";
+  const char *Vel1Name = "x-velocity";
+  const char *Vel2Name = "y-velocity";
+  const char *Vel3Name = "z-velocity";
+  const char *ElectronName = "Electron_Density";
+  const char *HIName    = "HI_Density";
+  const char *HIIName   = "HII_Density";
+  const char *HeIName   = "HeI_Density";
+  const char *HeIIName  = "HeII_Density";
+  const char *HeIIIName = "HeIII_Density";
+  const char *HMName    = "HM_Density";
+  const char *H2IName   = "H2I_Density";
+  const char *H2IIName  = "H2II_Density";
+  const char *DIName    = "DI_Density";
+  const char *DIIName   = "DII_Density";
+  const char *HDIName   = "HDI_Density";
+  const char *MetalName = "Metal_Density";
+  const char *ExtraNames[2] = {"Z_Field1", "Z_Field2"};
 
    /* parameter declarations */
  
-  FLOAT ConstantDensitySubgridLeft, ConstantDensitySubgridRight;
-  FLOAT LeftEdge[MAX_DIMENSION], RightEdge[MAX_DIMENSION];
 
-  float ConstantDensityVelocity[3]   = {0.0, 0.0, 0.0};
 
   /* local declarations */
  
   char line[MAX_LINE_LENGTH];
-  int  i, j, dim, ret, NumberOfSubgridZones[MAX_DIMENSION],
-    SubgridDims[MAX_DIMENSION];
+  int i, j, dim, ret;
 
   MaximumRefinementLevel = 0;
 
-  float dx = (DomainRightEdge[0] - DomainLeftEdge[0])/
-     MetaData.TopGridDims[0];
  
 //   /* set no subgrids by default. */
  
-  ConstantDensitySubgridLeft         = 0.0;    // start of subgrid(s)
-  ConstantDensitySubgridRight        = 0.0;    // end of subgrid(s)
 
   TestProblemData.MultiSpecies = MultiSpecies;  // set this from global data (kind of a hack, but necessary)
 
@@ -98,28 +90,28 @@ int CoolingTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
     /* read parameters specifically for constant density problem */
 
     /* read in more general test parameters to set species, turn on color fields, etc. */
-    ret += sscanf(line, "CoolingTestMinimumHNumberDensity = %"FSYM, &TestProblemData.MinimumHNumberDensity);
-    ret += sscanf(line, "CoolingTestMaximumHNumberDensity = %"FSYM, &TestProblemData.MaximumHNumberDensity);
-    ret += sscanf(line, "CoolingTestMinimumMetallicity = %"FSYM, &TestProblemData.MinimumMetallicity);
-    ret += sscanf(line, "CoolingTestMaximumMetallicity = %"FSYM, &TestProblemData.MaximumMetallicity);
-    ret += sscanf(line, "CoolingTestMinimumTemperature = %"FSYM, &TestProblemData.MinimumTemperature);
-    ret += sscanf(line, "CoolingTestMaximumTemperature = %"FSYM, &TestProblemData.MaximumTemperature);
+    ret += sscanf(line, "CoolingTestMinimumHNumberDensity = %" FSYM, &TestProblemData.MinimumHNumberDensity);
+    ret += sscanf(line, "CoolingTestMaximumHNumberDensity = %" FSYM, &TestProblemData.MaximumHNumberDensity);
+    ret += sscanf(line, "CoolingTestMinimumMetallicity = %" FSYM, &TestProblemData.MinimumMetallicity);
+    ret += sscanf(line, "CoolingTestMaximumMetallicity = %" FSYM, &TestProblemData.MaximumMetallicity);
+    ret += sscanf(line, "CoolingTestMinimumTemperature = %" FSYM, &TestProblemData.MinimumTemperature);
+    ret += sscanf(line, "CoolingTestMaximumTemperature = %" FSYM, &TestProblemData.MaximumTemperature);
 
-    ret += sscanf(line, "CoolingTestResetEnergies = %"ISYM, &TestProblemData.ResetEnergies);
+    ret += sscanf(line, "CoolingTestResetEnergies = %" ISYM, &TestProblemData.ResetEnergies);
 
-    ret += sscanf(line, "TestProblemHydrogenFractionByMass = %"FSYM, &TestProblemData.HydrogenFractionByMass);
-    ret += sscanf(line, "TestProblemDeuteriumToHydrogenRatio = %"FSYM, &TestProblemData.DeuteriumToHydrogenRatio);
+    ret += sscanf(line, "TestProblemHydrogenFractionByMass = %" FSYM, &TestProblemData.HydrogenFractionByMass);
+    ret += sscanf(line, "TestProblemDeuteriumToHydrogenRatio = %" FSYM, &TestProblemData.DeuteriumToHydrogenRatio);
 
-    ret += sscanf(line, "TestProblemInitialHIFraction  = %"FSYM, &TestProblemData.HI_Fraction);
-    ret += sscanf(line, "TestProblemInitialHIIFraction  = %"FSYM, &TestProblemData.HII_Fraction);
-    ret += sscanf(line, "TestProblemInitialHeIFraction  = %"FSYM, &TestProblemData.HeI_Fraction);
-    ret += sscanf(line, "TestProblemInitialHeIIFraction  = %"FSYM, &TestProblemData.HeII_Fraction);
-    ret += sscanf(line, "TestProblemInitialHeIIIIFraction  = %"FSYM, &TestProblemData.HeIII_Fraction);
-    ret += sscanf(line, "TestProblemInitialHMFraction  = %"FSYM, &TestProblemData.HM_Fraction);
-    ret += sscanf(line, "TestProblemInitialH2IFraction  = %"FSYM, &TestProblemData.H2I_Fraction);
-    ret += sscanf(line, "TestProblemInitialH2IIFraction  = %"FSYM, &TestProblemData.H2II_Fraction);
+    ret += sscanf(line, "TestProblemInitialHIFraction  = %" FSYM, &TestProblemData.HI_Fraction);
+    ret += sscanf(line, "TestProblemInitialHIIFraction  = %" FSYM, &TestProblemData.HII_Fraction);
+    ret += sscanf(line, "TestProblemInitialHeIFraction  = %" FSYM, &TestProblemData.HeI_Fraction);
+    ret += sscanf(line, "TestProblemInitialHeIIFraction  = %" FSYM, &TestProblemData.HeII_Fraction);
+    ret += sscanf(line, "TestProblemInitialHeIIIIFraction  = %" FSYM, &TestProblemData.HeIII_Fraction);
+    ret += sscanf(line, "TestProblemInitialHMFraction  = %" FSYM, &TestProblemData.HM_Fraction);
+    ret += sscanf(line, "TestProblemInitialH2IFraction  = %" FSYM, &TestProblemData.H2I_Fraction);
+    ret += sscanf(line, "TestProblemInitialH2IIFraction  = %" FSYM, &TestProblemData.H2II_Fraction);
 
-    ret += sscanf(line, "TestProblemUseMetallicityField  = %"ISYM, &TestProblemData.UseMetallicityField);
+    ret += sscanf(line, "TestProblemUseMetallicityField  = %" ISYM, &TestProblemData.UseMetallicityField);
 
     if (strstr(line, "\"\"\"")              ) comment_count++;
 
@@ -219,28 +211,28 @@ int CoolingTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   /* Write parameters to parameter output file */
  
   if (MyProcessorNumber == ROOT_PROCESSOR) {
-    fprintf(Outfptr, "CoolingTestMinimumHNumberDensity = %"FSYM, TestProblemData.MinimumHNumberDensity);
-    fprintf(Outfptr, "CoolingTestMaximumHNumberDensity = %"FSYM, TestProblemData.MaximumHNumberDensity);
-    fprintf(Outfptr, "CoolingTestMinimumMetallicity = %"FSYM, TestProblemData.MinimumMetallicity);
-    fprintf(Outfptr, "CoolingTestMaximumMetallicity = %"FSYM, TestProblemData.MaximumMetallicity);
-    fprintf(Outfptr, "CoolingTestMinimumTemperature = %"FSYM, TestProblemData.MinimumTemperature);
-    fprintf(Outfptr, "CoolingTestMaximumTemperature = %"FSYM, TestProblemData.MaximumTemperature);
+    fprintf(Outfptr, "CoolingTestMinimumHNumberDensity = %" FSYM, TestProblemData.MinimumHNumberDensity);
+    fprintf(Outfptr, "CoolingTestMaximumHNumberDensity = %" FSYM, TestProblemData.MaximumHNumberDensity);
+    fprintf(Outfptr, "CoolingTestMinimumMetallicity = %" FSYM, TestProblemData.MinimumMetallicity);
+    fprintf(Outfptr, "CoolingTestMaximumMetallicity = %" FSYM, TestProblemData.MaximumMetallicity);
+    fprintf(Outfptr, "CoolingTestMinimumTemperature = %" FSYM, TestProblemData.MinimumTemperature);
+    fprintf(Outfptr, "CoolingTestMaximumTemperature = %" FSYM, TestProblemData.MaximumTemperature);
 
-    fprintf(Outfptr, "CoolingTestResetEnergies = %"ISYM, TestProblemData.ResetEnergies);
+    fprintf(Outfptr, "CoolingTestResetEnergies = %" ISYM, TestProblemData.ResetEnergies);
 
-    fprintf(Outfptr, "TestProblemHydrogenFractionByMass = %"FSYM"\n",   TestProblemData.HydrogenFractionByMass);
-    fprintf(Outfptr, "TestProblemDeuteriumToHydrogenRatio = %"FSYM"\n", TestProblemData.DeuteriumToHydrogenRatio);
+    fprintf(Outfptr, "TestProblemHydrogenFractionByMass = %" FSYM"\n",   TestProblemData.HydrogenFractionByMass);
+    fprintf(Outfptr, "TestProblemDeuteriumToHydrogenRatio = %" FSYM"\n", TestProblemData.DeuteriumToHydrogenRatio);
 
-    fprintf(Outfptr, "TestProblemInitialHIFraction  = %"FSYM"\n", TestProblemData.HI_Fraction);
-    fprintf(Outfptr, "TestProblemInitialHIIFraction  = %"FSYM"\n", TestProblemData.HII_Fraction);
-    fprintf(Outfptr, "TestProblemInitialHeIFraction  = %"FSYM"\n", TestProblemData.HeI_Fraction);
-    fprintf(Outfptr, "TestProblemInitialHeIIFraction  = %"FSYM"\n", TestProblemData.HeII_Fraction);
-    fprintf(Outfptr, "TestProblemInitialHeIIIIFraction  = %"FSYM"\n", TestProblemData.HeIII_Fraction);
-    fprintf(Outfptr, "TestProblemInitialHMFraction  = %"FSYM"\n", TestProblemData.HM_Fraction);
-    fprintf(Outfptr, "TestProblemInitialH2IFraction  = %"FSYM"\n", TestProblemData.H2I_Fraction);
-    fprintf(Outfptr, "TestProblemInitialH2IIFraction  = %"FSYM"\n", TestProblemData.H2II_Fraction);
+    fprintf(Outfptr, "TestProblemInitialHIFraction  = %" FSYM"\n", TestProblemData.HI_Fraction);
+    fprintf(Outfptr, "TestProblemInitialHIIFraction  = %" FSYM"\n", TestProblemData.HII_Fraction);
+    fprintf(Outfptr, "TestProblemInitialHeIFraction  = %" FSYM"\n", TestProblemData.HeI_Fraction);
+    fprintf(Outfptr, "TestProblemInitialHeIIFraction  = %" FSYM"\n", TestProblemData.HeII_Fraction);
+    fprintf(Outfptr, "TestProblemInitialHeIIIIFraction  = %" FSYM"\n", TestProblemData.HeIII_Fraction);
+    fprintf(Outfptr, "TestProblemInitialHMFraction  = %" FSYM"\n", TestProblemData.HM_Fraction);
+    fprintf(Outfptr, "TestProblemInitialH2IFraction  = %" FSYM"\n", TestProblemData.H2I_Fraction);
+    fprintf(Outfptr, "TestProblemInitialH2IIFraction  = %" FSYM"\n", TestProblemData.H2II_Fraction);
 
-    fprintf(Outfptr, "TestProblemUseMetallicityField  = %"ISYM"\n", TestProblemData.UseMetallicityField);
+    fprintf(Outfptr, "TestProblemUseMetallicityField  = %" ISYM"\n", TestProblemData.UseMetallicityField);
 
   } //   if (MyProcessorNumber == ROOT_PROCESSOR) 
  

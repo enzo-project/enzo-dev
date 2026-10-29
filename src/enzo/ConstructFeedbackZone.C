@@ -40,7 +40,7 @@ grid* ConstructFeedbackZone(ActiveParticleType* ThisParticle,int FeedbackRadius,
 			    FLOAT dx, HierarchyEntry** Grids, int NumberOfGrids,
 			    int SendField)
 {
-  int i,j,dim,size;
+  int j, dim, size;
   int FeedbackZoneRank;
   FLOAT FBRdx;
   FLOAT ParticlePosition[3] = {ThisParticle->ReturnPosition()[0],
@@ -71,8 +71,7 @@ grid* ConstructFeedbackZone(ActiveParticleType* ThisParticle,int FeedbackRadius,
   FeedbackZoneRank = APGrid->GetGridRank();
 
   int FeedbackZoneDimension[MAX_DIMENSION];
-  FLOAT LeftCellOffset[MAX_DIMENSION],FeedbackZoneLeftEdge[MAX_DIMENSION],
-    FeedbackZoneRightEdge[MAX_DIMENSION], ncells[MAX_DIMENSION];
+  FLOAT FeedbackZoneLeftEdge[MAX_DIMENSION], FeedbackZoneRightEdge[MAX_DIMENSION], ncells[MAX_DIMENSION];
   FLOAT CellSize, GridGZLeftEdge;
 
   for (dim = 0; dim < FeedbackZoneRank; dim++) {
@@ -80,7 +79,7 @@ grid* ConstructFeedbackZone(ActiveParticleType* ThisParticle,int FeedbackRadius,
     CellSize = APGrid->GetCellWidth(dim,0);
     GridGZLeftEdge = APGrid->GetCellLeftEdge(dim,0);
 
-    LeftCellOffset[dim] = MODF((ParticlePosition[dim]-GridGZLeftEdge)/CellSize,&ncells[dim]);
+    MODF((ParticlePosition[dim]-GridGZLeftEdge)/CellSize,&ncells[dim]);
 
     FeedbackZoneLeftEdge[dim]  = GridGZLeftEdge + CellSize*(ncells[dim]-FeedbackRadius);
     FeedbackZoneRightEdge[dim] = GridGZLeftEdge + CellSize*(ncells[dim]+FeedbackRadius+1);

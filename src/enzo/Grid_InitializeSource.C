@@ -80,11 +80,11 @@ int grid::InitializeSource(RadiationSourceEntry *RS)
   } /* ENDFOR dim */
 
   radius = min(radius, MAX_RADIUS);
-  printf("InitializeSource: radius = %"ISYM"\n", radius);
+  printf("InitializeSource: radius = %" ISYM"\n", radius);
 
   /* Select the correct field if we're using the coupled transfer/rate solver */
 
-  float *density, *HI, *HII, *f_e, *te, *ge;
+  float *density, *HI, *HII, *f_e;
 
   //  if (RadiativeTransferCoupledRateSolver) {
 //  if (0) {
@@ -99,8 +99,6 @@ int grid::InitializeSource(RadiationSourceEntry *RS)
     HI      = BaryonField[HINum];
     HII     = BaryonField[HIINum];
     f_e     = BaryonField[DeNum];
-    te      = BaryonField[TENum];
-    ge      = BaryonField[GENum];
     //  }
 
   float HIRecombinationRate = 2.6e-13;
@@ -135,13 +133,13 @@ int grid::InitializeSource(RadiationSourceEntry *RS)
 	       (Luminosity / (4*pi*(double)POW(delr,2)))) *
 	  (HIRecombinationRate / sigmaHI);
 
-//	printf("rho = %"GSYM", SA = %"GSYM", ratio = %"GSYM"\n", 
+//	printf("rho = %" GSYM", SA = %" GSYM", ratio = %" GSYM"\n", 
 //	       ConvertToProperDensity * (double)BaryonField[DensNum][index+i]*fH,
 //	       (4*pi*(double)POW(delr,2)),
 //	       (HIRecombinationRate / sigmaHI));
-//	printf("fHI = %"GSYM", delr = %"GSYM", delC = %"GSYM", L = %"GSYM"\n", fHI, delr, delCell,
+//	printf("fHI = %" GSYM", delr = %" GSYM", delC = %" GSYM", L = %" GSYM"\n", fHI, delr, delCell,
 //	       Luminosity);
-//	printf("delta(i,j,k) = %"ISYM" %"ISYM" %"ISYM"\n", deli, delj, delk);	
+//	printf("delta(i,j,k) = %" ISYM" %" ISYM" %" ISYM"\n", deli, delj, delk);	
 
 	Old_fHII = HII[index+i];
 

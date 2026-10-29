@@ -55,11 +55,11 @@ int sink_maker(int *nx, int *ny, int *nz, int *size, float *d, float *u,
 		int *typeold, int *ctype, float *jlrefine, float *temp, float *JRCT)
 {
 
-  int		i, j, k, index, ii, inew, n, dim, bb, cc, nsinks, closest;
+  int i, j, k, index, ii, inew, n, bb, cc, nsinks, closest;
   int           xo, yo, zo;
   float         huge_number = 1e20;
   float		densthresh, maxdens, adddens, ugrid, vgrid, wgrid, my_temp;
-  double	jeansthresh, jlsquared, dx2, dist2, total_density, nearestdx2;
+  double jeansthresh, jlsquared, dx2, dist2, nearestdx2;
   FLOAT		xpos, ypos, zpos, delx, dely, delz;
 
   // When refining by Jeans, make a sink particle when the density
@@ -110,7 +110,7 @@ int sink_maker(int *nx, int *ny, int *nz, int *size, float *d, float *u,
       dist2 = delx*delx + dely*dely + delz*delz;
 
       if (dist2 < 25.0*dx2 && dist2 < nearestdx2) {
-//	printf("star_maker3[merge]: (part %"ISYM" + %"ISYM"): dx = %"GSYM", nearestdx = %"GSYM"\n",
+//	printf("star_maker3[merge]: (part %" ISYM" + %" ISYM"): dx = %" GSYM", nearestdx = %" GSYM"\n",
 //	       bb, cc, sqrt(dist2/dx2), sqrt(nearestdx2/dx2));
 	nearestdx2 = dist2;
 	closest = cc;
@@ -135,9 +135,9 @@ int sink_maker(int *nx, int *ny, int *nz, int *size, float *d, float *u,
       index_c[1] = (ypold[closest] - *ystart) / (*dx);
       index_c[2] = (zpold[closest] - *zstart) / (*dx);
 
-      printf("star_maker3[merge1]: %"ISYM" %"FSYM" %"FSYM" %"FSYM" %"GSYM" %"FSYM"\n", bb, 
+      printf("star_maker3[merge1]: %" ISYM" %" FSYM" %" FSYM" %" FSYM" %" GSYM" %" FSYM"\n", bb, 
 	     index_b[0], index_b[1], index_b[2], mpold[bb], mfrac_b);
-      printf("star_maker3[merge2]: %"ISYM" %"FSYM" %"FSYM" %"FSYM" %"GSYM" %"FSYM"\n", closest, 
+      printf("star_maker3[merge2]: %" ISYM" %" FSYM" %" FSYM" %" FSYM" %" GSYM" %" FSYM"\n", closest, 
 	     index_c[0], index_c[1], index_c[2], mpold[closest], mfrac_c);
 
       xpold[bb] = *xstart + (*dx) * 
@@ -152,7 +152,7 @@ int sink_maker(int *nx, int *ny, int *nz, int *size, float *d, float *u,
       wpold[bb] = wpold[bb]*(FLOAT)mfrac_b + wpold[closest]*(FLOAT)mfrac_c;
       mpold[bb] = total_mass;
     
-      printf("star_maker3[merge3]: %"FSYM" %"FSYM" %"FSYM" %"GSYM"\n", 
+      printf("star_maker3[merge3]: %" FSYM" %" FSYM" %" FSYM" %" GSYM"\n", 
 	     (float) ((xpold[bb] - *xstart) / (*dx)), 
 	     (float) ((ypold[bb] - *ystart) / (*dx)),
 	     (float) ((zpold[bb] - *zstart) / (*dx)), 
@@ -178,7 +178,7 @@ int sink_maker(int *nx, int *ny, int *nz, int *size, float *d, float *u,
     }
   }
   nsinks -= nRemoved;
-//  printf("star_maker3[remove]: Ignoring %"ISYM" sink particles.\n", nRemoved);
+//  printf("star_maker3[remove]: Ignoring %" ISYM" sink particles.\n", nRemoved);
 
   /* For a 3D->1D index, put x+1, y+1, z+1 indices into nice variables */
 
@@ -200,7 +200,7 @@ int sink_maker(int *nx, int *ny, int *nz, int *size, float *d, float *u,
 	if (*jlrefine > 0) 
 	  jeansthresh = overflowFactor * jlsquared * my_temp / d[index];
 
-//	printf("star_maker3[a]: %"ISYM" %"ISYM" %"ISYM" %"GSYM" %"GSYM" %"GSYM" %"GSYM" %"GSYM" %"GSYM"\n", i, j, k,
+//	printf("star_maker3[a]: %" ISYM" %" ISYM" %" ISYM" %" GSYM" %" GSYM" %" GSYM" %" GSYM" %" GSYM" %" GSYM"\n", i, j, k,
 //	       densthresh, d[index], jeansthresh, dx2, *jlrefine, jlsquared);
 
 	if (r[index] == 0 && (d[index] > densthresh ||
@@ -252,7 +252,7 @@ int sink_maker(int *nx, int *ny, int *nz, int *size, float *d, float *u,
 	    /* If sink is within 5 cells and closest one, then add to it */
 
 	    if (dist2 < 25.0*dx2 && dist2 < nearestdx2) {
-//	      printf("star_maker3[addold]: (part %"ISYM"): dx = %"GSYM", nearestdx = %"GSYM"\n",
+//	      printf("star_maker3[addold]: (part %" ISYM"): dx = %" GSYM", nearestdx = %" GSYM"\n",
 //		     cc, sqrt(dist2/dx2), sqrt(nearestdx2/dx2));
 	      nearestdx2 = dist2;
 	      closest = n;
@@ -291,7 +291,7 @@ int sink_maker(int *nx, int *ny, int *nz, int *size, float *d, float *u,
 	    /* If sink is within 5 cells, then add to it */
 
 	    if (dist2 < 25.0*dx2 && dist2 < nearestdx2) {
-//	      printf("star_maker3[addnew]: (part %"ISYM"): dx = %"GSYM", nearestdx = %"GSYM"\n",
+//	      printf("star_maker3[addnew]: (part %" ISYM"): dx = %" GSYM", nearestdx = %" GSYM"\n",
 //		     n, sqrt(dist2/dx2), sqrt(nearestdx2/dx2));
 	      nearestdx2 = dist2;
 	      closest = n;
@@ -338,7 +338,7 @@ int sink_maker(int *nx, int *ny, int *nz, int *size, float *d, float *u,
 	    tcp[ii] = (float) *t;
 	    tdp[ii] = 0.0;
 
-//	    printf("star_maker3[d]: Created new particle %"ISYM"\n", ii);
+//	    printf("star_maker3[d]: Created new particle %" ISYM"\n", ii);
 	    ii++;
 
 	  } // ENDIF create a new sink
@@ -350,10 +350,10 @@ int sink_maker(int *nx, int *ny, int *nz, int *size, float *d, float *u,
   } // ENDFOR k
 
   if (ii > 0)
-    printf("sink_maker[add]: %"ISYM" new sink particles\n", ii);
+    printf("sink_maker[add]: %" ISYM" new sink particles\n", ii);
 
 //  if (nsinks > 0)
-//    printf("sink_maker[sink]: %"ISYM" old sink particles\n", nsinks);
+//    printf("sink_maker[sink]: %" ISYM" old sink particles\n", nsinks);
 
   if (ii >= *nmax) {
     fprintf(stdout, "sink_maker: reached max new particle count");

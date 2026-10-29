@@ -119,11 +119,11 @@ int grid::CreateChildParticles(float dx, int NumberOfParticles, float *ParticleM
   }
 
  #ifdef DEBUG_PS
-  fprintf(stdout, "%s: Iteration %d: midpoint = (%lf, %lf, %lf)\n", 
+  fprintf(stdout, "%s: Iteration %" ISYM ": midpoint = (%lf, %lf, %lf)\n", 
 	  __FUNCTION__, iter, midpoint[0], midpoint[1], midpoint[2]);
-  fprintf(stdout, "%s: Iteration %d: newsep = (%lf, %lf, %lf)\n", 
+  fprintf(stdout, "%s: Iteration %" ISYM ": newsep = (%lf, %lf, %lf)\n", 
 	  __FUNCTION__, iter, newsep[0], newsep[1], newsep[2]);
-  fprintf(stdout, "%s: Iteration %d: Refine Particles between (%lf, %lf, %lf) and (%lf, %lf, %lf)\n", 
+  fprintf(stdout, "%s: Iteration %" ISYM ": Refine Particles between (%lf, %lf, %lf) and (%lf, %lf, %lf)\n", 
 	  __FUNCTION__, iter, LeftEdge[0], LeftEdge[1], LeftEdge[2],
 	  RightEdge[0], RightEdge[1], RightEdge[2]);
  #endif
@@ -173,7 +173,7 @@ int grid::CreateChildParticles(float dx, int NumberOfParticles, float *ParticleM
 	      zindex < 0 || zindex >= GridDimension[2])
 	    {
 	      fprintf(stdout, "grid::PS: parent particle out of grid (C level): \n");
-	      fprintf(stdout, "xind, yind, zind = %ld, %ld, %ld\n", xindex, yindex, zindex); 
+	      fprintf(stdout, "xind, yind, zind = %" ISYM ", %" ISYM ", %" ISYM "\n", xindex, yindex, zindex); 
 	      continue;
 	    }
 
@@ -323,7 +323,7 @@ int grid::CreateChildParticles(float dx, int NumberOfParticles, float *ParticleM
 		 this->ParticlePosition[2][child] > 1.0)
 		{
 		  fprintf(stderr, "WARNING - Child kicked outside domain\n");
-		  fprintf(stderr, "OldPos[%d] = (%f %f %f)\n NewPos[%d] = (%f %f %f)\n\n", 
+		  fprintf(stderr, "OldPos[%" ISYM "] = (%f %f %f)\n NewPos[%" ISYM "] = (%f %f %f)\n\n", 
 			 partnum, ParticlePosition[0][partnum],
 			 ParticlePosition[1][partnum], ParticlePosition[2][partnum], 
 			 child, this->ParticlePosition[0][child],
@@ -334,14 +334,14 @@ int grid::CreateChildParticles(float dx, int NumberOfParticles, float *ParticleM
 		  fprintf(stderr, "l13 = %f\n", l13);
 		  for(i = 0; i < 3; i++)
 		    {
-		      fprintf(stderr, "NewPos[%d][%d] = %f\n", i, child, NewPos[0][innerchild]);
+		      fprintf(stderr, "NewPos[%" ISYM "][%" ISYM "] = %f\n", i, child, NewPos[0][innerchild]);
 		    }
-		  fprintf(stderr, "l11*NewPos[%d][%d] = %f\n", 0, child, l11*NewPos[0][innerchild]);
-		  fprintf(stderr, "l12*NewPos[%d][%d] = %f\n", 1, child, l12*NewPos[1][innerchild]);
-		  fprintf(stderr, "l13*NewPos[%d][%d] = %f\n", 2, child, l13*NewPos[2][innerchild]);
-		  fprintf(stderr, "l21*NewPos[%d][%d] = %f\n", 0, child, l21*NewPos[0][innerchild]);
-		  fprintf(stderr, "l22*NewPos[%d][%d] = %f\n", 1, child, l22*NewPos[1][innerchild]);
-		  fprintf(stderr, "l23*NewPos[%d][%d] = %f\n", 2, child, l23*NewPos[2][innerchild]);
+		  fprintf(stderr, "l11*NewPos[0][%" ISYM "] = %f\n", child, l11*NewPos[0][innerchild]);
+		  fprintf(stderr, "l12*NewPos[1][%" ISYM "] = %f\n", child, l12*NewPos[1][innerchild]);
+		  fprintf(stderr, "l13*NewPos[2][%" ISYM "] = %f\n", child, l13*NewPos[2][innerchild]);
+		  fprintf(stderr, "l21*NewPos[0][%" ISYM "] = %f\n", child, l21*NewPos[0][innerchild]);
+		  fprintf(stderr, "l22*NewPos[1][%" ISYM "] = %f\n", child, l22*NewPos[1][innerchild]);
+		  fprintf(stderr, "l23*NewPos[2][%" ISYM "] = %f\n", child, l23*NewPos[2][innerchild]);
 		 
 		  return FAIL;
 		  
@@ -365,7 +365,7 @@ int grid::CreateChildParticles(float dx, int NumberOfParticles, float *ParticleM
 
 	  if(total_children > MaximumNumberOfNewParticles)
 	    {
-	       fprintf(stdout, "Total number of Children (%ld) exceeded the maximum (%ld)\n", 
+	       fprintf(stdout, "Total number of Children (%" ISYM ") exceeded the maximum (%" ISYM ")\n", 
 		       total_children, MaximumNumberOfNewParticles);
 	       return FAIL;
 	    }
@@ -374,7 +374,7 @@ int grid::CreateChildParticles(float dx, int NumberOfParticles, float *ParticleM
     }
 #ifdef DEBUG_PS
   if(total_children > 0)
-    fprintf(stdout,"Iteration %d: %d new child particles created in this grid from %d parents\n", 
+    fprintf(stdout,"Iteration %" ISYM ": %" ISYM " new child particles created in this grid from %" ISYM " parents\n", 
 	    iter, total_children, NumberOfParticles);
 #endif
  

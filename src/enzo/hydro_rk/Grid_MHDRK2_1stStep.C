@@ -54,8 +54,6 @@ int grid::MHDRK2_1stStep(fluxes *SubgridFluxes[],
   int size = 1;
   for (int dim = 0; dim < GridRank; dim++)
     size *= GridDimension[dim];
-  double time1 = ReturnWallTime();
-  int igrid;
 
   /* allocate space for fluxes */
   int fluxsize;
@@ -111,7 +109,7 @@ int grid::MHDRK2_1stStep(fluxes *SubgridFluxes[],
 
   float *dU[NEQ_MHD+NSpecies+NColor];
 
-  int activesize = 1, i, dim;
+  int activesize = 1, dim;
   for (dim = 0; dim < GridRank; dim++)
     activesize *= (GridDimension[dim] - 2*NumberOfGhostZones);
 

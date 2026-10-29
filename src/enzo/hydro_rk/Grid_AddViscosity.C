@@ -167,7 +167,7 @@ int grid::AddViscosity()
     delete d2Vz[i];
   }
   
-  delete viscosity;
+  delete [] viscosity;
   
   return SUCCESS;
 
@@ -190,7 +190,7 @@ int grid::ComputeViscosity(float *viscosity, int DensNum)
       for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) 
 	for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, n++) 
 	  viscosity[n] = ViscosityCoefficient;
-    //printf("VISC: %"FSYM"\n", ViscosityCoefficient);
+    //printf("VISC: %" FSYM"\n", ViscosityCoefficient);
   }
   else if (UseViscosity == 2)   {
     double alpha = 0.1;

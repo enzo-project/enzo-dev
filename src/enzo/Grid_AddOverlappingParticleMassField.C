@@ -35,7 +35,7 @@ int grid::AddOverlappingParticleMassField(grid *OtherGrid,
       MyProcessorNumber != OtherGrid->ProcessorNumber)
     return SUCCESS;
 
-  //  fprintf(stderr, "AddOverlappiongMassField: %i %i", this, OtherGrid);
+  //  fprintf(stderr, "AddOverlappiongMassField: %" ISYM " %" ISYM "", this, OtherGrid);
 
   /* declarations */
 

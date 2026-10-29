@@ -41,7 +41,7 @@ int grid::AddExternalPotentialField(float *potential)
 
   /* declarations */
 
-  int i, j, k, dim, size;
+  int i, j, k;
   double CircularVelocity, xpos, ypos, zpos;
   double rsquared, zsquared, rcore;
   double ExternalPotential;
@@ -88,7 +88,6 @@ int grid::AddExternalPotentialField(float *potential)
 	  /* 200 km/s for Tasker&Tan disk model */
 	  CircularVelocity = ExternalGravityConstant*VelocityUnits; // [CGS]
 	  
-	  float constant = 0.5*pow(CircularVelocity,2.0)*log(pow(rcore,-2));
 
 	  rsquared = double(xpos*LengthUnits)*double(xpos*LengthUnits) + 
 	             double(ypos*LengthUnits)*double(ypos*LengthUnits);

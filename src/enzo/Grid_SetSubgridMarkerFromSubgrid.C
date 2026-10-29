@@ -34,7 +34,7 @@ int grid::SetSubgridMarkerFromSubgrid(grid *Subgrid)
 
   /* declarations */
     
-  int i, j, k, dim, field, index;
+  int i, j, k, dim, index;
   int SubgridStart[MAX_DIMENSION], SubgridEnd[MAX_DIMENSION];
 
   /* if the field has not been allocated yet, do it here */ 

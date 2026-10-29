@@ -32,15 +32,15 @@
 int ShockInABoxInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 			  TopGridData &MetaData, ExternalBoundary &Exterior)
 {
-  char *DensName = "Density";
-  char *TEName = "TotalEnergy";
-  char *Vel1Name = "x-velocity";
-  char *Vel2Name = "y-velocity";
-  char *Vel3Name = "z-velocity";
+  const char *DensName = "Density";
+  const char *TEName = "TotalEnergy";
+  const char *Vel1Name = "x-velocity";
+  const char *Vel2Name = "y-velocity";
+  const char *Vel3Name = "z-velocity";
  
-  char *MachName   = "Mach";
-  char *PSTempName = "PreShock_Temperature";
-  char *PSDenName  = "PreShock_Density";
+  const char *MachName   = "Mach";
+  const char *PSTempName = "PreShock_Temperature";
+  const char *PSDenName  = "PreShock_Density";
   /* declarations */
  
   char line[MAX_LINE_LENGTH];
@@ -82,25 +82,25 @@ int ShockInABoxInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
  
     /* read parameters */
  
-    ret += sscanf(line, "ShockInABoxBoundary = %"PSYM, &ShockInABoxBoundary);
+    ret += sscanf(line, "ShockInABoxBoundary = %" PSYM, &ShockInABoxBoundary);
  
-    ret += sscanf(line, "ShockInABoxLeftDensity = %"ESYM,
+    ret += sscanf(line, "ShockInABoxLeftDensity = %" ESYM,
 		  &ShockInABoxDensity[0]);
-    ret += sscanf(line, "ShockInABoxLeftPressure = %"ESYM,
+    ret += sscanf(line, "ShockInABoxLeftPressure = %" ESYM,
 		  &ShockInABoxPressure[0]);
-    ret += sscanf(line, "ShockInABoxLeftVelocity = %"ESYM,
+    ret += sscanf(line, "ShockInABoxLeftVelocity = %" ESYM,
 		  &ShockInABoxVelocity[0]);
  
-    ret += sscanf(line, "ShockInABoxRightDensity = %"ESYM,
+    ret += sscanf(line, "ShockInABoxRightDensity = %" ESYM,
 		  &ShockInABoxDensity[1]);
-    ret += sscanf(line, "ShockInABoxRightPressure = %"ESYM,
+    ret += sscanf(line, "ShockInABoxRightPressure = %" ESYM,
 		  &ShockInABoxPressure[1]);
-    ret += sscanf(line, "ShockInABoxRightVelocity = %"ESYM,
+    ret += sscanf(line, "ShockInABoxRightVelocity = %" ESYM,
 		  &ShockInABoxVelocity[1]);
  
-    ret += sscanf(line, "ShockInABoxSubgridLeft = %"PSYM,
+    ret += sscanf(line, "ShockInABoxSubgridLeft = %" PSYM,
 		  &ShockInABoxSubgridLeft);
-    ret += sscanf(line, "ShockInABoxSubgridRight = %"PSYM,
+    ret += sscanf(line, "ShockInABoxSubgridRight = %" PSYM,
 		  &ShockInABoxSubgridRight);
  
     /* if the line is suspicious, issue a warning */
@@ -182,15 +182,11 @@ int ShockInABoxInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   DataUnits[labelCounter] = NULL; 
   DataLabel[labelCounter++] = Vel1Name;
   // Velocity 2
-  int Vel2Num = -1;
-  int Vel3Num = -1;
   if (TopGrid.GridData->GetGridRank() > 1 || HydroMethod > 2) {
-    Vel2Num = labelCounter;
     DataUnits[labelCounter] = NULL; 
     DataLabel[labelCounter++] = Vel2Name;
     // Velocity 3
     if (TopGrid.GridData->GetGridRank() > 2 || HydroMethod > 2) {
-      Vel3Num = labelCounter;
       DataUnits[labelCounter] = NULL; 
       DataLabel[labelCounter++] = Vel3Name;
     }
@@ -244,20 +240,20 @@ int ShockInABoxInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
  
   if (MyProcessorNumber == ROOT_PROCESSOR) {
 
-    fprintf(Outfptr, "ShockInABoxDirection     = %"ISYM"\n", ShockInABoxDirection);
-    fprintf(Outfptr, "ShockInABoxBoundary      = %"GOUTSYM"\n\n",
+    fprintf(Outfptr, "ShockInABoxDirection     = %" ISYM"\n", ShockInABoxDirection);
+    fprintf(Outfptr, "ShockInABoxBoundary      = %" GOUTSYM"\n\n",
 	    ShockInABoxBoundary);
  
-    fprintf(Outfptr, "ShockInABoxLeftDensity   = %"ESYM"\n", ShockInABoxDensity[0]);
-    fprintf(Outfptr, "ShockInABoxLeftPressure  = %"ESYM"\n",
+    fprintf(Outfptr, "ShockInABoxLeftDensity   = %" ESYM"\n", ShockInABoxDensity[0]);
+    fprintf(Outfptr, "ShockInABoxLeftPressure  = %" ESYM"\n",
 	    ShockInABoxPressure[0]);
-    fprintf(Outfptr, "ShockInABoxLeftVelocity  = %"ESYM"\n\n",
+    fprintf(Outfptr, "ShockInABoxLeftVelocity  = %" ESYM"\n\n",
 	    ShockInABoxVelocity[0]);
  
-    fprintf(Outfptr, "ShockInABoxRightDensity  = %"ESYM"\n", ShockInABoxDensity[1]);
-    fprintf(Outfptr, "ShockInABoxRightPressure = %"ESYM"\n",
+    fprintf(Outfptr, "ShockInABoxRightDensity  = %" ESYM"\n", ShockInABoxDensity[1]);
+    fprintf(Outfptr, "ShockInABoxRightPressure = %" ESYM"\n",
 	    ShockInABoxPressure[1]);
-    fprintf(Outfptr, "ShockInABoxRightVelocity = %"ESYM"\n\n",
+    fprintf(Outfptr, "ShockInABoxRightVelocity = %" ESYM"\n\n",
 	    ShockInABoxVelocity[1]);
   }
  

@@ -243,7 +243,7 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
     break;
 
   default:
-    ENZO_VFAIL("Star type = %"ISYM" not understood.\n", this->type)
+    ENZO_VFAIL("Star type = %" ISYM" not understood.\n", this->type)
 
   } // ENDSWITCH
 

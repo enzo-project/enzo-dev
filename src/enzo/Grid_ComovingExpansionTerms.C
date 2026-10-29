@@ -66,7 +66,7 @@ int grid::ComovingExpansionTerms()
 
     /* Determine the size of the grids. */
 
-    int i, dim, size = 1;
+    int dim, size = 1;
     for (dim = 0; dim < GridRank; dim++)
       size *= GridDimension[dim];
 

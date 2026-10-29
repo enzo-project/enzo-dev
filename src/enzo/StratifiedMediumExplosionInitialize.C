@@ -64,20 +64,20 @@ int StratifiedMediumExplosionInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntr
 
   while (fgets(line, MAX_LINE_LENGTH, fptr) != NULL) {
     ret = 0;
-    ret += sscanf(line, "StratifiedMediumExplosionRadiusOfBubble = %"PSYM, &StratifiedMediumExplosionRadiusOfBubble);
-    ret += sscanf(line, "StratifiedMediumExplosionEnergy = %"FSYM, &StratifiedMediumExplosionEnergy);
-    ret += sscanf(line, "StratifiedMediumExplosionPulseType = %"ISYM, &StratifiedMediumExplosionPulseType);
-    ret += sscanf(line, "StratifiedMediumExplosionCenter = %"PSYM" %"PSYM" %"PSYM, &StratifiedMediumExplosionCenter[0],
+    ret += sscanf(line, "StratifiedMediumExplosionRadiusOfBubble = %" PSYM, &StratifiedMediumExplosionRadiusOfBubble);
+    ret += sscanf(line, "StratifiedMediumExplosionEnergy = %" FSYM, &StratifiedMediumExplosionEnergy);
+    ret += sscanf(line, "StratifiedMediumExplosionPulseType = %" ISYM, &StratifiedMediumExplosionPulseType);
+    ret += sscanf(line, "StratifiedMediumExplosionCenter = %" PSYM" %" PSYM" %" PSYM, &StratifiedMediumExplosionCenter[0],
 		  &StratifiedMediumExplosionCenter[1],&StratifiedMediumExplosionCenter[2]);
-    ret += sscanf(line, "StratifiedMediumExplosionSubgridLeft = %"PSYM" %"PSYM" %"PSYM,
+    ret += sscanf(line, "StratifiedMediumExplosionSubgridLeft = %" PSYM" %" PSYM" %" PSYM,
 		  StratifiedMediumExplosionSubgridLeft,StratifiedMediumExplosionSubgridLeft+1,
 		  StratifiedMediumExplosionSubgridLeft+2);
-    ret += sscanf(line, "StratifiedMediumExplosionSubgridRight = %"PSYM" %"PSYM" %"PSYM,
+    ret += sscanf(line, "StratifiedMediumExplosionSubgridRight = %" PSYM" %" PSYM" %" PSYM,
 		  StratifiedMediumExplosionSubgridRight,StratifiedMediumExplosionSubgridRight+1,
 		  StratifiedMediumExplosionSubgridRight+2);
 
-    ret += sscanf(line, "TestProblemUseMetallicityField  = %"ISYM, &TestProblemData.UseMetallicityField);
-    ret += sscanf(line, "TestProblemInitialMetallicityFraction  = %"FSYM, &TestProblemData.MetallicityField_Fraction);
+    ret += sscanf(line, "TestProblemUseMetallicityField  = %" ISYM, &TestProblemData.UseMetallicityField);
+    ret += sscanf(line, "TestProblemInitialMetallicityFraction  = %" FSYM, &TestProblemData.MetallicityField_Fraction);
 
     if (ret == 0 && 
 	strstr(line, "=") && strstr(line, "StratifiedMediumExplosion") &&
@@ -141,7 +141,7 @@ int StratifiedMediumExplosionInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntr
         *int(POW(RefineBy, lev + 1));
  
     if (debug)
-      printf("StratifiedMediumExplosion:: Level[%"ISYM"]: NumberOfSubgridZones[0] = %"ISYM"\n", lev+1,
+      printf("StratifiedMediumExplosion:: Level[%" ISYM"]: NumberOfSubgridZones[0] = %" ISYM"\n", lev+1,
 	     NumberOfSubgridZones[0]);
  
     if (NumberOfSubgridZones[0] > 0) {
@@ -248,13 +248,13 @@ int StratifiedMediumExplosionInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntr
   /* Write parameters to parameter output file */
  
   if (MyProcessorNumber == ROOT_PROCESSOR) {
-    fprintf(Outfptr, "StratifiedMediumExplosionRadiusOfBubble = %"PSYM"\n", StratifiedMediumExplosionRadiusOfBubble);
-    fprintf(Outfptr, "StratifiedMediumExplosionPulseType = %"ISYM"\n", StratifiedMediumExplosionPulseType);
-    fprintf(Outfptr, "StratifiedMediumExplosionEnergy = %"FSYM"\n", StratifiedMediumExplosionEnergy);
-    fprintf(Outfptr, "StratifiedMediumExplosionCenter = %"PSYM" %"PSYM" %"PSYM"\n", StratifiedMediumExplosionCenter,
-		  StratifiedMediumExplosionCenter+1,StratifiedMediumExplosionCenter+2);
-    fprintf(Outfptr, "TestProblemUseMetallicityField  = %"ISYM"\n", TestProblemData.UseMetallicityField);
-    fprintf(Outfptr, "TestProblemInitialMetallicityFraction  = %"FSYM"\n", TestProblemData.MetallicityField_Fraction);
+    fprintf(Outfptr, "StratifiedMediumExplosionRadiusOfBubble = %" PSYM"\n", StratifiedMediumExplosionRadiusOfBubble);
+    fprintf(Outfptr, "StratifiedMediumExplosionPulseType = %" ISYM"\n", StratifiedMediumExplosionPulseType);
+    fprintf(Outfptr, "StratifiedMediumExplosionEnergy = %" FSYM"\n", StratifiedMediumExplosionEnergy);
+    fprintf(Outfptr, "StratifiedMediumExplosionCenter = %" PSYM" %" PSYM" %" PSYM"\n", StratifiedMediumExplosionCenter[0],
+		  StratifiedMediumExplosionCenter[1], StratifiedMediumExplosionCenter[2]);
+    fprintf(Outfptr, "TestProblemUseMetallicityField  = %" ISYM"\n", TestProblemData.UseMetallicityField);
+    fprintf(Outfptr, "TestProblemInitialMetallicityFraction  = %" FSYM"\n", TestProblemData.MetallicityField_Fraction);
   }
 
   if(debug){

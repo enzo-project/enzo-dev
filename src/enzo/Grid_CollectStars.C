@@ -33,7 +33,7 @@ int grid::CollectStars(int GridNum, int* &NumberToMove,
  
   /* Declarations. */
 
-  int i, j, dim, n1, grid, proc;
+  int i, n1;
   Star *MoveStar;
 
   /* ----------------------------------------------------------------- */

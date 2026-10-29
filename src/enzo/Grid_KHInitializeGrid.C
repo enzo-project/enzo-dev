@@ -52,7 +52,6 @@ int grid::KHInitializeGrid(float KHInnerDensity,
 
   int size = 1, dim;
   float rand_x, rand_y;
-  unsigned_long_int random_int;
 
   /* initialize random number generator from seed */
   mt_init(((unsigned_int) KHRandomSeed)); 
@@ -63,7 +62,7 @@ int grid::KHInitializeGrid(float KHInnerDensity,
   /* Find fields: density, total energy, velocity1-3. */
 
   int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
-  if (this-IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, 
+  if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, 
                                       Vel3Num, TENum) == FAIL) {
     ENZO_FAIL("Error in IdentifyPhysicalQuantities.\n");
   }
@@ -95,10 +94,10 @@ int grid::KHInitializeGrid(float KHInnerDensity,
   }
       
   if (debug) {
-    fprintf(stderr, "GKHIG: BF[2][0]:%"FSYM" BF[2][size/2]: %"FSYM"\n", 
+    fprintf(stderr, "GKHIG: BF[2][0]:%" FSYM" BF[2][size/2]: %" FSYM"\n", 
             BaryonField[Vel1Num][0], BaryonField[Vel1Num][size/2]);
 
-    fprintf(stderr, "GKHIG: BF[3][0]:%"FSYM" BF[3][size/2]: %"FSYM"\n", 
+    fprintf(stderr, "GKHIG: BF[3][0]:%" FSYM" BF[3][size/2]: %" FSYM"\n", 
             BaryonField[Vel2Num][0], BaryonField[Vel2Num][size/2]);
   }
   return SUCCESS;

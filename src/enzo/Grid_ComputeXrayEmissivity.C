@@ -110,18 +110,18 @@ int grid::ComputeXrayEmissivity(float *temperature,
  
     fgets(dummy, MAX_LINE_LENGTH, fptr);
     fgets(dummy, MAX_LINE_LENGTH, fptr);
-    if (fscanf(fptr, "%"ISYM" %"FSYM" %"FSYM, &NumberOfTemperatureBins, &temp1, &temp2)
+    if (fscanf(fptr, "%" ISYM" %" FSYM" %" FSYM, &NumberOfTemperatureBins, &temp1, &temp2)
 	!= 3) {
       ENZO_FAIL("Error reading temperature info\n");
     }
     if (debug)
-      printf("NumberOfTemperatureBins = %"ISYM" (%"GSYM"-%"GSYM")\n", NumberOfTemperatureBins,
+      printf("NumberOfTemperatureBins = %" ISYM" (%" GSYM"-%" GSYM")\n", NumberOfTemperatureBins,
 	     temp1, temp2);
     fgets(dummy, MAX_LINE_LENGTH, fptr);
     fgets(dummy, MAX_LINE_LENGTH, fptr);
-    fscanf(fptr, "%"ISYM, &NumberOfSpectralBins);
+    fscanf(fptr, "%" ISYM, &NumberOfSpectralBins);
     if (debug)
-      printf("NumberOfSpectralBins = %"ISYM"\n", NumberOfSpectralBins);
+      printf("NumberOfSpectralBins = %" ISYM"\n", NumberOfSpectralBins);
  
     /* Skip five lines and read in spectral energy bins and then emissivity
        table (one per temperature bin). */
@@ -133,14 +133,14 @@ int grid::ComputeXrayEmissivity(float *temperature,
               new float[NumberOfTemperatureBins*NumberOfSpectralBins];
  
     for (j = 0; j < NumberOfSpectralBins; j++)
-      if (fscanf(fptr, "%"FSYM, SpectrumEnergykeV+j) != 1) {
+      if (fscanf(fptr, "%" FSYM, SpectrumEnergykeV+j) != 1) {
 	ENZO_VFAIL("Error reading energy: %s\n", XrayTableFileName)
       }
  
     int n = 0;
     for (i = 0; i < NumberOfTemperatureBins; i++)
       for (j = 0; j < NumberOfSpectralBins; j++, n++) {
-	if (fscanf(fptr, "%"FSYM, SpectrumEmissivity+n) != 1) {
+	if (fscanf(fptr, "%" FSYM, SpectrumEmissivity+n) != 1) {
 	  ENZO_VFAIL("Error reading file %s\n", XrayTableFileName)
 	}
       }
@@ -199,7 +199,7 @@ int grid::ComputeXrayEmissivity(float *temperature,
     frac = (temp - (temp1+j*deltemp))/deltemp;
  
     if (frac < -0.01 || frac > 1.01) {
-      ENZO_VFAIL("prob: %"GSYM" %"ISYM" %"ISYM" %"GSYM"\n", frac, j, i, temp)
+      ENZO_VFAIL("prob: %" GSYM" %" ISYM" %" ISYM" %" GSYM"\n", frac, j, i, temp)
 
     }
     frac = min(max(frac, 0), 1);

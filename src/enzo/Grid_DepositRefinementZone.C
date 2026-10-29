@@ -32,8 +32,7 @@ int grid::DepositRefinementZone(int level, FLOAT* ParticlePosition,
 {
   /* Return if this grid is not on this processor. */
 
-  int dim, method = 0, ParticleMassMethod, i, j, k, NumberOfFlaggedCells = 0, size=1;
-  int a;
+  int dim, method = 0, ParticleMassMethod, i, j, k, size=1;
   float MustRefineMass;
   bool overlaps[GridRank];
   FLOAT CellSize, LeftCorner[MAX_DIMENSION], RightCorner[MAX_DIMENSION];
@@ -119,7 +118,6 @@ int grid::DepositRefinementZone(int level, FLOAT* ParticlePosition,
 		  period);
 	if (dist2 <= rad2) {
 	  FlaggingField[index] = 1;
-	  NumberOfFlaggedCells++;
 	}
       } // k
     } // j

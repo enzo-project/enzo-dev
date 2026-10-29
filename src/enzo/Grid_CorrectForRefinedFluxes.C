@@ -125,7 +125,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 		 RefinedFluxes->LeftFluxStartGlobalIndex[dim][j])  ||
 		(InitialFluxes->LeftFluxEndGlobalIndex[dim][j] !=
 		 RefinedFluxes->LeftFluxEndGlobalIndex[dim][j])) {
-//	      printf("dim=%d / j=%d //// %d == %d :: %d == %d\n", 
+//	      printf("dim=%" ISYM " / j=%" ISYM " //// %" ISYM " == %" ISYM " :: %" ISYM " == %" ISYM "\n", 
 //		     dim, j, 
 //		     InitialFluxes->LeftFluxStartGlobalIndex[dim][j],
 //		     RefinedFluxes->LeftFluxStartGlobalIndex[dim][j],
@@ -253,9 +253,9 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 	
 	
 	    if (Start[i] < 0 || End[i] > GridDimension[i]) {
-	      fprintf(stderr, "Start/End[%"ISYM"] = %"ISYM"/%"ISYM"\n",
+	      fprintf(stderr, "Start/End[%" ISYM"] = %" ISYM"/%" ISYM"\n",
 		      dim, Start[i], End[i]);
-	      fprintf(stderr, "%"GOUTSYM" %"GOUTSYM" %lld\n",
+	      fprintf(stderr, "%" GOUTSYM " %" GOUTSYM " %" ISYM "\n",
 		      CellLeftEdge[i][0], CellWidth[i][0],
 		      InitialFluxes->LeftFluxStartGlobalIndex[dim][i]);
 	      ENZO_FAIL("Error in FluxFix_Grid_CorrectForRefinedFluxes!\n");
@@ -450,7 +450,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 	     total number density summed over ionization, etc.) */
 	
 	  if (Coordinate == Cartesian) {
-        for (int index = 0; index < fieldNumberList.size(); ++index) {
+        for (size_t index = 0; index < fieldNumberList.size(); ++index) {
           field = fieldNumberList[index];
           for (k = Start[2]; k <= End[2]; k++) {
             for (j = Start[1]; j <= End[1]; j++) {
@@ -570,14 +570,14 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 
 			if (SUBlingGrid == FALSE) {
 			  if (debug)
-			    printf("P(%d) -- CFRFl warn: %e %e %e %e %"ISYM
-				   " %"ISYM" %"ISYM" %"ISYM" [%"ISYM"]\n",
+			    printf("P(%" ISYM ") -- CFRFl warn: %e %e %e %e %" ISYM
+				   " %" ISYM" %" ISYM" %" ISYM" [%" ISYM"]\n",
 				   MyProcessorNumber, BaryonField[field][FieldIndex],
 				   InitialFluxes->LeftFluxes[field][dim][FluxIndex],
 				   RefinedFluxes->LeftFluxes[field][dim][FluxIndex],
 				   CorrectionAmountLeft,
 				   i, j, k, dim, field);
-			  for (int undoIndex = 0; undoIndex < fieldNumberList.size(); ++undoIndex) {
+			  for (size_t undoIndex = 0; undoIndex < fieldNumberList.size(); ++undoIndex) {
                 ffield = fieldNumberList[undoIndex];
                 // If the flux correction was already applied, then undo it.
                 if (undoIndex <= index) {
@@ -592,14 +592,14 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
               }
 			} else {
 			  if (debug)
-			    printf("P(%d) -- CFRFlS warn: %e %e %e %e %"ISYM
-				   " %"ISYM" %"ISYM" %"ISYM" [%"ISYM"]\n",
+			    printf("P(%" ISYM ") -- CFRFlS warn: %e %e %e %e %" ISYM
+				   " %" ISYM" %" ISYM" %" ISYM" [%" ISYM"]\n",
 				   MyProcessorNumber, BaryonField[field][FieldIndex],
 				   InitialFluxes->LeftFluxes[field][dim][FluxIndex],
 				   RefinedFluxes->RightFluxes[field][dim][RefinedFluxIndex],
 				   CorrectionAmountLeft,
 				   i, j, k, dim, field);
-			  for (int undoIndex = 0; undoIndex < fieldNumberList.size(); ++undoIndex) {
+			  for (size_t undoIndex = 0; undoIndex < fieldNumberList.size(); ++undoIndex) {
                 ffield = fieldNumberList[undoIndex];
                 // If the flux correction was already applied, then undo it.
                 if (undoIndex <= index) {
@@ -620,14 +620,14 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 
 			if (SUBlingGrid == FALSE) {
 			  if (debug)
-			    printf("P(%d) -- CFRFr warn: %e %e %e %e %"ISYM
-				   " %"ISYM" %"ISYM" %"ISYM" [%"ISYM"]\n",
+			    printf("P(%" ISYM ") -- CFRFr warn: %e %e %e %e %" ISYM
+				   " %" ISYM" %" ISYM" %" ISYM" [%" ISYM"]\n",
 				   MyProcessorNumber, BaryonField[field][FieldIndex],
 				   InitialFluxes->RightFluxes[field][dim][FluxIndex],
 				   RefinedFluxes->RightFluxes[field][dim][FluxIndex],
 				   CorrectionAmountRight,
 				   i, j, k, dim, field);
-			  for (int undoIndex = 0; undoIndex < fieldNumberList.size(); ++undoIndex) {
+			  for (size_t undoIndex = 0; undoIndex < fieldNumberList.size(); ++undoIndex) {
                 ffield = fieldNumberList[undoIndex];
                 // If the flux correction was already applied, then undo it.
                 if (undoIndex <= index) {
@@ -642,14 +642,14 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
               }
 			} else {
 			  if (debug)
-			    printf("P(%d) -- CFRFrS warn: %e %e %e %e %"ISYM
-				   " %"ISYM" %"ISYM" %"ISYM" [%"ISYM"]\n",
+			    printf("P(%" ISYM ") -- CFRFrS warn: %e %e %e %e %" ISYM
+				   " %" ISYM" %" ISYM" %" ISYM" [%" ISYM"]\n",
 				   MyProcessorNumber, BaryonField[field][FieldIndex],
 				   InitialFluxes->LeftFluxes[field][dim][FluxIndex],
 				   RefinedFluxes->RightFluxes[field][dim][RefinedFluxIndex],
 				   CorrectionAmountRight,
 				   i, j, k, dim, field);
-			  for (int undoIndex = 0; undoIndex < fieldNumberList.size(); ++undoIndex) {
+			  for (size_t undoIndex = 0; undoIndex < fieldNumberList.size(); ++undoIndex) {
                 ffield = fieldNumberList[undoIndex];
                 // If the flux correction was already applied, then undo it.
                 if (undoIndex <= index) {
@@ -668,13 +668,13 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 		  }// for (i = Start[0]; i <= End[0]; i++) 
 		} // for (j = Start[1]; j <= End[1]; j++)
 	      } // for (k = Start[2]; k <= End[2]; k++)
-	    } // for (int index = 0; index < fieldNumberList.size(); ++index)
+	    } // for (size_t index = 0; index < fieldNumberList.size(); ++index)
 	  }
 
 
       if (Coordinate == Cylindrical) {
         FLOAT xr, xl, xc, geofacr, geofacl;
-        for (int index = 0; index < fieldNumberList.size(); ++index) {
+        for (size_t index = 0; index < fieldNumberList.size(); ++index) {
           field = fieldNumberList[index];
 	  for (k = Start[2]; k <= End[2]; k++) {
 	    for (j = Start[1]; j <= End[1]; j++) {
@@ -738,14 +738,14 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
                     ) &&
 		    BaryonField[field][FieldIndex] <= 0) {
 		  /*if (debug) {
-		    printf("CFRFl warn: %e %e %e %d %d %d %d [%d]\n",
+		    printf("CFRFl warn: %e %e %e %" ISYM " %" ISYM " %" ISYM " %" ISYM " [%" ISYM "]\n",
 			   BaryonField[field][FieldIndex],
 			   InitialFluxes->LeftFluxes[field][dim][FluxIndex],
 			   RefinedFluxes->LeftFluxes[field][dim][FluxIndex],
 			   i, j, k, dim, field);
 			   }*/
 		  /* If new density & energy is < 0 then undo the flux correction. */
-			  for (int undoIndex = 0; undoIndex < fieldNumberList.size(); ++undoIndex) {
+			  for (size_t undoIndex = 0; undoIndex < fieldNumberList.size(); ++undoIndex) {
                 ffield = fieldNumberList[undoIndex];
             if (undoIndex <= index) {
               BaryonField[ffield][FieldIndex] -= (
@@ -765,14 +765,14 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
                     ) &&
 		    BaryonField[field][FieldIndex + Offset] <= 0.0) {
 		  /*if (debug) {
-		    printf("CFRFr warn: %e %e %e %d %d %d %d (%d) [%d]\n",
+		    printf("CFRFr warn: %e %e %e %" ISYM " %" ISYM " %" ISYM " %" ISYM " (%" ISYM ") [%" ISYM "]\n",
 			   BaryonField[field][FieldIndex + Offset],
 			   InitialFluxes->RightFluxes[field][dim][FluxIndex],
 			   RefinedFluxes->RightFluxes[field][dim][FluxIndex],
 			   i, j, k, dim, Offset, field);
 			   }*/
 		  /* If new density & energy is < 0 then undo the flux correction. */
-			  for (int undoIndex = 0; undoIndex < fieldNumberList.size(); ++undoIndex) {
+			  for (size_t undoIndex = 0; undoIndex < fieldNumberList.size(); ++undoIndex) {
                 ffield = fieldNumberList[undoIndex];
             if (undoIndex <= index) {
               BaryonField[ffield][FieldIndex + Offset] += (

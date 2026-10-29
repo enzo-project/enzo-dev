@@ -35,7 +35,7 @@ int WRITE_BT(boundary_type *bt_buffer, int field, int dim, int face, int slabsiz
 int ExternalBoundary::AddField(int FieldType)
 {
 
-  int i, j, dim, field, ifield, size;
+  int i, j, dim, ifield, size;
 #ifdef OOC_BOUNDARY
   int slabsize;
   boundary_type *bt_buffer0, *bt_buffer1;

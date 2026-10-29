@@ -50,7 +50,7 @@ int grid::CommunicationSendPhotonPackages(grid *ToGrid, int ToProcessor,
 					  PhotonPackageEntry **ToPP)
 {
 
-  int index, dim, temp_int;
+  int index, dim;
   PhotonPackageEntry *PP;
 
   if (CommunicationShouldExit(ProcessorNumber, ToProcessor))
@@ -70,8 +70,8 @@ int grid::CommunicationSendPhotonPackages(grid *ToGrid, int ToProcessor,
     buffer = new PhotonBuffer[FromNumber];
 
   if (DEBUG)
-    printf("SendPhotonPackages(%"ISYM"): Sending %"ISYM" photon packages "
-	   "from P%"ISYM"->P%"ISYM".\n",
+    printf("SendPhotonPackages(%" ISYM"): Sending %" ISYM" photon packages "
+	   "from P%" ISYM"->P%" ISYM".\n",
 	   MyProcessorNumber, FromNumber, ProcessorNumber, ToProcessor);
 
   /* If this is from processor, pack photons */
@@ -102,8 +102,8 @@ int grid::CommunicationSendPhotonPackages(grid *ToGrid, int ToProcessor,
 	buffer[index].SuperSourceID = -1;
       
       if (PP->CurrentTime < 0 || PP->CurrentTime > 1e10) {
-	ENZO_VFAIL("CTPhotons[0][P%"ISYM"->P%"ISYM"]: "
-		"(%"ISYM" of %"ISYM") Bad photon time %"GSYM"\n",
+	ENZO_VFAIL("CTPhotons[0][P%" ISYM"->P%" ISYM"]: "
+		"(%" ISYM" of %" ISYM") Bad photon time %" GSYM"\n",
 		ProcessorNumber, ToProcessor, index, NumberOfPhotonPackages, 
 		PP->CurrentTime)
       }
@@ -115,7 +115,7 @@ int grid::CommunicationSendPhotonPackages(grid *ToGrid, int ToProcessor,
     }  /* ENDWHILE PP != NULL */
 
     if (DEBUG)
-      printf("CommSendPhotons(P%"ISYM"): Counted %"ISYM" photons.\n", MyProcessorNumber,
+      printf("CommSendPhotons(P%" ISYM"): Counted %" ISYM" photons.\n", MyProcessorNumber,
 	     index);
 
     /* Now that we're done packing the photons, delete them */
@@ -129,10 +129,10 @@ int grid::CommunicationSendPhotonPackages(grid *ToGrid, int ToProcessor,
     /* Check if we packed all of the photons */
 
     if (index != FromNumber) {
-      fprintf(stdout, "CommSendPhotons WARNING: Counted %"ISYM" photon packages, but"
-	      " FromNumber = %"ISYM"\n", index, FromNumber);
+      fprintf(stdout, "CommSendPhotons WARNING: Counted %" ISYM" photon packages, but"
+	      " FromNumber = %" ISYM"\n", index, FromNumber);
       FromNumber = min(index, FromNumber);
-      fprintf(stdout, "CommSendPhotons: Correcting FromNumber to %"ISYM"\n", 
+      fprintf(stdout, "CommSendPhotons: Correcting FromNumber to %" ISYM"\n", 
 	      FromNumber);
       //ENZO_FAIL("Photon package mismatch!\n");
     }
@@ -155,7 +155,7 @@ int grid::CommunicationSendPhotonPackages(grid *ToGrid, int ToProcessor,
 
     if (FirstTimeCalled) {
       PhotonBufferSize = sizeof(PhotonBuffer);
-      //  fprintf(stderr, "Size of ParticleMoveList %"ISYM"\n", Count);
+      //  fprintf(stderr, "Size of ParticleMoveList %" ISYM"\n", Count);
       stat = MPI_Type_contiguous(PhotonBufferSize, DataTypeByte, &PhotonBufferType);
       stat |= MPI_Type_commit(&PhotonBufferType);
       if (stat != MPI_SUCCESS) my_exit(EXIT_FAILURE);
@@ -164,7 +164,7 @@ int grid::CommunicationSendPhotonPackages(grid *ToGrid, int ToProcessor,
 
     if (MyProcessorNumber == ProcessorNumber) {
       if (DEBUG)
-	printf("PhotonSend(P%"ISYM"): Sending %"ISYM" photons to processor %"ISYM".\n",
+	printf("PhotonSend(P%" ISYM"): Sending %" ISYM" photons to processor %" ISYM".\n",
 	       MyProcessorNumber, FromNumber, ToProcessor);
       CommunicationBufferedSend(buffer, Count, PhotonBufferType, Dest,
 				MPI_PHOTON_TAG, MPI_COMM_WORLD, BUFFER_IN_PLACE);
@@ -173,7 +173,7 @@ int grid::CommunicationSendPhotonPackages(grid *ToGrid, int ToProcessor,
     if (MyProcessorNumber == ToProcessor) {
 
       if (DEBUG) 
-	printf("PhotonSend(P%"ISYM"): Receiving %"ISYM" photons from processor %"ISYM".\n",
+	printf("PhotonSend(P%" ISYM"): Receiving %" ISYM" photons from processor %" ISYM".\n",
 	       MyProcessorNumber, FromNumber, ProcessorNumber);
 
       if (CommunicationDirection == COMMUNICATION_POST_RECEIVE) {
@@ -197,9 +197,9 @@ int grid::CommunicationSendPhotonPackages(grid *ToGrid, int ToProcessor,
       if (CommunicationDirection == COMMUNICATION_SEND_RECEIVE)
 	if (MPI_Recv(buffer, Count, PhotonBufferType, Source,
 		     MPI_PHOTON_TAG, MPI_COMM_WORLD, &status) != MPI_SUCCESS) {
-	  fprintf(stderr, "P(%"ISYM"): MPI_Recv error %"ISYM"\n", MyProcessorNumber,
+	  fprintf(stderr, "P(%" ISYM "): MPI_Recv error %d\n", MyProcessorNumber,
 		  status.MPI_ERROR);
-	  fprintf(stderr, "P(%"ISYM"): TransferSize = %"ISYM" ProcessorNumber = %"ISYM"\n", 
+	  fprintf(stderr, "P(%" ISYM"): TransferSize = %zu ProcessorNumber = %" ISYM"\n", 
 		  MyProcessorNumber, Count*sizeof(PhotonBuffer), ProcessorNumber);
 	  char errstr[MPI_MAX_ERROR_STRING];
 	  Eint32 errlen;
@@ -248,8 +248,8 @@ int grid::CommunicationSendPhotonPackages(grid *ToGrid, int ToProcessor,
       NewPP->SourcePositionDiff   = buffer[index].SourcePositionDiff;
 
       if (NewPP->CurrentTime < 0 || NewPP->CurrentTime > 1e10) {
-	ENZO_VFAIL("CTPhotons[1][P%"ISYM"->P%"ISYM"]: "
-		"(%"ISYM" of %"ISYM") Bad photon time %"GSYM"\n",
+	ENZO_VFAIL("CTPhotons[1][P%" ISYM"->P%" ISYM"]: "
+		"(%" ISYM" of %" ISYM") Bad photon time %" GSYM"\n",
 		ProcessorNumber, ToProcessor, index, FromNumber, 
 		NewPP->CurrentTime)
       }

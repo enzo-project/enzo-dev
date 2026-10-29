@@ -98,7 +98,7 @@
 #ifdef NEW_PROBLEM_TYPES
 #include "EventHooks.h"
 #else
-void RunEventHooks(char *, HierarchyEntry *Grid[], TopGridData &MetaData) {}
+void RunEventHooks(const char *, HierarchyEntry *Grid[], TopGridData &MetaData) {}
 #endif
  
 /* function prototypes */
@@ -114,18 +114,21 @@ int ExtraOutput(int output_flag, LevelHierarchyEntry *LevelArray[],TopGridData *
 #ifdef TRANSFER
 			  , ImplicitProblemABC *ImplicitSolver
 #endif
-        , char * output_string);
+        , const char * output_string);
 
+int GenerateGridArray(LevelHierarchyEntry *LevelArray[], int level,
+		      HierarchyEntry **Grids[]);
+int SetSubgridMarker(TopGridData &MetaData,
+		     LevelHierarchyEntry *LevelArray[], int level,
+		     int UpdateReplicatedGridsOnly);
+int  UpdateParticlePositions(grid *Grid);
+int  CheckEnergyConservation(HierarchyEntry *Grids[], int grid,
+			     int NumberOfGrids, int level, float dt);
 int ComputeDednerWaveSpeeds(TopGridData *MetaData,LevelHierarchyEntry *LevelArray[], 
 			    int level, FLOAT dt0);
 int  RebuildHierarchy(TopGridData *MetaData,
 		      LevelHierarchyEntry *LevelArray[], int level);
-int  ReportMemoryUsage(char *header = NULL);
-int  UpdateParticlePositions(grid *Grid);
-int  CheckEnergyConservation(HierarchyEntry *Grids[], int grid,
-			     int NumberOfGrids, int level, float dt);
-int GenerateGridArray(LevelHierarchyEntry *LevelArray[], int level,
-		      HierarchyEntry **Grids[]);
+int  ReportMemoryUsage(const char *header = NULL);
 int WriteStreamData(LevelHierarchyEntry *LevelArray[], int level,
 		    TopGridData *MetaData, int *CycleCount, int open=FALSE);
 int CallProblemSpecificRoutines(TopGridData * MetaData, HierarchyEntry *ThisGrid,
@@ -292,22 +295,19 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   FLOAT When, GridTime;
   //float dtThisLevelSoFar = 0.0, dtThisLevel, dtGrid, dtActual, dtLimit;
   //float dtThisLevelSoFar = 0.0, dtThisLevel;
-  int cycle = 0, counter = 0, grid1, subgrid, grid2;
-  HierarchyEntry *NextGrid;
-  int dummy_int, OutputNow = FALSE;
+  int cycle = 0, grid1;
+  int OutputNow = FALSE;
 
   char level_name[MAX_LINE_LENGTH];
-  sprintf(level_name, "Level_%02"ISYM, level);
+  sprintf(level_name, "Level_%02" ISYM, level);
     
   // Update lcaperf "level" attribute
-  Eint32 lcaperf_level = level;
 #ifdef USE_LCAPERF
   lcaperf.attribute ("level",&lcaperf_level,LCAPERF_INT);
 #endif
   
   /* Create an array (Grids) of all the grids. */
 
-  typedef HierarchyEntry* HierarchyEntryPointer;
   HierarchyEntry **Grids;
   int NumberOfGrids = GenerateGridArray(LevelArray, level, &Grids);
   int *NumberOfNewActiveParticles = new int[NumberOfGrids]();
@@ -366,7 +366,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       if (Grids[grid1]->GridData->FillFluxesFromStorage(
         &NumberOfSubgrids[grid1],
         &SubgridFluxesEstimate[grid1]) != -1) {
-        /*fprintf(stderr, "Level: %"ISYM" Grid: %"ISYM" NS: %"ISYM"\n",
+        /*fprintf(stderr, "Level: %" ISYM" Grid: %" ISYM" NS: %" ISYM"\n",
             level, grid1, NumberOfSubgrids[grid1]);*/
       }
     }
@@ -475,7 +475,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       ComputeDednerWaveSpeeds(MetaData, LevelArray, level, dt0);
 	
     if (debug1 && HydroMethod == MHD_RK && (MyProcessorNumber == ROOT_PROCESSOR)) 
-      fprintf(stderr, "wave speeds: timestep: %"GSYM"  C_h: %"GSYM"  C_p: %"GSYM"\n ", 
+      fprintf(stderr, "wave speeds: timestep: %" GSYM"  C_h: %" GSYM"  C_p: %" GSYM"\n ", 
 	       dt0, C_h, C_p);
     /* ------------------------------------------------------- */
     /* Prepare the density field (including particle density). */
@@ -613,7 +613,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
                 /* Gravity: compute acceleration field for grid and particles. */
                 if (RK2SecondStepBaryonDeposit && SelfGravity) {
-                    int Dummy;
                     if (level <= MaximumGravityRefinementLevel) {
                         if (level > 0) 
                             Grids[grid1]->GridData->SolveForPotential(level) ;
@@ -825,7 +824,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 #endif
           ,dt0,SiblingGridListStorage
 		      ) == FAIL) {
-	ENZO_VFAIL("Error in EvolveLevel (%"ISYM").\n", level)
+	ENZO_VFAIL("Error in EvolveLevel (%" ISYM").\n", level)
       }
     }
 
@@ -988,7 +987,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
  
     EXTRA_OUTPUT_MACRO(6, "After Subcycle Loop")
   if (debug)
-    fprintf(stdout, "EvolveLevel[%"ISYM"]: NumberOfSubCycles = %"ISYM" (%"ISYM" total, %"ISYM" sub)\n", 
+    fprintf(stdout, "EvolveLevel[%" ISYM"]: NumberOfSubCycles = %" ISYM" (%" ISYM" total, %" ISYM" sub)\n", 
             level, cycle, LevelCycleCount[level], LevelSubCycleCount[level]);
  
   /* If possible & desired, report on memory usage. */

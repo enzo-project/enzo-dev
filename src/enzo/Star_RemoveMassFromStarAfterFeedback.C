@@ -62,7 +62,7 @@ int Star::RemoveMassFromStarAfterFeedback(float &Radius, double &EjectaDensity,
 
   old_mass = this->Mass;
 //  printf("star::RMFSAF: before: old_mass = %lf\n", old_mass);  
-//  printf("star::RMFSAF: vel = %"FSYM" %"FSYM" %"FSYM"\n", 
+//  printf("star::RMFSAF: vel = %" FSYM" %" FSYM" %" FSYM"\n", 
 //	 this->vel[0], this->vel[1], this->vel[2]);
 
   /* Now let's start working!  Because we injected the mass in Grid_AddFeedbackSphere, 
@@ -96,7 +96,7 @@ int Star::RemoveMassFromStarAfterFeedback(float &Radius, double &EjectaDensity,
   this->vel[2] *= old_mass / this->Mass; 
 
 //  printf("star::RMFSAF: after : this->Mass = %lf\n", this->Mass);  
-//  printf("star::RMFSAF: vel = %"FSYM" %"FSYM" %"FSYM"\n", 
+//  printf("star::RMFSAF: vel = %" FSYM" %" FSYM" %" FSYM"\n", 
 //	 this->vel[0], this->vel[1], this->vel[2]);
 
   return SUCCESS;

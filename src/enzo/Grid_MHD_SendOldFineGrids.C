@@ -31,7 +31,7 @@ int grid::MHD_SendOldFineGrids(LevelHierarchyEntry * OldFineLevel, grid *ParentG
 
   int StartIndex[MAX_DIMENSION], EndIndex[MAX_DIMENSION], Offset[MAX_DIMENSION],TempDim[3];
   int Refinement[MAX_DIMENSION];
-  int i,dim;
+  int dim;
 
   ParentGrid->ComputeRefinementFactors(this, Refinement);
 

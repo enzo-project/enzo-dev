@@ -68,12 +68,6 @@ int grid::RadiatingShockInitializeGrid(FLOAT dr,
   if (ProcessorNumber != MyProcessorNumber)
     return SUCCESS;
  
-  /* declarations */
- 
-  int size = 1, dim;
-  for (dim = 0; dim < GridRank; dim++)
-    size *= GridDimension[dim];
-
   FLOAT r,x,y,z;
 
   float cell_HydrogenFractionByMass, cell_DeuteriumToHydrogenRatio;
@@ -106,15 +100,10 @@ int grid::RadiatingShockInitializeGrid(FLOAT dr,
       return FAIL;
     }
 
-  int MetallicityField = FALSE;
-  if ((MetalNum = FindField(Metallicity, FieldType, NumberOfBaryonFields))
-      != -1)
-    MetallicityField = TRUE;
-  else
+  if ((MetalNum = FindField(Metallicity, FieldType, NumberOfBaryonFields)) == -1)
     MetalNum = 0;
 
 
-  FILE *fptr;
   double *sedovradius=NULL,*sedovdensity=NULL,*sedovpressure=NULL,*sedovvelocity=NULL;
   int numbins=1000;
 
@@ -174,7 +163,7 @@ int grid::RadiatingShockInitializeGrid(FLOAT dr,
     // convert sedov values (CGS) to Enzo internal energy units!
     for(int i=0; i<numbins; i++){
       if(debug)
-	printf("Pre-conversion (CGS) values: %e %e %e %e  (%d)\n",
+	printf("Pre-conversion (CGS) values: %e %e %e %e  (%" ISYM ")\n",
 	       sedovradius[i],sedovdensity[i],sedovpressure[i],sedovvelocity[i], i);
 
       sedovradius[i] /= double(LengthUnits);
@@ -194,7 +183,7 @@ int grid::RadiatingShockInitializeGrid(FLOAT dr,
       if(sedovpressure[i] < 1.0e-10) sedovpressure[i] = 1.0e-10;
 
       if(debug){
-	printf("Post-conversion (enzo units):  %e %e %e %e (%d)\n",
+	printf("Post-conversion (enzo units):  %e %e %e %e (%" ISYM ")\n",
 	       sedovradius[i],sedovdensity[i],sedovpressure[i],sedovvelocity[i], i);
 	fflush(stdout);
       }
@@ -248,35 +237,35 @@ int grid::RadiatingShockInitializeGrid(FLOAT dr,
 
 	if ((i+j+k) == 0) {
 	  if (MultiSpecies) {
-	    fprintf(stderr,"External medium: Density: %.2"ESYM, BaryonField[DensNum][cellindex]);
-	    fprintf(stderr,", HI: %.2"ESYM", HII: %.2"ESYM", HeI: %.2"ESYM,BaryonField[HINum][cellindex],
+	    fprintf(stderr,"External medium: Density: %.2" ESYM, BaryonField[DensNum][cellindex]);
+	    fprintf(stderr,", HI: %.2" ESYM", HII: %.2" ESYM", HeI: %.2" ESYM,BaryonField[HINum][cellindex],
 		    BaryonField[HIINum][cellindex],
 		    BaryonField[HeINum][cellindex]);
-	    fprintf(stderr,", HeII: %.2"ESYM", HeIII: %.2"ESYM", De: %.2"ESYM,BaryonField[HeIINum][cellindex],
+	    fprintf(stderr,", HeII: %.2" ESYM", HeIII: %.2" ESYM", De: %.2" ESYM,BaryonField[HeIINum][cellindex],
 		    BaryonField[HeIIINum][cellindex],BaryonField[DeNum][cellindex]);
 	    if (MultiSpecies > 1) {
-	      fprintf(stderr,", H2I: %.2"ESYM", H2II: %.2"ESYM", HM: %.2"ESYM,BaryonField[H2INum][cellindex],
+	      fprintf(stderr,", H2I: %.2" ESYM", H2II: %.2" ESYM", HM: %.2" ESYM,BaryonField[H2INum][cellindex],
 		      BaryonField[H2IINum][cellindex],BaryonField[HMNum][cellindex]);
 	    }
 	    if (MultiSpecies > 2) {
-	      fprintf(stderr,", DI: %.2"ESYM", DII: %.2"ESYM", HDI: %.2"ESYM,BaryonField[DINum][cellindex],
+	      fprintf(stderr,", DI: %.2" ESYM", DII: %.2" ESYM", HDI: %.2" ESYM,BaryonField[DINum][cellindex],
 		      BaryonField[DIINum][cellindex],BaryonField[HDINum][cellindex]);
 	    }
 	    if (TestProblemData.UseMetallicityField) {
-	      fprintf(stderr,", Metal: %.2"ESYM,BaryonField[MetalNum][cellindex]);
+	      fprintf(stderr,", Metal: %.2" ESYM,BaryonField[MetalNum][cellindex]);
 	    }
 	    fprintf(stderr,"\n");
 	  }
 	  else if (GloverChemistryModel) {
 	    int GCM = TestProblemData.GloverChemistryModel;  // purely for convenience
-	    fprintf(stderr,"      External medium: Density: %.2"ESYM, BaryonField[DensNum][cellindex]);
-	    fprintf(stderr,", HI: %.2"ESYM", HII: %.2"ESYM", H2I: %.2"ESYM,BaryonField[HINum][cellindex],
+	    fprintf(stderr,"      External medium: Density: %.2" ESYM, BaryonField[DensNum][cellindex]);
+	    fprintf(stderr,", HI: %.2" ESYM", HII: %.2" ESYM", H2I: %.2" ESYM,BaryonField[HINum][cellindex],
 		    BaryonField[HIINum][cellindex],
 		    BaryonField[H2INum][cellindex]);
 	    if( (GCM==1) || (GCM==2) || (GCM==3) || (GCM==7) ){
-	      fprintf(stderr,", HeI: %.2"ESYM", HeII: %.2"ESYM", HeIII: %.2"ESYM,BaryonField[HeINum][cellindex],
+	      fprintf(stderr,", HeI: %.2" ESYM", HeII: %.2" ESYM", HeIII: %.2" ESYM,BaryonField[HeINum][cellindex],
 		      BaryonField[HeIINum][cellindex],BaryonField[HeIIINum][cellindex]);
-	      fprintf(stderr,", DI: %.2"ESYM", DII: %.2"ESYM", HDI: %.2"ESYM,BaryonField[DINum][cellindex],
+	      fprintf(stderr,", DI: %.2" ESYM", DII: %.2" ESYM", HDI: %.2" ESYM,BaryonField[DINum][cellindex],
 		      BaryonField[DIINum][cellindex],BaryonField[HDINum][cellindex]);
 	    }
 	    fprintf(stderr,"\n");
@@ -339,7 +328,7 @@ int grid::RadiatingShockInitializeGrid(FLOAT dr,
 	      if(r >= sedovradius[numbins-1]) sedovindex = numbins-1;
 
 	      if(sedovindex < 0 || sedovindex >= numbins){
-		fprintf(stderr,"Grid:RadiatingShockInitializeGrid: Argh!  %d  %e  %e  %e\n",
+		fprintf(stderr,"Grid:RadiatingShockInitializeGrid: Argh!  %" ISYM "  %e  %e  %e\n",
 			sedovindex, r, sedovradius[0], sedovradius[numbins-1]);
 		return FAIL;
 	      }
@@ -587,33 +576,33 @@ int grid::RadiatingShockInitializeGrid(FLOAT dr,
 	} // if(TestProblemData.GloverChemistryModel)
 
 	  if (MultiSpecies) {
-	    fprintf(stderr,"Cell fraction: %.4"FSYM", Density: %.2"ESYM, cellfraction,BaryonField[DensNum][cellindex]);
-	    fprintf(stderr,", HI: %.2"ESYM", HII: %.2"ESYM", HeI: %.2"ESYM,BaryonField[HINum][cellindex],BaryonField[HIINum][cellindex],
+	    fprintf(stderr,"Cell fraction: %.4" FSYM", Density: %.2" ESYM, cellfraction,BaryonField[DensNum][cellindex]);
+	    fprintf(stderr,", HI: %.2" ESYM", HII: %.2" ESYM", HeI: %.2" ESYM,BaryonField[HINum][cellindex],BaryonField[HIINum][cellindex],
 		    BaryonField[HeINum][cellindex]);
-	    fprintf(stderr,", HeII: %.2"ESYM", HeIII: %.2"ESYM", De: %.2"ESYM,BaryonField[HeIINum][cellindex],
+	    fprintf(stderr,", HeII: %.2" ESYM", HeIII: %.2" ESYM", De: %.2" ESYM,BaryonField[HeIINum][cellindex],
 		    BaryonField[HeIIINum][cellindex],BaryonField[DeNum][cellindex]);
 	    if (MultiSpecies > 1) {
-	      fprintf(stderr,", H2I: %.2"ESYM", H2II: %.2"ESYM", HM: %.2"ESYM,BaryonField[H2INum][cellindex],
+	      fprintf(stderr,", H2I: %.2" ESYM", H2II: %.2" ESYM", HM: %.2" ESYM,BaryonField[H2INum][cellindex],
 		      BaryonField[H2IINum][cellindex],BaryonField[HMNum][cellindex]);
 	    }
 	    if (MultiSpecies > 2) {
-	      fprintf(stderr,", DI: %.2"ESYM", DII: %.2"ESYM", HDI: %.2"ESYM,BaryonField[DINum][cellindex],
+	      fprintf(stderr,", DI: %.2" ESYM", DII: %.2" ESYM", HDI: %.2" ESYM,BaryonField[DINum][cellindex],
 		      BaryonField[DIINum][cellindex],BaryonField[HDINum][cellindex]);
 	    }
 	    if (TestProblemData.UseMetallicityField) {
-	      fprintf(stderr,", Metal: %.2"ESYM,BaryonField[MetalNum][cellindex]);
+	      fprintf(stderr,", Metal: %.2" ESYM,BaryonField[MetalNum][cellindex]);
 	    }
 	    fprintf(stderr,"\n");
 	  }
 	  else if (GloverChemistryModel) {
 	    int GCM = TestProblemData.GloverChemistryModel;  // purely for convenience
-	    fprintf(stderr,"Cell fraction: %.4"FSYM", Density: %.2"ESYM, cellfraction,BaryonField[DensNum][cellindex]);
-	    fprintf(stderr,", HI: %.2"ESYM", HII: %.2"ESYM", H2I: %.2"ESYM,BaryonField[HINum][cellindex],BaryonField[HIINum][cellindex],
+	    fprintf(stderr,"Cell fraction: %.4" FSYM", Density: %.2" ESYM, cellfraction,BaryonField[DensNum][cellindex]);
+	    fprintf(stderr,", HI: %.2" ESYM", HII: %.2" ESYM", H2I: %.2" ESYM,BaryonField[HINum][cellindex],BaryonField[HIINum][cellindex],
 		    BaryonField[H2INum][cellindex]);
 	    if( (GCM==1) || (GCM==2) || (GCM==3) || (GCM==7) ){
-	      fprintf(stderr,", HeI: %.2"ESYM", HeII: %.2"ESYM", HeIII: %.2"ESYM,BaryonField[HeINum][cellindex],
+	      fprintf(stderr,", HeI: %.2" ESYM", HeII: %.2" ESYM", HeIII: %.2" ESYM,BaryonField[HeINum][cellindex],
 		      BaryonField[HeIINum][cellindex],BaryonField[HeIIINum][cellindex]);
-	      fprintf(stderr,", DI: %.2"ESYM", DII: %.2"ESYM", HDI: %.2"ESYM,BaryonField[DINum][cellindex],
+	      fprintf(stderr,", DI: %.2" ESYM", DII: %.2" ESYM", HDI: %.2" ESYM,BaryonField[DINum][cellindex],
 		      BaryonField[DIINum][cellindex],BaryonField[HDINum][cellindex]);
 	    }
 	    fprintf(stderr,"\n");
@@ -794,12 +783,11 @@ void set_analytic_sedov(int Nbins, double *radius, double *density,
 {
 
   int i;
-  double gamp1,gamm1,gam7,k, R2, u1, v2, p2;
+  double gamp1,gamm1,k, R2, u1, v2, p2;
   double alpha1, alpha2, alpha3, alpha4, alpha5;
 
   gamp1 = gamma + 1.0;
   gamm1 = gamma - 1.0;
-  gam7 = 7.0 - gamma;
   k = gamp1 / gamm1;
 
   // shock radii, velocity, pressure
@@ -908,10 +896,9 @@ double compute_sedov_v(double xi, double gamma, double alpha1, double alpha2){
 
 double sedov_vfunc(double V, double gamma, double alpha1, double alpha2){
 
-  double tmp, gamp1, gamm1, gam7;
+  double tmp, gamp1, gamm1;
   gamp1 = gamma + 1.0;
   gamm1 = gamma - 1.0;
-  gam7 = 7.0 - gamma;
 
   tmp = POW( (5.0*gamp1*V/4.0) , -2.0/5.0 ) * POW( gamp1/gamm1*(5.0*gamma*V/2.0-1.0), -1.0*alpha2);
   tmp = tmp * POW( (5.0*gamp1 / (5.0*gamp1 - 2.0*(2.0+3.0*gamm1)) *( 1.0 - (2.0+3.0*gamm1)*V/2.0)), -1.0*alpha1);

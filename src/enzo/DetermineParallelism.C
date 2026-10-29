@@ -51,7 +51,7 @@ int DetermineParallelism(HierarchyEntry *TopGrid, TopGridData &MetaData)
     else {foundgrid=1; break;}
   }
   if (foundgrid == 0) {
-    printf("Error: proc %"ISYM" could not locate his grid\n",MyProcessorNumber);
+    printf("Error: proc %" ISYM" could not locate his grid\n",MyProcessorNumber);
     return FAIL;
   }
 

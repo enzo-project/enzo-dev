@@ -97,7 +97,7 @@ int InexactNewtonSolver::SetInexactNewton(int choice, float p1, float p2) {
 int InexactNewtonSolver::SetNewtonNorm(int NormChoice) {
   if ((NormChoice < 0) || (NormChoice > 5))  {
     NtolNorm = 0;
-    fprintf(stderr," SetNewtonNorm warning: %"ISYM" out of bounds\n",NormChoice);
+    fprintf(stderr," SetNewtonNorm warning: %" ISYM" out of bounds\n",NormChoice);
   }
   else  NtolNorm = NormChoice;
   return SUCCESS;

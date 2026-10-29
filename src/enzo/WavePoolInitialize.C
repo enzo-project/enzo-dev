@@ -37,11 +37,11 @@
 int WavePoolInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 		       TopGridData &MetaData)
 {
-  char *DensName = "Density";
-  char *TEName = "TotalEnergy";
-  char *Vel1Name = "x-velocity";
-  char *Vel2Name = "y-velocity";
-  char *Vel3Name = "z-velocity";
+  const char *DensName = "Density";
+  const char *TEName = "TotalEnergy";
+  const char *Vel1Name = "x-velocity";
+  const char *Vel2Name = "y-velocity";
+  const char *Vel3Name = "z-velocity";
  
   /* declarations */
  
@@ -77,19 +77,19 @@ int WavePoolInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
  
     /* read parameters */
  
-    ret += sscanf(line, "WavePoolAmplitude = %"FSYM, &WavePoolAmplitude);
-    ret += sscanf(line, "WavePoolWavelength = %"FSYM, &WavePoolWavelength);
-    ret += sscanf(line, "WavePoolNumberOfWaves = %"FSYM, &WavePoolNumberOfWaves);
-    ret += sscanf(line, "WavePoolAngle = %"FSYM, &WavePoolAngle);
+    ret += sscanf(line, "WavePoolAmplitude = %" FSYM, &WavePoolAmplitude);
+    ret += sscanf(line, "WavePoolWavelength = %" FSYM, &WavePoolWavelength);
+    ret += sscanf(line, "WavePoolNumberOfWaves = %" FSYM, &WavePoolNumberOfWaves);
+    ret += sscanf(line, "WavePoolAngle = %" FSYM, &WavePoolAngle);
  
-    ret += sscanf(line, "WavePoolDensity = %"FSYM, &WavePoolDensity);
-    ret += sscanf(line, "WavePoolPressure = %"FSYM, &WavePoolPressure);
-    ret += sscanf(line, "WavePoolVelocity1 = %"FSYM, &WavePoolVelocity[0]);
-    ret += sscanf(line, "WavePoolVelocity2 = %"FSYM, &WavePoolVelocity[1]);
-    ret += sscanf(line, "WavePoolVelocity3 = %"FSYM, &WavePoolVelocity[2]);
+    ret += sscanf(line, "WavePoolDensity = %" FSYM, &WavePoolDensity);
+    ret += sscanf(line, "WavePoolPressure = %" FSYM, &WavePoolPressure);
+    ret += sscanf(line, "WavePoolVelocity1 = %" FSYM, &WavePoolVelocity[0]);
+    ret += sscanf(line, "WavePoolVelocity2 = %" FSYM, &WavePoolVelocity[1]);
+    ret += sscanf(line, "WavePoolVelocity3 = %" FSYM, &WavePoolVelocity[2]);
  
-    ret += sscanf(line, "WavePoolSubgridLeft = %"PSYM, &WavePoolSubgridLeft);
-    ret += sscanf(line, "WavePoolSubgridRight = %"PSYM, &WavePoolSubgridRight);
+    ret += sscanf(line, "WavePoolSubgridLeft = %" PSYM, &WavePoolSubgridLeft);
+    ret += sscanf(line, "WavePoolSubgridRight = %" PSYM, &WavePoolSubgridRight);
  
     /* if the line is suspicious, issue a warning */
  
@@ -178,19 +178,19 @@ int WavePoolInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   /* Write parameters to parameter output file */
  
   if (MyProcessorNumber == ROOT_PROCESSOR) {
-    fprintf(Outfptr, "WavePoolAmplitude     = %"FSYM"\n", WavePoolAmplitude);
-    fprintf(Outfptr, "WavePoolWavelength    = %"FSYM"\n", WavePoolWavelength);
-    fprintf(Outfptr, "WavePoolNumberOfWaves = %"FSYM"\n", WavePoolNumberOfWaves);
-    fprintf(Outfptr, "WavePoolAngle         = %"FSYM"\n\n", WavePoolAngle);
+    fprintf(Outfptr, "WavePoolAmplitude     = %" FSYM"\n", WavePoolAmplitude);
+    fprintf(Outfptr, "WavePoolWavelength    = %" FSYM"\n", WavePoolWavelength);
+    fprintf(Outfptr, "WavePoolNumberOfWaves = %" FSYM"\n", WavePoolNumberOfWaves);
+    fprintf(Outfptr, "WavePoolAngle         = %" FSYM"\n\n", WavePoolAngle);
  
-    fprintf(Outfptr, "WavePoolDensity       = %"FSYM"\n", WavePoolDensity);
-    fprintf(Outfptr, "WavePoolPressure      = %"FSYM"\n", WavePoolPressure);
-    fprintf(Outfptr, "WavePoolVelocity1     = %"FSYM"\n", WavePoolVelocity[0]);
-    fprintf(Outfptr, "WavePoolVelocity2     = %"FSYM"\n", WavePoolVelocity[1]);
-    fprintf(Outfptr, "WavePoolVelocity3     = %"FSYM"\n\n", WavePoolVelocity[2]);
+    fprintf(Outfptr, "WavePoolDensity       = %" FSYM"\n", WavePoolDensity);
+    fprintf(Outfptr, "WavePoolPressure      = %" FSYM"\n", WavePoolPressure);
+    fprintf(Outfptr, "WavePoolVelocity1     = %" FSYM"\n", WavePoolVelocity[0]);
+    fprintf(Outfptr, "WavePoolVelocity2     = %" FSYM"\n", WavePoolVelocity[1]);
+    fprintf(Outfptr, "WavePoolVelocity3     = %" FSYM"\n\n", WavePoolVelocity[2]);
  
-    fprintf(Outfptr, "WavePoolSubgridLeft   = %"GOUTSYM"\n", WavePoolSubgridLeft);
-    fprintf(Outfptr, "WavePoolSubgridRight  = %"GOUTSYM"\n\n", WavePoolSubgridRight);
+    fprintf(Outfptr, "WavePoolSubgridLeft   = %" GOUTSYM"\n", WavePoolSubgridLeft);
+    fprintf(Outfptr, "WavePoolSubgridRight  = %" GOUTSYM"\n\n", WavePoolSubgridRight);
   }
  
   return SUCCESS;

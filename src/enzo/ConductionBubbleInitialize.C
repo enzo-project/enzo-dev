@@ -44,8 +44,7 @@ int ConductionBubbleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGri
   }
 
   char line[MAX_LINE_LENGTH];
-  float LeftEdge[MAX_DIMENSION], RightEdge[MAX_DIMENSION];
-  int i, j, dim, ret;
+  int i, j, ret;
 
   float ConductionBubbleDensity = 1.0;
   float ConductionBubbleTotalEnergy = 1.0;
@@ -65,17 +64,17 @@ int ConductionBubbleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGri
 
   while (fgets(line, MAX_LINE_LENGTH, fptr) != NULL) {
     ret = 0;
-    ret += sscanf(line, "ConductionBubbleRadiusOfBubble = %"PSYM, &ConductionBubbleRadiusOfBubble);
-    ret += sscanf(line, "ConductionBubblePulseType = %"ISYM, &ConductionBubblePulseType);
-    ret += sscanf(line, "ConductionBubbleDeltaEntropy = %"FSYM, &ConductionBubbleDeltaEntropy);
-    ret += sscanf(line, "ConductionBubbleMidpointEntropy = %"FSYM, &ConductionBubbleMidpointEntropy);
-    ret += sscanf(line, "ConductionBubbleEntropyGradient = %"FSYM, &ConductionBubbleEntropyGradient);
-    ret += sscanf(line, "ConductionBubbleMidpointTemperature = %"FSYM, &ConductionBubbleMidpointTemperature);
-    ret += sscanf(line, "ConductionBubbleCenter = %"PSYM" %"PSYM" %"PSYM, &ConductionBubbleCenter[0],
+    ret += sscanf(line, "ConductionBubbleRadiusOfBubble = %" PSYM, &ConductionBubbleRadiusOfBubble);
+    ret += sscanf(line, "ConductionBubblePulseType = %" ISYM, &ConductionBubblePulseType);
+    ret += sscanf(line, "ConductionBubbleDeltaEntropy = %" FSYM, &ConductionBubbleDeltaEntropy);
+    ret += sscanf(line, "ConductionBubbleMidpointEntropy = %" FSYM, &ConductionBubbleMidpointEntropy);
+    ret += sscanf(line, "ConductionBubbleEntropyGradient = %" FSYM, &ConductionBubbleEntropyGradient);
+    ret += sscanf(line, "ConductionBubbleMidpointTemperature = %" FSYM, &ConductionBubbleMidpointTemperature);
+    ret += sscanf(line, "ConductionBubbleCenter = %" PSYM" %" PSYM" %" PSYM, &ConductionBubbleCenter[0],
 		  &ConductionBubbleCenter[1],&ConductionBubbleCenter[2]);
-    ret += sscanf(line, "TestProblemUseMetallicityField  = %"ISYM, &TestProblemData.UseMetallicityField);
-    ret += sscanf(line, "TestProblemInitialMetallicityFraction  = %"FSYM, &TestProblemData.MetallicityField_Fraction);
-    ret += sscanf(line, "ConductionBubbleBField = %"FSYM" %"FSYM" %"FSYM,&ConductionBubbleInitialUniformBField[0],
+    ret += sscanf(line, "TestProblemUseMetallicityField  = %" ISYM, &TestProblemData.UseMetallicityField);
+    ret += sscanf(line, "TestProblemInitialMetallicityFraction  = %" FSYM, &TestProblemData.MetallicityField_Fraction);
+    ret += sscanf(line, "ConductionBubbleBField = %" FSYM" %" FSYM" %" FSYM,&ConductionBubbleInitialUniformBField[0],
 		  &ConductionBubbleInitialUniformBField[1], &ConductionBubbleInitialUniformBField[2]);
 
     if (ret == 0 && 
@@ -166,17 +165,16 @@ int ConductionBubbleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGri
   /* Write parameters to parameter output file */
  
   if (MyProcessorNumber == ROOT_PROCESSOR) {
-    fprintf(Outfptr, "ConductionBubbleRadiusOfBubble = %"PSYM"\n", ConductionBubbleRadiusOfBubble);
-    fprintf(Outfptr, "ConductionBubblePulseType = %"ISYM"\n", ConductionBubblePulseType);
-    fprintf(Outfptr, "ConductionBubbleDeltaEntropy = %"FSYM"\n", ConductionBubbleDeltaEntropy);
-    fprintf(Outfptr, "ConductionBubbleMidpointEntropy = %"FSYM"\n", ConductionBubbleMidpointEntropy);
-    fprintf(Outfptr, "ConductionBubbleEntropyGradient = %"FSYM"\n", ConductionBubbleEntropyGradient);
-    fprintf(Outfptr, "ConductionBubbleMidpointTemperature = %"FSYM"\n", ConductionBubbleMidpointTemperature);
-    fprintf(Outfptr, "ConductionBubbleCenter = %"PSYM" %"PSYM" %"PSYM"\n", ConductionBubbleCenter,
-		  ConductionBubbleCenter+1,ConductionBubbleCenter+2);
-    fprintf(Outfptr, "TestProblemUseMetallicityField  = %"ISYM"\n", TestProblemData.UseMetallicityField);
-    fprintf(Outfptr, "TestProblemInitialMetallicityFraction  = %"FSYM"\n", TestProblemData.MetallicityField_Fraction);
-    fprintf(Outfptr, "ConductionBubbleBField = %"FSYM" %"FSYM" %"FSYM"\n",ConductionBubbleInitialUniformBField[0],
+    fprintf(Outfptr, "ConductionBubbleRadiusOfBubble = %" PSYM"\n", ConductionBubbleRadiusOfBubble);
+    fprintf(Outfptr, "ConductionBubblePulseType = %" ISYM"\n", ConductionBubblePulseType);
+    fprintf(Outfptr, "ConductionBubbleDeltaEntropy = %" FSYM"\n", ConductionBubbleDeltaEntropy);
+    fprintf(Outfptr, "ConductionBubbleMidpointEntropy = %" FSYM"\n", ConductionBubbleMidpointEntropy);
+    fprintf(Outfptr, "ConductionBubbleEntropyGradient = %" FSYM"\n", ConductionBubbleEntropyGradient);
+    fprintf(Outfptr, "ConductionBubbleMidpointTemperature = %" FSYM"\n", ConductionBubbleMidpointTemperature);
+    fprintf(Outfptr, "ConductionBubbleCenter = %" PSYM" %" PSYM" %" PSYM"\n", ConductionBubbleCenter[0], ConductionBubbleCenter[1], ConductionBubbleCenter[2]);
+    fprintf(Outfptr, "TestProblemUseMetallicityField  = %" ISYM"\n", TestProblemData.UseMetallicityField);
+    fprintf(Outfptr, "TestProblemInitialMetallicityFraction  = %" FSYM"\n", TestProblemData.MetallicityField_Fraction);
+    fprintf(Outfptr, "ConductionBubbleBField = %" FSYM" %" FSYM" %" FSYM"\n",ConductionBubbleInitialUniformBField[0],
 	    ConductionBubbleInitialUniformBField[1],ConductionBubbleInitialUniformBField[2]);
   }
 

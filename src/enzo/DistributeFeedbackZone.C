@@ -37,7 +37,7 @@ int CommunicationReceiveHandler(fluxes **SubgridFluxesEstimate[] = NULL,
 int DistributeFeedbackZone(grid* FeedbackZone, HierarchyEntry** Grids, 
 			   int NumberOfGrids, int SendField)
 {
-  int i,j;
+  int i;
 
   FLOAT ZeroVector[] = {0, 0, 0};
 

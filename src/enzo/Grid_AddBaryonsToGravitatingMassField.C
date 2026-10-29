@@ -60,7 +60,7 @@ int grid::AddBaryonsToGravitatingMassField()
     Offset[dim] = nint((CellLeftEdge[dim][0] -
 			GravitatingMassFieldLeftEdge[dim])/CellWidth[dim][0]);
     if (Offset[dim] < 0) {
-      ENZO_VFAIL("Offset[%"ISYM"] = %"ISYM" < 0\n", dim, Offset[dim])
+      ENZO_VFAIL("Offset[%" ISYM"] = %" ISYM" < 0\n", dim, Offset[dim])
 
     }
   }

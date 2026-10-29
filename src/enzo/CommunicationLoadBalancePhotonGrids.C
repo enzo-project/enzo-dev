@@ -75,7 +75,7 @@ int CommunicationLoadBalancePhotonGrids(HierarchyEntry **Grids[], int *NumberOfG
   int *NewProcessorNumber, *NonZeroList;
   grid **NonZeroGrids;
 
-  int i, index, index2, lvl, dim, proc, GridsMoved, TotalNumberOfGrids;
+  int i, index, index2, lvl, proc, GridsMoved, TotalNumberOfGrids;
   int NumberOfBaryonFields, Nonzero;
   int FieldTypes[MAX_NUMBER_OF_BARYON_FIELDS];
 
@@ -242,7 +242,7 @@ int CommunicationLoadBalancePhotonGrids(HierarchyEntry **Grids[], int *NumberOfG
 
   if (MyProcessorNumber == ROOT_PROCESSOR && GridsMoved > 0) {
     tt1 = ReturnWallTime();
-    printf("PhotonLoadBalance[%"ISYM"]: Number of grids moved = %"ISYM" out of %"ISYM" "
+    printf("PhotonLoadBalance[%" ISYM"]: Number of grids moved = %" ISYM" out of %" ISYM" "
 	   "(%lg seconds elapsed)\n", lvl, GridsMoved, NumberOfGrids[lvl], tt1-tt0);
   }
 

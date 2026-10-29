@@ -44,11 +44,10 @@ int StarParticleMergeMBH(LevelHierarchyEntry *LevelArray[], Star *&AllStars)
 {
 
   Star *ThisStar, *OtherStar, *MoveStar, *LastStar;
-  LevelHierarchyEntry *Temp;
   float rmerge2;
   double vcirc2;
   FLOAT TimeNow;
-  int dim, level;
+  int level;
   bool MBH_Exists = false;
 
   for (ThisStar = AllStars; ThisStar; ThisStar = ThisStar->NextStar)
@@ -85,7 +84,7 @@ int StarParticleMergeMBH(LevelHierarchyEntry *LevelArray[], Star *&AllStars)
     for (OtherStar = ThisStar->NextStar; OtherStar;
 	 OtherStar = OtherStar->NextStar) {
       if (ThisStar->ReturnID() == OtherStar->ReturnID()) {
-	ENZO_VFAIL("%"ISYM" -- merging duplicate particle??\n", ThisStar->ReturnID())
+	ENZO_VFAIL("%" ISYM" -- merging duplicate particle??\n", ThisStar->ReturnID())
       }
 
       /* To merge two MBH particles you should satisfy 3 conditions 
@@ -98,10 +97,10 @@ int StarParticleMergeMBH(LevelHierarchyEntry *LevelArray[], Star *&AllStars)
 	ThisStar->Separation(OtherStar) / LengthUnits / (VelocityUnits*VelocityUnits) ; 
 
       /*
-      printf("Merging stars candidates: %d (%g, %g, %g) and %d (%g, %g, %g)\n", 
+      printf("Merging stars candidates: %" ISYM " (%g, %g, %g) and %" ISYM " (%g, %g, %g)\n", 
 	     ThisStar->ReturnID(), ThisStar->ReturnPosition()[0], ThisStar->ReturnPosition()[1], ThisStar->ReturnPosition()[2],
 	     OtherStar->ReturnID(), OtherStar->ReturnPosition()[0], OtherStar->ReturnPosition()[0], OtherStar->ReturnPosition()[0]);
-      printf("Merging stars candidates: mergableMBH = %d, Separation2 = %g, rmerge2 = %g, RelVel2 = %g, vcirc2 = %g \n", 
+      printf("Merging stars candidates: mergableMBH = %" ISYM ", Separation2 = %g, rmerge2 = %g, RelVel2 = %g, vcirc2 = %g \n", 
 	     ThisStar->MergableMBH(OtherStar), ThisStar->Separation2(OtherStar), rmerge2,
 	     ThisStar->RelativeVelocity2(OtherStar), vcirc2);
       */
@@ -112,7 +111,7 @@ int StarParticleMergeMBH(LevelHierarchyEntry *LevelArray[], Star *&AllStars)
 	ThisStar->Merge(OtherStar);
 	OtherStar->MarkForDeletion();
 
-	printf("Merging stars %"ISYM" and %"ISYM"\n", ThisStar->ReturnID(),
+	printf("Merging stars %" ISYM" and %" ISYM"\n", ThisStar->ReturnID(),
 	       OtherStar->ReturnID());  
 	printf("Merging stars candidates: mergableMBH = %d, Separation2 = %g, rmerge2 = %g, RelVel2 = %g, vcirc2 = %g \n", 
 	       ThisStar->MergableMBH(OtherStar), ThisStar->Separation2(OtherStar), rmerge2,

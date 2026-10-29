@@ -63,7 +63,6 @@ int grid::ComputeHeat (float dedt[]) {
   float Bx_face, By_face, Bz_face, Bxhat, Byhat, Bzhat, Bmag;
   float dTx, dTy, dTz;
   int x_offset=0, y_offset=0, z_offset=0;
-  float Bhat; // gotta get rid of this later
 
   int size = 1, grid_index, right_side_index;
   for (int dim = 0; dim < GridRank; dim++) {

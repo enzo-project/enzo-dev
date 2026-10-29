@@ -17,19 +17,19 @@ void density(FOFData &A)
 {
   float  *r2list;
   int    *ngblist;
-  int    i,k,ii,ind,signal;
-  double h,h2,hinv3,hv_inv3,wk,u,r;
+  int i, k, ii, ind;
+  double h, h2, hinv3, wk, u, r;
   
   set_sph_kernel(A);
   
 //  if (debug)
 //    printf("Computing densities...\n");
 
-  for (i = 1, signal = 0; i <= A.NumInGroup; i++) {
+  for (i = 1; i <= A.NumInGroup; i++) {
 //    if (debug) {
 //      if (i > (signal/100.0)*A.NumInGroup) {
 //	if ((signal%10) == 0)
-//	  printf("%"ISYM,signal);
+//	  printf("%" ISYM,signal);
 //	else
 //	  printf(".",signal);
 //	fflush(stdout);
@@ -71,7 +71,6 @@ void density(FOFData &A)
 void set_sph_kernel(FOFData &A)
 {
   int i;
-  FILE *fd;
 
   for (i = 0; i <= KERNEL_TABLE; i++)
     A.KernelRad[i] = ((float) i) / KERNEL_TABLE;

@@ -65,14 +65,11 @@ int CollapseMHD3DInitialize(FILE *fptr, FILE *Outfptr,
    const char *PhiName = "Phi";
    const char *Phi_pName = "Phip";
    const char *GravPotenName = "PotentialField";
-   const char *Acce1Name = "AccelerationField1";
-   const char *Acce2Name = "AccelerationField2";
-   const char *Acce3Name = "AccelerationField3";
 
   /* declarations */
 
   char  line[MAX_LINE_LENGTH];
-  int   dim, ret, level, sphere, i;
+  int dim, level, sphere, i;
 
   /* set default parameters */
 
@@ -129,68 +126,67 @@ int CollapseMHD3DInitialize(FILE *fptr, FILE *Outfptr,
 
   while (fgets(line, MAX_LINE_LENGTH, fptr) != NULL) {
 
-    ret = 0;
 
     /* read parameters */
 
-    ret += sscanf(line, "NumberOfSpheres = %"ISYM, &n_sphere);
-    ret += sscanf(line, "RefineAtStart = %"ISYM, &RefineAtStart);
-    ret += sscanf(line, "UseParticles = %"ISYM, &UseParticles);
-    ret += sscanf(line, "MediumDensity = %"FSYM, &MediumDensity);
-    ret += sscanf(line, "MediumPressure = %"FSYM, &MediumPressure);
-    ret += sscanf(line, "MediumTemperature = %"FSYM, &MediumTemperature);
-    ret += sscanf(line, "UniformVelocity = %"FSYM" %"FSYM" %"FSYM, 
+    sscanf(line, "NumberOfSpheres = %" ISYM, &n_sphere);
+    sscanf(line, "RefineAtStart = %" ISYM, &RefineAtStart);
+    sscanf(line, "UseParticles = %" ISYM, &UseParticles);
+    sscanf(line, "MediumDensity = %" FSYM, &MediumDensity);
+    sscanf(line, "MediumPressure = %" FSYM, &MediumPressure);
+    sscanf(line, "MediumTemperature = %" FSYM, &MediumTemperature);
+    sscanf(line, "UniformVelocity = %" FSYM" %" FSYM" %" FSYM, 
 		  UniformVelocity, UniformVelocity+1,
 		  UniformVelocity+2);
-    ret += sscanf(line, "InitialBField = %"FSYM, &Bnaught);
-    ret += sscanf(line, "theta_B = %"FSYM, &theta_B);
-    ret += sscanf(line, "Bdirection = %"ISYM, &Bdirection);
+    sscanf(line, "InitialBField = %" FSYM, &Bnaught);
+    sscanf(line, "theta_B = %" FSYM, &theta_B);
+    sscanf(line, "Bdirection = %" ISYM, &Bdirection);
 
-    if (sscanf(line, "SphereType[%"ISYM"]", &sphere) > 0)
-      ret += sscanf(line, "SphereType[%"ISYM"] = %"ISYM, &sphere,
+    if (sscanf(line, "SphereType[%" ISYM"]", &sphere) > 0)
+      sscanf(line, "SphereType[%" ISYM"] = %" ISYM, &sphere,
 		    &SphereType[sphere]);
-    if (sscanf(line, "SphereRadius[%"ISYM"]", &sphere) > 0)
-      ret += sscanf(line, "SphereRadius[%"ISYM"] = %"PSYM, &sphere,
+    if (sscanf(line, "SphereRadius[%" ISYM"]", &sphere) > 0)
+      sscanf(line, "SphereRadius[%" ISYM"] = %" PSYM, &sphere,
 		    &SphereRadius[sphere]);
-    if (sscanf(line, "SphereCoreRadius[%"ISYM"]", &sphere) > 0)
-      ret += sscanf(line, "SphereCoreRadius[%"ISYM"] = %"PSYM, &sphere,
+    if (sscanf(line, "SphereCoreRadius[%" ISYM"]", &sphere) > 0)
+      sscanf(line, "SphereCoreRadius[%" ISYM"] = %" PSYM, &sphere,
 		    &SphereCoreRadius[sphere]);
-    if (sscanf(line, "SphereDensity[%"ISYM"]", &sphere) > 0)
-      ret += sscanf(line, "SphereDensity[%"ISYM"] = %"FSYM, &sphere,
+    if (sscanf(line, "SphereDensity[%" ISYM"]", &sphere) > 0)
+      sscanf(line, "SphereDensity[%" ISYM"] = %" FSYM, &sphere,
 		    &SphereDensity[sphere]);
-    if (sscanf(line, "SpherePressure[%"ISYM"]", &sphere) > 0)
-      ret += sscanf(line, "SpherePressure[%"ISYM"] = %"FSYM, &sphere,
+    if (sscanf(line, "SpherePressure[%" ISYM"]", &sphere) > 0)
+      sscanf(line, "SpherePressure[%" ISYM"] = %" FSYM, &sphere,
 		    &SpherePressure[sphere]);
-    if (sscanf(line, "SphereSoundVelocity[%"ISYM"]", &sphere) > 0)
-      ret += sscanf(line, "SphereSoundVelocity[%"ISYM"] = %"FSYM, &sphere,
+    if (sscanf(line, "SphereSoundVelocity[%" ISYM"]", &sphere) > 0)
+      sscanf(line, "SphereSoundVelocity[%" ISYM"] = %" FSYM, &sphere,
 		    &SphereSoundVelocity[sphere]);
-    if (sscanf(line, "SpherePosition[%"ISYM"]", &sphere) > 0)
-      ret += sscanf(line, "SpherePosition[%"ISYM"] = %"PSYM" %"PSYM" %"PSYM, 
+    if (sscanf(line, "SpherePosition[%" ISYM"]", &sphere) > 0)
+      sscanf(line, "SpherePosition[%" ISYM"] = %" PSYM" %" PSYM" %" PSYM, 
 		    &sphere, &SpherePosition[sphere][0],
 		    &SpherePosition[sphere][1],
 		    &SpherePosition[sphere][2]);
-    if (sscanf(line, "SphereVelocity[%"ISYM"]", &sphere) > 0)
-      ret += sscanf(line, "SphereVelocity[%"ISYM"] = %"FSYM" %"FSYM" %"FSYM, 
+    if (sscanf(line, "SphereVelocity[%" ISYM"]", &sphere) > 0)
+      sscanf(line, "SphereVelocity[%" ISYM"] = %" FSYM" %" FSYM" %" FSYM, 
 		    &sphere, &SphereVelocity[sphere][0],
 		    &SphereVelocity[sphere][1],
 		    &SphereVelocity[sphere][2]);
-    if (sscanf(line, "SphereAngVel[%"ISYM"]", &sphere) > 0)
-      ret += sscanf(line, "SphereAngVel[%"ISYM"] = %"FSYM, &sphere,
+    if (sscanf(line, "SphereAngVel[%" ISYM"]", &sphere) > 0)
+      sscanf(line, "SphereAngVel[%" ISYM"] = %" FSYM, &sphere,
                     &SphereAngVel[sphere]);
-    if (sscanf(line, "SphereTurbulence[%"ISYM"]", &sphere) > 0)
-      ret += sscanf(line, "SphereTurbulence[%"ISYM"] = %"FSYM, &sphere,
+    if (sscanf(line, "SphereTurbulence[%" ISYM"]", &sphere) > 0)
+      sscanf(line, "SphereTurbulence[%" ISYM"] = %" FSYM, &sphere,
                     &SphereTurbulence[sphere]);
-    if (sscanf(line, "SphereCutOff[%"ISYM"]", &sphere) > 0)
-      ret += sscanf(line, "SphereCutOff[%"ISYM"] = %"FSYM, &sphere,
+    if (sscanf(line, "SphereCutOff[%" ISYM"]", &sphere) > 0)
+      sscanf(line, "SphereCutOff[%" ISYM"] = %" FSYM, &sphere,
                     &SphereCutOff[sphere]);
-    if (sscanf(line, "SphereAng1[%"ISYM"]", &sphere) > 0)
-      ret += sscanf(line, "SphereAng1[%"ISYM"] = %"FSYM, &sphere,
+    if (sscanf(line, "SphereAng1[%" ISYM"]", &sphere) > 0)
+      sscanf(line, "SphereAng1[%" ISYM"] = %" FSYM, &sphere,
                     &SphereAng1[sphere]);
-    if (sscanf(line, "SphereAng2[%"ISYM"]", &sphere) > 0)
-      ret += sscanf(line, "SphereAng2[%"ISYM"] = %"FSYM, &sphere,
+    if (sscanf(line, "SphereAng2[%" ISYM"]", &sphere) > 0)
+      sscanf(line, "SphereAng2[%" ISYM"] = %" FSYM, &sphere,
                     &SphereAng2[sphere]);
-    if (sscanf(line, "SphereNumShells[%"ISYM"]", &sphere) > 0)
-      ret += sscanf(line, "SphereNumShells[%"ISYM"] = %"ISYM, &sphere,
+    if (sscanf(line, "SphereNumShells[%" ISYM"]", &sphere) > 0)
+      sscanf(line, "SphereNumShells[%" ISYM"] = %" ISYM, &sphere,
                     &SphereNumShells[sphere]);
     /* if the line is suspicious, issue a warning */
 
@@ -203,7 +199,7 @@ int CollapseMHD3DInitialize(FILE *fptr, FILE *Outfptr,
     bfieldu = sqrt(presu*4.0*M_PI);
   }
   
-  printf("rhou=%"GSYM",velu=%"GSYM",lenu=%"GSYM",tu=%"GSYM" (%"GSYM" yr),tempu=%"GSYM",presu=%"GSYM", bfieldu=%"GSYM", tempu=%"GSYM"\n", 
+  printf("rhou=%" GSYM",velu=%" GSYM",lenu=%" GSYM",tu=%" GSYM" (%" GSYM" yr),tempu=%" GSYM",presu=%" GSYM", bfieldu=%" GSYM", tempu=%" GSYM"\n", 
 	 rhou, velu,lenu,tu,tu/3.1558e7,tempu,presu,bfieldu, tempu);
 
   // Bonnor-Ebert sphere: only the sound velocity and sphere radius are free parameters
@@ -224,7 +220,7 @@ int CollapseMHD3DInitialize(FILE *fptr, FILE *Outfptr,
     double msun = 1.989e33;
     m_be /= msun;
 
-    printf("rhoc=%"GSYM", cs=%"GSYM", re=%"GSYM", m=%"GSYM"\n", rhoc, cs, re, m_be);
+    printf("rhoc=%" GSYM", cs=%" GSYM", re=%" GSYM", m=%" GSYM"\n", rhoc, cs, re, m_be);
   }
 
 
@@ -233,7 +229,6 @@ int CollapseMHD3DInitialize(FILE *fptr, FILE *Outfptr,
     float MediumEnergy;
     float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits, 
       VelocityUnits;
-    float tmp1, tmp2, tmp3;
     GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits, &TimeUnits, 
 	     &VelocityUnits, MetaData.Time);
     MediumEnergy = MediumTemperature / TemperatureUnits / ((Gamma-1.0)*Mu);
@@ -244,7 +239,7 @@ int CollapseMHD3DInitialize(FILE *fptr, FILE *Outfptr,
 
   Bnaught /= bfieldu;
 
-  //printf("t=%"GSYM"\n", MediumPressure/MediumDensity*tempu);
+  //printf("t=%" GSYM"\n", MediumPressure/MediumDensity*tempu);
 
   for (int i = 0; i < n_sphere; i++) {
     SphereDensity[i] /= rhou;
@@ -253,13 +248,13 @@ int CollapseMHD3DInitialize(FILE *fptr, FILE *Outfptr,
     SphereAngVel[i] *= tu;
   }
 
-  printf("rhoc=%"GSYM", rhom=%"GSYM", pm=%"GSYM"\n", SphereDensity[0], MediumDensity, MediumPressure);
+  printf("rhoc=%" GSYM", rhom=%" GSYM", pm=%" GSYM"\n", SphereDensity[0], MediumDensity, MediumPressure);
 
   HierarchyEntry *CurrentGrid; // all level 0 grids on this processor first
   CurrentGrid = &TopGrid;
   int count = 0;
   while (CurrentGrid != NULL) {
-    printf("count %i %i\n", count++, MyProcessorNumber);
+    printf("count %" ISYM " %" ISYM "\n", count++, MyProcessorNumber);
     if (CurrentGrid->GridData->CollapseMHD3DInitializeGrid(
 						      n_sphere, SphereRadius,
 						      SphereCoreRadius, SphereDensity,
@@ -289,14 +284,14 @@ int CollapseMHD3DInitialize(FILE *fptr, FILE *Outfptr,
 	  return FAIL;
 	}
 	CurrentGrid = CurrentGrid->NextGridThisLevel;
-	fprintf(stderr, "Prepared: v_rms, Volume: %"GSYM"  %"GSYM"\n", v_rms, Volume);
+	fprintf(stderr, "Prepared: v_rms, Volume: %" GSYM"  %" GSYM"\n", v_rms, Volume);
       }
       
 #ifdef USE_MPI
       CommunicationAllReduceValues(&v_rms, 1, MPI_SUM);
       CommunicationAllReduceValues(&Volume, 1, MPI_SUM);
 #endif
-      fprintf(stderr, "v_rms, Volume: %"GSYM"  %"GSYM"\n", v_rms, Volume);
+      fprintf(stderr, "v_rms, Volume: %" GSYM"  %" GSYM"\n", v_rms, Volume);
       // Carry out the Normalization
       v_rms = sqrt(v_rms/Volume); // actuall v_rms
       fac = SphereSoundVelocity[0]*SphereTurbulence[0]/v_rms;

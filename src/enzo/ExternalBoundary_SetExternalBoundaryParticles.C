@@ -37,7 +37,7 @@ int ExternalBoundary::SetExternalBoundaryParticles(int FieldRank,
   /* Error check: grid ranks. */
  
   if (FieldRank != BoundaryRank) {
-    ENZO_VFAIL("FieldRank(%"ISYM") != BoundaryRank(%"ISYM").\n",
+    ENZO_VFAIL("FieldRank(%" ISYM") != BoundaryRank(%" ISYM").\n",
             FieldRank, BoundaryRank)
   }
  

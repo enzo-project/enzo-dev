@@ -23,8 +23,7 @@
 int llf_mhd(float **FluxLine, float **priml, float **primr, float **prim, int ActiveSize)
 {
   float Ul[NEQ_MHD], Ur[NEQ_MHD], Fl[NEQ_MHD], Fr[NEQ_MHD];
-  float etot, eint, h, dpdrho, dpde, W, W2, ap, am, cs, cs2, ca2, ca, cf, cf2, v_yz, v_yz2, v2,
-    vx, vx2, vy, vz, rho, p, lm_l, lp_l, lm_r, lp_r, v, Bx, By, Bz, Phi, B2, Bv, Ecr, Pcr;
+  float etot, eint, h, dpdrho, dpde, ap, am, cs, cs2, ca2, cf, cf2, v2, vx, vy, vz, rho, p, lm_l, lp_l, lm_r, lp_r, Bx, By, Bz, Phi, B2, Bv, Ecr, Pcr;
   float Zero = 0.0;
   float temp1;
   
@@ -59,7 +58,6 @@ int llf_mhd(float **FluxLine, float **priml, float **primr, float **prim, int Ac
       cs = sqrt(p/rho);
     }
  
-    float pl = p;
     cs2 = cs*cs;
 
     Ul[iD   ] = rho;
@@ -134,7 +132,6 @@ int llf_mhd(float **FluxLine, float **priml, float **primr, float **prim, int Ac
       cs = sqrt(p/rho);
     }
   
-    float pr=p;
     cs2 = cs*cs;
 
     Ur[iD   ] = rho;
@@ -198,14 +195,14 @@ int llf_mhd(float **FluxLine, float **priml, float **primr, float **prim, int Ac
     FluxLine[iPhi][n] *= (C_h*C_h);
 
     /*if (isnan(FluxLine[iD][n])) {
-      printf("F[iD] huge at n=%"ISYM": fl[iS1]=%lf, fr[iS1]=%lf, Ul[iS1]=%lf, Ur[iS1]=%lf, ap=%lf, am = %lf\n",
+      printf("F[iD] huge at n=%" ISYM": fl[iS1]=%lf, fr[iS1]=%lf, Ul[iS1]=%lf, Ur[iS1]=%lf, ap=%lf, am = %lf\n",
 	     n, Fl[iD], Fr[iD], Ul[iD], Ur[iD], ap, am);
-      printf("lp_l=%lf, lm_l=%lf, lp_r=%lf, lm_r=%lf, pl=%"GSYM", pr=%"GSYM", cfr=%"GSYM", temp2=%"GSYM", 4.0csca=%"GSYM"\n",
+      printf("lp_l=%lf, lm_l=%lf, lp_r=%lf, lm_r=%lf, pl=%" GSYM", pr=%" GSYM", cfr=%" GSYM", temp2=%" GSYM", 4.0csca=%" GSYM"\n",
 	     lp_l, lm_l, lp_r, lm_r, pl, pr, cf, temp1*temp1, 4.0*cs2*ca2);
-      printf("cs2=%"GSYM", ca2=%"GSYM", B2/rho=%"GSYM"\n", cs2, ca2, B2/rho);
-      printf("priml: rho = %"GSYM", eint = %"GSYM", vx = %"GSYM", vy = %"GSYM", vz = %"GSYM"\n",
+      printf("cs2=%" GSYM", ca2=%" GSYM", B2/rho=%" GSYM"\n", cs2, ca2, B2/rho);
+      printf("priml: rho = %" GSYM", eint = %" GSYM", vx = %" GSYM", vy = %" GSYM", vz = %" GSYM"\n",
 	     priml[0][n], priml[1][n], priml[2][n], priml[3][n], priml[4][n]);
-      printf("primr: rho = %"GSYM", eint = %"GSYM", vx = %"GSYM", vy = %"GSYM", vz = %"GSYM"\n",
+      printf("primr: rho = %" GSYM", eint = %" GSYM", vx = %" GSYM", vy = %" GSYM", vz = %" GSYM"\n",
 	     primr[0][n], primr[1][n], primr[2][n], primr[3][n], primr[4][n]);
       return FAIL;
       }*/

@@ -37,7 +37,7 @@ int grid::SetFlaggingFieldMultiRefineRegions(int level)
   /* declarations */
 
   int i, j, k, index, dim, region;
-  float xpos, ypos, zpos, ring_width, rad, dr;
+  float xpos, ypos, zpos, rad, dr;
   int LocalMaximumRefinementLevel = 0;
 
 
@@ -267,7 +267,7 @@ int grid::SetFlaggingFieldMultiRefineRegions(int level)
     size *= GridEndIndex[dim] - GridStartIndex[dim] + 1;
 
   if (debug)
-    printf("SetFlaggingFieldMultiRefineRegions: NumberOfFlaggedCells = %d (%.1f%%)\n",
+    printf("SetFlaggingFieldMultiRefineRegions: NumberOfFlaggedCells = %" ISYM " (%.1f%%)\n",
 	   NumberOfFlaggedCells, float(NumberOfFlaggedCells)*100.0/
 	   float(size));
 

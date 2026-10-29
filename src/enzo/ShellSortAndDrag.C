@@ -47,7 +47,7 @@ void ShellSortAndDrag(Eint32 List[], int N,
 	t12[a] = DragList3[a][j];
 
       while (i >= 0 && List[i] > t11) {
-//	printf("P%d: i=%d, j=%d, m=%d, Swapping %d (type=%d) and %d (type=%d)\n",
+//	printf("P%" ISYM ": i=%" ISYM ", j=%" ISYM ", m=%" ISYM ", Swapping %" ISYM " (type=%" ISYM ") and %" ISYM " (type=%" ISYM ")\n",
 //	       MyProcessorNumber, i,j,m, i+m, List[i+m], i, List[i]);
 	SWAP(List, i+m, i, temp1)
 	for (a = 0; a < NumberToDrag1; a++)

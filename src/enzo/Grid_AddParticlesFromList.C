@@ -40,7 +40,7 @@ int grid::AddParticlesFromList(ParticleEntry *List, const int &Size,
   // GridLeftEdge[2],GridRightEdge[2]);
   int Count = 0;
   for (int i = 0; i < Size; i++) {
-    //printf("%d: %g %g %g\n", List[i].Number, List[i].Position[0], List[i].Position[1], List[i].Position[2]);
+    //printf("%" ISYM ": %g %g %g\n", List[i].Number, List[i].Position[0], List[i].Position[1], List[i].Position[2]);
     if (List[i].Position[0] > GridLeftEdge[0] &&
 	List[i].Position[0] < GridRightEdge[0] &&
 	List[i].Position[1] > GridLeftEdge[1] &&

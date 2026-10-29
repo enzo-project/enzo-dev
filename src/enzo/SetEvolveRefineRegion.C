@@ -34,9 +34,9 @@ int SetEvolveRefineRegion (FLOAT time)
 
   if(debug1){
     printf("SetEvolveRefineRegion: setting region.\n");
-    printf("SetEvolveRefineRegion: EvolveRefineRegionTime[0]:        %"FSYM"\n",EvolveRefineRegionTime[0]);
-    printf("SetEvolveRefineRegion: EvolveMustRefineRegionTime[0]:    %"FSYM"\n",EvolveMustRefineRegionTime[0]);
-    printf("SetEvolveRefineRegion: EvolveCoolingRefineRegionTime[0]: %"FSYM"\n",EvolveCoolingRefineRegionTime[0]);
+    printf("SetEvolveRefineRegion: EvolveRefineRegionTime[0]:        %" FSYM"\n",EvolveRefineRegionTime[0]);
+    printf("SetEvolveRefineRegion: EvolveMustRefineRegionTime[0]:    %" FSYM"\n",EvolveMustRefineRegionTime[0]);
+    printf("SetEvolveRefineRegion: EvolveCoolingRefineRegionTime[0]: %" FSYM"\n",EvolveCoolingRefineRegionTime[0]);
   }
   
   /* If TimeType is redshift, calculate redshift */
@@ -128,7 +128,7 @@ int SetEvolveRefineRegion (FLOAT time)
       } // if (staticRegion < 0) {
 
     if (debug1)
-      fprintf(stdout, "SetEvolveRefineRegion: EvolveRegion: %"PSYM" %"PSYM" %"PSYM" %"PSYM" %"PSYM" %"PSYM"\n",
+      fprintf(stdout, "SetEvolveRefineRegion: EvolveRegion: %" PSYM" %" PSYM" %" PSYM" %" PSYM" %" PSYM" %" PSYM"\n",
 	      RefineRegionLeftEdge[0], RefineRegionLeftEdge[1], 
 	      RefineRegionLeftEdge[2], RefineRegionRightEdge[0],
 	      RefineRegionRightEdge[1], RefineRegionRightEdge[2]);
@@ -212,7 +212,7 @@ int SetEvolveRefineRegion (FLOAT time)
     MustRefineRegionMinRefinementLevel = EvolveMustRefineRegionMinLevel[timestep];
 
     if (debug1)
-      fprintf(stdout, "SetEvolveRefineRegion: EvolveMustRefineRegion: %"PSYM" %"PSYM" %"PSYM" %"PSYM" %"PSYM" %"PSYM" %"ISYM"\n",
+      fprintf(stdout, "SetEvolveRefineRegion: EvolveMustRefineRegion: %" PSYM" %" PSYM" %" PSYM" %" PSYM" %" PSYM" %" PSYM" %" ISYM"\n",
 	      MustRefineRegionLeftEdge[0], MustRefineRegionLeftEdge[1], 
 	      MustRefineRegionLeftEdge[2], MustRefineRegionRightEdge[0],
 	      MustRefineRegionRightEdge[1], MustRefineRegionRightEdge[2],
@@ -294,7 +294,7 @@ int SetEvolveRefineRegion (FLOAT time)
     } // for (i = 0; i < MAX_DIMENSION; i++){
 
     if (debug1)
-      fprintf(stdout, "SetEvolveRefineRegion: EvolveCoolingRefineRegion: %"PSYM" %"PSYM" %"PSYM" %"PSYM" %"PSYM" %"PSYM"\n",
+      fprintf(stdout, "SetEvolveRefineRegion: EvolveCoolingRefineRegion: %" PSYM" %" PSYM" %" PSYM" %" PSYM" %" PSYM" %" PSYM"\n",
 	      CoolingRefineRegionLeftEdge[0], CoolingRefineRegionLeftEdge[1], 
 	      CoolingRefineRegionLeftEdge[2], CoolingRefineRegionRightEdge[0],
 	      CoolingRefineRegionRightEdge[1], CoolingRefineRegionRightEdge[2]);

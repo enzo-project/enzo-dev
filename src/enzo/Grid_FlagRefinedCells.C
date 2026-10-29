@@ -46,7 +46,7 @@ int grid::FlagRefinedCells(grid *Subgrid)
 
   /* declarations */
     
-  int i, j, k, dim, field, index;
+  int i, j, k, dim, index;
   int SubgridStart[MAX_DIMENSION], SubgridEnd[MAX_DIMENSION];
 
   for (dim = 0; dim < MAX_DIMENSION; dim++) {

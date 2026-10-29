@@ -47,28 +47,27 @@ int RHIonizationTestInitialize(FILE *fptr, FILE *Outfptr,
   if (MyProcessorNumber == ROOT_PROCESSOR)
     fprintf(stdout,"Entering RHIonizationTestInitialize routine\n");
 
-  char *kphHIName    = "HI_kph";
-  char *kphHeIName   = "HeI_kph";
-  char *kphHeIIName  = "HeII_kph";
-  char *gammaName    = "PhotoGamma";
-  char *kdissH2IName = "H2I_kdiss";
-  char *DensName  = "Density";
-  char *TEName    = "TotalEnergy";
-  char *IEName    = "Internal_Energy";
-  char *Vel0Name  = "x-velocity";
-  char *Vel1Name  = "y-velocity";
-  char *Vel2Name  = "z-velocity";
-  char *RadName   = "Grey_Radiation_Energy";
-  char *HIName    = "HI_Density";
-  char *HIIName   = "HII_Density";
-  char *HeIName   = "HeI_Density";
-  char *HeIIName  = "HeII_Density";
-  char *HeIIIName = "HeIII_Density";
-  char *DeName    = "Electron_Density";
+  const char *kphHIName    = "HI_kph";
+  const char *kphHeIName   = "HeI_kph";
+  const char *kphHeIIName  = "HeII_kph";
+  const char *gammaName    = "PhotoGamma";
+  const char *kdissH2IName = "H2I_kdiss";
+  const char *DensName  = "Density";
+  const char *TEName    = "TotalEnergy";
+  const char *IEName    = "Internal_Energy";
+  const char *Vel0Name  = "x-velocity";
+  const char *Vel1Name  = "y-velocity";
+  const char *Vel2Name  = "z-velocity";
+  const char *RadName   = "Grey_Radiation_Energy";
+  const char *HIName    = "HI_Density";
+  const char *HIIName   = "HII_Density";
+  const char *HeIName   = "HeI_Density";
+  const char *HeIIName  = "HeII_Density";
+  const char *HeIIIName = "HeIII_Density";
+  const char *DeName    = "Electron_Density";
 
   // local declarations
   char line[MAX_LINE_LENGTH];
-  int  dim, ret;
 
   // Setup and parameters:
   //  1. ambient density (should be very small) - free parameter
@@ -99,31 +98,30 @@ int RHIonizationTestInitialize(FILE *fptr, FILE *Outfptr,
     FILE *RHfptr;
     if ((RHfptr = fopen(MetaData.RadHydroParameterFname, "r")) != NULL) {
       while (fgets(line, MAX_LINE_LENGTH, RHfptr) != NULL) {
-	ret = 0;
 	// read relevant problem parameters
-	ret += sscanf(line, "RadHydroVelocity = %"FSYM" %"FSYM" %"FSYM,
+	sscanf(line, "RadHydroVelocity = %" FSYM" %" FSYM" %" FSYM,
 		      &RadHydroX0Velocity, &RadHydroX1Velocity, 
 		      &RadHydroX2Velocity);
-	ret += sscanf(line, "RadHydroChemistry = %"ISYM, 
+	sscanf(line, "RadHydroChemistry = %" ISYM, 
 		      &RadHydroChemistry);
-	ret += sscanf(line, "RadHydroDensity = %"FSYM, 
+	sscanf(line, "RadHydroDensity = %" FSYM, 
 		      &RadHydroDensity);
-	ret += sscanf(line, "RadHydroTemperature = %"FSYM, 
+	sscanf(line, "RadHydroTemperature = %" FSYM, 
 		      &RadHydroTemperature);
-	ret += sscanf(line, "RadHydroIEnergy = %"FSYM, 
+	sscanf(line, "RadHydroIEnergy = %" FSYM, 
 		      &RadHydroIEnergy);
-	ret += sscanf(line, "RadHydroRadiationEnergy = %"FSYM, 
+	sscanf(line, "RadHydroRadiationEnergy = %" FSYM, 
 		      &RadHydroRadiationEnergy);
 	if (RadHydroChemistry > 0) {
-	  ret += sscanf(line, "RadHydroInitialFractionHII = %"FSYM, 
+	  sscanf(line, "RadHydroInitialFractionHII = %" FSYM, 
 			&RadHydroInitialFractionHII);
-	  ret += sscanf(line, "RadHydroHFraction = %"FSYM, 
+	  sscanf(line, "RadHydroHFraction = %" FSYM, 
 			&RadHydroHydrogenMassFraction);
 	}
 	if ((RadHydroChemistry == 3) || (MultiSpecies == 1)) {
-	  ret += sscanf(line, "RadHydroInitialFractionHeII = %"FSYM, 
+	  sscanf(line, "RadHydroInitialFractionHeII = %" FSYM, 
 			&RadHydroInitialFractionHeII);
-	  ret += sscanf(line, "RadHydroInitialFractionHeIII = %"FSYM, 
+	  sscanf(line, "RadHydroInitialFractionHeIII = %" FSYM, 
 			&RadHydroInitialFractionHeIII);
 	}
  
@@ -135,7 +133,7 @@ int RHIonizationTestInitialize(FILE *fptr, FILE *Outfptr,
   /* error checking */
   if (Mu != DEFAULT_MU) {
     if (MyProcessorNumber == ROOT_PROCESSOR)
-      fprintf(stderr, "warning: mu =%f assumed in initialization; setting Mu = %f for consistency.\n", DEFAULT_MU);
+      fprintf(stderr, "warning: mu =%f assumed in initialization; setting Mu = %f for consistency.\n", Mu, DEFAULT_MU);
     Mu = DEFAULT_MU;
   }
 

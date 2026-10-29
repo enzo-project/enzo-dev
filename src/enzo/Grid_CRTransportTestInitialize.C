@@ -47,26 +47,24 @@ int grid::CRTransportTestInitializeGrid(int test_type, float center,
     return SUCCESS;
   }
 
-  int size = 1, activesize = 1, dim;
+  int size = 1, dim;
   for (dim = 0; dim < GridRank; dim++)
     size *= GridDimension[dim];
 
   for (dim = 0; dim < GridRank; dim++)
-    activesize *= (GridDimension[dim] - 2*NumberOfGhostZones);
+    ;
   
   int field;
   for (field = 0; field < NumberOfBaryonFields; field++)
     if (BaryonField[field] == NULL)
       BaryonField[field] = new float[size];
   
-  /* transform pressure to total energy */
-  float etot, Ecr, v2, Bx, By,Bz, B2, gauss, r2, r, phi, Rho;
-  v2 = vx * vx + vy * vy + vz * vz;
+  float etot, Ecr, Bx, By, Bz, B2, r2, r, phi, Rho;
   etot = pg; // / ((Gamma-1.0)*rho) + 0.5*v2;
 
   FLOAT x, y, z;
   float D = 0.05;
-  int i, j, k, igrid;
+  int igrid;
   for (int k = 0; k < GridDimension[2]; k++) {
     for (int j = 0; j < GridDimension[1]; j++) {
       for (int i = 0; i < GridDimension[0]; i++) {

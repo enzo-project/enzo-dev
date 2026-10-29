@@ -12,7 +12,6 @@ int i,j;
 #ifdef IO_LOG
   int         io_log = 1;
 #else
-  int         io_log = 0;
 #endif
  
 //if (io_log)
@@ -30,7 +29,7 @@ int i,j;
   {
     for(i=j;i<min(j+m,n);i++)
     {
-      fprintf(log_fptr, "%1"ISYM" ", x[i]);
+      fprintf(log_fptr, "%1" ISYM" ", x[i]);
     }
     fprintf(log_fptr,"\n");
   }

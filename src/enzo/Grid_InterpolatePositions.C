@@ -45,7 +45,7 @@ int grid::InterpolatePositions(FLOAT *Position[], int dim, float *Field,
   /* Error check. */
  
   if (InterpolationField == NULL) {
-    ENZO_VFAIL("AccelerationField[%"ISYM"] absent.\n", dim)
+    ENZO_VFAIL("AccelerationField[%" ISYM"] absent.\n", dim)
   }
  
   if (GravitatingMassFieldCellSize <= 0) {

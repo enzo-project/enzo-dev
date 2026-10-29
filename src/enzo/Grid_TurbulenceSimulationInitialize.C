@@ -54,7 +54,7 @@ void my_exit(int status);
  
 // function prototypes
  
-int ReadFile(char *name, int Rank, int Dim[], int StartIndex[],
+int ReadFile(const char *name, int Rank, int Dim[], int StartIndex[],
                   int EndIndex[], int BufferOffset[], float *buffer,
                   inits_type **tempbuffer, int Part, int Npart);
  
@@ -77,10 +77,8 @@ int grid::TurbulenceSimulationInitializeGrid(
  
   /* declarations */
  
-  int idim, dim, i, j, vel, ibx;
-  int DeNum;
+  int dim, i, vel;
  
-  int ExtraField[2];
  
   inits_type *tempbuffer = NULL;
  
@@ -100,7 +98,7 @@ int grid::TurbulenceSimulationInitializeGrid(
   */
  
   char pid[MAX_TASK_TAG_SIZE];
-  sprintf(pid, "%"TASK_TAG_FORMAT""ISYM, MyProcessorNumber);
+  sprintf(pid, "%" TASK_TAG_FORMAT"" ISYM, MyProcessorNumber);
  
   char *logname = new char[MAX_NAME_LENGTH];
   strcpy(logname, "TSlog.");
@@ -109,10 +107,10 @@ int grid::TurbulenceSimulationInitializeGrid(
   if (io_log) {
     log_fptr = fopen(logname, "a");
     fprintf(log_fptr, "\n");
-    fprintf(log_fptr, "TSIG ParallelRootGridIO = %"ISYM"\n", ParallelRootGridIO);
-    fprintf(log_fptr, "Processor %"ISYM", Target processor %"ISYM"\n",
+    fprintf(log_fptr, "TSIG ParallelRootGridIO = %" ISYM"\n", ParallelRootGridIO);
+    fprintf(log_fptr, "Processor %" ISYM", Target processor %" ISYM"\n",
         MyProcessorNumber, ProcessorNumber);
-    fprintf(log_fptr, "TotalRefinement = %"ISYM"\n", TotalRefinement);
+    fprintf(log_fptr, "TotalRefinement = %" ISYM"\n", TotalRefinement);
   }
  
   /* Determine if the data should be loaded in or not. */
@@ -122,7 +120,7 @@ int grid::TurbulenceSimulationInitializeGrid(
   if (ParallelRootGridIO == TRUE && TotalRefinement == 1)
     ReadData = FALSE;
  
-  if (io_log) fprintf(log_fptr, "ReadData = %"ISYM"\n", ReadData);
+  if (io_log) fprintf(log_fptr, "ReadData = %" ISYM"\n", ReadData);
  
   /* Calculate buffer Offset (same as Grid unless doing ParallelRootGridIO
      (TotalRefinement = -1 if used as a signal that we should really load
@@ -149,7 +147,6 @@ int grid::TurbulenceSimulationInitializeGrid(
     if (GridRank > 2)
       FieldType[NumberOfBaryonFields++] = Velocity3;
     if (UseMHD) {
-        ibx = NumberOfBaryonFields;
       FieldType[NumberOfBaryonFields++] = Bfield1;
       FieldType[NumberOfBaryonFields++] = Bfield2;
       FieldType[NumberOfBaryonFields++] = Bfield3;
@@ -158,11 +155,7 @@ int grid::TurbulenceSimulationInitializeGrid(
       FieldType[NumberOfBaryonFields++] = PhiField;
     }
    
-    int idrivex, idrivey, idrivez;
     if (UseDrivingField && (HydroMethod == HD_RK || HydroMethod == MHD_RK)) {
-      idrivex = NumberOfBaryonFields;
-      idrivey = idrivex + 1;
-      idrivez = idrivex + 2;
       FieldType[NumberOfBaryonFields++] = DrivingField1;
       FieldType[NumberOfBaryonFields++] = DrivingField2;
       FieldType[NumberOfBaryonFields++] = DrivingField3;
@@ -265,7 +258,7 @@ int grid::TurbulenceSimulationInitializeGrid(
       if (ReadFile(TurbulenceSimulationVelocityNames[dim], GridRank,
            GridDimension, GridStartIndex, GridEndIndex, Offset,
            BaryonField[Vel1Num+dim], &tempbuffer, part, npart) == FAIL) {
-    ENZO_VFAIL("Error reading velocity field %"ISYM".\n", dim)
+    ENZO_VFAIL("Error reading velocity field %" ISYM".\n", dim)
       }
       }
   /* Read the magnetic fields. */
@@ -284,14 +277,14 @@ int grid::TurbulenceSimulationInitializeGrid(
       if (ReadFile(TurbulenceSimulationMagneticNames[dim], GridRank,
                         MagneticDims[dim], MHDStartIndex[dim], MHDEndIndex[dim], Offset,
                         MagneticField[dim], &tempbuffer, part, npart) == FAIL) {
-    ENZO_VFAIL("Error reading magnetic field %"ISYM".\n", dim)
+    ENZO_VFAIL("Error reading magnetic field %" ISYM".\n", dim)
       }
   }//MHDCT
   if( UseMHD ){
       if (ReadFile(TurbulenceSimulationMagneticNames[dim], GridRank,
            GridDimension, GridStartIndex, GridEndIndex, Offset,
            BaryonField[B1Num+dim], &tempbuffer, part, npart) == FAIL) {
-    ENZO_VFAIL("Error reading magnetic field %"ISYM".\n", dim)
+    ENZO_VFAIL("Error reading magnetic field %" ISYM".\n", dim)
       }
       }//UseMHD
 
@@ -311,7 +304,7 @@ int grid::TurbulenceSimulationInitializeGrid(
     if (ReadFile(TurbulenceSimulationRandomForcingNames[dim], GridRank,
               GridDimension, GridStartIndex, GridEndIndex, Offset,
               RandomForcingField[dim], &tempbuffer, 0, 1) == FAIL) {
-      ENZO_VFAIL("Error reading RandomForcing field %"ISYM".\n", dim)
+      ENZO_VFAIL("Error reading RandomForcing field %" ISYM".\n", dim)
       }
   } else {
  
@@ -335,16 +328,16 @@ int grid::TurbulenceSimulationInitializeGrid(
    /* If they were not read in above, set the total & gas energy fields now. */
  
   if (ReadData) {
-    if (TurbulenceSimulationDensityName == NULL)
+    if (TurbulenceSimulationDensityName == NULL) {
       for (i = 0; i < size; i++){
         BaryonField[DensNum][i] = TurbulenceSimulationInitialDensity;
       }
-            
+    }
 
-      for (i = 0; i < size; i++){
-        BaryonField[DensNum][i] *= 1 + TurbulenceSimulationInitialDensityPerturbationAmplitude*
-            ( (float)rand()/(float)(RAND_MAX)   - 0.5 );
-      }
+    for (i = 0; i < size; i++){
+      BaryonField[DensNum][i] *= 1 + TurbulenceSimulationInitialDensityPerturbationAmplitude*
+          ( (float)rand()/(float)(RAND_MAX)   - 0.5 );
+    }
 
     if( UseMHD ){
         for( dim = 0; dim < 3; dim++){

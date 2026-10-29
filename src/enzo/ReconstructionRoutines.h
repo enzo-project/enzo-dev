@@ -122,7 +122,7 @@ inline float minmod(float a, float b, float c)
   return 0.0;*/
   
   /*if (r1 != r2) {
-    printf("r1!=r2: r1 = %lf, r2 = %lf, sign(a)=%d, sign(b)=%d, sign(c)=%d\n", 
+    printf("r1!=r2: r1 = %lf, r2 = %lf, sign(a)=%" ISYM ", sign(b)=%" ISYM ", sign(c)=%" ISYM "\n", 
 	   r1, r2, sign(a), sign(b), sign(c));
 
   }

@@ -92,9 +92,7 @@ int grid::ComputeLuminosity(float *luminosity, int NumberOfLuminosityFields)
 
   /* Compute the size of the fields. */
 
-  int size = 1;
   for (int dim = 0; dim < GridRank; dim++)
-    size *= GridDimension[dim];
 
   /* Find fields: density, total energy, velocity1-3. */
 

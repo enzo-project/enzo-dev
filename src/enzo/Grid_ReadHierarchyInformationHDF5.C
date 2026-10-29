@@ -60,7 +60,7 @@ int grid::ReadHierarchyInformationHDF5(hid_t Hfile_id, int GridID, int &Task, in
   
   // ***** Open grid group *****
   level = LevelLookupTable[GridID-1];
-  sprintf(GroupName,"Level%"ISYM"/Grid%"GROUP_TAG_FORMAT""ISYM, level, GridID);
+  sprintf(GroupName,"Level%" ISYM"/Grid%" GROUP_TAG_FORMAT"" ISYM, level, GridID);
   
   group_id = H5Gopen(Hfile_id, GroupName);
   
@@ -70,7 +70,7 @@ int grid::ReadHierarchyInformationHDF5(hid_t Hfile_id, int GridID, int &Task, in
   HDF5_ReadAttribute(group_id, "Task", Task, log_fptr);
 
   //  if ( MyProcessorNumber == 0 )
-  //    fprintf(stderr, "Reading Grid %"ISYM" assigned to Task %"ISYM"\n", TestGridID, Task);
+  //    fprintf(stderr, "Reading Grid %" ISYM" assigned to Task %" ISYM"\n", TestGridID, Task);
   
   HDF5_ReadAttribute(group_id, "GridRank", GridRank, log_fptr);
 
@@ -138,7 +138,7 @@ int grid::ReadHierarchyInformationHDF5(hid_t Hfile_id, int GridID, int &Task, in
       GridDimension[dim]  = GridEndIndex[dim]-GridStartIndex[dim]+1+2*ghosts;
       GridStartIndex[dim] = ghosts;
       GridEndIndex[dim]   = GridStartIndex[dim]+GridDimension[dim]-1-2*ghosts;
-      if (GridID < 2) fprintf(stderr, "dim: GridStart,GridEnd,GridDim:  %"ISYM": %"ISYM" %"ISYM" %"ISYM"\n",
+      if (GridID < 2) fprintf(stderr, "dim: GridStart,GridEnd,GridDim:  %" ISYM": %" ISYM" %" ISYM" %" ISYM"\n",
 			      dim, GridStartIndex[dim], GridEndIndex[dim], GridDimension[dim]);
     }
   }
@@ -146,7 +146,7 @@ int grid::ReadHierarchyInformationHDF5(hid_t Hfile_id, int GridID, int &Task, in
 
   // ***** Close this grid *****
   h5_status = H5Gclose(group_id);
-  if (io_log) fprintf(log_fptr, "H5Gclose: status = %"ISYM"\n", (int) h5_status);
+  if (io_log) fprintf(log_fptr, "H5Gclose: status = %d\n", h5_status);
 
     
   return SUCCESS;
@@ -170,13 +170,13 @@ int HDF5_ReadAttribute(hid_t group_id, const char *AttributeName, Eint32 &Attrib
 #endif
 
   attr_id = H5Aopen_name(group_id, AttributeName);
-  if (io_log) fprintf(log_fptr, "H5Aopen_name: attr_id = %"ISYM"\n", (int) attr_id);
+  if (io_log) fprintf(log_fptr, "H5Aopen_name: attr_id = %ld\n", attr_id);
 
   h5_status = H5Aread(attr_id, HDF5_I4, &Attribute);
-  if (io_log) fprintf(log_fptr, "H5Aread: status = %"ISYM"\n", (int) h5_status);
+  if (io_log) fprintf(log_fptr, "H5Aread: status = %d\n", h5_status);
 
   h5_status = H5Aclose(attr_id);
-  if (io_log) fprintf(log_fptr, "H5Aclose: status = %"ISYM"\n", (int) h5_status);
+  if (io_log) fprintf(log_fptr, "H5Aclose: status = %d\n", h5_status);
 
   return SUCCESS;
 }
@@ -194,13 +194,13 @@ int HDF5_ReadAttribute(hid_t group_id, const char *AttributeName, Eint64 &Attrib
 #endif
 
   attr_id = H5Aopen_name(group_id, AttributeName);
-  if (io_log) fprintf(log_fptr, "H5Aopen_name: attr_id = %"ISYM"\n", (int) attr_id);
+  if (io_log) fprintf(log_fptr, "H5Aopen_name: attr_id = %ld\n", attr_id);
 
   h5_status = H5Aread(attr_id, HDF5_I8, &Attribute);
-  if (io_log) fprintf(log_fptr, "H5Aread: status = %"ISYM"\n", (int) h5_status);
+  if (io_log) fprintf(log_fptr, "H5Aread: status = %d\n", h5_status);
 
   h5_status = H5Aclose(attr_id);
-  if (io_log) fprintf(log_fptr, "H5Aclose: status = %"ISYM"\n", (int) h5_status);
+  if (io_log) fprintf(log_fptr, "H5Aclose: status = %d\n", h5_status);
 
   return SUCCESS;
 }
@@ -217,13 +217,13 @@ int HDF5_ReadAttribute(hid_t group_id, const char *AttributeName, Eflt32 &Attrib
   io_log = 1;
 #endif
   attr_id = H5Aopen_name(group_id, AttributeName);
-  if (io_log) fprintf(log_fptr, "H5Aopen_name: attr_id = %"ISYM"\n", (int) attr_id);
+  if (io_log) fprintf(log_fptr, "H5Aopen_name: attr_id = %ld\n", attr_id);
 
   h5_status = H5Aread(attr_id, HDF5_R4, &Attribute);
-  if (io_log) fprintf(log_fptr, "H5Aread: status = %"ISYM"\n", (int) h5_status);
+  if (io_log) fprintf(log_fptr, "H5Aread: status = %d\n", h5_status);
 
   h5_status = H5Aclose(attr_id);
-  if (io_log) fprintf(log_fptr, "H5Aclose: status = %"ISYM"\n", (int) h5_status);
+  if (io_log) fprintf(log_fptr, "H5Aclose: status = %d\n", h5_status);
 
   return SUCCESS;
 }
@@ -241,13 +241,13 @@ int HDF5_ReadAttribute(hid_t group_id, const char *AttributeName, Eflt64 &Attrib
 #endif
 
   attr_id = H5Aopen_name(group_id, AttributeName);
-  if (io_log) fprintf(log_fptr, "H5Aopen_name: attr_id = %"ISYM"\n", (int) attr_id);
+  if (io_log) fprintf(log_fptr, "H5Aopen_name: attr_id = %ld\n", attr_id);
 
   h5_status = H5Aread(attr_id, HDF5_R8, &Attribute);
-  if (io_log) fprintf(log_fptr, "H5Aread: status = %"ISYM"\n", (int) h5_status);
+  if (io_log) fprintf(log_fptr, "H5Aread: status = %d\n", h5_status);
 
   h5_status = H5Aclose(attr_id);
-  if (io_log) fprintf(log_fptr, "H5Aclose: status = %"ISYM"\n", (int) h5_status);
+  if (io_log) fprintf(log_fptr, "H5Aclose: status = %d\n", h5_status);
 
   return SUCCESS;
 }
@@ -265,13 +265,13 @@ int HDF5_ReadAttribute(hid_t group_id, const char *AttributeName, Eflt128 &Attri
 #endif
 
   attr_id = H5Aopen_name(group_id, AttributeName);
-  if (io_log) fprintf(log_fptr, "H5Aopen_name: attr_id = %"ISYM"\n", (int) attr_id);
+  if (io_log) fprintf(log_fptr, "H5Aopen_name: attr_id = %ld\n", attr_id);
 
   h5_status = H5Aread(attr_id, HDF5_R16, &Attribute);
-  if (io_log) fprintf(log_fptr, "H5Aread: status = %"ISYM"\n", (int) h5_status);
+  if (io_log) fprintf(log_fptr, "H5Aread: status = %d\n", h5_status);
 
   h5_status = H5Aclose(attr_id);
-  if (io_log) fprintf(log_fptr, "H5Aclose: status = %"ISYM"\n", (int) h5_status);
+  if (io_log) fprintf(log_fptr, "H5Aclose: status = %d\n", h5_status);
 
   return SUCCESS;
 }
@@ -280,7 +280,6 @@ int HDF5_ReadAttribute(hid_t group_id, const char *AttributeName, Eflt128 &Attri
 int HDF5_ReadAttribute(hid_t group_id, const char *AttributeName, int Attribute[], int NumberOfElements, FILE *log_fptr) {
 
   hid_t attr_id;
-  hsize_t dims[1];
 
   herr_t h5_status;
 
@@ -290,13 +289,13 @@ int HDF5_ReadAttribute(hid_t group_id, const char *AttributeName, int Attribute[
 #endif
 
   attr_id = H5Aopen_name(group_id, AttributeName);
-  if (io_log) fprintf(log_fptr, "H5Aopen_name: attr_id = %"ISYM"\n", (int) attr_id);
+  if (io_log) fprintf(log_fptr, "H5Aopen_name: attr_id = %ld\n", attr_id);
 
   h5_status = H5Aread(attr_id, HDF5_INT, Attribute);
-  if (io_log) fprintf(log_fptr, "H5Aread: status = %"ISYM"\n", (int) h5_status);
+  if (io_log) fprintf(log_fptr, "H5Aread: status = %d\n", h5_status);
 
   h5_status = H5Aclose(attr_id);
-  if (io_log) fprintf(log_fptr, "H5Aclose: status = %"ISYM"\n", (int) h5_status);
+  if (io_log) fprintf(log_fptr, "H5Aclose: status = %d\n", h5_status);
 
   return SUCCESS;
 }
@@ -314,15 +313,15 @@ int HDF5_ReadAttribute(hid_t group_id, const char *AttributeName, char Attribute
 #endif
 
   attr_id = H5Aopen_name(group_id, AttributeName);
-  if (io_log) fprintf(log_fptr, "H5Aopen_name: attr_id = %"ISYM"\n", (int) attr_id);
+  if (io_log) fprintf(log_fptr, "H5Aopen_name: attr_id = %ld\n", attr_id);
 
   string_type_id = H5Aget_type(attr_id);
   
   h5_status = H5Aread(attr_id, string_type_id, Attribute);
-  if (io_log) fprintf(log_fptr, "H5Aread: status = %"ISYM"\n", (int) h5_status);
+  if (io_log) fprintf(log_fptr, "H5Aread: status = %d\n", h5_status);
 
   h5_status = H5Aclose(attr_id);
-  if (io_log) fprintf(log_fptr, "H5Aclose: status = %"ISYM"\n", (int) h5_status);
+  if (io_log) fprintf(log_fptr, "H5Aclose: status = %d\n", h5_status);
 
   return SUCCESS;
 }
@@ -341,13 +340,13 @@ int HDF5_ReadDataset(hid_t group_id, const char *DatasetName, int &Dataset, FILE
 #endif
 
   dset_id = H5Dopen(group_id, DatasetName);
-  if (io_log) fprintf(log_fptr, "H5Dopen: dset_id = %"ISYM"\n", (int) dset_id);
+  if (io_log) fprintf(log_fptr, "H5Dopen: dset_id = %ld\n", dset_id);
 
   h5_status = H5Dread(dset_id, HDF5_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, (VOIDP) &Dataset);
-  if (io_log) fprintf(log_fptr, "H5Dread: status = %"ISYM"\n", (int) h5_status);
+  if (io_log) fprintf(log_fptr, "H5Dread: status = %d\n", h5_status);
 
   h5_status = H5Dclose(dset_id);
-  if (io_log) fprintf(log_fptr, "H5Dclose: status = %"ISYM"\n", (int) h5_status);
+  if (io_log) fprintf(log_fptr, "H5Dclose: status = %d\n", h5_status);
 
   return SUCCESS;
 }
@@ -365,13 +364,13 @@ int HDF5_ReadDataset(hid_t group_id, const char *DatasetName, int Dataset[], FIL
 #endif
 
   dset_id = H5Dopen(group_id, DatasetName);
-  if (io_log) fprintf(log_fptr, "H5Dopen: dset_id = %"ISYM"\n", (int) dset_id);
+  if (io_log) fprintf(log_fptr, "H5Dopen: dset_id = %ld\n", dset_id);
 
   h5_status = H5Dread(dset_id, HDF5_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, (VOIDP) Dataset);
-  if (io_log) fprintf(log_fptr, "H5Dread: status = %"ISYM"\n", (int) h5_status);
+  if (io_log) fprintf(log_fptr, "H5Dread: status = %d\n", h5_status);
   
   h5_status = H5Dclose(dset_id);
-  if (io_log) fprintf(log_fptr, "H5Dclose: status = %"ISYM"\n", (int) h5_status);
+  if (io_log) fprintf(log_fptr, "H5Dclose: status = %d\n", h5_status);
 
   return SUCCESS;
 }
@@ -389,13 +388,13 @@ int HDF5_ReadDataset(hid_t group_id, const char *DatasetName, FLOAT Dataset[], F
 #endif
 
   dset_id = H5Dopen(group_id, DatasetName);
-  if (io_log) fprintf(log_fptr, "H5Dopen: dset_id = %"ISYM"\n", (int) dset_id);
+  if (io_log) fprintf(log_fptr, "H5Dopen: dset_id = %ld\n", dset_id);
 
   h5_status = H5Dread(dset_id, HDF5_PREC, H5S_ALL, H5S_ALL, H5P_DEFAULT, (VOIDP) Dataset);
-  if (io_log) fprintf(log_fptr, "H5Dread: status = %"ISYM"\n", (int) h5_status);
+  if (io_log) fprintf(log_fptr, "H5Dread: status = %d\n", h5_status);
   
   h5_status = H5Dclose(dset_id);
-  if (io_log) fprintf(log_fptr, "H5Dclose: status = %"ISYM"\n", (int) h5_status);
+  if (io_log) fprintf(log_fptr, "H5Dclose: status = %d\n", h5_status);
 
   return SUCCESS;
 }

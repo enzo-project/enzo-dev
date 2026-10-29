@@ -51,7 +51,6 @@ int ReadListOfFloats(FILE *fptr, int N, FLOAT floats[]);
 int ReadListOfInts(FILE *fptr, int N, int nums[]);
  
 void MHDCTSetupFieldLabels(void);
-static int GridReadDataGridCounter = 0;
  
  
 #ifdef NEW_GRID_IO
@@ -61,42 +60,34 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
 			 int ReadEverything)
 {
  
-  int i, j, k, field, size, active_size, dim;
-  char name[MAX_LINE_LENGTH], dummy[MAX_LINE_LENGTH];
-  char logname[MAX_LINE_LENGTH], unused_string[MAX_LINE_LENGTH];
+  int i, j, field, size, active_size;
+  char name[MAX_LINE_LENGTH];
+  char unused_string[MAX_LINE_LENGTH];
   char procfilename[MAX_LINE_LENGTH];
  
-  char id[MAX_GROUP_TAG_SIZE];
-  char pid[MAX_TASK_TAG_SIZE];
-  char gpid[MAX_TASK_TAG_SIZE];
  
   int ActiveDim[MAX_DIMENSION];
  
-  FILE *log_fptr;
- 
   hid_t       group_id, dset_id, old_fields;
-  hid_t       file_dsp_id;
-  hid_t       num_type;
  
   hsize_t     OutDims[MAX_DIMENSION];
   hsize_t     FullOutDims[MAX_DIMENSION];
   hsize_t     TempIntArray[MAX_DIMENSION];
  
-  herr_t      h5_status;
+  herr_t      h5_status = 0;
   herr_t      h5_error = -1;
  
-  int         num_size;
  
-  char *ParticlePositionLabel[] =
+  const char *ParticlePositionLabel[] =
     {"particle_position_x", "particle_position_y", "particle_position_z"};
-  char *ParticleVelocityLabel[] =
+  const char *ParticleVelocityLabel[] =
     {"particle_velocity_x", "particle_velocity_y", "particle_velocity_z"};
 #ifdef WINDS
-  char *ParticleAttributeLabel[] =
+  const char *ParticleAttributeLabel[] =
     {"creation_time", "dynamical_time", "metallicity_fraction", "particle_jet_x", 
      "particle_jet_y", "particle_jet_z", "typeia_fraction"};
 #else
-  char *ParticleAttributeLabel[] = 
+  const char *ParticleAttributeLabel[] = 
     {"creation_time", "dynamical_time", "metallicity_fraction", "typeia_fraction"};
 #endif
 
@@ -116,7 +107,7 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
       GridStartIndex[dim] = 0;
       GridEndIndex[dim] = 0;
     }
-    if (fscanf(fptr, "GridRank = %"ISYM"\n", &GridRank) != 1) {
+    if (fscanf(fptr, "GridRank = %" ISYM"\n", &GridRank) != 1) {
             ENZO_FAIL("Error reading GridRank.");
     }
  
@@ -152,21 +143,21 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
             ENZO_FAIL("Error reading GridRightEdge.");
     }
  
-    if (fscanf(fptr, "Time = %"PSYM"\n", &Time) != 1) {
+    if (fscanf(fptr, "Time = %" PSYM"\n", &Time) != 1) {
             ENZO_FAIL("Error reading Time.");
     }
     if (ReadEverything == TRUE && 
-       (fscanf(fptr, "OldTime = %"PSYM"\n", &OldTime) != 1)) {
+       (fscanf(fptr, "OldTime = %" PSYM"\n", &OldTime) != 1)) {
             ENZO_FAIL("Error reading OldTime.");
     }
  
-    if (fscanf(fptr, "SubgridsAreStatic = %"ISYM"\n", &SubgridsAreStatic) != 1) {
+    if (fscanf(fptr, "SubgridsAreStatic = %" ISYM"\n", &SubgridsAreStatic) != 1) {
             ENZO_FAIL("Error reading SubgridsAreStatic.");
     }
  
     /* Read baryon field quantities. */
  
-    if (fscanf(fptr, "NumberOfBaryonFields = %"ISYM"\n",
+    if (fscanf(fptr, "NumberOfBaryonFields = %" ISYM"\n",
 	       &NumberOfBaryonFields) != 1) {
             ENZO_FAIL("Error reading NumberOfBaryonFields.");
     }
@@ -186,15 +177,15 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
 
       // Read in hydro parameters but set to NULL since these should
       // come from the simulation parameter file.
-      fscanf(fptr, "CourantSafetyNumber    = %*"FSYM"\n", NULL);
-      fscanf(fptr, "PPMFlatteningParameter = %*"ISYM"\n", NULL);
-      fscanf(fptr, "PPMDiffusionParameter  = %*"ISYM"\n", NULL);
-      fscanf(fptr, "PPMSteepeningParameter = %*"ISYM"\n", NULL);
+      fscanf(fptr, "CourantSafetyNumber    = %*s\n");
+      fscanf(fptr, "PPMFlatteningParameter = %*s\n");
+      fscanf(fptr, "PPMDiffusionParameter  = %*s\n");
+      fscanf(fptr, "PPMSteepeningParameter = %*s\n");
     }
 
     /* 3) Read particle info */
  
-    if (fscanf(fptr, "NumberOfParticles = %"ISYM"\n", &NumberOfParticles) != 1) {
+    if (fscanf(fptr, "NumberOfParticles = %" ISYM"\n", &NumberOfParticles) != 1) {
             ENZO_FAIL("error reading NumberOfParticles.");
     }
 
@@ -203,7 +194,7 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
        need to be read (but which are not currently used).  If fscanf does not return 1 this particular line 
        doesn't have any active particle information in it, and thus we have to manually set NumberOfActiveParticles
        to zero. */
-    if (fscanf(fptr, "NumberOfActiveParticles = %"ISYM"\n", &NumberOfActiveParticles) == 1) {
+    if (fscanf(fptr, "NumberOfActiveParticles = %" ISYM"\n", &NumberOfActiveParticles) == 1) {
       // read but unused
       fgets(unused_string, MAX_LINE_LENGTH, fptr);
       fgets(unused_string, MAX_LINE_LENGTH, fptr);
@@ -226,7 +217,7 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
     if (SelfGravity) {
       // Don't fail if not there because self-gravity may be turned on during restart. In that 
       // case, we set the gravity boundary in Group_ReadDataHierarchy().
-      fscanf(fptr, "GravityBoundaryType = %"ISYM"\n",&GravityBoundaryType);
+      fscanf(fptr, "GravityBoundaryType = %" ISYM"\n",&GravityBoundaryType);
     }
 
     // If HierarchyFile has different Ghostzones (which should be a parameter not a macro ...)
@@ -239,7 +230,7 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
 	GridDimension[dim]  = GridEndIndex[dim]-GridStartIndex[dim]+1+2*ghosts;
 	GridStartIndex[dim] = ghosts;
 	GridEndIndex[dim]   = GridStartIndex[dim]+GridDimension[dim]-1-2*ghosts;
-	 if (GridID < 2) fprintf(stderr, "dim: GridStart,GridEnd,GridDim:  %i: %i %i %i\n",
+	 if (GridID < 2) fprintf(stderr, "dim: GridStart,GridEnd,GridDim:  %" ISYM ": %" ISYM " %" ISYM " %" ISYM "\n",
 				  dim, GridStartIndex[dim], GridEndIndex[dim], GridDimension[dim]);
       }
     }
@@ -252,7 +243,7 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
     strcpy(procfilename, DataFilename);
   }
 
-  snprintf(name, MAX_LINE_LENGTH-1, "/Grid%"GROUP_TAG_FORMAT""ISYM, GridID);
+  snprintf(name, MAX_LINE_LENGTH-1, "/Grid%" GROUP_TAG_FORMAT"" ISYM, GridID);
 
   if (UseMHDCT) {
       //
@@ -349,7 +340,6 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
         hsize_t MHDOutDims[3];
         int BiggieSize = (GridDimension[0]+1)*(GridDimension[1]+1)*(GridDimension[2]+1);
         float *MHDtmp = new float[BiggieSize];	
-        bool io_log = (log_fptr != NULL);
 
         //
         // Read Magnetic Field.
@@ -399,7 +389,7 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
     if ((PhiNum = FindField(PhiField, FieldType, NumberOfBaryonFields)) < 0) {
       fprintf(stderr, "Starting with Dedner MHD method with no Phi field. \n");
       fprintf(stderr, "Adding it in Grid_ReadGrid.C \n");
-      char *PhiName = "Phi";
+      const char *PhiName = "Phi";
       PhiNum = NumberOfBaryonFields;
       int PhiToAdd = PhiField;
       this->AddFields(&PhiToAdd, 1);
@@ -412,7 +402,7 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
       if ((Phi_pNum = FindField(Phi_pField, FieldType, NumberOfBaryonFields)) < 0) {
         fprintf(stderr, "Want to use divergence cleaning with no Phi_p field. \n");
         fprintf(stderr, "Adding it in Grid_ReadGrid.C \n");
-        char *Phi_pName = "Phi_p";
+        const char *Phi_pName = "Phi_p";
         Phi_pNum = NumberOfBaryonFields;
         int Phi_pToAdd = Phi_pField;
         this->AddFields(&Phi_pToAdd, 1);
@@ -427,7 +417,7 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
   if (WritePotential || ComputePotential) {
     int GravNum = FindField(GravPotential, FieldType, NumberOfBaryonFields);
     if (GravNum < 0) {
-      char *GPotName = "Grav_Potential";
+      const char *GPotName = "Grav_Potential";
       int GravToAdd = GravPotential;
       GravNum = NumberOfBaryonFields;
       this->AddFields(&GravToAdd, 1);
@@ -511,7 +501,7 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
 	abs_type = ABS(ParticleType[i]);
         if (abs_type < PARTICLE_TYPE_GAS ||
             abs_type > NUM_PARTICLE_TYPES-1) {
-          ENZO_VFAIL("file: %s: particle %"ISYM" has unknown type %"ISYM"\n", name, i, ParticleType[i])
+          ENZO_VFAIL("file: %s: particle %" ISYM" has unknown type %" ISYM"\n", name, i, ParticleType[i])
         }
       }
  
@@ -641,9 +631,8 @@ int grid::read_dataset(int ndims, hsize_t *dims, const char *name, hid_t group,
 {
   hid_t file_dsp_id;
   hid_t dset_id;
-  hid_t h5_status;
   herr_t      h5_error = -1;
-  int i, j, k, dim;
+  int i, j, k;
   /* get data into temporary array */
 
   file_dsp_id = H5Screate_simple((Eint32) ndims, dims, NULL);
@@ -652,13 +641,13 @@ int grid::read_dataset(int ndims, hsize_t *dims, const char *name, hid_t group,
   dset_id =  H5Dopen(group, name);
   if( dset_id == h5_error )ENZO_VFAIL("Error opening %s", name)
 
-  h5_status = H5Dread(dset_id, data_type, H5S_ALL, H5S_ALL, H5P_DEFAULT, (VOIDP) read_to);
+  H5Dread(dset_id, data_type, H5S_ALL, H5S_ALL, H5P_DEFAULT, (VOIDP) read_to);
   if( dset_id == h5_error )ENZO_VFAIL("Error reading %s", name)
 
-  h5_status = H5Sclose(file_dsp_id);
+  H5Sclose(file_dsp_id);
   if( dset_id == h5_error )ENZO_VFAIL("Error closing dataspace %s", name)
 
-  h5_status = H5Dclose(dset_id);
+  H5Dclose(dset_id);
   if( dset_id == h5_error )ENZO_VFAIL("Error closing %s", name)
 
   if(copy_back_active == TRUE) {
@@ -702,7 +691,7 @@ int grid::ReadAllFluxes(hid_t grid_node)
   /* Now for every subgrid, we read a flux group, and all of its associated
      baryon fields. */
 
-  //fprintf(stderr, "Received NumberOfSubgrids = %"ISYM"\n", this->NumberOfSubgrids);
+  //fprintf(stderr, "Received NumberOfSubgrids = %" ISYM"\n", this->NumberOfSubgrids);
 
   this->SubgridFluxStorage = new fluxes*[this->NumberOfSubgrids];
 
@@ -710,7 +699,7 @@ int grid::ReadAllFluxes(hid_t grid_node)
   if(flux_group == h5_error) ENZO_FAIL("Can't open Fluxes group");
 
   for(i = 0; i < this->NumberOfSubgrids; i++) {
-    snprintf(name, 254, "Subgrid%08"ISYM, i);
+    snprintf(name, 254, "Subgrid%08" ISYM, i);
     subgrid_group = H5Gopen(flux_group, name);
     if(subgrid_group == h5_error)ENZO_VFAIL("IO Problem opening %s", name)
 
@@ -734,7 +723,7 @@ int grid::ReadFluxGroup(hid_t flux_group, fluxes *fluxgroup)
   hid_t h5_error = -1;
   hid_t axis_group = h5_error;
   hid_t left_group, right_group;
-  int i, j, field, dim;
+  int j, field, dim;
   hsize_t size;
 
   char name[255];
@@ -742,7 +731,7 @@ int grid::ReadFluxGroup(hid_t flux_group, fluxes *fluxgroup)
   for (dim = 0; dim < GridRank; dim++) {
     /* compute size (in floats) of flux storage */
 
-    snprintf(name, 254, "Axis%"ISYM, dim);
+    snprintf(name, 254, "Axis%" ISYM, dim);
     axis_group = H5Gopen(flux_group, name);
     if(axis_group == h5_error)ENZO_VFAIL("Can't open %s", name)
 
@@ -805,16 +794,10 @@ int grid::ReadExtraFields(hid_t group_id)
   hid_t acc_node;
   hid_t h5_error = -1;
   int size, dim;
-  int ActiveDim[MAX_DIMENSION];
-  hsize_t     OutDims[MAX_DIMENSION];
   hsize_t     FullOutDims[MAX_DIMENSION];
   hsize_t     GMFOutDims[MAX_DIMENSION];
 
-  for (dim = 0; dim < 3; dim++)
-    ActiveDim[dim] = GridEndIndex[dim] - GridStartIndex[dim] +1;
-
   for (dim = 0; dim < GridRank; dim++) {
-    OutDims[GridRank-dim-1] = ActiveDim[dim];
     FullOutDims[GridRank-dim-1] = GridDimension[dim];
   }
 
@@ -832,12 +815,12 @@ int grid::ReadExtraFields(hid_t group_id)
       if(this->AccelerationField[dim] != NULL) {
         delete this->AccelerationField[dim];
       }
-      snprintf(acc_name, 254, "AccelerationField%"ISYM, dim);
+      snprintf(acc_name, 254, "AccelerationField%" ISYM, dim);
       this->read_dataset(GridRank, FullOutDims, acc_name,
           acc_node, HDF5_REAL, (VOIDP) AccelerationField[dim],
           FALSE, NULL, NULL);
     }
-    delete temp;
+    delete [] temp;
     H5Gclose(acc_node);
   }
   H5E_BEGIN_TRY{
@@ -853,7 +836,7 @@ int grid::ReadExtraFields(hid_t group_id)
     }
       if(this->GravitatingMassField != NULL)
         delete this->GravitatingMassField;
-      //fprintf(stderr, "ALLOCATING %"ISYM" for GMF\n", size);
+      //fprintf(stderr, "ALLOCATING %" ISYM" for GMF\n", size);
       this->GravitatingMassField = new float[size];
       this->read_dataset(GridRank, GMFOutDims, "GravitatingMassField",
           group_id, HDF5_REAL, (VOIDP) this->GravitatingMassField, FALSE);
@@ -871,7 +854,7 @@ int grid::ReadExtraFields(hid_t group_id)
     }
       if(this->PotentialField != NULL)
         delete this->PotentialField;
-      //fprintf(stderr, "ALLOCATING %"ISYM" for PF\n", size);
+      //fprintf(stderr, "ALLOCATING %" ISYM" for PF\n", size);
       this->PotentialField = new float[size];
       this->read_dataset(GridRank, GMFOutDims, "PotentialField",
           group_id, HDF5_REAL, (VOIDP) this->PotentialField, FALSE);

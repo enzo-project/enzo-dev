@@ -41,8 +41,6 @@ int grid::RungeKutta2_1stStep(fluxes *SubgridFluxes[],
     return SUCCESS;
   }
 
-  double time1 = ReturnWallTime();
-  int igrid;
   /* allocate space for fluxes */
   int fluxsize;
   for (int subgrid = 0; subgrid < NumberOfSubgrids; subgrid++) {

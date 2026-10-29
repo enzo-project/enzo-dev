@@ -37,7 +37,7 @@ int ExternalBoundary::AppendForcingToBaryonFields()
  
  
   if (debug)
-    printf("ForcingAppendedToBoundary NBF %"ISYM"\n", NumberOfBaryonFields);
+    printf("ForcingAppendedToBoundary NBF %" ISYM"\n", NumberOfBaryonFields);
  
   return SUCCESS;
  

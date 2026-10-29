@@ -105,7 +105,6 @@ int ActiveParticleType_RadiationParticle::BeforeEvolveLevel
   GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	   &TimeUnits, &VelocityUnits, Time);
   
-  float creation_redshift = 0.0;
   float current_redshift = 0.0;
   FLOAT  a = 0.0, dadt = 0.0;
   InitData *node = Root;
@@ -132,8 +131,8 @@ int ActiveParticleType_RadiationParticle::BeforeEvolveLevel
     else if (current_redshift <= node->Redshift_end) {
 #if APDEBUG
       if(node->Alive == true)
-	fprintf(stderr, "%s: P[%"ISYM"]: Deleting Radiation Particle, "	\
-		"current redshift (created at z = %"FSYM") = %"FSYM"\n", 
+	fprintf(stderr, "%s: P[%" ISYM"]: Deleting Radiation Particle, "	\
+		"current redshift (created at z = %" FSYM") = %" FSYM"\n", 
 		__FUNCTION__, MyProcessorNumber,node->Redshift, current_redshift);
 #endif
       node->Deleteme = true;
@@ -204,13 +203,12 @@ int ActiveParticleType_RadiationParticle::EvaluateFormation(grid *thisgrid_orig,
   if (CheckForParticleAction(Root) == false)  
     return SUCCESS;  //No particle to form yet
   RadiationParticleGrid *thisGrid = static_cast<RadiationParticleGrid *>(thisgrid_orig);
-  int i = 0, j = 0, k = 0;
+  int i = 0;
   int GhostZones = thisGrid->GridStartIndex[0];
   int mindex = 0;
   int *GridIndices = NULL;
-  float creation_redshift = 0.0;
   FLOAT edge[3], cellwidth=0.0;
-  InitData *node = Root, *pnode = Root, *curnode = NULL;
+  InitData *node = Root, *curnode = NULL;
   FLOAT ppos[3];
   int GridDimension[3] = {thisGrid->GridDimension[0],
                           thisGrid->GridDimension[1],
@@ -226,7 +224,6 @@ int ActiveParticleType_RadiationParticle::EvaluateFormation(grid *thisgrid_orig,
     if(node->Create == true && node->Alive == false) {   
       for(i = 0; i < 3; i++)
 	ppos[i]  = node->Position[i];
-      creation_redshift = node->Redshift;
       /* Find the indices in the grid */
       GridIndices = GetGridIndices(ppos, edge, cellwidth);
       
@@ -274,9 +271,9 @@ int ActiveParticleType_RadiationParticle::EvaluateFormation(grid *thisgrid_orig,
 	  np->GridID = data.GridID;
 	  np->CurrentGrid = thisGrid;
 	  
-	  fprintf(stdout, "%s: A radiation particle inserted at (%"PSYM",%"PSYM",%"PSYM") " \
-		  "with v=(%"FSYM",%"FSYM",%"FSYM"), m=%"FSYM", type=%"ISYM", " \
-		  "redshift = %"FSYM"\n", __FUNCTION__,
+	  fprintf(stdout, "%s: A radiation particle inserted at (%" PSYM",%" PSYM",%" PSYM") " \
+		  "with v=(%" FSYM",%" FSYM",%" FSYM"), m=%" FSYM", type=%" ISYM", " \
+		  "redshift = %" FSYM"\n", __FUNCTION__,
 		  np->pos[0], 
 		  np->pos[1],
 		  np->pos[2],
@@ -295,8 +292,8 @@ int ActiveParticleType_RadiationParticle::EvaluateFormation(grid *thisgrid_orig,
     node = node->next;
     if(curnode->Deleteme == true && curnode->Alive == true) {
       fprintf(stderr, "%s: A radiation particle was made inactive "	\
-	      "(%"PSYM",%"PSYM",%"PSYM") "				\
-	      "redshift = %"FSYM"\n", __FUNCTION__,
+	      "(%" PSYM",%" PSYM",%" PSYM") "				\
+	      "redshift = %" FSYM"\n", __FUNCTION__,
 	      curnode->Position[0], 
 	      curnode->Position[1],
 	      curnode->Position[2],
@@ -306,7 +303,6 @@ int ActiveParticleType_RadiationParticle::EvaluateFormation(grid *thisgrid_orig,
       /* Delete Radiation Source from Global List */
     }
     else {
-      pnode = node;
     }
     
   } //end while
@@ -319,7 +315,7 @@ int ActiveParticleType_RadiationParticle::EvaluateFormation(grid *thisgrid_orig,
   SetRadiationDefaults();
 
   if (APDEBUG && data.NumberOfNewParticles > 0) {
-    fprintf(stdout, "AP_RadiationParticle: Have created %"ISYM" new particles\n",
+    fprintf(stdout, "AP_RadiationParticle: Have created %" ISYM" new particles\n",
 	    data.NumberOfNewParticles);
   }
 
@@ -476,20 +472,20 @@ int ActiveParticleType_RadiationParticle::ReadRadiationParameterFile()
 	if (line[0] != '#' && strlen(line) > 1) {  
 	  /* order: Position[3], Creation redshift, Deletion Redshift */
 	  fprintf(stdout, "line = %s\n", line);
-	  if (sscanf(line, " %"PSYM"  %"PSYM"  %"PSYM"  %"FSYM" %"FSYM"", 
+	  if (sscanf(line, " %" PSYM"  %" PSYM"  %" PSYM"  %" FSYM" %" FSYM"", 
 		     &(cnode->Position[0]), &(cnode->Position[1]), 
 		     &(cnode->Position[2]), &(cnode->Redshift), &(cnode->Redshift_end)) < NUMPARAMS) {
 	    fprintf(stderr, "%s: Unrecognised line found in %s - ignoring\n", 
 		    __FUNCTION__, RadiationSourcesFileName);
-	    fprintf(stderr, "%s: line = %s\t length = %u\n", __FUNCTION__, line, 
+	    fprintf(stderr, "%s: line = %s\t length = %zu\n", __FUNCTION__, line, 
 		    strlen(line));
 	    continue;
 	  }
 	  else {
-	    fprintf(stdout, "Particle Positions = (%"PSYM", %"PSYM", %"PSYM")\n", 
+	    fprintf(stdout, "Particle Positions = (%" PSYM", %" PSYM", %" PSYM")\n", 
 		    cnode->Position[0], cnode->Position[1], cnode->Position[2]);
-	    fprintf(stdout,"Particle will be created at z <= %"FSYM"\n", cnode->Redshift);
-	    fprintf(stdout,"Particle will be deleted at z <= %"FSYM"\n", cnode->Redshift_end);
+	    fprintf(stdout,"Particle will be created at z <= %" FSYM"\n", cnode->Redshift);
+	    fprintf(stdout,"Particle will be deleted at z <= %" FSYM"\n", cnode->Redshift_end);
 	  }  
 	}
       }

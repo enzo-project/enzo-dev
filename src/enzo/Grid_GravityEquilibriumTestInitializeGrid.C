@@ -85,7 +85,7 @@ int grid::GravityEquilibriumTestInitializeGrid(
 			     CellWidth[0][i  ]*density    );
     density_old = density;
  
-//    printf("%"ISYM" %"GSYM" %"GSYM"\n", i, density, pressure);
+//    printf("%" ISYM" %" GSYM" %" GSYM"\n", i, density, pressure);
  
     /* Loop over this level, set density, energy. */
  

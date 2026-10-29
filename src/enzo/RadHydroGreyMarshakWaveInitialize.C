@@ -42,13 +42,13 @@ int RadHydroGreyMarshakWaveInitialize(FILE *fptr, FILE *Outfptr,
   if (MyProcessorNumber == ROOT_PROCESSOR)
     fprintf(stdout,"Entering RadHydroGreyMarshakWaveInitialize routine\n");
 
-  char *DensName  = "Density";
-  char *TEName    = "TotalEnergy";
-  char *IEName    = "Internal_Energy";
-  char *Vel0Name  = "x-velocity";
-  char *Vel1Name  = "y-velocity";
-  char *Vel2Name  = "z-velocity";
-  char *RadName   = "Grey_Radiation_Energy";
+  const char *DensName  = "Density";
+  const char *TEName    = "TotalEnergy";
+  const char *IEName    = "Internal_Energy";
+  const char *Vel0Name  = "x-velocity";
+  const char *Vel1Name  = "y-velocity";
+  const char *Vel2Name  = "z-velocity";
+  const char *RadName   = "Grey_Radiation_Energy";
 
   // Setup and parameters:
   //  1. ambient density (should be very small) - free parameter
@@ -62,17 +62,15 @@ int RadHydroGreyMarshakWaveInitialize(FILE *fptr, FILE *Outfptr,
 
   // overwrite parameters from RadHydroParamFile file, if it exists
   char line[MAX_LINE_LENGTH];
-  int  dim, ret;
   if (MetaData.RadHydroParameterFname != NULL) {
     FILE *RHfptr;
     if ((RHfptr = fopen(MetaData.RadHydroParameterFname, "r")) != NULL) {
       while (fgets(line, MAX_LINE_LENGTH, RHfptr) != NULL) {
-	ret = 0;
 	// read relevant problem parameters
-	ret += sscanf(line, "RadHydroDensity = %"FSYM, &RadHydroDensity);
-	ret += sscanf(line, "RadHydroGasEnergy = %"FSYM, &RadHydroGasEnergy);
-	ret += sscanf(line, "RadHydroRadEnergy = %"FSYM, &RadHydroRadEnergy);
-	ret += sscanf(line, "GreyMarshDir = %"ISYM, &GreyMarshDir);
+	sscanf(line, "RadHydroDensity = %" FSYM, &RadHydroDensity);
+	sscanf(line, "RadHydroGasEnergy = %" FSYM, &RadHydroGasEnergy);
+	sscanf(line, "RadHydroRadEnergy = %" FSYM, &RadHydroRadEnergy);
+	sscanf(line, "GreyMarshDir = %" ISYM, &GreyMarshDir);
       } // end input from parameter file
       fclose(RHfptr);
     }

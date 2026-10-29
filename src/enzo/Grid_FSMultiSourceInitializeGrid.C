@@ -52,7 +52,7 @@ int grid::FSMultiSourceInitializeGrid(float DensityConstant,
 
 
   // create necessary baryon fields
-  int RhoNum, TENum, IENum, V0Num, V1Num, V2Num, RadNum;
+  int RhoNum, TENum, V0Num, V1Num, V2Num, RadNum;
   NumberOfBaryonFields = 0;
   FieldType[RhoNum = NumberOfBaryonFields++] = Density;
   FieldType[TENum = NumberOfBaryonFields++]  = TotalEnergy;

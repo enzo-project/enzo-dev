@@ -25,7 +25,7 @@
 float grid::CalculateJeansMass(int DensNum, float *T, float DensityUnits)
 {
   int i = 0, j = 0, k = 0;
-  int index = 0, count = 0, maxindex = 0;
+  int index = 0, count = 0;
   float avgdensity = -1, JeansMass = 0.0;
   float *density = BaryonField[DensNum], avgtemp = -1, maxdensity = -1;
   for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
@@ -37,7 +37,6 @@ float grid::CalculateJeansMass(int DensNum, float *T, float DensityUnits)
 	avgtemp += T[index];
 	if(density[index] > maxdensity) {
 	  maxdensity = density[index];
-	  maxindex = index;
 	}
       }
     }

@@ -118,12 +118,11 @@ int grid::MHD3DTestInitializeGrid(int MHD3DProblemType,
     return SUCCESS;
   }
 
-  int size = 1, activesize = 1, dim;
+  int size = 1, dim;
   for (dim = 0; dim < GridRank; dim++)
     size *= GridDimension[dim];
 
   for (dim = 0; dim < GridRank; dim++)
-    activesize *= (GridDimension[dim] - 2*NumberOfGhostZones);
   
   this->AllocateGrids();
 
@@ -141,7 +140,6 @@ int grid::MHD3DTestInitializeGrid(int MHD3DProblemType,
   int igrid;
   FLOAT x, y, z;
   if (MHD3DProblemType == 0) { // Planar shock
-  float pres, eintl, eintu, h, cs, dpdrho, dpde;
   for (int k = 0; k < GridDimension[2]; k++) {
     for (int j = 0; j < GridDimension[1]; j++) {
       for (int i = 0; i < GridDimension[0]; i++) {
@@ -152,7 +150,7 @@ int grid::MHD3DTestInitializeGrid(int MHD3DProblemType,
 	y = CellLeftEdge[1][j] + 0.5*CellWidth[1][j];
 	if (x <= 0.1) {
 	  if (k==2) {
-	    printf("rhol=%"GSYM", vxl=%"GSYM", pl=%"GSYM"\n", rhol, vxl, pl);
+	    printf("rhol=%" GSYM", vxl=%" GSYM", pl=%" GSYM"\n", rhol, vxl, pl);
 	  }
 
 	  BaryonField[iden ][igrid] = rhol;
@@ -169,7 +167,7 @@ int grid::MHD3DTestInitializeGrid(int MHD3DProblemType,
 	  BaryonField[iPhi ][igrid] = 0.0;
 	} else {
 	  if (k==2) {
-	    printf("rhor=%"GSYM", vxr=%"GSYM", pr=%"GSYM"\n", rhou, vxu, pu);
+	    printf("rhor=%" GSYM", vxr=%" GSYM", pr=%" GSYM"\n", rhou, vxu, pu);
 	  }
 	  BaryonField[iden ][igrid] = rhou;
 	  BaryonField[ivx  ][igrid] = vxu;
@@ -190,7 +188,7 @@ int grid::MHD3DTestInitializeGrid(int MHD3DProblemType,
   }
 
   if (MHD3DProblemType == 1) { // Uniform Density with a Shear
-    float pres, eintl, eintu, h, cs, dpdrho, dpde;
+    float pres, eintl, h, cs, dpdrho, dpde;
     for (int k = 0; k < GridDimension[2]; k++) {
       for (int j = 0; j < GridDimension[1]; j++) {
 	for (int i = 0; i < GridDimension[0]; i++) {
@@ -321,7 +319,7 @@ int grid::MHD3DTestInitializeGrid(int MHD3DProblemType,
 
   if (MHD3DProblemType == 4) { 
 
-    float pres, eintl, eintu, h, cs, dpdrho, dpde,rhot, bx ,by, bz;
+    float pres, eintl, h, cs, dpdrho, dpde, bx, by, bz;
 
 
     float *ax = new float[size];

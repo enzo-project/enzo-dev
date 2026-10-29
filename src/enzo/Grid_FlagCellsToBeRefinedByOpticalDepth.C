@@ -84,13 +84,12 @@ int grid::FlagCellsToBeRefinedByOpticalDepth()
   float OpticalDepthConversion = 
     ConvertToProperNumberDensity * CellWidth[0][0] * sigmaHI * LengthUnits;
 
-  float tau0, tau1, tau2;
-  float inv_dt_sec = 1.0 / (dtFixed * TimeUnits);
+  float tau1;
 
   /* Loop over grid. */
 
   int NumberOfFlaggedCells_TAU = 0;
-  int index, offset = 1;
+  int index;
   float avgTau = 0, avg_kph = 0;
   float minTau = 1e20, maxTau = -1e20;
   float minkph = 1e20, maxkph = -1e20;
@@ -101,9 +100,7 @@ int grid::FlagCellsToBeRefinedByOpticalDepth()
       for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
 	index = (j + k*GridDimension[1])*GridDimension[0];
 	for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++) {
-	  tau0 = OpticalDepthConversion * BaryonField[HINum][index+i-offset];
 	  tau1 = OpticalDepthConversion * BaryonField[HINum][index+i];
-	  tau2 = OpticalDepthConversion * BaryonField[HINum][index+i+offset];
 	  if (BaryonField[kphHINum][index+i] > tiny_number && // inv_dt_sec &&
 	      //	      max(tau0, MAX(tau1,tau2)) > MAX_TAU) {
 	      tau1 > MAX_TAU) {
@@ -119,7 +116,7 @@ int grid::FlagCellsToBeRefinedByOpticalDepth()
 	    maxkph = max(BaryonField[kphHINum][index+i], maxkph);
 
 //	    if (dim == 0)
-//	      printf("FlagTau: kph = %"FSYM", idx = %"ISYM"/%"ISYM" %"ISYM"/%"ISYM" %"ISYM"/%"ISYM" (%"ISYM")\n",
+//	      printf("FlagTau: kph = %" FSYM", idx = %" ISYM"/%" ISYM" %" ISYM"/%" ISYM" %" ISYM"/%" ISYM" (%" ISYM")\n",
 //		     BaryonField[kphHINum][index+i], i, GridDimension[0], 
 //		     j, GridDimension[1], k, GridDimension[2], index+i);
 	    
@@ -150,12 +147,12 @@ int grid::FlagCellsToBeRefinedByOpticalDepth()
 
   if (NumberOfFlaggedCells_TAU) {
 
-    fprintf(stdout, "FlagCellsOpticalDepth: %"ISYM"\n", NumberOfFlaggedCells_TAU);
-    fprintf(stdout, "FlagCellsOpticalDepth: avg(kph) = %"GSYM", avg(tau) = %"GSYM"\n",
+    fprintf(stdout, "FlagCellsOpticalDepth: %" ISYM"\n", NumberOfFlaggedCells_TAU);
+    fprintf(stdout, "FlagCellsOpticalDepth: avg(kph) = %" GSYM", avg(tau) = %" GSYM"\n",
 	    avg_kph/(NumberOfFlaggedCells_TAU), avgTau/NumberOfFlaggedCells_TAU);
-    fprintf(stdout, "FlagCellsOpticalDepth: MIN(kph) = %"GSYM", MAX(kph) = %"GSYM"\n",
+    fprintf(stdout, "FlagCellsOpticalDepth: MIN(kph) = %" GSYM", MAX(kph) = %" GSYM"\n",
 	    minkph, maxkph);
-    fprintf(stdout, "FlagCellsOpticalDepth: MIN(tau) = %"GSYM", MAX(tau) = %"GSYM"\n",
+    fprintf(stdout, "FlagCellsOpticalDepth: MIN(tau) = %" GSYM", MAX(tau) = %" GSYM"\n",
 	    minTau, maxTau);
   }
 

@@ -64,7 +64,7 @@ int EnzoVector::exchange_end()
   // wait for x0L data, and update ghost cells
   if (Nbors[0][0] != MPI_PROC_NULL) {
     if (MPI_Wait((MPI_Request *) id_recv_x0l, &status) != 0) {
-      fprintf(stderr,"EnzoVector_Exchange p%i: x0L wait error\n",myrank);
+      fprintf(stderr,"EnzoVector_Exchange p%d: x0L wait error\n",myrank);
       return FAIL;
     }
     idx=0;
@@ -79,7 +79,7 @@ int EnzoVector::exchange_end()
   // wait for x0R data, and update ghost cells
   if (Nbors[0][1] != MPI_PROC_NULL) {
     if (MPI_Wait((MPI_Request *) id_recv_x0r, &status) != 0) {
-      fprintf(stderr,"EnzoVector_Exchange p%i: x0R wait error\n",myrank);
+      fprintf(stderr,"EnzoVector_Exchange p%d: x0R wait error\n",myrank);
       return FAIL;
     }
     idx=0;
@@ -94,7 +94,7 @@ int EnzoVector::exchange_end()
   // wait for x1L data, and update ghost cells
   if (Nbors[1][0] != MPI_PROC_NULL) {
     if (MPI_Wait((MPI_Request *) id_recv_x1l, &status) != 0) {
-      fprintf(stderr,"EnzoVector_Exchange p%i: x1L wait error\n",myrank);
+      fprintf(stderr,"EnzoVector_Exchange p%d: x1L wait error\n",myrank);
       return FAIL;
     }
     idx=0;
@@ -109,7 +109,7 @@ int EnzoVector::exchange_end()
   // wait for x1R data, and update ghost cells
   if (Nbors[1][1] != MPI_PROC_NULL) {
     if (MPI_Wait((MPI_Request *) id_recv_x1r, &status) != 0) {
-      fprintf(stderr,"EnzoVector_Exchange p%i: x1R wait error\n",myrank);
+      fprintf(stderr,"EnzoVector_Exchange p%d: x1R wait error\n",myrank);
       return FAIL;
     }
     idx=0;
@@ -124,7 +124,7 @@ int EnzoVector::exchange_end()
   // wait for x2L data, and update ghost cells
   if (Nbors[2][0] != MPI_PROC_NULL) {
     if (MPI_Wait((MPI_Request *) id_recv_x2l, &status) != 0) {
-      fprintf(stderr,"EnzoVector_Exchange p%i: x2L wait error\n",myrank);
+      fprintf(stderr,"EnzoVector_Exchange p%d: x2L wait error\n",myrank);
       return FAIL;
     }
     idx=0;
@@ -139,7 +139,7 @@ int EnzoVector::exchange_end()
   // wait for x2R data, and update ghost cells
   if (Nbors[2][1] != MPI_PROC_NULL) {
     if (MPI_Wait((MPI_Request *) id_recv_x2r, &status) != 0) {
-      fprintf(stderr,"EnzoVector_Exchange p%i: x2R wait error\n",myrank);
+      fprintf(stderr,"EnzoVector_Exchange p%d: x2R wait error\n",myrank);
       return FAIL;
     }
     idx=0;
@@ -160,42 +160,42 @@ int EnzoVector::exchange_end()
   // wait to ensure proper delivery of x0R data
   if (Nbors[0][1] != MPI_PROC_NULL) {
     if (MPI_Wait((MPI_Request *) id_send_x0l, &status) != 0) {
-      fprintf(stderr,"EnzoVector_Exchange p%i: x0L wait error\n",myrank);
+      fprintf(stderr,"EnzoVector_Exchange p%d: x0L wait error\n",myrank);
       return FAIL;
     }
   }
   // wait to ensure proper delivery of x0L data
   if (Nbors[0][0] != MPI_PROC_NULL) {
     if (MPI_Wait((MPI_Request *) id_send_x0r, &status) != 0) {
-      fprintf(stderr,"EnzoVector_Exchange p%i: x0R wait error\n",myrank);
+      fprintf(stderr,"EnzoVector_Exchange p%d: x0R wait error\n",myrank);
       return FAIL;
     }
   }
   // wait to ensure proper delivery of x1R data
   if (Nbors[1][1] != MPI_PROC_NULL) {
     if (MPI_Wait((MPI_Request *) id_send_x1l, &status) != 0) {
-      fprintf(stderr,"EnzoVector_Exchange p%i: x1L wait error\n",myrank);
+      fprintf(stderr,"EnzoVector_Exchange p%d: x1L wait error\n",myrank);
       return FAIL;
     }
   }
   // wait to ensure proper delivery of x1L data
   if (Nbors[1][0] != MPI_PROC_NULL) {
     if (MPI_Wait((MPI_Request *) id_send_x1r, &status) != 0) {
-      fprintf(stderr,"EnzoVector_Exchange p%i: x1R wait error\n",myrank);
+      fprintf(stderr,"EnzoVector_Exchange p%d: x1R wait error\n",myrank);
       return FAIL;
     }
   }
   // wait to ensure proper delivery of x2R data
   if (Nbors[2][1] != MPI_PROC_NULL) {
     if (MPI_Wait((MPI_Request *) id_send_x2l, &status) != 0) {
-      fprintf(stderr,"EnzoVector_Exchange p%i: x2L wait error\n",myrank);
+      fprintf(stderr,"EnzoVector_Exchange p%d: x2L wait error\n",myrank);
       return FAIL;
     }
   }
   // wait to ensure proper delivery of x2L data
   if (Nbors[2][0] != MPI_PROC_NULL) {
     if (MPI_Wait((MPI_Request *) id_send_x2r, &status) != 0) {
-      fprintf(stderr,"EnzoVector_Exchange p%i: x2R wait error\n",myrank);
+      fprintf(stderr,"EnzoVector_Exchange p%d: x2R wait error\n",myrank);
       return FAIL;
     }
   }
@@ -215,7 +215,7 @@ int EnzoVector::exchange_end_component(int ivar)
 #ifdef USE_MPI
 
   // some local variables
-  int i, j, k, l, idx;
+  int i, j, k, idx;
   MPI_Arg myrank;
   int x0len = Nx0 + Ng0l + Ng0r;
   int x1len = Nx1 + Ng1l + Ng1r;
@@ -235,7 +235,7 @@ int EnzoVector::exchange_end_component(int ivar)
   // wait for x0L data, and update ghost cells
   if (Nbors[0][0] != MPI_PROC_NULL) {
     if (MPI_Wait((MPI_Request *) id_recv_x0l_comp, &status) != 0) {
-      fprintf(stderr,"EnzoVector_Exchange_Component p%i: x0L wait error\n",myrank);
+      fprintf(stderr,"EnzoVector_Exchange_Component p%d: x0L wait error\n",myrank);
       return FAIL;
     }
     idx=0;
@@ -247,7 +247,7 @@ int EnzoVector::exchange_end_component(int ivar)
   // wait for x0R data, and update ghost cells
   if (Nbors[0][1] != MPI_PROC_NULL) {
     if (MPI_Wait((MPI_Request *) id_recv_x0r_comp, &status) != 0) {
-      fprintf(stderr,"EnzoVector_Exchange_Component p%i: x0R wait error\n",myrank);
+      fprintf(stderr,"EnzoVector_Exchange_Component p%d: x0R wait error\n",myrank);
       return FAIL;
     }
     idx=0;
@@ -259,7 +259,7 @@ int EnzoVector::exchange_end_component(int ivar)
   // wait for x1L data, and update ghost cells
   if (Nbors[1][0] != MPI_PROC_NULL) {
     if (MPI_Wait((MPI_Request *) id_recv_x1l_comp, &status) != 0) {
-      fprintf(stderr,"EnzoVector_Exchange_Component p%i: x1L wait error\n",myrank);
+      fprintf(stderr,"EnzoVector_Exchange_Component p%d: x1L wait error\n",myrank);
       return FAIL;
     }
     idx=0;
@@ -271,7 +271,7 @@ int EnzoVector::exchange_end_component(int ivar)
   // wait for x1R data, and update ghost cells
   if (Nbors[1][1] != MPI_PROC_NULL) {
     if (MPI_Wait((MPI_Request *) id_recv_x1r_comp, &status) != 0) {
-      fprintf(stderr,"EnzoVector_Exchange_Component p%i: x1R wait error\n",myrank);
+      fprintf(stderr,"EnzoVector_Exchange_Component p%d: x1R wait error\n",myrank);
       return FAIL;
     }
     idx=0;
@@ -283,7 +283,7 @@ int EnzoVector::exchange_end_component(int ivar)
   // wait for x2L data, and update ghost cells
   if (Nbors[2][0] != MPI_PROC_NULL) {
     if (MPI_Wait((MPI_Request *) id_recv_x2l_comp, &status) != 0) {
-      fprintf(stderr,"EnzoVector_Exchange_Component p%i: x2L wait error\n",myrank);
+      fprintf(stderr,"EnzoVector_Exchange_Component p%d: x2L wait error\n",myrank);
       return FAIL;
     }
     idx=0; 
@@ -295,7 +295,7 @@ int EnzoVector::exchange_end_component(int ivar)
   // wait for x2R data, and update ghost cells
   if (Nbors[2][1] != MPI_PROC_NULL) {
     if (MPI_Wait((MPI_Request *) id_recv_x2r_comp, &status) != 0) {
-      fprintf(stderr,"EnzoVector_Exchange_Component p%i: x2R wait error\n",myrank);
+      fprintf(stderr,"EnzoVector_Exchange_Component p%d: x2R wait error\n",myrank);
       return FAIL;
     }
     idx=0; 
@@ -313,42 +313,42 @@ int EnzoVector::exchange_end_component(int ivar)
   // wait to ensure proper delivery of x0R data
   if (Nbors[0][1] != MPI_PROC_NULL) {
     if (MPI_Wait((MPI_Request *) id_send_x0l_comp, &status) != 0) {
-      fprintf(stderr,"EnzoVector_Exchange_Component p%i: x0L wait error\n",myrank);
+      fprintf(stderr,"EnzoVector_Exchange_Component p%d: x0L wait error\n",myrank);
       return FAIL;
     }
   }
   // wait to ensure proper delivery of x0L data
   if (Nbors[0][0] != MPI_PROC_NULL) {
     if (MPI_Wait((MPI_Request *) id_send_x0r_comp, &status) != 0) {
-      fprintf(stderr,"EnzoVector_Exchange_Component p%i: x0R wait error\n",myrank);
+      fprintf(stderr,"EnzoVector_Exchange_Component p%d: x0R wait error\n",myrank);
       return FAIL;
     }
   }
   // wait to ensure proper delivery of x1R data
   if (Nbors[1][1] != MPI_PROC_NULL) {
     if (MPI_Wait((MPI_Request *) id_send_x1l_comp, &status) != 0) {
-      fprintf(stderr,"EnzoVector_Exchange_Component p%i: x1L wait error\n",myrank);
+      fprintf(stderr,"EnzoVector_Exchange_Component p%d: x1L wait error\n",myrank);
       return FAIL;
     }
   }
   // wait to ensure proper delivery of x1L data
   if (Nbors[1][0] != MPI_PROC_NULL) {
     if (MPI_Wait((MPI_Request *) id_send_x1r_comp, &status) != 0) {
-      fprintf(stderr,"EnzoVector_Exchange_Component p%i: x1R wait error\n",myrank);
+      fprintf(stderr,"EnzoVector_Exchange_Component p%d: x1R wait error\n",myrank);
       return FAIL;
     }
   }
   // wait to ensure proper delivery of x2R data
   if (Nbors[2][1] != MPI_PROC_NULL) {
     if (MPI_Wait((MPI_Request *) id_send_x2l_comp, &status) != 0) {
-      fprintf(stderr,"EnzoVector_Exchange_Component p%i: x2L wait error\n",myrank);
+      fprintf(stderr,"EnzoVector_Exchange_Component p%d: x2L wait error\n",myrank);
       return FAIL;
     }
   }
   // wait to ensure proper delivery of x2L data
   if (Nbors[2][0] != MPI_PROC_NULL) {
     if (MPI_Wait((MPI_Request *) id_send_x2r_comp, &status) != 0) {
-      fprintf(stderr,"EnzoVector_Exchange_Component p%i: x2R wait error\n",myrank);
+      fprintf(stderr,"EnzoVector_Exchange_Component p%d: x2R wait error\n",myrank);
       return FAIL;
     }
   }

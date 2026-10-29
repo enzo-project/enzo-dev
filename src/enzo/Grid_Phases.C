@@ -27,7 +27,7 @@ void grid::Phases()
     int dim, i, j, k, m, n;
     int i1 = Forcing.get_LeftBoundary(1), i2 =  Forcing.get_RightBoundary(1);
     int j1 = Forcing.get_LeftBoundary(2), j2 =  Forcing.get_RightBoundary(2);
-    int k1 = Forcing.get_LeftBoundary(3), k2 =  Forcing.get_RightBoundary(3);
+    int k2 =  Forcing.get_RightBoundary(3);
     int size = Forcing.get_NumModes();
     int mask[size];
     

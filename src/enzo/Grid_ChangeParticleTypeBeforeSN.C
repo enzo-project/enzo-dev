@@ -77,7 +77,7 @@ int grid::ChangeParticleTypeBeforeSN(int _type, int level,
 	      /* If resetting, put particle type back to its original
 		 value, which is stored in the Star class. */
 
-	      printf("Changing particle type %d->%d(%d).  Lived %f\n",
+	      printf("Changing particle type %" ISYM "->%" ISYM "(%" ISYM ").  Lived %f\n",
 		     ParticleType[i], _type, ThisStar->type,
 		     this->Time - ThisStar->BirthTime);
 
@@ -122,7 +122,7 @@ int grid::ChangeParticleTypeBeforeSN(int _type, int level,
 		  nint(ceil(logf(CellWidth[0][0]/DesiredResolution) /
 			    logf(RefineBy)));
 		printf("Diameter = %g, factor = %f, Need_dx = %g (%g), "
-		       "MustRefineTo = %d\n",
+		       "MustRefineTo = %" ISYM "\n",
 		       Diameter, factor, DesiredResolution, CellWidth[0][0],
 		       MustRefineParticlesRefineToLevel);
 		MustRefineParticlesRefineToLevel =
@@ -133,7 +133,7 @@ int grid::ChangeParticleTypeBeforeSN(int _type, int level,
 		// around the particle.
 		*ParticleBufferSize = int(Diameter / CellWidth[0][0]);
 		*ParticleBufferSize = max(*ParticleBufferSize, 1) + 1;
-		printf("ParticleBufferSize = %d (%f)\n",
+		printf("ParticleBufferSize = %" ISYM " (%f)\n",
 		       *ParticleBufferSize, Diameter/CellWidth[0][0]);
 
 	      } // ENDIF ParticleBufferSize != NULL

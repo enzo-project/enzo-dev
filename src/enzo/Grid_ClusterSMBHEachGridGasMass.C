@@ -52,7 +52,6 @@ int grid::ClusterSMBHEachGridGasMass(int level)
      (assume the center of the disk is PointSourceGravityPosition) */
 
   FLOAT DiskLeftCorner[MAX_DIMENSION], DiskRightCorner[MAX_DIMENSION];
-  FLOAT DiskCenter[MAX_DIMENSION];
 
   float DensityUnits = 1.0, LengthUnits = 1.0, TemperatureUnits = 1,
     TimeUnits = 1.0, VelocityUnits = 1.0;
@@ -67,7 +66,6 @@ int grid::ClusterSMBHEachGridGasMass(int level)
   float DiskRadius; //ClusterSMBHDiskRadius = 0.5;  ClusterSMBHDiskRadiu now a parameter.
   DiskRadius = ClusterSMBHDiskRadius*kpc_cm/LengthUnits; //from kpc to codeunits 
   for (dim = 0; dim < GridRank; dim++) {
-    DiskCenter[dim] = PointSourceGravityPosition[dim];
     DiskLeftCorner[dim] = PointSourceGravityPosition[dim]- DiskRadius;
     DiskRightCorner[dim] = PointSourceGravityPosition[dim] + DiskRadius;
   }

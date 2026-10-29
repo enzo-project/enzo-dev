@@ -36,7 +36,7 @@ int grid::OneZoneFreefallTestInitializeGrid(float InitialDensity,
 {
   /* declarations */
 
-  int dim, i, j, k, size, GCM, index;
+  int dim, i, j, k, size, index;
 
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
       DINum, DIINum, HDINum, MetalNum;
@@ -66,7 +66,6 @@ int grid::OneZoneFreefallTestInitializeGrid(float InitialDensity,
   if (GridRank > 2)
     FieldType[NumberOfBaryonFields++] = Velocity3;
 
-  int colorfields = NumberOfBaryonFields;
 
   // Enzo's standard multispecies (primordial chemistry - H, D, He)
   if (MultiSpecies) {

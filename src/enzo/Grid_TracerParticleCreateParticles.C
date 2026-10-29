@@ -77,11 +77,11 @@ int grid::TracerParticleCreateParticles(FLOAT LeftEdge[], FLOAT RightEdge[],
   
   /*
   if (ProcessorNumber == MyProcessorNumber) {
-    fprintf(stderr, "PX %"ISYM" NOP %"ISYM" TPC %"ISYM" NOTP %"ISYM"\n", MyProcessorNumber,
+    fprintf(stderr, "PX %" ISYM" NOP %" ISYM" TPC %" ISYM" NOTP %" ISYM"\n", MyProcessorNumber,
 	    NumberOfParticles, TotalParticleCount, NumberOfTracerParticles);
-    fprintf(stderr, "GL %"ISYM"  %12.3e  %12.3e  %12.3e\n", MyProcessorNumber,
+    fprintf(stderr, "GL %" ISYM"  %12.3e  %12.3e  %12.3e\n", MyProcessorNumber,
 	    GridLeftEdge[0], GridLeftEdge[1], GridLeftEdge[2]);
-    fprintf(stderr, "GR %"ISYM"  %12.3e  %12.3e  %12.3e\n", MyProcessorNumber,
+    fprintf(stderr, "GR %" ISYM"  %12.3e  %12.3e  %12.3e\n", MyProcessorNumber,
 	    GridRightEdge[0], GridRightEdge[1], GridRightEdge[2]);
   }  // if (ProcessorNumber == MyProcessorNumber)
   */
@@ -221,7 +221,7 @@ int grid::TracerParticleCreateParticles(FLOAT LeftEdge[], FLOAT RightEdge[],
     } // end: loop over k
  
     if (ParallelRootGridIO == TRUE && debug1) {
-      fprintf(stderr, "PG %"ISYM" actual count %"ISYM"\n", MyProcessorNumber, count);
+      fprintf(stderr, "PG %" ISYM" actual count %" ISYM"\n", MyProcessorNumber, count);
     }
  
     /* Update number of particles and set velocity (note: TracerParticleSetVelocity takes 

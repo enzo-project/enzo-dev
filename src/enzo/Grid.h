@@ -287,19 +287,19 @@ class grid
    defined in typedefs.h. Details are in Grid_CreateFieldArray.C. */
 
    EnzoArrayBool *CreateFieldArrayBool(field_type field);
-   EnzoArrayBool *CreateFieldArrayBool(char *field_name);
+   EnzoArrayBool *CreateFieldArrayBool(const char *field_name);
 
    EnzoArrayInt *CreateFieldArrayInt(field_type field);
-   EnzoArrayInt *CreateFieldArrayInt(char *field_name);
+   EnzoArrayInt *CreateFieldArrayInt(const char *field_name);
   
    EnzoArrayFloat *CreateFieldArrayFloat(field_type field);
-   EnzoArrayFloat *CreateFieldArrayFloat(char *field_name);
+   EnzoArrayFloat *CreateFieldArrayFloat(const char *field_name);
   
    EnzoArrayFLOAT *CreateFieldArrayFLOAT(field_type field);
-   EnzoArrayFLOAT *CreateFieldArrayFLOAT(char *field_name);
+   EnzoArrayFLOAT *CreateFieldArrayFLOAT(const char *field_name);
 
    EnzoArrayPINT *CreateFieldArrayPINT(field_type field);
-   EnzoArrayPINT *CreateFieldArrayPINT(char *field_name);
+   EnzoArrayPINT *CreateFieldArrayPINT(const char *field_name);
 
 /* Write unigrid cubes to a file (returns: success/failure) */
 
@@ -2000,7 +2000,7 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
   int SedovBlastInitializeGrid(float SedovBlastInitialRadius,
                                float SedovBlastInnerTotalEnergy);
 
-  int SedovBlastInitializeGrid3D(char * fname);
+  int SedovBlastInitializeGrid3D(const char * fname);
 
   int SedovBlastInitializeGrid3DFixedR(float dr);
 
@@ -3207,10 +3207,10 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 
   
 
-  int PrintToScreenBoundaries(float *field, char *display, int direction, int slice,
+  int PrintToScreenBoundaries(float *field, const char *display, int direction, int slice,
 			      int check, float diffvalue);  
-  int PrintToScreenBoundaries(float *field, char *display, int direction, int slice);
-  int PrintToScreenBoundaries(float *field, char *display);
+  int PrintToScreenBoundaries(float *field, const char *display, int direction, int slice);
+  int PrintToScreenBoundaries(float *field, const char *display);
   int PrintToScreenBoundaries();
   int PrintToScreenBoundaries(int field);
 
@@ -3302,7 +3302,7 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
   float *DxBz, *DyBz, *DxyBz;
   int * DBxFlag, *DByFlag, *DBzFlag;
 
-  int MHD_Diagnose(char * message, float * &DivB);
+  int MHD_Diagnose(const char * message, float * &DivB);
   inline int indexb1(int i, int j, int k)    {return i+MagneticDims[0][0]*(j+MagneticDims[0][1]*k);}  
   inline int indexb2(int i, int j, int k)    {return i+MagneticDims[1][0]*(j+MagneticDims[1][1]*k);}  
   inline int indexb3(int i, int j, int k)    {return i+MagneticDims[2][0]*(j+MagneticDims[2][1]*k);}
@@ -3310,7 +3310,7 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
   int MHD_CIDWorker(grid* OtherGrid, FLOAT EdgeOffset[MAX_DIMENSION]);
   int MHD_SendOldFineGrids(LevelHierarchyEntry * OldFineLevel, grid *ParentGrid, TopGridData *MetaData);
   int MHD_ProlongAllocate(int * ChildDim);
-  int MHD_DCheck(int * ChildDim, char * mess);
+  int MHD_DCheck(int * ChildDim, const char * mess);
   int MHD_ProlongFree();
   void MHD_SetupDims(void);
   //Evolution/AMR routines

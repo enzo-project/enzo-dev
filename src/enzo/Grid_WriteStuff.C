@@ -48,7 +48,7 @@ int grid::WriteStuff(FILE *fptr, char *base_name, int grid_id)
  
   if (MyProcessorNumber == ROOT_PROCESSOR) {
  
-    fprintf(fptr, "GridRank          = %"ISYM"\n", GridRank);
+    fprintf(fptr, "GridRank          = %" ISYM"\n", GridRank);
  
     fprintf(fptr, "GridDimension     = ");
     WriteListOfInts(fptr, GridRank, GridDimension);
@@ -65,11 +65,11 @@ int grid::WriteStuff(FILE *fptr, char *base_name, int grid_id)
     fprintf(fptr, "GridRightEdge     = ");
     WriteListOfFloats(fptr, GridRank, GridRightEdge);
  
-    fprintf(fptr, "Time              = %"GOUTSYM"\n", Time);
+    fprintf(fptr, "Time              = %" GOUTSYM"\n", Time);
  
-    fprintf(fptr, "SubgridsAreStatic = %"ISYM"\n", SubgridsAreStatic);
+    fprintf(fptr, "SubgridsAreStatic = %" ISYM"\n", SubgridsAreStatic);
  
-    fprintf(fptr, "NumberOfBaryonFields = %"ISYM"\n", NumberOfBaryonFields);
+    fprintf(fptr, "NumberOfBaryonFields = %" ISYM"\n", NumberOfBaryonFields);
  
   }
  
@@ -83,10 +83,10 @@ int grid::WriteStuff(FILE *fptr, char *base_name, int grid_id)
  
       fprintf(fptr, "BaryonFileName = %s\n", name);
  
-      fprintf(fptr, "CourantSafetyNumber    = %"FSYM"\n", CourantSafetyNumber);
-      fprintf(fptr, "PPMFlatteningParameter = %"ISYM"\n", PPMFlatteningParameter);
-      fprintf(fptr, "PPMDiffusionParameter  = %"ISYM"\n", PPMDiffusionParameter);
-      fprintf(fptr, "PPMSteepeningParameter = %"ISYM"\n", PPMSteepeningParameter);
+      fprintf(fptr, "CourantSafetyNumber    = %" FSYM"\n", CourantSafetyNumber);
+      fprintf(fptr, "PPMFlatteningParameter = %" ISYM"\n", PPMFlatteningParameter);
+      fprintf(fptr, "PPMDiffusionParameter  = %" ISYM"\n", PPMDiffusionParameter);
+      fprintf(fptr, "PPMSteepeningParameter = %" ISYM"\n", PPMSteepeningParameter);
  
     }
  
@@ -95,7 +95,7 @@ int grid::WriteStuff(FILE *fptr, char *base_name, int grid_id)
   /* 3) Save particle quantities. */
  
   if (MyProcessorNumber == ROOT_PROCESSOR)
-    fprintf(fptr, "NumberOfParticles   = %"ISYM"\n", NumberOfParticles);
+    fprintf(fptr, "NumberOfParticles   = %" ISYM"\n", NumberOfParticles);
  
   if (NumberOfParticles > 0) {
  
@@ -108,7 +108,7 @@ int grid::WriteStuff(FILE *fptr, char *base_name, int grid_id)
  
   if (MyProcessorNumber == ROOT_PROCESSOR)
     if (SelfGravity)
-      fprintf(fptr, "GravityBoundaryType = %"ISYM"\n", GravityBoundaryType);
+      fprintf(fptr, "GravityBoundaryType = %" ISYM"\n", GravityBoundaryType);
  
   return SUCCESS;
  

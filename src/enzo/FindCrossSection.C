@@ -34,14 +34,12 @@ FLOAT FindCrossSection(int type, float energy)
 {
 
   float sigma;
-  float e_th, e_max, e0, sigma0, ya, P, yw, y0, y1;
+  float e0, sigma0, ya, P, yw, y0, y1;
 
   switch (type) {
 
     // HI
   case 0:
-    e_th = 13.6;
-    e_max = 5e4;
     e0 = 4.298e-1;
     sigma0 = 5.475e4;
     ya = 32.88;
@@ -51,8 +49,6 @@ FLOAT FindCrossSection(int type, float energy)
 
     // HeI
   case 1:
-    e_th = 24.59;
-    e_max = 5e4;
     e0 = 13.61;
     sigma0 = 9.492e2;
     ya = 1.469;
@@ -64,8 +60,6 @@ FLOAT FindCrossSection(int type, float energy)
   
     // HeII
   case 2:
-    e_th = 54.42;
-    e_max = 5e4;
     e0 = 1.720;
     sigma0 = 1.369e4;
     ya = 32.88;
@@ -75,8 +69,6 @@ FLOAT FindCrossSection(int type, float energy)
 
     // Lyman-Werner
   case 3:
-    e_th = 11.18;
-    e_max = 13.6;
     sigma0 = 3.71;  
     break;
 

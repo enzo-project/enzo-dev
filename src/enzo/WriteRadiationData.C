@@ -28,7 +28,7 @@ int WriteRadiationData(FILE *fptr)
  
   /* write scalar data. */
  
-  fprintf(fptr, "TimeFieldLastUpdated = %"GOUTSYM"\n",
+  fprintf(fptr, "TimeFieldLastUpdated = %" GOUTSYM"\n",
 	  RadiationData.TimeFieldLastUpdated);
  
   /* write field. */
@@ -36,7 +36,7 @@ int WriteRadiationData(FILE *fptr)
   if (RadiationFieldType >= 10 && RadiationFieldType <= 11) {
 
     for (i = 0; i < RadiationData.NumberOfFrequencyBins; i++)
-      fprintf(fptr, "%"GSYM" %"GSYM" %"GSYM" %"GSYM"\n",
+      fprintf(fptr, "%" GSYM" %" GSYM" %" GSYM" %" GSYM"\n",
 	      RadiationData.Spectrum[0][i], RadiationData.Spectrum[1][i],
 	      RadiationData.Spectrum[2][i], RadiationData.Spectrum[3][i]);
     

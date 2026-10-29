@@ -99,7 +99,7 @@ int grid::TestGravityCheckResults(FILE *fptr, grid *TopGrid)
  
     /* Output results. */
  
-    fprintf(fptr, "%"FSYM"  %e   %e   %e\n", r/TopGridCellWidth, ftang,
+    fprintf(fptr, "%" FSYM"  %e   %e   %e\n", r/TopGridCellWidth, ftang,
 	    -fradial, fanalytic);
  
   } // end loop over particles.

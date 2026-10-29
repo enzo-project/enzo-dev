@@ -28,7 +28,7 @@ int grid::DoubleMachInitializeGrid(float d0, float e0, float u0, float v0,
 {
   /* declarations */
  
-  int index, dim, i, j, k;
+  int index, i, j, k;
   float xx;
  
   /* error check */

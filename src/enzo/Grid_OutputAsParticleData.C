@@ -190,7 +190,7 @@ int grid::OutputAsParticleData(FLOAT RegionLeftEdge[], FLOAT RegionRightEdge[],
  
     /* Clean up. */
  
-    delete temperature;
+    delete [] temperature;
  
   }
  
@@ -300,7 +300,7 @@ int grid::OutputAsParticleData(FLOAT RegionLeftEdge[], FLOAT RegionRightEdge[],
  
   if (debug)
 
-    printf("Grid %"ISYM" %"ISYM" %"ISYM": NumberOfParticles = %"ISYM" %"ISYM"\n", GridDimension[0],
+    printf("Grid %" ISYM" %" ISYM" %" ISYM": NumberOfParticles = %" ISYM" %" ISYM"\n", GridDimension[0],
 	   GridDimension[1], GridDimension[2],
 	   ParticleList[0]->NumberOfParticles,
 	   ParticleList[1]->NumberOfParticles);
